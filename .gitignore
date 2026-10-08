@@ -1,0 +1,11 @@
+node_modules/
+dist/
+src-tauri/target/
+src-tauri/gen/
+.DS_Store
+.impeccable
+*.local
+coverage/
+docs/implementation/check-*/
+docs/design/
+docs/implementation/*/
