@@ -30,14 +30,7 @@ impl PiProcess {
     ) -> Result<(Self, ChildStdout, ChildStderr), String> {
         let configured_executable = executable.clone();
         let path = runtime_path(&home);
-        let executable = if executable == "pi" {
-            std::env::split_paths(&path)
-                .map(|dir| dir.join(if cfg!(windows) { "pi.cmd" } else { "pi" }))
-                .find(|file| file.is_file())
-                .ok_or_else(|| Message::PiNotFound.text())?
-        } else {
-            PathBuf::from(executable)
-        };
+        let executable = crate::onboarding::resolve_executable(&executable, &home)?;
         let mut command = Command::new(executable);
         command
             .args(["--mode", "rpc", "--offline"])
