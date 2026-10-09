@@ -151,11 +151,14 @@ describe('desktop prompt lifecycle', () => {
   })
 
   it('shares concurrent startup work and allows retry after an inactive project fails', async () => {
+    const run = mocks.invoke.mock.calls.find(([name]) => name === 'start_pi')![1].runId
+    const live = [{ id: run, path: '/tmp/project', executable: 'pi' }]
     const store = useWorkspace.getState()
     store.createSession(store.addProject('/tmp/startup-two'))
     store.selectSession(id)
     mocks.invoke.mockImplementation(async (name, args) => {
       if (name === 'start_pi') throw new Error('Missing pi')
+      if (name === 'pi_connections') return live
       return name === 'pi_request'
         ? metadata(args.command)
         : ['extension_packages', 'pi_connections'].includes(name)
@@ -167,11 +170,13 @@ describe('desktop prompt lifecycle', () => {
     await expect(first).rejects.toThrow('startup-two: Missing pi')
     expect(useWorkspace.getState()).toMatchObject({ activeSessionId: id, connection: 'connected' })
     mocks.invoke.mockImplementation(async (name, args) =>
-      name === 'pi_request'
-        ? metadata(args.command)
-        : ['extension_packages', 'pi_connections'].includes(name)
-          ? []
-          : undefined,
+      name === 'pi_connections'
+        ? live
+        : name === 'pi_request'
+          ? metadata(args.command)
+          : ['extension_packages', 'pi_connections'].includes(name)
+            ? []
+            : undefined,
     )
     await expect(initializeDesktop()).resolves.toBeUndefined()
   })
@@ -208,16 +213,19 @@ describe('desktop prompt lifecycle', () => {
   })
 
   it('retries failed empty-project initialization without replacing healthy project processes', async () => {
+    const run = mocks.invoke.mock.calls.find(([name]) => name === 'start_pi')![1].runId
+    const live = [{ id: run, path: '/tmp/project', executable: 'pi' }]
     useWorkspace.getState().addProject('/tmp/empty-project')
     mocks.invoke.mockImplementation(async (name, args) => {
       if (name === 'start_pi') throw new Error('Missing pi')
+      if (name === 'pi_connections') return live
       return name === 'pi_request' ? metadata(args.command) : []
     })
     await expect(initializeDesktop()).rejects.toThrow('empty-project: Missing pi')
     expect(useWorkspace.getState()).toMatchObject({ activeSessionId: id, connection: 'connected' })
     mocks.invoke.mockClear()
     mocks.invoke.mockImplementation(async (name, args) =>
-      name === 'pi_request' ? metadata(args.command) : [],
+      name === 'pi_connections' ? live : name === 'pi_request' ? metadata(args.command) : [],
     )
     await initializeDesktop()
     expect(mocks.invoke.mock.calls.filter(([name]) => name === 'start_pi')).toHaveLength(1)
@@ -225,7 +233,8 @@ describe('desktop prompt lifecycle', () => {
   })
 
   it('holds session activation until startup discovery finishes during Fast Refresh', async () => {
-    let discover!: (connections: never[]) => void
+    const run = mocks.invoke.mock.calls.find(([name]) => name === 'start_pi')![1].runId
+    let discover!: (connections: { id: string; path: string; executable: string }[]) => void
     mocks.invoke.mockClear()
     mocks.invoke.mockImplementation(async (name, args) => {
       if (name === 'pi_connections')
@@ -242,7 +251,7 @@ describe('desktop prompt lifecycle', () => {
     const activation = connectSession(id)
     expect(mocks.invoke.mock.calls.filter(([name]) => name === 'start_pi')).toHaveLength(0)
     await vi.waitFor(() => expect(discover).toBeTypeOf('function'))
-    discover([])
+    discover([{ id: run, path: '/tmp/project', executable: 'pi' }])
     await Promise.all([startup, activation])
     expect(useWorkspace.getState().connection).toBe('connected')
     expect(mocks.invoke.mock.calls.filter(([name]) => name === 'start_pi')).toHaveLength(0)
@@ -340,6 +349,93 @@ describe('desktop prompt lifecycle', () => {
       mocks.invoke.mock.calls.filter(([name]) => name === 'start_pi' || name === 'stop_pi'),
     ).toHaveLength(0)
   })
+
+  it('clears a stale cached run on startup retry when its exit event was missed', async () => {
+    const oldRun = mocks.invoke.mock.calls.find(([name]) => name === 'start_pi')![1].runId
+    useWorkspace.setState({ connection: 'error', connectionError: 'Process is gone' })
+    mocks.invoke.mockClear()
+    mocks.invoke.mockImplementation(async (name, args) => {
+      if (name === 'pi_connections' || name === 'extension_packages') return []
+      if (name === 'pi_request') {
+        if (args.runId === oldRun) throw new Error('Process is gone')
+        return metadata(args.command)
+      }
+    })
+    await expect(initializeDesktop()).resolves.toBeUndefined()
+    expect(useWorkspace.getState()).toMatchObject({
+      activeSessionId: id,
+      connection: 'connected',
+      connectionError: null,
+    })
+    expect(mocks.invoke.mock.calls.filter(([name]) => name === 'start_pi')).toHaveLength(1)
+    expect(mocks.invoke.mock.calls.filter(([name]) => name === 'stop_pi')).toHaveLength(0)
+    expect(
+      mocks.invoke.mock.calls.filter(
+        ([name, args]) => name === 'pi_request' && args.runId === oldRun,
+      ),
+    ).toHaveLength(0)
+  })
+
+  it.each([
+    ['attach_pi', false],
+    ['get_state', false],
+    ['extension_packages', false],
+    ['attach_pi', true],
+    ['get_state', true],
+    ['extension_packages', true],
+  ] as const)(
+    'replaces a run that exits during recovery at %s (empty project: %s)',
+    async (phase, empty) => {
+      const oldRun = mocks.invoke.mock.calls.find(([name]) => name === 'start_pi')![1].runId
+      if (empty) useWorkspace.getState().removeSession(id)
+      await reloadFrontend()
+      mocks.invoke.mockClear()
+      const live = new Map([[oldRun, { id: oldRun, path: '/tmp/project', executable: 'pi' }]])
+      let channel: { onmessage: (event: unknown) => void }
+      let exited = false
+      mocks.invoke.mockImplementation(async (name, args) => {
+        if (name === 'pi_connections') return [...live.values()]
+        if (name === 'attach_pi' && args.runId === oldRun) channel = args.onEvent
+        if (
+          !exited &&
+          (name === phase ||
+            (phase === 'get_state' && name === 'pi_request' && args.command.type === phase))
+        ) {
+          exited = true
+          live.delete(oldRun)
+          channel.onmessage({ runId: oldRun, event: { type: 'runtime_exit' } })
+          if (phase !== 'extension_packages') throw new Error('Exited during recovery')
+        }
+        if (name === 'start_pi') {
+          live.set(args.runId, { id: args.runId, path: args.path, executable: args.executable })
+          return
+        }
+        if (name === 'pi_request') {
+          if (!live.has(args.runId)) throw new Error('Process is gone')
+          return metadata(args.command)
+        }
+        if (name === 'extension_packages') return []
+      })
+      await expect(initializeDesktop()).resolves.toBeUndefined()
+      expect(exited).toBe(true)
+      expect(mocks.invoke.mock.calls.filter(([name]) => name === 'start_pi')).toHaveLength(1)
+      expect(mocks.invoke.mock.calls.filter(([name]) => name === 'stop_pi')).toHaveLength(0)
+      expect(useWorkspace.getState()).toMatchObject({
+        activeSessionId: empty ? null : id,
+        connection: empty ? 'disconnected' : 'connected',
+      })
+      mocks.invoke.mockClear()
+      await expect(initializeDesktop()).resolves.toBeUndefined()
+      if (empty) {
+        const first = useWorkspace.getState().createSession(useWorkspace.getState().projects[0].id)
+        await connectSession(first)
+      }
+      expect(useWorkspace.getState().connection).toBe('connected')
+      expect(
+        mocks.invoke.mock.calls.filter(([name]) => name === 'start_pi' || name === 'stop_pi'),
+      ).toHaveLength(0)
+    },
+  )
 
   it('reattaches native processes after a frontend reload without starting or replacing sessions', async () => {
     const firstRun = mocks.invoke.mock.calls.find(([name]) => name === 'start_pi')![1].runId
@@ -477,7 +573,7 @@ describe('desktop prompt lifecycle', () => {
     expect(mocks.invoke.mock.calls.filter(([name]) => name === 'start_pi')).toHaveLength(0)
   })
 
-  it('shows Ponytail loading once per new process despite duplicate and late startup events', async () => {
+  it('suppresses Ponytail loading across duplicate startup events and process reloads', async () => {
     const { onRuntimeNotice } = await import('../../src/lib/desktop')
     const notice = vi.fn()
     const unsubscribe = onRuntimeNotice(notice)
@@ -505,10 +601,10 @@ describe('desktop prompt lifecycle', () => {
       runId,
       event: { type: 'extension_ui_request', method: 'notify', message: 'Ponytail loaded: full' },
     })
-    expect(notice.mock.calls).toEqual([['Ponytail loaded: full']])
-    // Explicit reconnection creates a fresh process and may announce once again.
+    expect(notice).not.toHaveBeenCalled()
+    // Explicit reconnection also keeps routine startup announcements silent.
     await connectSession(id, true)
-    expect(notice.mock.calls).toEqual([['Ponytail loaded: full'], ['Ponytail loaded: full']])
+    expect(notice).not.toHaveBeenCalled()
     unsubscribe()
   })
 
@@ -1080,6 +1176,146 @@ describe('desktop prompt lifecycle', () => {
     await connectSession(next)
     release({ messages: [] })
     await assertion
+  })
+
+  it.each(['new_session', 'get_messages'])(
+    'blocks model and thinking changes after %s fails until binding recovery',
+    async (failedCommand) => {
+      const { changeModel, changeThinking, request } = await import('../../src/lib/desktop')
+      const store = useWorkspace.getState()
+      const next = store.createSession(store.projects[0].id)
+      let fail = true
+      mocks.invoke.mockImplementation(async (name, args) => {
+        if (name !== 'pi_request') return []
+        if (args.command.type === failedCommand && fail) {
+          fail = false
+          throw new Error('Transient failure')
+        }
+        return metadata(args.command)
+      })
+      await connectSession(next)
+      expect(useWorkspace.getState().connection).toBe('error')
+      const sessions = useWorkspace.getState().sessions
+      mocks.invoke.mockClear()
+      await expect(changeModel(model)).rejects.toThrow('pi 尚未连接')
+      await expect(changeThinking('off')).rejects.toThrow('pi 尚未连接')
+      await expect(request({ type: 'set_thinking_level', level: 'off' })).rejects.toThrow(
+        'pi 尚未连接',
+      )
+      expect(mocks.invoke).not.toHaveBeenCalled()
+      expect(useWorkspace.getState().sessions).toEqual(sessions)
+      await connectSession(next)
+      await expect(changeModel(model)).resolves.toBeUndefined()
+      await expect(changeThinking('off')).resolves.toBeUndefined()
+      expect(
+        useWorkspace.getState().sessions.find((session) => session.id === next)?.thinking,
+      ).toBe('off')
+      expect(
+        mocks.invoke.mock.calls.filter(([name]) => name === 'start_pi' || name === 'stop_pi'),
+      ).toHaveLength(0)
+    },
+  )
+
+  it('blocks setting changes when the selected session has not been bound yet', async () => {
+    const { changeThinking } = await import('../../src/lib/desktop')
+    useWorkspace.getState().createSession(useWorkspace.getState().projects[0].id)
+    mocks.invoke.mockClear()
+    await expect(changeThinking('off')).rejects.toThrow('pi 尚未连接')
+    expect(mocks.invoke).not.toHaveBeenCalled()
+  })
+
+  it.each(['same project', 'another project'])(
+    'rejects stale synchronization after an A → B → A round trip through %s',
+    async (destination) => {
+      const { syncSession } = await import('../../src/lib/desktop')
+      let release!: (value: object) => void
+      let held = false
+      mocks.invoke.mockImplementation(async (name, args) => {
+        if (name !== 'pi_request') return []
+        if (args.command.type === 'get_messages') {
+          if (!held) {
+            held = true
+            return new Promise((resolve) => {
+              release = resolve
+            })
+          }
+          return { messages: [{ role: 'user', content: 'Fresh history', timestamp: 1 }] }
+        }
+        return metadata(args.command)
+      })
+      const pending = syncSession(id)
+      const assertion = expect(pending).rejects.toThrow('会话已切换')
+      // Let the state/stat replies finish; only the history reply stays in flight.
+      await new Promise<void>((resolve) => setTimeout(resolve, 0))
+      const store = useWorkspace.getState()
+      const project =
+        destination === 'same project' ? store.projects[0].id : store.addProject('/tmp/round-trip')
+      const next = store.createSession(project)
+      await connectSession(next)
+      store.selectSession(id)
+      await connectSession(id)
+      const fresh = useWorkspace.getState().sessions.find((session) => session.id === id)!
+      expect(fresh.messages[0].blocks[0]).toMatchObject({ text: 'Fresh history' })
+      release({ messages: [] })
+      await assertion
+      expect(useWorkspace.getState().sessions.find((session) => session.id === id)).toEqual(fresh)
+      expect(useWorkspace.getState().connection).toBe('connected')
+    },
+  )
+
+  it('allows extension confirmation during a switch while blocking setting changes', async () => {
+    const { changeThinking, extensionResponse } = await import('../../src/lib/desktop')
+    const next = useWorkspace.getState().createSession(useWorkspace.getState().projects[0].id)
+    let release!: (value: object) => void
+    mocks.invoke.mockImplementation(async (name, args) => {
+      if (name !== 'pi_request') return []
+      if (args.command.type === 'new_session')
+        return new Promise((resolve) => {
+          release = resolve
+        })
+      return metadata(args.command)
+    })
+    const switching = connectSession(next)
+    expect(useWorkspace.getState().connection).toBe('connecting')
+    await expect(changeThinking('off')).rejects.toThrow('pi 尚未连接')
+    await expect(extensionResponse('confirm-switch', { confirmed: true })).resolves.toBeUndefined()
+    expect(mocks.invoke).toHaveBeenCalledWith(
+      'pi_request',
+      expect.objectContaining({
+        command: { id: 'confirm-switch', type: 'extension_ui_response', confirmed: true },
+      }),
+    )
+    release({})
+    await switching
+    expect(useWorkspace.getState().connection).toBe('connected')
+  })
+
+  it('does not show a stale settled-sync error after returning to the same session', async () => {
+    const runId = mocks.invoke.mock.calls.find(([name]) => name === 'start_pi')![1].runId
+    let release!: (value: object) => void
+    let held = false
+    mocks.invoke.mockImplementation(async (name, args) => {
+      if (name !== 'pi_request') return []
+      if (args.command.type === 'get_messages' && !held) {
+        held = true
+        return new Promise((resolve) => {
+          release = resolve
+        })
+      }
+      return metadata(args.command)
+    })
+    mocks.channels.at(-1)!.onmessage({ runId, event: { type: 'agent_settled' } })
+    const store = useWorkspace.getState()
+    const next = store.createSession(store.projects[0].id)
+    await connectSession(next)
+    store.selectSession(id)
+    await connectSession(id)
+    release({ messages: [] })
+    await new Promise<void>((resolve) => setTimeout(resolve, 0))
+    expect(useWorkspace.getState()).toMatchObject({
+      connection: 'connected',
+      connectionError: null,
+    })
   })
 
   it('retains an accepted message if the subsequent state refresh fails', async () => {
