@@ -1,5 +1,5 @@
 import { Button } from '@heroui/react'
-import { useKeyPress, useMount } from 'ahooks'
+import { useKeyPress } from 'ahooks'
 import { MotionConfig } from 'motion/react'
 import { LoaderCircle, RotateCw, TriangleAlert, X } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
@@ -9,8 +9,9 @@ import { ExtensionDialog, ProjectDialog, RemoveSessionDialog, RenameDialog, Sear
 import { Header } from './components/Header'
 import { Sidebar } from './components/Sidebar'
 import { RuntimeNotice } from './components/RuntimeNotice'
+import { StartupScreen } from './components/StartupScreen'
 import { ExtensionsView, SettingsView, UsageView } from './components/UtilityViews'
-import { connectSession, initializeDesktop, onExtensionRequest, onRuntimeNotice, pickProject } from './lib/desktop'
+import { connectSession, initializeDesktop, onExtensionRequest, pickProject, syncDesktopLanguage } from './lib/desktop'
 import { useT } from './lib/i18n'
 import { errorText } from './lib/utils'
 import { isDesktop, useWorkspace } from './store/workspace'
@@ -32,7 +33,8 @@ export default function App() {
   const [renameId, setRenameId] = useState<string | null>(null)
   const [removeId, setRemoveId] = useState<string | null>(null)
   const [extensionRequests, setExtensionRequests] = useState<ExtensionRequest[]>([])
-  const [notice, setNotice] = useState('')
+  const [startup, setStartup] = useState<'loading' | 'error' | 'ready'>(isDesktop ? 'loading' : 'ready')
+  const [startupError, setStartupError] = useState<string | null>(null)
   const t = useT()
   const closeExtension = useCallback(() => setExtensionRequests(items => items.slice(1)), [])
   async function addProject() {
@@ -44,14 +46,18 @@ export default function App() {
     const store = useWorkspace.getState()
     if (store.runningSessionId || store.connection === 'connecting') return
     const current = store.sessions.find(session => session.id === store.activeSessionId)
-    const projectId = current?.projectId || store.projects[0]?.id
+    const projectId = current?.projectId || store.projects.find(project => !project.hidden)?.id
     if (projectId) store.createSession(projectId)
     else void addProject()
   }
-  useMount(() => { void initializeDesktop().catch(error => useWorkspace.setState({ connectionError: errorText(error) })) })
-  useEffect(() => { if (active) void connectSession(active) }, [active])
+  const beginStartup = useCallback(() => {
+    if (!isDesktop) return
+    setStartup('loading'); setStartupError(null)
+    void initializeDesktop().then(() => setStartup('ready')).catch(error => { setStartupError(errorText(error)); setStartup('error') })
+  }, [])
+  useEffect(beginStartup, [beginStartup])
+  useEffect(() => { if (startup === 'ready' && view === 'chat' && active) void connectSession(active) }, [active, startup, view])
   useEffect(() => onExtensionRequest(request => setExtensionRequests(items => [...items, request])), [])
-  useEffect(() => onRuntimeNotice(setNotice), [])
   useEffect(() => {
     const preference = matchMedia('(prefers-color-scheme: dark)')
     const apply = () => { document.documentElement.dataset.theme = theme === 'system' ? preference.matches ? 'dark' : 'light' : theme }
@@ -59,21 +65,32 @@ export default function App() {
     return () => preference.removeEventListener('change', apply)
   }, [theme])
   useEffect(() => { document.documentElement.lang = language === 'zh' ? 'zh-CN' : 'en'; document.title = 'pi Desktop' }, [language])
-  useKeyPress(['meta.n', 'ctrl.n'], event => { event.preventDefault(); newChat() })
-  useKeyPress(['meta.k', 'ctrl.k'], event => { event.preventDefault(); setSearchOpen(true) })
-  useKeyPress(['meta.b', 'ctrl.b'], event => { event.preventDefault(); useWorkspace.getState().toggleSidebar() })
+  useEffect(() => {
+    // Startup synchronizes before opening any pi process; later preference changes
+    // update the same native locale without reconnecting existing processes.
+    if (startup === 'ready') void syncDesktopLanguage().catch(error => useWorkspace.setState({ connectionError: errorText(error) }))
+  }, [language, startup])
+  useKeyPress(['meta.n', 'ctrl.n'], event => { event.preventDefault(); if (startup === 'ready') newChat() })
+  useKeyPress(['meta.k', 'ctrl.k'], event => { event.preventDefault(); if (startup === 'ready') setSearchOpen(true) })
+  useKeyPress(['meta.b', 'ctrl.b'], event => { event.preventDefault(); if (startup === 'ready') useWorkspace.getState().toggleSidebar() })
+  if (startup !== 'ready') return <MotionConfig reducedMotion="user">
+    <main className={`app-shell startup-shell ${isDesktop ? 'native' : 'browser'}`}>
+      <StartupScreen error={startupError} onRetry={beginStartup} onContinue={() => { useWorkspace.getState().setView('settings'); setStartup('ready') }} />
+    </main>
+    {extensionRequests[0] && <ExtensionDialog key={extensionRequests[0].id} current={extensionRequests[0]} onClose={closeExtension} />}
+  </MotionConfig>
   return <MotionConfig reducedMotion="user">
     <main className={`app-shell ${sidebar ? '' : 'sidebar-collapsed'} ${isDesktop ? 'native' : 'browser'}`}>
       {sidebar && <Sidebar onNew={newChat} onSearch={() => setSearchOpen(true)} onProject={() => void addProject()} onRename={setRenameId} onRemove={setRemoveId} />}
-      <section className="main" aria-label={t('当前会话')}>
+      <section className="main" aria-label={t('sessions.current')}>
         <Header onRename={() => setRenameId(active)} />
-        {view !== 'chat' && (error || storageError) && <div className="connection-notice utility-notice" role="alert"><TriangleAlert /><span>{storageError || error}</span>{isDesktop && active && !running && <Button variant="ghost" className="notice-action" isDisabled={connection === 'connecting'} onPress={() => void connectSession(active, true)}><RotateCw />{t('重新连接')}</Button>}</div>}
+        {view !== 'chat' && (error || storageError) && <div className="connection-notice utility-notice" role="alert"><TriangleAlert /><span>{storageError || error}</span>{isDesktop && active && !running && <Button variant="ghost" className="notice-action" isDisabled={connection === 'connecting'} onPress={() => void connectSession(active, true)}><RotateCw />{t('connection.reconnect')}</Button>}</div>}
         {view === 'chat' ? <><Conversation onProject={() => void addProject()} /><div className="composer-area">
-          {(error || storageError) && <div className="connection-notice" role="alert"><TriangleAlert /><span>{storageError || error}</span>{isDesktop && active && !running && <Button variant="ghost" className="notice-action" isDisabled={connection === 'connecting'} onPress={() => void connectSession(active, true)}><RotateCw />{t('重新连接')}</Button>}<Button isIconOnly variant="ghost" className="icon-button" aria-label={t('关闭')} onPress={() => useWorkspace.setState({ connectionError: null })}><X /></Button></div>}
-          {connection === 'connecting' && connectionAction === 'start' && <div className="connecting-notice" role="status"><LoaderCircle className="spinner" />{t('正在连接 pi…')}</div>}
+          {(error || storageError) && <div className="connection-notice" role="alert"><TriangleAlert /><span>{storageError || error}</span>{isDesktop && active && !running && <Button variant="ghost" className="notice-action" isDisabled={connection === 'connecting'} onPress={() => void connectSession(active, true)}><RotateCw />{t('connection.reconnect')}</Button>}<Button isIconOnly variant="ghost" className="icon-button" aria-label={t('common.close')} onPress={() => useWorkspace.setState({ connectionError: null })}><X /></Button></div>}
+          {connection === 'connecting' && connectionAction === 'start' && <div className="connecting-notice" role="status"><LoaderCircle className="spinner" />{t('connection.connecting')}</div>}
           <Composer key={active} />
         </div></> : view === 'usage' ? <UsageView /> : view === 'extensions' ? <ExtensionsView /> : <SettingsView />}
-        {notice && <RuntimeNotice message={notice} onDismiss={() => setNotice('')} />}
+        <RuntimeNotice />
       </section>
     </main>
     <SearchDialog open={searchOpen} onClose={() => setSearchOpen(false)} />

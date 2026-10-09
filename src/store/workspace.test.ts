@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { StateStorage } from 'zustand/middleware'
 import { createWorkspaceStore } from './workspace'
 
@@ -8,6 +8,80 @@ function memoryStorage() {
 }
 
 describe('workspace persistence', () => {
+  it('persists session pins without changing the active conversation, draft or update time', () => {
+    const storage = memoryStorage()
+    const store = createWorkspaceStore(storage)
+    const project = store.getState().addProject('/tmp/project')
+    const pinned = store.getState().createSession(project)
+    store.getState().updateSession(pinned, { draft: '未发送的内容', updatedAt: 123 })
+    const active = store.getState().createSession(project)
+    store.getState().togglePinSession(pinned)
+    const restored = createWorkspaceStore(storage)
+    expect(restored.getState().activeSessionId).toBe(active)
+    expect(restored.getState().sessions.find(session => session.id === pinned)).toMatchObject({ pinned: true, draft: '未发送的内容', updatedAt: 123 })
+    restored.getState().togglePinSession(pinned)
+    expect(createWorkspaceStore(storage).getState().sessions.find(session => session.id === pinned)?.pinned).toBe(false)
+  })
+
+  it('reports a failed session pin save while retaining the conversation in memory', async () => {
+    const storage = memoryStorage()
+    const store = createWorkspaceStore(storage)
+    store.getState().setPreference({ language: 'en' })
+    const session = store.getState().createSession(store.getState().addProject('/tmp/project'))
+    store.getState().updateSession(session, { draft: '保留草稿' })
+    storage.setItem = () => { throw new Error('QuotaExceededError') }
+    store.getState().togglePinSession(session)
+    await Promise.resolve()
+    expect(store.getState().storageError).toContain('Could not save locally')
+    expect(store.getState().sessions[0]).toMatchObject({ pinned: true, draft: '保留草稿' })
+    expect(createWorkspaceStore(storage).getState().sessions[0].pinned).not.toBe(true)
+  })
+
+  it('persists project pins and keeps conversations and drafts when removing and reopening a project', () => {
+    const storage = memoryStorage()
+    const store = createWorkspaceStore(storage)
+    const project = store.getState().addProject('/tmp/project')
+    const session = store.getState().createSession(project)
+    store.getState().updateSession(session, { draft: '保留的草稿' })
+    store.getState().togglePinProject(project)
+    expect(createWorkspaceStore(storage).getState().projects[0].pinned).toBe(true)
+    store.getState().removeProject(project)
+    const restored = createWorkspaceStore(storage)
+    expect(restored.getState().projects[0]).toMatchObject({ hidden: true, pinned: false })
+    expect(restored.getState().sessions[0]).toMatchObject({ id: session, draft: '保留的草稿' })
+    expect(restored.getState().activeSessionId).toBe(session)
+    expect(restored.getState().addProject('/tmp/project')).toBe(project)
+    expect(restored.getState().projects).toHaveLength(1)
+    expect(restored.getState().projects[0].hidden).toBe(false)
+  })
+
+  it('restores a hidden project through a conversation without bypassing the run lock', () => {
+    const store = createWorkspaceStore(memoryStorage())
+    const project = store.getState().addProject('/tmp/project')
+    const session = store.getState().createSession(project)
+    store.getState().removeProject(project)
+    store.setState({ runningSessionId: session })
+    store.getState().selectSession(session)
+    expect(store.getState().projects[0].hidden).toBe(true)
+    store.setState({ runningSessionId: null })
+    store.getState().selectSession(session)
+    expect(store.getState().projects[0].hidden).toBe(false)
+  })
+
+  it('reports a failed pin save and retains project data in memory', async () => {
+    const storage = memoryStorage()
+    const store = createWorkspaceStore(storage)
+    store.getState().setPreference({ language: 'en' })
+    const project = store.getState().addProject('/tmp/project')
+    const session = store.getState().createSession(project)
+    storage.setItem = () => { throw new Error('QuotaExceededError') }
+    store.getState().togglePinProject(project)
+    await Promise.resolve()
+    expect(store.getState().storageError).toContain('Could not save locally')
+    expect(store.getState().projects[0].pinned).toBe(true)
+    expect(store.getState().activeSessionId).toBe(session)
+    expect(createWorkspaceStore(storage).getState().projects[0].pinned).not.toBe(true)
+  })
   it('removes an inactive session without changing the active session and persists removal', () => {
     const storage = memoryStorage()
     const store = createWorkspaceStore(storage)
@@ -71,7 +145,7 @@ describe('workspace persistence', () => {
     store.getState().updateSession(session, { draft: '必须保留这个输入' })
     await Promise.resolve()
     expect(store.getState().sessions[0].draft).toBe('必须保留这个输入')
-    expect(store.getState().storageError).toContain('本地保存失败')
+    expect(store.getState().storageError).toContain('Could not save locally')
   })
 
   it('locks session changes during a run and retains separate drafts per project', () => {
@@ -99,5 +173,84 @@ describe('workspace persistence', () => {
     expect(restored.getState().runningSessionId).toBeNull()
     expect(restored.getState().connection).toBe('disconnected')
     expect(restored.getState().sessions[0].messages[0].blocks[0]).toMatchObject({ status: 'interrupted' })
+  })
+})
+
+
+describe('language preferences', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('uses only the browser preferred language before the native locale arrives', () => {
+    vi.stubGlobal('navigator', { language: 'ja-JP', languages: ['ja-JP', 'zh-CN'] })
+    const store = createWorkspaceStore(memoryStorage())
+    expect(store.getState()).toMatchObject({ language: 'en', languageSource: 'system' })
+    store.getState().applySystemLocale('zh-Hant-TW')
+    expect(store.getState().language).toBe('zh')
+  })
+
+  it('rechecks the system language after reload rather than freezing the first default', () => {
+    vi.stubGlobal('navigator', { language: 'zh-CN' })
+    const storage = memoryStorage()
+    const store = createWorkspaceStore(storage)
+    store.getState().applySystemLocale('zh-CN')
+    vi.stubGlobal('navigator', { language: 'fr-FR' })
+    const restored = createWorkspaceStore(storage)
+    expect(restored.getState()).toMatchObject({ language: 'en', languageSource: 'system' })
+    restored.getState().applySystemLocale('de-DE')
+    expect(restored.getState().language).toBe('en')
+  })
+
+  it('retains an explicit language preference across reload and system changes', () => {
+    const storage = memoryStorage()
+    const store = createWorkspaceStore(storage)
+    store.getState().setPreference({ language: 'zh' })
+    store.getState().applySystemLocale('en-US')
+    const restored = createWorkspaceStore(storage)
+    restored.getState().applySystemLocale('ja-JP')
+    expect(restored.getState()).toMatchObject({ language: 'zh', languageSource: 'user' })
+  })
+
+  it('preserves legacy saved language settings and rejects unsupported saved languages', () => {
+    const storage = memoryStorage()
+    storage.setItem('pi-desktop-workspace-v1', JSON.stringify({ version: 1, state: { language: 'zh' } }))
+    expect(createWorkspaceStore(storage).getState()).toMatchObject({ language: 'zh', languageSource: 'user' })
+    vi.stubGlobal('navigator', { language: 'fr-FR' })
+    storage.setItem('pi-desktop-workspace-v1', JSON.stringify({ version: 1, state: { language: 'fr' } }))
+    expect(createWorkspaceStore(storage).getState()).toMatchObject({ language: 'en', languageSource: 'system' })
+  })
+})
+
+
+describe('language-independent session titles', () => {
+  it('stores new conversations without localized placeholder text', () => {
+    const storage = memoryStorage()
+    const store = createWorkspaceStore(storage)
+    const id = store.getState().createSession(store.getState().addProject('/tmp/project'))
+    expect(store.getState().sessions[0]).toMatchObject({ id, title: '' })
+    store.getState().setPreference({ language: 'en' })
+    const restored = createWorkspaceStore(storage)
+    expect(restored.getState().sessions[0].title).toBe('')
+    // A title entered by the user must remain literal, even if it matches a UI label.
+    restored.getState().updateSession(id, { title: '新聊天' })
+    expect(createWorkspaceStore(storage).getState().sessions[0].title).toBe('新聊天')
+  })
+
+  it('migrates the v1 default title without changing custom titles or preferences', () => {
+    const storage = memoryStorage()
+    const store = createWorkspaceStore(storage)
+    const project = store.getState().addProject('/tmp/project')
+    const custom = store.getState().createSession(project)
+    store.getState().updateSession(custom, { title: '用户自己的标题' })
+    const initial = store.getState().createSession(project)
+    store.getState().setPreference({ language: 'en' })
+    const saved = JSON.parse(storage.getItem('pi-desktop-workspace-v1')!)
+    saved.version = 1
+    saved.state.sessions.find((session: { id: string }) => session.id === initial).title = '新聊天'
+    storage.setItem('pi-desktop-workspace-v1', JSON.stringify(saved))
+    const restored = createWorkspaceStore(storage)
+    expect(restored.getState().sessions.find(session => session.id === initial)?.title).toBe('')
+    expect(restored.getState().sessions.find(session => session.id === custom)?.title).toBe('用户自己的标题')
+    expect(restored.getState().language).toBe('en')
+    expect(JSON.parse(storage.getItem('pi-desktop-workspace-v1')!).version).toBe(2)
   })
 })

@@ -17,6 +17,8 @@ export interface Project {
   path: string
   branch: string | null
   collapsed: boolean
+  pinned?: boolean
+  hidden?: boolean
 }
 
 export interface Usage {
@@ -65,6 +67,7 @@ export interface Session {
   updatedAt: number
   modelKey: string
   thinking: ThinkingLevel
+  pinned?: boolean
   piSessionFile?: string
   pendingSessionName?: string
   messages: Message[]

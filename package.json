@@ -12,7 +12,8 @@
     "preview": "vite preview --host 127.0.0.1",
     "tauri": "tauri",
     "desktop": "tauri dev",
-    "verify": "vitest run src/lib/rpc.test.ts src/lib/desktop.test.ts src/store/workspace.test.ts"
+    "package:mac": "tauri build --bundles app,dmg",
+    "verify": "vitest run"
   },
   "dependencies": {
     "@heroui/react": "^3.2.6",

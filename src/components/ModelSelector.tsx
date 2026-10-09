@@ -35,22 +35,22 @@ export function ModelSelector() {
     try { await changeModel(model); setOpen(false) } catch (error) { useWorkspace.setState({ connectionError: errorText(error) }) } finally { setChanging(false) }
   }
   const row = (model: Model, showProvider = false) => <Button key={modelKey(model)} variant="ghost" className="model-row" isDisabled={changing} onPress={() => void choose(model)} aria-label={`${model.name}, ${model.provider}`}>
-    <span className="model-row-copy"><span>{model.name}</span><span className="model-description">{showProvider ? `${model.provider} · ` : ''}{tokens(model.contextWindow)} context</span></span>
+    <span className="model-row-copy"><span>{model.name}</span><span className="model-description">{showProvider ? t('models.contextWithProvider', { provider: model.provider, tokens: tokens(model.contextWindow) }) : t('models.contextWindow', { tokens: tokens(model.contextWindow) })}</span></span>
     {modelKey(model) === session?.modelKey && <motion.span layoutId="model-check"><Check /></motion.span>}
   </Button>
   return <Popover isOpen={open} onOpenChange={value => { setOpen(value); if (!value) setQuery('') }}>
-    <Button variant="ghost" className="composer-select model-trigger" isDisabled={busy || changing} aria-label={t('选择模型')}><span>{selected?.name || t('选择模型')}</span><ChevronDown className="chevron" /></Button>
+    <Button variant="ghost" className="composer-select model-trigger" isDisabled={busy || changing} aria-label={t('models.choose')}><span>{selected?.name || t('models.choose')}</span><ChevronDown className="chevron" /></Button>
     <Popover.Content placement="top start" className="model-popover" offset={12}>
-      <Popover.Dialog aria-label={t('选择模型')}>
+      <Popover.Dialog aria-label={t('models.choose')}>
         <AnimatePresence><motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .2 }}>
-          <label className="popover-search"><Search /><input autoFocus value={query} onChange={event => setQuery(event.target.value)} placeholder={t('搜索模型名称、提供商或 ID…')} aria-label={t('搜索')} /></label>
+          <label className="popover-search"><Search /><input autoFocus value={query} onChange={event => setQuery(event.target.value)} placeholder={t('models.searchPlaceholder')} aria-label={t('common.search')} /></label>
           <ScrollShadow className="model-options" orientation="vertical" size={12}>
-            {recentModels.length > 0 && <div className="model-group" role="group" aria-label={t('最近使用')}><div className="option-label model-group-label">{t('最近使用')}</div>{recentModels.map(model => row(model, true))}</div>}
+            {recentModels.length > 0 && <div className="model-group" role="group" aria-label={t('models.recent')}><div className="option-label model-group-label">{t('models.recent')}</div>{recentModels.map(model => row(model, true))}</div>}
             {Array.from(groups, ([provider, items]) => <div key={provider} className="model-group" role="group" aria-label={provider}>
               <div className="option-label model-group-label">{provider}</div>
               {items.map(model => row(model))}
             </div>)}
-            {!filtered.length && <div className="popover-empty">{t('没有匹配的模型')}</div>}
+            {!filtered.length && <div className="popover-empty">{t('models.noResults')}</div>}
           </ScrollShadow>
         </motion.div></AnimatePresence>
       </Popover.Dialog>

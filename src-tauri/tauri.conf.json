@@ -19,12 +19,26 @@
       "minHeight": 560,
       "titleBarStyle": "Overlay",
       "hiddenTitle": true,
-      "trafficLightPosition": { "x": 17, "y": 13 },
+      "trafficLightPosition": { "x": 17, "y": 22 },
       "backgroundColor": "#FFFFFF"
     }],
     "security": {
       "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src ipc: http://ipc.localhost http://127.0.0.1:1420 ws://127.0.0.1:1420"
     }
   },
-  "bundle": { "active": false }
+  "bundle": {
+    "active": true,
+    "targets": ["app", "dmg"],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns"
+    ],
+    "category": "DeveloperTool",
+    "shortDescription": "A desktop workspace for the pi coding agent",
+    "macOS": {
+      "minimumSystemVersion": "11.0"
+    }
+  }
 }

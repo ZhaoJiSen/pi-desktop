@@ -11,5 +11,5 @@ export function SidebarToggle() {
   const open = useWorkspace(state => state.sidebarOpen)
   const toggle = useWorkspace(state => state.toggleSidebar)
   const t = useT()
-  return <Button isIconOnly variant="ghost" className="icon-button sidebar-toggle" onPress={toggle} aria-label={t(open ? '折叠侧栏' : '展开侧栏')}><PanelLeft /></Button>
+  return <Button isIconOnly variant="ghost" className="icon-button sidebar-toggle" data-tauri-drag-region="false" onPress={toggle} aria-label={t(open ? 'sidebar.collapse' : 'sidebar.expand')}><PanelLeft /></Button>
 }

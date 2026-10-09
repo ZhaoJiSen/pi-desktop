@@ -13,7 +13,7 @@ export const previewProjects: Project[] = [
   { id: 'agent-tools', name: 'agent-tools', path: '~/Projects/agent-tools', branch: 'develop', collapsed: true },
 ]
 const date = Date.UTC(2026, 9, 8)
-export const makeSession = (projectId: string, title = '新聊天'): Session => ({
+export const makeSession = (projectId: string, title = ''): Session => ({
   id: crypto.randomUUID(), projectId, title, updatedAt: Date.now(), modelKey: '', thinking: 'medium', messages: [], draft: '', usage: { ...emptyUsage },
 })
 const fixtureSession = (id: string, projectId: string, title: string, day: number): Session => ({ ...makeSession(projectId, title), id, updatedAt: date - (8 - day) * 86400000, modelKey: 'anthropic/claude-sonnet' })
