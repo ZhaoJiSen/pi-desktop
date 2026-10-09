@@ -11,6 +11,19 @@ export interface PackageInfo {
   license: string
   resources: string[]
   newerThan: string[]
+  downloads?: number
+  publishedAt?: number
+}
+
+export interface CatalogOptions {
+  sort: 'downloads' | 'recent'
+  category: '' | 'extension' | 'skill' | 'prompt' | 'theme'
+  page: number
+}
+
+export interface CatalogPage {
+  items: PackageInfo[]
+  hasNext: boolean
 }
 
 export function npmName(source: string): string | null {
@@ -66,12 +79,20 @@ export async function discoverPackages(
   return packageRequest('discover_packages', { query }, signal)
 }
 
+export async function browsePackages(
+  query: string,
+  options: CatalogOptions,
+  signal?: AbortSignal,
+): Promise<CatalogPage> {
+  return packageRequest('browse_extension_catalog', { query, ...options }, signal)
+}
+
 export async function packageMetadata(packages: ExtensionPackage[]): Promise<PackageInfo[]> {
   return packageRequest('extension_package_metadata', { packages })
 }
 
 export async function managePackage(
-  action: 'install' | 'update' | 'remove',
+  action: 'install' | 'update' | 'remove' | 'enable' | 'disable',
   item: ExtensionPackage,
   path: string,
 ) {

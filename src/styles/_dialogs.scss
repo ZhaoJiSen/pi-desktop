@@ -1,0 +1,181 @@
+.dialog-backdrop {
+  background: #08090b38;
+}
+.search-dialog {
+  padding: 0;
+  background: var(--paper);
+  color: var(--ink);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.search-dialog .modal__header {
+  padding: 0;
+}
+.search-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--line);
+  width: 100%;
+}
+.search-field input {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  outline: none;
+  background: none;
+}
+.search-field kbd {
+  font-size: 11px;
+  color: var(--muted);
+}
+.search-results {
+  padding: 8px;
+  max-height: 380px;
+  overflow-y: auto;
+}
+.button.search-result {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  width: 100%;
+  min-height: 56px;
+  height: auto;
+  padding: 10px;
+  font-weight: 400;
+  text-align: left;
+  background: transparent;
+  border-radius: 6px;
+}
+.search-result:hover {
+  background: var(--hover);
+}
+.search-result > span {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.search-result small {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.search-result > svg {
+  color: var(--muted);
+  width: 15px;
+  height: 15px;
+}
+.form-dialog {
+  background: var(--paper);
+  color: var(--ink);
+  border-radius: 12px;
+  padding: 20px;
+}
+.form-dialog .modal__header,
+.form-dialog .modal__body,
+.form-dialog .modal__footer {
+  padding: 0;
+}
+.form-dialog .modal__heading {
+  font-size: 16px;
+  font-weight: 500;
+}
+.form-dialog .modal__body {
+  margin-top: 20px;
+}
+.form-dialog .modal__footer {
+  margin-top: 20px;
+  gap: 8px;
+}
+.rename-dialog .modal__footer .button,
+.remove-session-dialog .modal__footer .button {
+  height: 32px;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 400;
+}
+.rename-dialog .button.rename-save {
+  --button-bg: var(--accent);
+  --button-bg-hover: color-mix(in srgb, var(--accent) 90%, var(--paper));
+  --button-bg-pressed: color-mix(in srgb, var(--accent) 80%, var(--paper));
+  --button-fg: var(--accent-foreground);
+  background: var(--button-bg);
+  color: var(--button-fg);
+}
+.rename-dialog
+  .button.rename-save:is(:hover, [data-hovered='true']):not(:disabled, [aria-disabled='true']) {
+  background: var(--button-bg-hover);
+}
+.rename-dialog
+  .button.rename-save:is(:active, [data-pressed='true']):not(:disabled, [aria-disabled='true']) {
+  background: var(--button-bg-pressed);
+}
+.rename-dialog .button.rename-save:is(:disabled, [aria-disabled='true']) {
+  background: var(--hover);
+  color: var(--muted);
+  opacity: 1;
+}
+.rename-dialog .button.rename-cancel,
+.remove-session-dialog .button.remove-cancel {
+  --button-bg-hover: var(--hover);
+  --button-bg-pressed: var(--selection);
+  color: var(--ink);
+}
+.remove-session-dialog .button.remove-confirm {
+  --button-bg: var(--danger);
+  --button-bg-hover: color-mix(in srgb, var(--danger) 90%, var(--ink));
+  --button-bg-pressed: color-mix(in srgb, var(--danger) 80%, var(--ink));
+  --button-fg: var(--paper);
+  background: var(--button-bg);
+  color: var(--button-fg);
+}
+.remove-session-dialog
+  .button.remove-confirm:is(:hover, [data-hovered='true']):not(:disabled, [aria-disabled='true']) {
+  background: var(--button-bg-hover);
+}
+.remove-session-dialog
+  .button.remove-confirm:is(:active, [data-pressed='true']):not(:disabled, [aria-disabled='true']) {
+  background: var(--button-bg-pressed);
+}
+.remove-session-dialog .button.remove-confirm:is(:disabled, [aria-disabled='true']) {
+  background: var(--hover);
+  color: var(--muted);
+  opacity: 1;
+}
+/* Keep the complete focus border inside the input's scrollable modal body. */
+.rename-dialog .field-input:focus {
+  border-color: var(--focus);
+  outline: none;
+  outline-offset: 0;
+  box-shadow: inset 0 0 0 1px var(--focus);
+}
+.field-label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.field-input {
+  width: 100%;
+  border: 1px solid var(--frame);
+  border-radius: 6px;
+  padding: 9px 11px;
+  font-size: 13px;
+  color: var(--ink);
+  background: var(--paper);
+}
+.field-error {
+  color: var(--danger);
+  font-size: 12px;
+  margin-top: 10px;
+}
+.extension-input {
+  min-height: 100px;
+  resize: vertical;
+}

@@ -9,7 +9,6 @@ import type {
   SlashCommand,
   Theme,
   ThinkingLevel,
-  View,
 } from '../types'
 import { createPreviewSessions, makeSession, previewModels, previewProjects } from '../lib/fixtures'
 import { applyStreamEvent } from '../lib/rpc'
@@ -30,8 +29,9 @@ interface WorkspaceState {
   theme: Theme
   language: Language
   languageSource: 'system' | 'user'
+  autoReloadAfterToggle: boolean
+  autoReloadAfterUpdate: boolean
   piExecutable: string
-  view: View
   models: Model[]
   thinkingLevels: ThinkingLevel[]
   commands: SlashCommand[]
@@ -42,7 +42,6 @@ interface WorkspaceState {
   connectionError: string | null
   storageError: string | null
   applySystemLocale: (locale: string | null) => void
-  setView: (view: View) => void
   toggleSidebar: () => void
   toggleProject: (id: string) => void
   togglePinProject: (id: string) => void
@@ -57,7 +56,12 @@ interface WorkspaceState {
   appendEvent: (id: string, event: PiEvent) => void
   rememberModel: (key: string) => void
   setPreference: (
-    patch: Partial<Pick<WorkspaceState, 'theme' | 'language' | 'piExecutable'>>,
+    patch: Partial<
+      Pick<
+        WorkspaceState,
+        'theme' | 'language' | 'piExecutable' | 'autoReloadAfterUpdate' | 'autoReloadAfterToggle'
+      >
+    >,
   ) => void
 }
 
@@ -87,11 +91,12 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
         activeSessionId: preview ? 'model-selector' : null,
         recentModels: preview ? ['anthropic/claude-sonnet'] : [],
         sidebarOpen: true,
+        autoReloadAfterUpdate: true,
+        autoReloadAfterToggle: true,
         theme: 'light',
         language: browserLanguage(),
         languageSource: 'system',
         piExecutable: 'pi',
-        view: 'chat',
         models: preview ? previewModels : [],
         thinkingLevels: ['off', 'minimal', 'low', 'medium', 'high'],
         commands: [],
@@ -104,7 +109,6 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
         applySystemLocale: (locale) => {
           if (get().languageSource === 'system') set({ language: languageFromLocale(locale) })
         },
-        setView: (view) => set({ view }),
         toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
         toggleProject: (id) =>
           set((state) => ({
@@ -160,7 +164,6 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
           set((state) => ({
             sessions: [session, ...state.sessions],
             activeSessionId: session.id,
-            view: 'chat',
             projects: state.projects.map((project) =>
               project.id === projectId ? { ...project, collapsed: false, hidden: false } : project,
             ),
@@ -173,7 +176,6 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
           if (session && !state.runningSessionId && state.connection !== 'connecting')
             set({
               activeSessionId: id,
-              view: 'chat',
               connectionError: null,
               projects: state.projects.map((project) =>
                 project.id === session.projectId ? { ...project, hidden: false } : project,
@@ -249,6 +251,8 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
           language: state.language,
           languageSource: state.languageSource,
           piExecutable: state.piExecutable,
+          autoReloadAfterUpdate: state.autoReloadAfterUpdate,
+          autoReloadAfterToggle: state.autoReloadAfterToggle,
         }),
         migrate: (persisted, version) => {
           const saved = persisted as Partial<WorkspaceState>

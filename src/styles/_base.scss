@@ -1,0 +1,95 @@
+* {
+  box-sizing: border-box;
+}
+/* Keep the window frame stationary; only content panes should scroll. */
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+body {
+  margin: 0;
+  background: #08090b;
+  color: var(--ink);
+  font:
+    14px/1.55 -apple-system,
+    BlinkMacSystemFont,
+    'PingFang SC',
+    'Segoe UI',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+/* Stop pane boundaries from forwarding trackpad gestures to the viewport. */
+.conversation,
+.projects,
+.utility-view,
+.model-options,
+.search-results,
+.tool-text,
+textarea {
+  overscroll-behavior: none;
+}
+.code,
+.markdown-code pre,
+.reply-text table,
+.table-scroll {
+  overscroll-behavior-x: none;
+}
+::selection {
+  background: #dda31338;
+  color: var(--ink);
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #949ba64d transparent;
+}
+button,
+textarea,
+input {
+  font: inherit;
+  color: inherit;
+}
+textarea,
+input {
+  caret-color: var(--ink);
+}
+button {
+  cursor: pointer;
+}
+button:disabled {
+  cursor: default;
+}
+button:focus-visible,
+[data-focus-visible='true'],
+input:focus-visible,
+textarea:focus-visible,
+[tabindex='0']:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+svg {
+  width: 17px;
+  height: 17px;
+  stroke-width: 1.5;
+  flex: none;
+}
+.app-shell {
+  margin: 28px;
+  height: calc(100dvh - 56px);
+  min-height: 480px;
+  display: grid;
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+  background: var(--paper);
+  border: 3px solid #444a54;
+  border-radius: 28px;
+  overflow: hidden;
+}
+.app-shell.native {
+  margin: 0;
+  height: 100dvh;
+  border: 0;
+  border-radius: 0;
+}

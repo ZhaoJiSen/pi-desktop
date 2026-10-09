@@ -1,0 +1,157 @@
+:root[data-theme='dark'] .token.keyword {
+  color: #e898bd;
+}
+:root[data-theme='dark'] .token.string,
+:root[data-theme='dark'] .token.attr-value {
+  color: #e9a4b1;
+}
+:root[data-theme='dark'] .token.function,
+:root[data-theme='dark'] .token.class-name {
+  color: #9cbae6;
+}
+:root[data-theme='dark'] .status-label,
+:root[data-theme='dark'] .tool .spinner {
+  color: #e1ba63;
+}
+:root[data-theme='dark'] .reply-text a {
+  color: #9cbae6;
+}
+@media (max-width: 1050px) {
+  :root {
+    --sidebar-width: 210px;
+    --body-inset: 22px;
+  }
+  .session time {
+    display: none;
+  }
+  .send-hint {
+    display: none;
+  }
+}
+@media (max-width: 760px) {
+  body:has(.app-shell.browser) {
+    --runtime-frame-inset: 15px;
+  }
+  :root {
+    --sidebar-width: 188px;
+    --body-inset: 16px;
+  }
+  .app-shell.browser {
+    margin: 12px;
+    height: calc(100dvh - 24px);
+    border-radius: 16px;
+  }
+  .metadata {
+    font-size: 11px;
+    gap: 5px;
+    right: 24px;
+  }
+  .optional-token {
+    display: none;
+  }
+  .composer-toolbar {
+    gap: 4px;
+  }
+  .composer-select {
+    max-width: 150px;
+  }
+  .button.reasoning {
+    margin-left: 0;
+  }
+  .reasoning > svg:not(.chevron) {
+    display: none;
+  }
+  .view-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .inline-search {
+    width: 100%;
+    max-width: 100%;
+  }
+  .theme-options {
+    flex-wrap: wrap;
+  }
+}
+@media (max-width: 600px) {
+  :root {
+    --sidebar-width: 190px;
+    --body-inset: 14px;
+  }
+  .app-shell {
+    position: relative;
+  }
+  .sidebar {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: var(--sidebar-width);
+    z-index: 20;
+    box-shadow: 8px 0 20px #0002;
+  }
+  .app-shell,
+  .app-shell.sidebar-collapsed {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .app-shell:not(.sidebar-collapsed) .main {
+    margin-left: var(--sidebar-width);
+    min-width: 330px;
+  }
+  .app-shell:not(.sidebar-collapsed) .conversation,
+  .app-shell:not(.sidebar-collapsed) .composer-area {
+    visibility: hidden;
+  }
+  .main-header h1 {
+    max-width: 180px;
+  }
+  .metadata {
+    max-width: calc(100% - 36px);
+    right: 18px;
+  }
+  .composer {
+    margin-bottom: 14px;
+  }
+  .composer-toolbar {
+    gap: 2px;
+  }
+  .model-trigger {
+    max-width: 130px;
+  }
+  .button.composer-select {
+    font-size: 12px;
+  }
+  .button.reasoning {
+    gap: 3px;
+  }
+  .user-message {
+    max-width: 90%;
+  }
+  .usage-breakdown {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .connection-notice {
+    flex-wrap: wrap;
+  }
+}
+@media (max-height: 850px) {
+  .user-message {
+    margin-bottom: 24px;
+  }
+  .conversation {
+    padding-top: 16px;
+  }
+  .tool-block + .reply-text {
+    margin-top: 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+  .spinner {
+    animation: none;
+  }
+}

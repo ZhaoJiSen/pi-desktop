@@ -1,3 +1,4 @@
+import { selectChat } from '../router/navigation'
 import { Button } from '@heroui/react'
 import { MessageSquare, Pin, PinOff, Trash2 } from 'lucide-react'
 import { motion } from 'motion/react'
@@ -40,7 +41,7 @@ export function SessionRow({
       <Button
         variant="ghost"
         className="session"
-        onPress={() => useWorkspace.getState().selectSession(session.id)}
+        onPress={() => selectChat(session.id)}
         isDisabled={locked && !selected}
         aria-current={selected ? 'page' : undefined}
         aria-label={title}

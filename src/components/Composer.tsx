@@ -1,7 +1,7 @@
 import { Button, Popover } from '@heroui/react'
 import { ArrowUp, Brain, Check, ChevronDown, GitBranch, Paperclip, Square, X } from 'lucide-react'
 import { motion } from 'motion/react'
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { isDesktop, useWorkspace } from '../store/workspace'
 import { abortPrompt, changeThinking, readAttachments, sendPrompt } from '../lib/desktop'
 import { useT } from '../lib/i18n'
@@ -46,11 +46,6 @@ export function Composer() {
   useEffect(() => {
     input.current?.focus()
   }, [session?.id])
-  useLayoutEffect(() => {
-    if (!input.current) return
-    input.current.style.height = 'auto'
-    input.current.style.height = `${Math.min(240, Math.max(58, input.current.scrollHeight))}px`
-  }, [session?.id, session?.draft])
   if (!session) return null
   async function submit() {
     if (sending || reading) return

@@ -1,0 +1,95 @@
+.app-shell.startup-shell {
+  display: block;
+}
+.startup-screen {
+  position: relative;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 48px 24px;
+  background: var(--paper);
+}
+.startup-drag-region {
+  position: absolute;
+  inset: 0 0 auto;
+  height: var(--header-height);
+}
+.startup-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  width: min(420px, 100%);
+  text-align: center;
+}
+.pi-logo {
+  --pi-logo-coral: #e48a7a;
+  --pi-logo-blue: #4f8eb3;
+  --pi-logo-yellow: #eab65d;
+  display: inline-grid;
+  grid-template: repeat(4, 1fr) / repeat(4, 1fr);
+  gap: 0;
+  width: var(--pi-logo-size, 64px);
+  height: var(--pi-logo-size, 64px);
+  flex: none;
+}
+.pi-logo-pixel[data-color='c'] {
+  background: var(--pi-logo-coral);
+}
+.pi-logo-pixel[data-color='b'] {
+  background: var(--pi-logo-blue);
+}
+.pi-logo-pixel[data-color='y'] {
+  background: var(--pi-logo-yellow);
+}
+.pi-logo[data-loading='true'] .pi-logo-pixel {
+  animation: pi-pixel-pulse 1.6s ease-in-out infinite;
+  animation-delay: calc(var(--pi-pixel-order) * -70ms);
+}
+.startup-status {
+  max-width: 100%;
+}
+.startup-title {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 22px;
+}
+.startup-error {
+  margin: 12px 0 0;
+  font-size: 13px;
+  line-height: 22px;
+  color: var(--danger);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  max-height: 180px;
+  overflow-y: auto;
+}
+.startup-actions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.startup-actions .button {
+  padding: 8px 14px;
+  font-size: 13px;
+}
+.startup-actions .startup-retry {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+@keyframes pi-pixel-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pi-logo[data-loading='true'] .pi-logo-pixel {
+    animation: none;
+  }
+}

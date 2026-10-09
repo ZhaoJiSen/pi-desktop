@@ -1,3 +1,4 @@
+import { createChat } from '../router/navigation'
 import { Button, Dropdown, Separator, Tooltip } from '@heroui/react'
 import {
   ChevronDown,
@@ -30,8 +31,7 @@ export function ProjectRow({ project, count }: { project: Project; count: number
   const t = useT()
   function newSession() {
     const store = useWorkspace.getState()
-    if (!store.runningSessionId && store.connection !== 'connecting')
-      store.createSession(project.id)
+    if (!store.runningSessionId && store.connection !== 'connecting') createChat(project.id)
   }
   return (
     <>

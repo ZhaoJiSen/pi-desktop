@@ -1,6 +1,7 @@
 import { Button, Dropdown } from '@heroui/react'
 import { Download, Ellipsis, Pencil } from 'lucide-react'
 import { useState } from 'react'
+import { useCurrentPage } from '../router/hooks'
 import { useWorkspace } from '../store/workspace'
 import { useT } from '../lib/i18n'
 import { exportSession } from '../lib/desktop'
@@ -11,7 +12,7 @@ export function Header({ onRename }: { onRename: () => void }) {
   const session = useWorkspace((state) =>
     state.sessions.find((item) => item.id === state.activeSessionId),
   )
-  const view = useWorkspace((state) => state.view)
+  const view = useCurrentPage()
   const running = useWorkspace((state) => state.runningSessionId)
   const connecting = useWorkspace((state) => state.connection === 'connecting')
   const [menuOpen, setMenuOpen] = useState(false)

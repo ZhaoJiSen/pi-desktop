@@ -1,0 +1,233 @@
+/* HeroUI supplies focus, keyboard navigation, portals, and dismissal. */
+.popover {
+  background: var(--paper);
+  color: var(--ink);
+}
+.model-popover {
+  width: 344px;
+  max-width: calc(100vw - 32px);
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow:
+    0 8px 24px #00000014,
+    0 2px 6px #00000008;
+  background: var(--paper);
+  overflow: hidden;
+}
+.model-popover .popover__dialog {
+  padding: 0;
+}
+.popover-search {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 8px;
+  padding: 12px 8px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+}
+.popover-search svg {
+  width: 15px;
+  height: 15px;
+}
+.popover-search input {
+  width: 100%;
+  min-width: 0;
+  background: none;
+  outline: none;
+  font-size: 12px;
+}
+.popover-search input::placeholder {
+  color: var(--muted);
+  opacity: 1;
+}
+.model-options {
+  isolation: isolate;
+  padding: 0 6px 6px;
+  max-height: min(310px, calc(100dvh - 180px));
+  scrollbar-gutter: stable;
+}
+.option-label {
+  padding: 6px 10px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.model-group {
+  padding-bottom: 4px;
+}
+/* No top inset: the opaque sticky header must meet the scroll viewport edge. */
+.model-group-label {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  margin-inline: -6px;
+  padding: 7px 16px;
+  background: var(--paper);
+  box-shadow: 0 -1px 0 var(--paper);
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 500;
+}
+.button.model-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: calc(100% - 8px);
+  margin-left: 8px;
+  min-width: 0;
+  height: auto;
+  min-height: 52px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-weight: 400;
+  text-align: left;
+  background: transparent;
+  gap: 12px;
+}
+.model-row:hover {
+  background: var(--hover);
+}
+.model-row-copy {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  gap: 2px;
+  font-size: 13px;
+}
+.model-row-copy > span {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 20px;
+}
+.model-row-copy .model-description {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 16px;
+}
+.model-row svg {
+  width: 15px;
+  height: 15px;
+}
+.popover-empty {
+  padding: 24px 12px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+}
+.action-popover {
+  padding: 0;
+  min-width: 180px;
+  max-width: calc(100vw - 32px);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow:
+    0 8px 24px #00000014,
+    0 2px 6px #00000008;
+  background: var(--paper);
+  color: var(--ink);
+  overflow: hidden;
+}
+.action-popover .dropdown__menu {
+  padding: 6px;
+  gap: 2px;
+}
+.action-popover .menu-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 34px;
+  padding: 7px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 400;
+  color: var(--ink);
+  background: transparent;
+}
+.action-popover .menu-row:is(:hover, [data-focused='true']):not([data-disabled='true']) {
+  background: var(--hover);
+}
+.action-popover .menu-row:focus-visible:not([data-focus-visible='true']) {
+  outline: none;
+}
+.action-popover .menu-row[data-disabled='true'] {
+  opacity: 0.45;
+}
+.action-popover .menu-row svg {
+  color: var(--muted);
+}
+.thinking-popover {
+  padding: 0;
+  min-width: 176px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow:
+    0 8px 24px #00000014,
+    0 2px 6px #00000008;
+  background: var(--paper);
+  overflow: hidden;
+}
+.thinking-popover .popover__dialog {
+  padding: 6px;
+  max-height: min(280px, calc(100dvh - 180px));
+  overflow-y: auto;
+  overscroll-behavior: none;
+}
+.thinking-popover .button.menu-row {
+  padding: 0 10px;
+  border-radius: 6px;
+}
+.thinking-popover .menu-row > span {
+  flex: 1;
+  text-align: left;
+}
+.model-options,
+.thinking-popover .popover__dialog {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--muted) 35%, transparent) transparent;
+}
+.model-options::-webkit-scrollbar,
+.thinking-popover .popover__dialog::-webkit-scrollbar {
+  width: 6px;
+}
+.model-options::-webkit-scrollbar-track,
+.thinking-popover .popover__dialog::-webkit-scrollbar-track {
+  background: transparent;
+  margin-block: 6px;
+}
+.model-options::-webkit-scrollbar-thumb,
+.thinking-popover .popover__dialog::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--muted) 35%, transparent);
+  border-radius: 3px;
+}
+.model-options::-webkit-scrollbar-thumb:hover,
+.thinking-popover .popover__dialog::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--muted) 55%, transparent);
+}
+.button.menu-row {
+  width: 100%;
+  min-width: 0;
+  height: 34px;
+  min-height: 34px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 9px;
+  font-size: 13px;
+  font-weight: 400;
+  padding: 0 9px;
+  background: transparent;
+  border-radius: 4px;
+}
+.menu-row:hover {
+  background: var(--hover);
+}
+.menu-row svg {
+  width: 14px;
+  height: 14px;
+}

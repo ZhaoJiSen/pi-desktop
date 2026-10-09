@@ -1,0 +1,52 @@
+.main {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.main-header {
+  height: var(--header-height);
+  padding: 0 var(--body-inset);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border-bottom: 1px solid var(--line);
+  flex: none;
+  user-select: none;
+}
+.main-header h1 {
+  margin: 0;
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.main-header .collapsed-chrome {
+  flex: none;
+}
+.header-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  flex: none;
+}
+.header-actions .button.icon-button {
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  min-height: 28px;
+  border-radius: 6px;
+}
+.header-actions .icon-button[aria-expanded='true'] {
+  background: var(--hover);
+  color: var(--ink);
+}
+.header-actions svg {
+  width: 15px;
+  height: 15px;
+}

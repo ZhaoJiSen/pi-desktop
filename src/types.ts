@@ -1,5 +1,4 @@
 export type ThinkingLevel = 'off' | 'minimal' | 'low' | 'medium' | 'high' | 'xhigh' | 'max'
-export type View = 'chat' | 'usage' | 'extensions' | 'settings'
 export type Theme = 'light' | 'dark' | 'system'
 
 export interface Model {
@@ -86,6 +85,7 @@ export interface SlashCommand {
   sourceInfo?: { path?: string; source?: string; scope?: string }
 }
 export interface ExtensionPackage {
+  enabled?: boolean
   source: string
   scope: 'global' | 'project'
   version?: string

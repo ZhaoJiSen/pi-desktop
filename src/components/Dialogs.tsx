@@ -1,3 +1,4 @@
+import { createChat, selectChat } from '../router/navigation'
 import { Button, Modal } from '@heroui/react'
 import { Search, MessageSquare, ChevronRight } from 'lucide-react'
 import { useDebounce } from 'ahooks'
@@ -13,7 +14,6 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
   const search = useDebounce(query.trim().toLowerCase(), { wait: 100 })
   const sessions = useWorkspace((state) => state.sessions)
   const projects = useWorkspace((state) => state.projects)
-  const select = useWorkspace((state) => state.selectSession)
   const busy = useWorkspace(
     (state) => Boolean(state.runningSessionId) || state.connection === 'connecting',
   )
@@ -61,7 +61,7 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
                   className="search-result"
                   isDisabled={busy}
                   onPress={() => {
-                    select(session.id)
+                    selectChat(session.id)
                     onClose()
                     setQuery('')
                   }}
@@ -94,7 +94,7 @@ export function ProjectDialog({ open, onClose }: { open: boolean; onClose: () =>
     if (!normalized || (!normalized.startsWith('/') && !normalized.startsWith('~/'))) return
     const store = useWorkspace.getState()
     const project = store.addProject(normalized)
-    store.createSession(project)
+    createChat(project)
     onClose()
     setPath('')
   }

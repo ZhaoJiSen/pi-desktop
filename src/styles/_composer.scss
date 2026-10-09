@@ -1,0 +1,208 @@
+.composer-area {
+  flex: none;
+}
+.composer {
+  position: relative;
+  width: calc(100% - 2 * var(--body-inset));
+  max-width: var(--chat-width);
+  margin: 22px auto;
+  min-height: 100px;
+  flex: none;
+  border: 1px solid var(--frame);
+  border-radius: var(--radius);
+  background: var(--paper);
+  padding: 17px 12px 8px;
+  display: flex;
+  flex-direction: column;
+}
+.composer:focus-within {
+  border-color: #a9b2c0;
+}
+.metadata {
+  position: absolute;
+  top: 0;
+  transform: translateY(-50%);
+  right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 6px;
+  background: var(--paper);
+  font-size: 12px;
+  line-height: 18px;
+  white-space: nowrap;
+  color: var(--muted);
+  max-width: calc(100% - 48px);
+}
+.metadata svg {
+  width: 12px;
+  height: 12px;
+  color: var(--muted);
+}
+.metadata .value {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.metadata .dot {
+  color: var(--muted);
+}
+.composer textarea {
+  padding: 0;
+  border: 0;
+  background: none;
+  outline: none;
+  resize: none;
+  width: 100%;
+  // Two text lines leave room for the padding, border and toolbar in a 100px composer.
+  height: 44px;
+  min-height: 44px;
+  max-height: 44px;
+  flex: none;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  font-size: 13px;
+  line-height: 22px;
+  box-shadow: none;
+
+  &::placeholder {
+    color: var(--muted);
+    opacity: 1;
+  }
+
+  &:focus-visible {
+    outline: none;
+  }
+}
+.composer-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: auto;
+  height: 29px;
+  flex: none;
+}
+.button.attach {
+  width: 29px;
+  min-width: 29px;
+  height: 29px;
+  min-height: 29px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border-radius: 6px;
+}
+.button.composer-select {
+  height: 29px;
+  min-height: 29px;
+  min-width: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 7px;
+  padding: 0 8px;
+  font-size: 13px;
+  font-weight: 400;
+  border-radius: 6px;
+  background: transparent;
+}
+.button.composer-select:hover,
+.button.composer-select[aria-expanded='true'],
+.button.attach:hover {
+  background: var(--hover);
+}
+.model-trigger {
+  max-width: 260px;
+}
+.model-trigger span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.composer-select .chevron {
+  width: 11px;
+  height: 11px;
+  color: var(--muted);
+}
+.reasoning {
+  margin-left: 0;
+}
+.reasoning > svg:not(.chevron) {
+  width: 15px;
+  height: 15px;
+  color: var(--muted);
+}
+.send-area {
+  display: flex;
+  gap: 13px;
+  align-items: center;
+  margin-left: auto;
+}
+.send-hint {
+  color: var(--muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+.button.send {
+  width: 29px;
+  min-width: 29px;
+  height: 29px;
+  min-height: 29px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 7px;
+  background: var(--accent);
+  color: var(--accent-foreground);
+  box-shadow: 0 1px 2px #0002;
+}
+.send svg {
+  width: 17px;
+  height: 17px;
+}
+.send .stop-icon {
+  width: 12px;
+  height: 12px;
+  fill: currentColor;
+}
+.attachments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-bottom: 10px;
+}
+.attachment {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 200px;
+  border-radius: 5px;
+  padding: 4px 6px;
+  background: var(--user);
+  font-size: 12px;
+}
+.attachment > svg {
+  width: 13px;
+  height: 13px;
+  color: var(--muted);
+}
+.attachment span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.button.attachment-remove {
+  min-width: 18px;
+  width: 18px;
+  height: 20px;
+  min-height: 20px;
+  padding: 0;
+  background: transparent;
+}
+.attachment-remove svg {
+  width: 12px;
+  height: 12px;
+}

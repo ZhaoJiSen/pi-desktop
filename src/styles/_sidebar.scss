@@ -1,0 +1,438 @@
+.app-shell.sidebar-collapsed {
+  grid-template-columns: minmax(0, 1fr);
+}
+.sidebar {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--sidebar);
+  border-right: 1px solid var(--line);
+  overflow: hidden;
+}
+.sidebar-chrome {
+  height: var(--header-height);
+  padding: 0 17px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+  flex: none;
+}
+.traffic {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.traffic i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.traffic i:nth-child(1) {
+  background: #fa6158;
+}
+.traffic i:nth-child(2) {
+  background: #f9bd32;
+}
+.traffic i:nth-child(3) {
+  background: #32c84b;
+}
+.native-controls-space {
+  width: 64px;
+  height: 20px;
+}
+.collapsed-chrome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-right: 5px;
+}
+.button.icon-button {
+  width: 24px;
+  min-width: 24px;
+  height: 26px;
+  min-height: 26px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  background: transparent;
+  border-radius: 5px;
+  box-shadow: none;
+}
+.button.icon-button:hover {
+  background: var(--hover);
+}
+.nav {
+  display: grid;
+  gap: 3px;
+  padding: 10px 12px 0;
+}
+.button.nav-row {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  height: 35px;
+  min-height: 35px;
+  width: 100%;
+  padding: 0 7px;
+  justify-content: flex-start;
+  text-align: left;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 400;
+  background: transparent;
+  border-radius: 5px;
+}
+.button.nav-row svg {
+  color: var(--muted);
+}
+.button.nav-row:hover,
+.button.nav-active {
+  background: var(--hover);
+}
+.shortcut {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.4px;
+}
+.nav .button.nav-row {
+  height: 32px;
+  min-height: 32px;
+  gap: 8px;
+  font-size: 13px;
+  border-radius: 6px;
+  transition:
+    background-color 120ms ease-out,
+    color 120ms ease-out;
+}
+.nav .nav-row > svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  stroke-width: 1.75;
+  transition: color 120ms ease-out;
+}
+.nav .nav-row:is(:hover, [data-hovered='true'], .nav-active):not(:disabled) > svg {
+  color: var(--ink);
+}
+.nav .nav-active {
+  background: var(--selection);
+}
+.nav .shortcut {
+  font:
+    11px/1 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+.projects {
+  padding: 22px 12px 10px;
+  overflow-y: auto;
+}
+.section-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 25px;
+  margin: 0 6px 9px 7px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.section-label svg {
+  width: 15px;
+  height: 15px;
+}
+.sidebar .sidebar-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 20px;
+  min-width: 20px;
+  height: 24px;
+  min-height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--muted);
+  box-shadow: none;
+  transition: color 120ms ease-out;
+}
+.sidebar .sidebar-action svg {
+  width: 12px;
+  height: 12px;
+}
+.sidebar
+  .sidebar-action:is(:hover, [data-hovered='true'], [aria-expanded='true']):not(
+    :disabled,
+    [aria-disabled='true']
+  ) {
+  background: transparent;
+  color: var(--ink);
+}
+.sidebar .sidebar-action:active:not(:disabled, [aria-disabled='true']) {
+  background: transparent;
+  color: var(--ink);
+}
+.sidebar .sidebar-action:disabled {
+  opacity: 0.4;
+}
+.project {
+  margin-bottom: 4px;
+}
+.project-heading {
+  position: relative;
+  border-radius: 6px;
+}
+.project-heading:hover,
+.project-heading:focus-within,
+.project-heading[data-menu-open] {
+  background: var(--hover);
+}
+.button.folder-row {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  height: 32px;
+  min-height: 32px;
+  gap: 8px;
+  padding: 0 7px;
+  font-size: 13px;
+  font-weight: 400;
+  text-align: left;
+  background: transparent;
+  border-radius: 5px;
+}
+.project-heading .button.folder-row {
+  padding-right: 54px;
+  color: var(--ink);
+}
+.folder-row .chevron {
+  width: 12px;
+  height: 12px;
+  color: var(--muted);
+}
+.folder-row .folder {
+  width: 14px;
+  height: 14px;
+  color: var(--muted);
+}
+.folder-name {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.folder-row .project-pin {
+  width: 11px;
+  height: 11px;
+  margin-left: -3px;
+  color: var(--muted);
+}
+.project-actions {
+  position: absolute;
+  right: 6px;
+  top: 4px;
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 140ms ease-out;
+}
+.project-heading:hover .project-actions,
+.project-heading:focus-within .project-actions,
+.project-heading[data-menu-open] .project-actions {
+  opacity: 1;
+  pointer-events: auto;
+}
+.project-summary.tooltip {
+  width: 270px;
+  max-width: calc(100vw - 24px);
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 8px 28px #00000016;
+  font-size: 12px;
+  line-height: 19px;
+}
+.project-summary-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.project-summary-title strong {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.project-summary svg {
+  width: 15px;
+  height: 15px;
+  color: var(--muted);
+}
+.project-summary-count {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 5px;
+  color: var(--muted);
+}
+.project-summary-path {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 9px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+}
+.project-summary-path svg {
+  margin-top: 2px;
+}
+.project-summary-path span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.project-menu .menu-row.project-remove,
+.project-menu .menu-row.project-remove svg {
+  color: var(--danger);
+}
+.project-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 4px 7px 8px 27px;
+  color: var(--danger);
+  font-size: 11px;
+  line-height: 17px;
+}
+.project-error span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.project-error .icon-button {
+  flex: none;
+}
+.session-list {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-top: 3px;
+}
+.session-row {
+  position: relative;
+  height: 32px;
+  flex: none;
+  border-radius: 6px;
+}
+.session-row:not(.selected):is(:hover, :focus-within) {
+  background: var(--hover);
+}
+.button.session {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  position: relative;
+  height: 32px;
+  min-height: 32px;
+  padding: 0 54px 0 30px;
+  border-radius: 6px;
+  width: 100%;
+  min-width: 0;
+  text-align: left;
+  font-size: 12.5px;
+  font-weight: 400;
+  background: transparent;
+  color: var(--ink);
+}
+.button.session:hover {
+  background: transparent;
+}
+.session > svg {
+  width: 12px;
+  height: 12px;
+  color: var(--muted);
+  z-index: 1;
+}
+.session .session-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  position: relative;
+}
+.session-actions {
+  position: absolute;
+  right: 6px;
+  top: 4px;
+  display: flex;
+  gap: 4px;
+}
+.session-actions .sidebar-action {
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 140ms ease-out,
+    color 120ms ease-out;
+}
+.session-row:is(:hover, :focus-within) .sidebar-action,
+.session-actions .is-pinned {
+  opacity: 1;
+  pointer-events: auto;
+}
+.session-actions .is-pinned {
+  color: var(--ink);
+}
+.sidebar .session-remove:hover:not(:disabled) {
+  color: var(--danger);
+}
+.session-selection {
+  position: absolute;
+  inset: 0;
+  border-radius: 6px;
+  background: var(--selection);
+  pointer-events: none;
+}
+.button.folder-row:hover {
+  background: var(--hover);
+}
+@media (hover: none) {
+  .project-actions,
+  .session-actions .sidebar-action {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .project-actions,
+  .sidebar .sidebar-action,
+  .session-actions .sidebar-action {
+    transition: none;
+  }
+}
+.sidebar-bottom {
+  margin: auto 16px 15px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  flex: none;
+}
+.sidebar-bottom .button.nav-row {
+  height: 33px;
+  min-height: 33px;
+}

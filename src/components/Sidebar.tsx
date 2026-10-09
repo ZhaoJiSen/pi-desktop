@@ -8,7 +8,10 @@ import {
   Search,
   Settings,
   SquarePen,
+  Terminal,
 } from 'lucide-react'
+import { navigateToPage } from '../router/navigation'
+import { useCurrentPage } from '../router/hooks'
 import { useWorkspace } from '../store/workspace'
 import { SidebarToggle, WindowControls } from './Chrome'
 import { useT } from '../lib/i18n'
@@ -34,8 +37,7 @@ export function Sidebar({ onNew, onSearch, onProject, onRename, onRemove }: Prop
   const active = useWorkspace((state) => state.activeSessionId)
   const running = useWorkspace((state) => state.runningSessionId)
   const connecting = useWorkspace((state) => state.connection === 'connecting')
-  const view = useWorkspace((state) => state.view)
-  const setView = useWorkspace((state) => state.setView)
+  const view = useCurrentPage()
   const t = useT()
   const locked = Boolean(running) || connecting
   return (
@@ -65,10 +67,19 @@ export function Sidebar({ onNew, onSearch, onProject, onRename, onRemove }: Prop
           variant="ghost"
           className={`nav-row ${view === 'extensions' ? 'nav-active' : ''}`}
           aria-current={view === 'extensions' ? 'page' : undefined}
-          onPress={() => setView('extensions')}
+          onPress={() => void navigateToPage('extensions')}
         >
           <Grid2X2 />
           {t('navigation.extensions')}
+        </Button>
+        <Button
+          variant="ghost"
+          className={`nav-row ${view === 'commands' ? 'nav-active' : ''}`}
+          aria-current={view === 'commands' ? 'page' : undefined}
+          onPress={() => void navigateToPage('commands')}
+        >
+          <Terminal />
+          {t('navigation.commands')}
         </Button>
       </nav>
       <div className="projects">
@@ -146,7 +157,7 @@ export function Sidebar({ onNew, onSearch, onProject, onRename, onRemove }: Prop
         <Button
           variant="ghost"
           className={`nav-row ${view === 'usage' ? 'nav-active' : ''}`}
-          onPress={() => setView('usage')}
+          onPress={() => void navigateToPage('usage')}
         >
           <ChartNoAxesCombined />
           {t('navigation.usage')}
@@ -154,7 +165,7 @@ export function Sidebar({ onNew, onSearch, onProject, onRename, onRemove }: Prop
         <Button
           variant="ghost"
           className={`nav-row ${view === 'settings' ? 'nav-active' : ''}`}
-          onPress={() => setView('settings')}
+          onPress={() => void navigateToPage('settings')}
         >
           <Settings />
           {t('navigation.settings')}
