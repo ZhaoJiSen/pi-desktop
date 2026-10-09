@@ -1,6 +1,18 @@
 import type { en } from './en'
 
 export const zh = {
+  'composer.commandUnavailable': '不可用',
+  'composer.commandKeys': '↑ ↓ 选择 · ↵ 插入 · Esc 关闭',
+  'composer.editCommand': '编辑命令',
+  'composer.removeCommand': '移除命令',
+  'composer.commandArguments': '参数',
+  'composer.problem.unavailable': '/{name} 当前不可用，草稿已保留。',
+  'composer.problem.multiple': 'Pi 不支持在一条消息中执行多个命令标签，请分别发送。',
+  'composer.problem.terminal': '/{name} 需要在 Pi 终端中执行，此草稿不会发送。',
+  'composer.problem.mixedAction': '/{name} 是操作命令，请先移除附带的文本或参数，再打开对应控件。',
+  'composer.problem.position': '请将 /{name} 放到文本之前，确保 Pi 正确接收命令参数。',
+  'composer.problem.attachments': '/{name} 不支持附件，请移除附件后继续。',
+  'composer.problem.shadowed': '/{name} 被另一个已加载的同名命令覆盖，请选择实际生效的命令。',
   'commands.retryHint': '检查 Pi 连接后，点击刷新重试。',
   'commands.modelHint': '通过下方选择器切换模型。',
   'commands.openComposer': '打开会话输入区',
@@ -275,7 +287,6 @@ export const zh = {
   'packages.viewDocumentation': '查看目录详情',
   'packages.installHint': '安装到全局，供各项目使用。',
   'packages.manageHint': '重新连接 pi 后生效。',
-  'packages.runningHint': '会话运行结束后可管理扩展。',
   'packages.pinnedHint': '当前版本已固定，不参与自动更新。',
   'packages.reloadHint': '扩展已更改，等待重新加载。',
   'packages.reload': '重新加载 pi',

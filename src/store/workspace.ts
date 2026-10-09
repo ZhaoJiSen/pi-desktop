@@ -12,6 +12,7 @@ import type {
 } from '../types'
 import { createPreviewSessions, makeSession, previewModels, previewProjects } from '../lib/fixtures'
 import { applyStreamEvent } from '../lib/rpc'
+import { draftText, normalizeDraft } from '../lib/draft'
 import {
   browserLanguage,
   languageFromLocale,
@@ -219,7 +220,20 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
         updateSession: (id, patch) =>
           set((state) => ({
             sessions: state.sessions.map((session) =>
-              session.id === id ? { ...session, ...patch } : session,
+              session.id === id
+                ? {
+                    ...session,
+                    ...patch,
+                    ...(patch.draftNodes !== undefined
+                      ? {
+                          draftNodes: normalizeDraft(patch.draftNodes),
+                          draft: draftText(patch.draftNodes),
+                        }
+                      : 'draft' in patch
+                        ? { draftNodes: undefined }
+                        : {}),
+                  }
+                : session,
             ),
           })),
         appendEvent: (id, event) =>

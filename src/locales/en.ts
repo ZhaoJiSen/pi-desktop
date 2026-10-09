@@ -1,4 +1,22 @@
 export const en = {
+  'composer.commandUnavailable': 'Unavailable',
+  'composer.commandKeys': '↑ ↓ Select · ↵ Insert · Esc Close',
+  'composer.editCommand': 'Edit command',
+  'composer.removeCommand': 'Remove command',
+  'composer.commandArguments': 'Arguments',
+  'composer.problem.unavailable': '/{name} is no longer available. Your draft is kept.',
+  'composer.problem.multiple':
+    'Pi cannot execute multiple command tags in one message. Send one command at a time.',
+  'composer.problem.terminal': '/{name} requires the Pi terminal. This draft will not be sent.',
+  'composer.problem.mixedAction':
+    '/{name} is an operation. Remove the accompanying text or arguments before opening its control.',
+  'composer.problem.position':
+    'Place /{name} before the text so Pi receives the correct command arguments.',
+  'composer.problem.attachments':
+    '/{name} does not support attachments. Remove them before continuing.',
+  'composer.problem.shadowed':
+    '/{name} is shadowed by another loaded command. Choose the active command instead.',
+
   'commands.retryHint': 'Check the Pi connection, then refresh to try again.',
   'commands.modelHint': 'Choose a model using the selector below.',
   'commands.openComposer': 'Open conversation controls',
@@ -282,7 +300,6 @@ export const en = {
   'packages.viewDocumentation': 'View package page',
   'packages.installHint': 'Install globally for use across projects.',
   'packages.manageHint': 'Reconnect pi after changes to load the updated packages.',
-  'packages.runningHint': 'Manage packages after the current run finishes.',
   'packages.pinnedHint': 'This package is pinned and excluded from updates.',
   'packages.reloadHint': 'Package changes are ready to apply.',
   'packages.reload': 'Reload pi',

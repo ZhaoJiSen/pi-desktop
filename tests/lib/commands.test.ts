@@ -54,7 +54,18 @@ describe('command capabilities', () => {
   })
   it('preserves draft and refuses terminal commands or busy sessions', () => {
     expect(insertCommand(extension)).toBe(true)
-    expect(mocks.state.updateSession).toHaveBeenCalledWith('s', { draft: '/review keep my draft' })
+    expect(mocks.state.updateSession).toHaveBeenCalledWith('s', {
+      draftNodes: [
+        expect.objectContaining({
+          type: 'command',
+          name: 'review',
+          source: 'extension',
+          origin: 'npm:review-package',
+        }),
+        { type: 'text', text: ' ' },
+        { type: 'text', text: 'keep my draft' },
+      ],
+    })
     expect(mocks.navigateToPage).toHaveBeenCalledWith('chat')
     expect(insertCommand({ name: 'quit', source: 'builtin' })).toBe(false)
     mocks.state.runningSessionId = 's'

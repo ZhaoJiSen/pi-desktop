@@ -9,7 +9,10 @@ import { useT } from '../lib/i18n'
 import { errorText, modelKey, tokens } from '../lib/utils'
 import type { Model } from '../types'
 
-export function ModelSelector() {
+export function ModelSelector({
+  isOpen,
+  onOpenChange,
+}: { isOpen?: boolean; onOpenChange?: (open: boolean) => void } = {}) {
   const models = useWorkspace((state) => state.models)
   const recent = useWorkspace((state) => state.recentModels)
   const session = useWorkspace((state) =>
@@ -18,7 +21,12 @@ export function ModelSelector() {
   const busy = useWorkspace(
     (state) => Boolean(state.runningSessionId) || state.connection === 'connecting',
   )
-  const [open, setOpen] = useState(false)
+  const [internalOpen, setInternalOpen] = useState(false)
+  const open = isOpen ?? internalOpen
+  function setOpen(value: boolean) {
+    setInternalOpen(value)
+    onOpenChange?.(value)
+  }
   const [query, setQuery] = useState('')
   const [changing, setChanging] = useState(false)
   const search = useDebounce(query.trim().toLowerCase(), { wait: 100 })

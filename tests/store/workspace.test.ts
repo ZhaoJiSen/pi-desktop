@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { StateStorage } from 'zustand/middleware'
 import { createWorkspaceStore } from '../../src/store/workspace'
+import { createCommandTag } from '../../src/lib/draft'
 
 function memoryStorage() {
   const data = new Map<string, string>()
@@ -16,6 +17,44 @@ function memoryStorage() {
 }
 
 describe('workspace persistence', () => {
+  it('restores mixed command drafts across sessions and restarts, and plain-text updates replace tags', () => {
+    const storage = memoryStorage(),
+      store = createWorkspaceStore(storage)
+    const project = store.getState().addProject('/tmp/project')
+    const first = store.getState().createSession(project)
+    const nodes = [
+      createCommandTag({
+        name: 'review',
+        source: 'extension',
+        sourceInfo: { source: 'npm:review' },
+      }),
+      { type: 'text' as const, text: ' inspect' },
+      createCommandTag({ name: 'skill:check', source: 'skill' }),
+    ]
+    store.getState().updateSession(first, { draftNodes: nodes })
+    const second = store.getState().createSession(project)
+    store.getState().updateSession(second, { draft: 'another draft' })
+    store.getState().selectSession(first)
+    const reopened = createWorkspaceStore(storage)
+    expect(reopened.getState().sessions.find((s) => s.id === first)?.draftNodes).toEqual(nodes)
+    expect(reopened.getState().sessions.find((s) => s.id === second)?.draft).toBe('another draft')
+    expect(reopened.getState().activeSessionId).toBe(first)
+    reopened.getState().updateSession(first, { draft: 'extension editor replacement' })
+    expect(reopened.getState().sessions.find((s) => s.id === first)?.draftNodes).toBeUndefined()
+  })
+  it('keeps structured drafts in memory when local saving fails', async () => {
+    const storage = memoryStorage(),
+      store = createWorkspaceStore(storage)
+    const id = store.getState().createSession(store.getState().addProject('/tmp/project'))
+    storage.setItem = () => {
+      throw new Error('QuotaExceededError')
+    }
+    const nodes = [createCommandTag({ name: 'review', source: 'extension' })]
+    store.getState().updateSession(id, { draftNodes: nodes })
+    await Promise.resolve()
+    expect(store.getState().sessions.find((s) => s.id === id)?.draftNodes).toEqual(nodes)
+    expect(store.getState().storageError).not.toBeNull()
+  })
   it('restores renamed projects and preserves names, paths and conversations when reopening a folder', () => {
     const storage = memoryStorage()
     const store = createWorkspaceStore(storage)

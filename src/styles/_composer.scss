@@ -9,7 +9,7 @@
   min-height: 100px;
   flex: none;
   border: 1px solid var(--frame);
-  border-radius: var(--radius);
+  border-radius: var(--field-radius);
   background: var(--paper);
   padding: 17px 12px 8px;
   display: flex;
@@ -46,17 +46,16 @@
 .metadata .dot {
   color: var(--muted);
 }
-.composer textarea {
+.composer .draft-editor {
   padding: 0;
   border: 0;
   background: none;
   outline: none;
   resize: none;
   width: 100%;
-  // Two text lines leave room for the padding, border and toolbar in a 100px composer.
-  height: 44px;
+  // Grow with the draft; cap scrolling before the toolbar leaves the viewport.
   min-height: 44px;
-  max-height: 44px;
+  max-height: 176px;
   flex: none;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -64,7 +63,10 @@
   line-height: 22px;
   box-shadow: none;
 
-  &::placeholder {
+  &[data-empty='true']::before {
+    content: attr(data-placeholder);
+    position: absolute;
+    pointer-events: none;
     color: var(--muted);
     opacity: 1;
   }
@@ -91,7 +93,6 @@
   align-items: center;
   justify-content: center;
   background: transparent;
-  border-radius: 6px;
 }
 .button.composer-select {
   height: 29px;
@@ -104,7 +105,6 @@
   padding: 0 8px;
   font-size: 13px;
   font-weight: 400;
-  border-radius: 6px;
   background: transparent;
 }
 .button.composer-select:hover,
@@ -153,7 +153,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 7px;
   background: var(--accent);
   color: var(--accent-foreground);
   box-shadow: 0 1px 2px #0002;
@@ -178,7 +177,7 @@
   align-items: center;
   gap: 6px;
   max-width: 200px;
-  border-radius: 5px;
+  border-radius: var(--radius-sm, calc(var(--radius) * 0.5));
   padding: 4px 6px;
   background: var(--user);
   font-size: 12px;
@@ -205,4 +204,172 @@
 .attachment-remove svg {
   width: 12px;
   height: 12px;
+}
+
+.draft-editor-wrap {
+  position: relative;
+  min-width: 0;
+}
+.draft-editor {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.command-tag {
+  display: inline-flex;
+  vertical-align: baseline;
+  align-items: center;
+  gap: 6px;
+  max-width: min(100%, 320px);
+  margin-inline: 2px;
+  padding: 1px 7px;
+  border-radius: var(--radius-sm, calc(var(--radius) * 0.5));
+  background: var(--user);
+  border: 1px solid var(--line);
+  font-size: 12px;
+  line-height: 20px;
+  cursor: default;
+  user-select: all;
+  color: var(--ink);
+  transition:
+    background-color 120ms,
+    border-color 120ms;
+}
+.command-tag-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.command-tag-source {
+  color: var(--muted);
+  font-size: 11px;
+  flex: none;
+  white-space: nowrap;
+}
+.command-tag.selected {
+  border-color: var(--accent);
+  background: var(--hover);
+}
+.command-tag.unavailable {
+  border-style: dashed;
+  color: var(--muted);
+}
+.slash-panel {
+  position: absolute;
+  bottom: calc(100% + 24px);
+  left: -4px;
+  width: min(480px, calc(100% + 8px));
+  z-index: 30;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  background: var(--paper);
+  box-shadow: 0 8px 32px #00000018;
+  padding: 8px;
+}
+.slash-panel-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 8px 8px;
+  font-size: 11px;
+  line-height: 18px;
+  color: var(--muted);
+}
+.slash-options {
+  max-height: min(280px, 35vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.slash-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  border-radius: var(--radius-lg, var(--radius));
+  cursor: pointer;
+}
+.slash-option.active {
+  background: var(--hover);
+}
+.slash-option-copy {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+  gap: 2px;
+}
+.slash-option-copy strong {
+  font-size: 13px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.slash-option-copy > span {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.slash-option-source {
+  font-size: 11px;
+  color: var(--muted);
+  flex: none;
+}
+.slash-empty {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--muted);
+  padding: 8px;
+  margin: 0;
+}
+.command-selection-actions {
+  display: flex;
+  gap: 4px;
+  padding-block: 4px;
+}
+.command-selection-actions .button,
+.command-edit .button {
+  min-height: 28px;
+  height: 28px;
+  padding-inline: 8px;
+  font-size: 12px;
+}
+.command-edit {
+  display: flex;
+  gap: 6px;
+  align-items: flex-end;
+  border-top: 1px solid var(--line);
+  padding: 10px 0;
+}
+.command-edit label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+  min-width: 0;
+}
+.command-edit label > span {
+  font-size: 11px;
+  color: var(--muted);
+}
+.command-edit input {
+  border: 1px solid var(--line);
+  border-radius: var(--field-radius);
+  background: var(--paper);
+  padding: 4px 8px;
+  font-size: 12px;
+  height: 28px;
+  width: 100%;
+}
+.composer-command-error {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 18px;
+  margin: 6px 0 10px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .command-tag {
+    transition: none;
+  }
 }

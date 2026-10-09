@@ -75,9 +75,20 @@ export interface Session {
   pendingSessionName?: string
   messages: Message[]
   draft: string
+  draftNodes?: DraftNode[]
   attachments?: Attachment[]
   usage: Usage
 }
+export type CommandSource = 'builtin' | 'extension' | 'prompt' | 'skill'
+export interface CommandTag {
+  type: 'command'
+  id: string
+  name: string
+  source: CommandSource
+  origin: string
+  arguments: string
+}
+export type DraftNode = { type: 'text'; text: string } | CommandTag
 export interface SlashCommand {
   name: string
   description?: string

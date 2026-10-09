@@ -3,6 +3,7 @@ import { navigateToPage } from '../router/navigation'
 import { request } from './desktop'
 import { isDesktop, useWorkspace } from '../store/workspace'
 import type { SlashCommand } from '../types'
+import { createCommandTag, sessionDraft } from './draft'
 
 export interface DiscoverableCommand extends Omit<SlashCommand, 'source'> {
   source: SlashCommand['source'] | 'builtin'
@@ -17,6 +18,20 @@ export function commandCapability(command: DiscoverableCommand) {
 }
 export function commandSource(command: DiscoverableCommand) {
   return command.sourceInfo?.source || command.sourceInfo?.path || ''
+}
+const builtinCache = new Map<string, Promise<DiscoverableCommand[]>>()
+export function loadBuiltinCommands(executable: string): Promise<DiscoverableCommand[]> {
+  if (!isDesktop) return Promise.resolve([])
+  const cached = builtinCache.get(executable)
+  if (cached) return cached
+  const pending = invoke<DiscoverableCommand[]>('builtin_commands', { executable }).catch(
+    (error) => {
+      builtinCache.delete(executable)
+      throw error
+    },
+  )
+  builtinCache.set(executable, pending)
+  return pending
 }
 export function filterCommands(
   commands: DiscoverableCommand[],
@@ -38,7 +53,7 @@ export async function discoverCommands(): Promise<DiscoverableCommand[]> {
   const { activeSessionId, piExecutable } = useWorkspace.getState()
   const [runtime, builtin] = await Promise.all([
     request<{ commands: SlashCommand[] }>({ type: 'get_commands' }),
-    invoke<DiscoverableCommand[]>('builtin_commands', { executable: piExecutable }),
+    loadBuiltinCommands(piExecutable),
   ])
   const current = useWorkspace.getState()
   if (
@@ -56,7 +71,9 @@ export function insertCommand(command: DiscoverableCommand) {
   const session = store.sessions.find((item) => item.id === store.activeSessionId)
   if (!session || store.runningSessionId || store.connection !== 'connected') return false
   // Keep the user's draft intact; command parameters can be reviewed before sending.
-  store.updateSession(session.id, { draft: `/${command.name} ${session.draft}` })
+  store.updateSession(session.id, {
+    draftNodes: [createCommandTag(command), { type: 'text', text: ' ' }, ...sessionDraft(session)],
+  })
   void navigateToPage('chat')
   return true
 }

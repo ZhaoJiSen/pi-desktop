@@ -1,7 +1,7 @@
 import { Button, Popover } from '@heroui/react'
 import { ArrowUp, Brain, Check, ChevronDown, GitBranch, Paperclip, Square, X } from 'lucide-react'
 import { motion } from 'motion/react'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { isDesktop, useWorkspace } from '../store/workspace'
 import { abortPrompt, changeThinking, readAttachments, sendPrompt } from '../lib/desktop'
 import { useT } from '../lib/i18n'
@@ -9,6 +9,11 @@ import { cost, errorText, tokens } from '../lib/utils'
 import type { MessageKey } from '../lib/locale'
 import type { ThinkingLevel } from '../types'
 import { ModelSelector } from './ModelSelector'
+import { DraftEditor } from './composer/DraftEditor'
+import { useComposerCommands } from './composer/useComposerCommands'
+import { planDraft, sessionDraft } from '../lib/draft'
+import { draftProblemMessage } from '../lib/draftMessages'
+import { navigateToPage } from '../router/navigation'
 
 const thinkingLabel = {
   off: 'thinking.off',
@@ -21,6 +26,10 @@ const thinkingLabel = {
 } as const satisfies Record<ThinkingLevel, MessageKey>
 
 export function Composer() {
+  const active = useWorkspace((state) => state.activeSessionId)
+  return active ? <SessionComposer key={active} /> : null
+}
+function SessionComposer() {
   const session = useWorkspace((state) =>
     state.sessions.find((item) => item.id === state.activeSessionId),
   )
@@ -40,21 +49,34 @@ export function Composer() {
   const [thinkingOpen, setThinkingOpen] = useState(false)
   const [sending, setSending] = useState(false)
   const [reading, setReading] = useState(false)
-  const input = useRef<HTMLTextAreaElement>(null)
+  const [modelOpen, setModelOpen] = useState(false)
+  const [commandError, setCommandError] = useState('')
+  const catalog = useComposerCommands()
   const fileInput = useRef<HTMLInputElement>(null)
   const t = useT()
-  useEffect(() => {
-    input.current?.focus()
-  }, [session?.id])
   if (!session) return null
+  const navigationOnly =
+    planDraft(sessionDraft(session), catalog.commands, attachments.length).kind === 'navigate'
   async function submit() {
-    if (sending || reading) return
+    if (sending || reading || running || connecting) return
+    const plan = planDraft(sessionDraft(session!), catalog.commands, attachments.length)
+    if (plan.kind === 'error') {
+      setCommandError(draftProblemMessage(plan, t))
+      return
+    }
+    setCommandError('')
+    if (plan.kind === 'navigate') {
+      if (plan.name === 'model') setModelOpen(true)
+      else if (plan.name === 'thinking') setThinkingOpen(true)
+      else await navigateToPage(plan.name === 'settings' ? 'settings' : 'usage')
+      update(session!.id, { draftNodes: [] })
+      return
+    }
     setSending(true)
     try {
       if (await sendPrompt(attachments)) update(session!.id, { attachments: [] })
     } finally {
       setSending(false)
-      input.current?.focus()
     }
   }
   async function attach(files: FileList | File[]) {
@@ -143,24 +165,21 @@ export function Composer() {
           ))}
         </div>
       )}
-      <textarea
-        ref={input}
-        value={session.draft}
-        onChange={(event) => update(session.id, { draft: event.target.value })}
-        aria-label={t('composer.placeholder')}
-        placeholder={t('composer.placeholder')}
-        rows={2}
-        onKeyDown={(event) => {
-          if (
-            (event.metaKey || event.ctrlKey) &&
-            event.key === 'Enter' &&
-            !event.nativeEvent.isComposing
-          ) {
-            event.preventDefault()
-            if (!running) void submit()
-          }
+      <DraftEditor
+        key={session.id}
+        value={sessionDraft(session)}
+        {...catalog}
+        onChange={(draftNodes) => {
+          update(session.id, { draftNodes })
+          setCommandError('')
         }}
+        onSubmit={() => void submit()}
       />
+      {commandError && (
+        <p className="composer-command-error" role="alert">
+          {commandError}
+        </p>
+      )}
       <div className="composer-toolbar">
         <input
           ref={fileInput}
@@ -183,7 +202,7 @@ export function Composer() {
         >
           <Paperclip />
         </Button>
-        <ModelSelector />
+        <ModelSelector isOpen={modelOpen} onOpenChange={setModelOpen} />
         <Popover isOpen={thinkingOpen} onOpenChange={setThinkingOpen}>
           <Button
             variant="ghost"
@@ -226,7 +245,7 @@ export function Composer() {
                   reading ||
                   connecting ||
                   (!session.draft.trim() && !attachments.length) ||
-                  (isDesktop && !model))
+                  (isDesktop && !model && !navigationOnly))
               }
               onPress={running ? () => void abortPrompt() : undefined}
             >
