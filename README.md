@@ -50,7 +50,8 @@ Tauri 2 + React/TypeScript + Vite + TanStack Router + Tailwind CSS 4 + Zustand +
 - `src/components`：对话、输入、导航、浮层和其他界面组件。
 - `src/styles`：`vendor.css` 加载 Tailwind/HeroUI，`index.scss` 按原有覆盖顺序汇总主题、基础样式和各功能模块。业务样式使用 SCSS，由 Vite 和 `sass-embedded` 编译；跨模块的深色、窗口尺寸和减少动态效果规则集中在 `_responsive.scss`。
 - `src/store/workspace.ts`：工作区、草稿、偏好与持久化。
-- `src/lib/desktop.ts`：前端 RPC 与运行状态管理。
+- `src/lib/desktop.ts`：桌面 API 的统一入口；`src/lib/desktop/` 按连接生命周期、启动恢复、RPC、事件、消息发送和桌面操作划分实现，共享同一份运行状态。
+- `src/components/composer/DraftEditor.tsx`：草稿编辑器入口；同目录的 Hook、事件处理、命令菜单和参数编辑组件分别维护编辑状态与交互。
 - `src/lib/rpc.ts`：消息、工具结果、diff 和用量归一化。
 - `src/lib/packages.ts`：扩展界面的类型与原生 command 调用，不直接访问 npm registry。
 - `src-tauri/src/packages.rs` / `packages/registry.rs`：本地扩展配置、安装管理、npm 搜索、包详情、版本比较和批量检查更新。原生 HTTP 客户端复用连接，并设置连接和请求超时。

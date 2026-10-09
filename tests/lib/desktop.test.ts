@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { createCommandTag } from '../../src/lib/draft'
 
 const mocks = vi.hoisted(() => ({
   invoke: vi.fn(),
@@ -1330,6 +1331,107 @@ describe('desktop prompt lifecycle', () => {
       messages: [{ role: 'user' }],
     })
     expect(useWorkspace.getState().connectionError).toBe('Refresh failed')
+  })
+  it('sends a structured runtime command using its metadata and clears accepted tag drafts', async () => {
+    const command = {
+      name: 'review',
+      source: 'extension' as const,
+      sourceInfo: { source: 'npm:review' },
+    }
+    const tag = { ...createCommandTag(command), arguments: 'main' }
+    useWorkspace
+      .getState()
+      .updateSession(id, { draftNodes: [tag, { type: 'text', text: ' inspect' }] })
+    mocks.invoke.mockImplementation(async (name, args) => {
+      if (name !== 'pi_request') return undefined
+      if (args.command.type === 'get_commands') return { commands: [command] }
+      if (args.command.type === 'prompt') return { disposition: 'handled' }
+      return metadata(args.command)
+    })
+    expect(await sendPrompt([])).toBe(true)
+    expect(mocks.invoke).toHaveBeenCalledWith(
+      'pi_request',
+      expect.objectContaining({
+        command: expect.objectContaining({ type: 'prompt', message: '/review main inspect' }),
+      }),
+    )
+    expect(useWorkspace.getState().sessions.find((s) => s.id === id)).toMatchObject({
+      draft: '',
+      draftNodes: [],
+    })
+  })
+  it('preserves unavailable or multi-command drafts without invoking prompt', async () => {
+    const command = { name: 'review', source: 'extension' as const }
+    const tag = createCommandTag(command)
+    useWorkspace.getState().updateSession(id, { draftNodes: [tag] })
+    mocks.invoke.mockClear()
+    expect(await sendPrompt([])).toBe(false)
+    expect(useWorkspace.getState().sessions.find((s) => s.id === id)?.draftNodes).toEqual([tag])
+    expect(mocks.invoke.mock.calls.some(([, args]) => args?.command?.type === 'prompt')).toBe(false)
+    const nodes = [tag, createCommandTag(command)]
+    useWorkspace.getState().updateSession(id, { draftNodes: nodes })
+    mocks.invoke.mockImplementation(async (name, args) =>
+      name === 'pi_request' && args.command.type === 'get_commands'
+        ? { commands: [command] }
+        : undefined,
+    )
+    expect(await sendPrompt([])).toBe(false)
+    expect(useWorkspace.getState().sessions.find((s) => s.id === id)?.draftNodes).toEqual(nodes)
+    expect(mocks.invoke.mock.calls.some(([, args]) => args?.command?.type === 'prompt')).toBe(false)
+  })
+  it('does not send a tag into a different session if command validation finishes after switching', async () => {
+    const command = { name: 'review', source: 'extension' as const }
+    const tag = createCommandTag(command)
+    const store = useWorkspace.getState()
+    store.updateSession(id, { draftNodes: [tag] })
+    let release!: (value: { commands: (typeof command)[] }) => void
+    let hold = true
+    mocks.invoke.mockImplementation(async (name, args) => {
+      if (name !== 'pi_request') return []
+      if (args.command.type === 'get_commands' && hold) {
+        hold = false
+        return new Promise((resolve) => {
+          release = resolve
+        })
+      }
+      return metadata(args.command)
+    })
+    mocks.invoke.mockClear()
+    const sending = sendPrompt([])
+    const next = store.createSession(store.projects[0].id)
+    await connectSession(next)
+    release({ commands: [command] })
+    expect(await sending).toBe(false)
+    expect(mocks.invoke.mock.calls.some(([, args]) => args?.command?.type === 'prompt')).toBe(false)
+    expect(useWorkspace.getState().sessions.find((s) => s.id === id)?.draftNodes).toEqual([tag])
+    expect(useWorkspace.getState().commands).toEqual([])
+  })
+  it('uses compact RPC instead of a model prompt and retains tags on RPC failure', async () => {
+    const tag = createCommandTag({ name: 'compact', source: 'builtin' })
+    useWorkspace
+      .getState()
+      .updateSession(id, { draftNodes: [tag, { type: 'text', text: ' retain code' }] })
+    let fail = true
+    mocks.invoke.mockImplementation(async (name, args) => {
+      if (name === 'builtin_commands') return [{ name: 'compact', source: 'builtin' }]
+      if (name !== 'pi_request') return undefined
+      if (args.command.type === 'compact' && fail) throw new Error('compact failed')
+      return metadata(args.command)
+    })
+    mocks.invoke.mockClear()
+    expect(await sendPrompt([])).toBe(false)
+    expect(useWorkspace.getState().sessions.find((s) => s.id === id)?.draftNodes?.[0]).toEqual(tag)
+    expect(useWorkspace.getState().runningSessionId).toBeNull()
+    fail = false
+    expect(await sendPrompt([])).toBe(true)
+    expect(mocks.invoke).toHaveBeenCalledWith(
+      'pi_request',
+      expect.objectContaining({
+        command: expect.objectContaining({ type: 'compact', customInstructions: 'retain code' }),
+      }),
+    )
+    expect(mocks.invoke.mock.calls.some(([, args]) => args?.command?.type === 'prompt')).toBe(false)
+    expect(useWorkspace.getState().sessions.find((s) => s.id === id)?.draftNodes).toEqual([])
   })
 
   it('preserves newer typing during acknowledgement and holds the run lock until settled', async () => {
