@@ -25,33 +25,36 @@ export function PackageFeedback({
   if (!error && !notice && !changed) return null
   return (
     <MotionAlert
-      status={error ? 'danger' : 'default'}
+      status={error ? 'danger' : changed ? 'success' : 'default'}
       className={`package-feedback ${error ? 'is-error' : ''}`}
       role={error ? 'alert' : 'status'}
       initial={reduced ? false : { opacity: 0, y: -3 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.16 }}
     >
+      <Alert.Indicator />
       <Alert.Content>
         <Alert.Description>{error || notice || t('packages.reloadHint')}</Alert.Description>
       </Alert.Content>
-      {error && !removing && !reloadFailed && (
-        <Button variant="ghost" isDisabled={Boolean(busy)} onPress={retryOperation}>
-          {t('packages.retry')}
-        </Button>
-      )}
-      {changed && (
-        <Button
-          className="package-reload"
-          variant="ghost"
-          isDisabled={(Boolean(busy) && busy !== 'reload') || running}
-          isPending={busy === 'reload'}
-          onPress={() => void reload()}
-        >
-          {busy === 'reload' ? <PackageLoadingIcon /> : <RotateCw />}
-          {t(busy === 'reload' ? 'packages.reloading' : 'packages.reload')}
-        </Button>
-      )}
+      <div className="package-feedback-actions">
+        {error && !removing && !reloadFailed && (
+          <Button variant="ghost" isDisabled={Boolean(busy)} onPress={retryOperation}>
+            {t('packages.retry')}
+          </Button>
+        )}
+        {changed && (
+          <Button
+            className="package-reload"
+            variant="ghost"
+            isDisabled={(Boolean(busy) && busy !== 'reload') || running}
+            isPending={busy === 'reload'}
+            onPress={() => void reload()}
+          >
+            {busy === 'reload' ? <PackageLoadingIcon /> : <RotateCw />}
+            {t(busy === 'reload' ? 'packages.reloading' : 'packages.reload')}
+          </Button>
+        )}
+      </div>
     </MotionAlert>
   )
 }

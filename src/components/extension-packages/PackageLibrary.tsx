@@ -100,6 +100,7 @@ export function PackageLibrary({
       aria-label={mode === 'installed' ? t('packages.installed') : t('packages.discover')}
     >
       <div className="package-library-controls">
+        <h2 className="package-library-title">{t('navigation.extensions')}</h2>
         <div className="package-library-toolbar">
           <Tabs
             selectedKey={mode}

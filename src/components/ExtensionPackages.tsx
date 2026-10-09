@@ -1,4 +1,6 @@
 import { motion, useReducedMotion } from 'motion/react'
+import { SplitPane } from './SplitPane'
+import { useT } from '../lib/i18n'
 import { PackageToast } from './extension-packages/PackageToast'
 import { PackageLibrary } from './extension-packages/PackageLibrary'
 import { PackageDetail } from './extension-packages/PackageDetail'
@@ -8,6 +10,7 @@ import { useExtensionPackages } from './extension-packages/useExtensionPackages'
 export { PackageServices } from './extension-packages/services'
 
 export function ExtensionPackages() {
+  const t = useT()
   const manager = useExtensionPackages()
   const reduced = useReducedMotion()
 
@@ -18,7 +21,15 @@ export function ExtensionPackages() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.18 }}
     >
-      <div className={`package-workspace ${manager.mobileDetail ? 'detail-open' : ''}`}>
+      <SplitPane
+        className={`package-workspace ${manager.mobileDetail ? 'detail-open' : ''}`}
+        storageKey="pi.extensions-panel-width"
+        defaultWidth={340}
+        minWidth={270}
+        minContentWidth={360}
+        collapseAt={780}
+        label={t('layout.resizeExtensions')}
+      >
         <PackageLibrary
           {...manager.library}
           packageCount={manager.packageCount}
@@ -26,7 +37,7 @@ export function ExtensionPackages() {
           feedback={manager.feedback}
         />
         <PackageDetail {...manager.detail} feedback={manager.feedback} />
-      </div>
+      </SplitPane>
       <PackageToast {...manager.toast} />
       <RemovePackageDialog {...manager.removeDialog} />
     </motion.div>
