@@ -82,20 +82,22 @@
   .app-shell {
     position: relative;
   }
+  .window-chrome {
+    grid-template-columns: 160px minmax(0, 1fr);
+  }
   .sidebar {
     position: absolute;
     inset: 0 auto 0 0;
-    width: var(--sidebar-width);
+    width: 100%;
     z-index: 20;
     box-shadow: 8px 0 20px #0002;
   }
-  .app-shell,
-  .app-shell.sidebar-collapsed {
+  .workspace-surface {
     grid-template-columns: minmax(0, 1fr);
   }
   .app-shell:not(.sidebar-collapsed) .main {
-    margin-left: var(--sidebar-width);
-    min-width: 330px;
+    margin-left: 0;
+    min-width: 0;
   }
   .app-shell:not(.sidebar-collapsed) .conversation,
   .app-shell:not(.sidebar-collapsed) .composer-area {

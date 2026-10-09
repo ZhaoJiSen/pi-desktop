@@ -5,10 +5,8 @@ import { useCurrentPage } from '../router/hooks'
 import { useWorkspace } from '../store/workspace'
 import { useT } from '../lib/i18n'
 import { exportSession } from '../lib/desktop'
-import { SidebarToggle, WindowControls } from './Chrome'
 
 export function Header({ onRename }: { onRename: () => void }) {
-  const sidebarOpen = useWorkspace((state) => state.sidebarOpen)
   const session = useWorkspace((state) =>
     state.sessions.find((item) => item.id === state.activeSessionId),
   )
@@ -20,12 +18,6 @@ export function Header({ onRename }: { onRename: () => void }) {
   const title = view === 'chat' ? session?.title || t('sessions.new') : t(`navigation.${view}`)
   return (
     <header className="main-header" data-tauri-drag-region="deep">
-      {!sidebarOpen && (
-        <div className="collapsed-chrome">
-          <WindowControls />
-          <SidebarToggle />
-        </div>
-      )}
       <h1 title={title}>{title}</h1>
       {session && view === 'chat' && (
         <div className="header-actions" data-tauri-drag-region="false">

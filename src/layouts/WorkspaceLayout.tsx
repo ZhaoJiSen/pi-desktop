@@ -1,7 +1,7 @@
 import { Outlet } from '@tanstack/react-router'
 import { useKeyPress } from 'ahooks'
 import { MotionConfig } from 'motion/react'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, type CSSProperties } from 'react'
 import {
   ExtensionDialog,
   ProjectDialog,
@@ -10,7 +10,10 @@ import {
   SearchDialog,
 } from '../components/Dialogs'
 import { Header } from '../components/Header'
+import { SplitPane } from '../components/SplitPane'
 import { Sidebar } from '../components/Sidebar'
+import { ActivityRail } from '../components/ActivityRail'
+import { SidebarToggle, WindowControls } from '../components/Chrome'
 import { ConnectionNotice } from '../components/ConnectionNotice'
 import { RuntimeNotice } from '../components/RuntimeNotice'
 import { StartupScreen } from '../components/StartupScreen'
@@ -30,7 +33,9 @@ export function WorkspaceLayout() {
   const connection = useWorkspace((state) => state.connection)
   const running = useWorkspace((state) => state.runningSessionId)
   const view = useCurrentPage()
+  const showSidebar = sidebar && view === 'chat'
   const { startup, startupError, retryStartup, continueStartup } = useDesktopLifecycle(view)
+  const [sidebarWidth, setSidebarWidth] = useState(280)
   const [searchOpen, setSearchOpen] = useState(false)
   const [projectOpen, setProjectOpen] = useState(false)
   const [renameId, setRenameId] = useState<string | null>(null)
@@ -100,25 +105,48 @@ export function WorkspaceLayout() {
   return (
     <MotionConfig reducedMotion="user">
       <main
-        className={`app-shell ${sidebar ? '' : 'sidebar-collapsed'} ${isDesktop ? 'native' : 'browser'}`}
+        className={`app-shell ${showSidebar ? '' : 'sidebar-collapsed'} ${isDesktop ? 'native' : 'browser'}`}
+        style={{ '--sidebar-width': `${sidebarWidth}px` } as CSSProperties}
       >
-        {sidebar && (
-          <Sidebar
-            onNew={newChat}
-            onSearch={() => setSearchOpen(true)}
-            onProject={() => void addProject()}
-            onRename={setRenameId}
-            onRemove={setRemoveId}
-          />
-        )}
-        <section className="main" aria-label={t('sessions.current')}>
-          <Header onRename={() => setRenameId(active)} />
-          {view !== 'chat' && <ConnectionNotice utility />}
-          <WorkspaceActionsContext.Provider value={{ onProject: () => void addProject() }}>
-            <Outlet />
-          </WorkspaceActionsContext.Provider>
-          <RuntimeNotice />
-        </section>
+        <div className="window-chrome" data-tauri-drag-region="deep">
+          <div className="window-controls" data-tauri-drag-region="deep">
+            <WindowControls />
+            {view === 'chat' && <SidebarToggle />}
+          </div>
+          {view === 'chat' && <Header onRename={() => setRenameId(active)} />}
+        </div>
+        <ActivityRail />
+        <SplitPane
+          className="workspace-surface"
+          storageKey="pi.home-panel-width"
+          defaultWidth={280}
+          minWidth={200}
+          minContentWidth={320}
+          collapseAt={600}
+          enabled={showSidebar}
+          label={t('layout.resizeHome')}
+          onWidthChange={setSidebarWidth}
+        >
+          {showSidebar && (
+            <Sidebar
+              onNew={newChat}
+              onSearch={() => setSearchOpen(true)}
+              onProject={() => void addProject()}
+              onRename={setRenameId}
+              onRemove={setRemoveId}
+            />
+          )}
+          <section className="main" aria-label={t('sessions.current')}>
+            {view !== 'chat' && view !== 'extensions' && (
+              <Header onRename={() => setRenameId(active)} />
+            )}
+            {view !== 'chat' && <ConnectionNotice utility />}
+            <WorkspaceActionsContext.Provider value={{ onProject: () => void addProject() }}>
+              <Outlet />
+            </WorkspaceActionsContext.Provider>
+            <RuntimeNotice />
+          </section>
+        </SplitPane>
       </main>
       <SearchDialog open={searchOpen} onClose={() => setSearchOpen(false)} />
       <ProjectDialog open={projectOpen} onClose={() => setProjectOpen(false)} />

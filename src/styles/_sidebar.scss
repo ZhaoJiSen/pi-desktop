@@ -1,21 +1,17 @@
-.app-shell.sidebar-collapsed {
-  grid-template-columns: minmax(0, 1fr);
-}
 .sidebar {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  background: var(--sidebar);
+  background: var(--paper);
   border-right: 1px solid var(--line);
   overflow: hidden;
 }
 .sidebar-chrome {
-  height: var(--header-height);
-  padding: 0 17px;
+  min-height: 56px;
+  padding: 14px 18px 10px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid var(--line);
   flex: none;
 }
 .traffic {
@@ -67,7 +63,7 @@
 .nav {
   display: grid;
   gap: 3px;
-  padding: 10px 12px 0;
+  padding: 2px 12px 0;
 }
 .button.nav-row {
   display: flex;
@@ -99,10 +95,10 @@
   letter-spacing: 0.4px;
 }
 .nav .button.nav-row {
-  height: 32px;
-  min-height: 32px;
-  gap: 8px;
-  font-size: 13px;
+  height: 36px;
+  min-height: 36px;
+  gap: 10px;
+  font-size: 14px;
   transition:
     background-color 120ms ease-out,
     color 120ms ease-out;
@@ -130,17 +126,19 @@
   white-space: nowrap;
 }
 .projects {
-  padding: 22px 12px 10px;
+  flex: 1;
+  min-height: 0;
+  padding: 18px 12px 12px;
   overflow-y: auto;
 }
 .section-label {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 25px;
-  margin: 0 6px 9px 7px;
+  height: 28px;
+  margin: 0 6px 8px 7px;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 13px;
 }
 .section-label svg {
   width: 15px;
@@ -166,6 +164,16 @@
   width: 12px;
   height: 12px;
 }
+.sidebar .sidebar-search {
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  min-height: 28px;
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}
 .sidebar
   .sidebar-action:is(:hover, [data-hovered='true'], [aria-expanded='true']):not(
     :disabled,
@@ -182,11 +190,11 @@
   opacity: 0.4;
 }
 .project {
-  margin-bottom: 4px;
+  margin-bottom: 10px;
 }
 .project-heading {
   position: relative;
-  border-radius: var(--radius-3xl);
+  border-radius: var(--radius-lg, var(--radius));
 }
 .project-heading:hover,
 .project-heading:focus-within,
@@ -199,11 +207,11 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  height: 32px;
-  min-height: 32px;
+  height: 36px;
+  min-height: 36px;
   gap: 8px;
   padding: 0 7px;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 400;
   text-align: left;
   background: transparent;
@@ -237,7 +245,7 @@
 .project-actions {
   position: absolute;
   right: 6px;
-  top: 4px;
+  top: 6px;
   display: flex;
   gap: 4px;
   opacity: 0;
@@ -325,14 +333,14 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  padding-top: 3px;
+  gap: 2px;
+  padding-top: 2px;
 }
 .session-row {
   position: relative;
-  height: 32px;
+  height: 36px;
   flex: none;
-  border-radius: var(--radius-3xl);
+  border-radius: var(--radius-lg, var(--radius));
 }
 .session-row:not(.selected):is(:hover, :focus-within) {
   background: var(--hover);
@@ -343,13 +351,13 @@
   justify-content: flex-start;
   gap: 8px;
   position: relative;
-  height: 32px;
-  min-height: 32px;
+  height: 36px;
+  min-height: 36px;
   padding: 0 54px 0 30px;
   width: 100%;
   min-width: 0;
   text-align: left;
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 400;
   background: transparent;
   color: var(--ink);
@@ -374,7 +382,7 @@
 .session-actions {
   position: absolute;
   right: 6px;
-  top: 4px;
+  top: 6px;
   display: flex;
   gap: 4px;
 }
@@ -420,13 +428,55 @@
     transition: none;
   }
 }
-.sidebar-bottom {
-  margin: auto 16px 15px;
-  padding-top: 10px;
-  border-top: 1px solid var(--line);
-  flex: none;
+// Global navigation sits outside the workspace surface.
+.activity-rail {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 0 12px;
 }
-.sidebar-bottom .button.nav-row {
-  height: 33px;
-  min-height: 33px;
+.rail-primary,
+.rail-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.rail-bottom {
+  margin-top: auto;
+  padding-top: 12px;
+}
+.button.rail-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  min-height: 36px;
+  padding: 0;
+  color: var(--muted);
+  isolation: isolate;
+}
+.rail-item > svg {
+  width: 19px;
+  height: 19px;
+  stroke-width: 1.65;
+}
+.button.rail-item:is(:hover, [data-hovered='true'], [aria-current='page']) {
+  color: var(--ink);
+  background: transparent;
+}
+.rail-selection {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--selection);
+}
+.sidebar-title {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 28px;
 }

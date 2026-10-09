@@ -1,19 +1,8 @@
-import { Button } from '@heroui/react'
+import { Button, Tooltip } from '@heroui/react'
 import { AnimatePresence, motion } from 'motion/react'
-import {
-  ChartNoAxesCombined,
-  Folder,
-  Grid2X2,
-  Plus,
-  Search,
-  Settings,
-  SquarePen,
-  Terminal,
-} from 'lucide-react'
-import { navigateToPage } from '../router/navigation'
+import { Folder, Plus, Search, SquarePen } from 'lucide-react'
 import { useCurrentPage } from '../router/hooks'
 import { useWorkspace } from '../store/workspace'
-import { SidebarToggle, WindowControls } from './Chrome'
 import { useT } from '../lib/i18n'
 import { useState } from 'react'
 import { SessionContextMenu, type SessionMenuTarget } from './SessionContextMenu'
@@ -21,13 +10,13 @@ import { ProjectRow } from './ProjectRow'
 import { SessionRow } from './SessionRow'
 
 interface Props {
-  onNew: () => void
   onSearch: () => void
+  onNew: () => void
   onProject: () => void
   onRename: (id: string) => void
   onRemove: (id: string) => void
 }
-export function Sidebar({ onNew, onSearch, onProject, onRename, onRemove }: Props) {
+export function Sidebar({ onSearch, onNew, onProject, onRename, onRemove }: Props) {
   const [menu, setMenu] = useState<SessionMenuTarget | null>(null)
   const savedProjects = useWorkspace((state) => state.projects)
   const projects = savedProjects
@@ -41,45 +30,32 @@ export function Sidebar({ onNew, onSearch, onProject, onRename, onRemove }: Prop
   const t = useT()
   const locked = Boolean(running) || connecting
   return (
-    <motion.aside
-      className="sidebar"
-      aria-label={t('sidebar.label')}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.25, delay: 0.1 }}
-    >
+    <aside className="sidebar" aria-label={t('sidebar.label')}>
       <div className="sidebar-chrome" data-tauri-drag-region="deep">
-        <WindowControls />
-        <SidebarToggle />
+        <span className="sidebar-title">Pi Desktop</span>
+        <Tooltip delay={450}>
+          <Tooltip.Trigger role="presentation" tabIndex={-1}>
+            <Button
+              isIconOnly
+              variant="ghost"
+              className="sidebar-action sidebar-search"
+              aria-label={t('common.search')}
+              onPress={onSearch}
+              data-tauri-drag-region="false"
+            >
+              <Search />
+            </Button>
+          </Tooltip.Trigger>
+          <Tooltip.Content placement="right" offset={10}>
+            {t('common.search')} · ⌘ K
+          </Tooltip.Content>
+        </Tooltip>
       </div>
-      <nav className="nav" aria-label={t('navigation.label')}>
+      <nav className="nav" aria-label={t('sessions.actions')}>
         <Button variant="ghost" className="nav-row" onPress={onNew} isDisabled={locked}>
           <SquarePen />
           {t('sessions.new')}
           <span className="shortcut">⌘ N</span>
-        </Button>
-        <Button variant="ghost" className="nav-row" onPress={onSearch}>
-          <Search />
-          {t('common.search')}
-          <span className="shortcut">⌘ K</span>
-        </Button>
-        <Button
-          variant="ghost"
-          className={`nav-row ${view === 'extensions' ? 'nav-active' : ''}`}
-          aria-current={view === 'extensions' ? 'page' : undefined}
-          onPress={() => void navigateToPage('extensions')}
-        >
-          <Grid2X2 />
-          {t('navigation.extensions')}
-        </Button>
-        <Button
-          variant="ghost"
-          className={`nav-row ${view === 'commands' ? 'nav-active' : ''}`}
-          aria-current={view === 'commands' ? 'page' : undefined}
-          onPress={() => void navigateToPage('commands')}
-        >
-          <Terminal />
-          {t('navigation.commands')}
         </Button>
       </nav>
       <div className="projects">
@@ -107,7 +83,6 @@ export function Sidebar({ onNew, onSearch, onProject, onRename, onRemove }: Prop
               )
             return (
               <motion.section
-                layout="position"
                 key={project.id}
                 className="project"
                 initial={{ opacity: 0 }}
@@ -153,24 +128,6 @@ export function Sidebar({ onNew, onSearch, onProject, onRename, onRemove }: Prop
           </Button>
         )}
       </div>
-      <div className="sidebar-bottom">
-        <Button
-          variant="ghost"
-          className={`nav-row ${view === 'usage' ? 'nav-active' : ''}`}
-          onPress={() => void navigateToPage('usage')}
-        >
-          <ChartNoAxesCombined />
-          {t('navigation.usage')}
-        </Button>
-        <Button
-          variant="ghost"
-          className={`nav-row ${view === 'settings' ? 'nav-active' : ''}`}
-          onPress={() => void navigateToPage('settings')}
-        >
-          <Settings />
-          {t('navigation.settings')}
-        </Button>
-      </div>
       {menu && (
         <SessionContextMenu
           key={menu.id}
@@ -180,6 +137,6 @@ export function Sidebar({ onNew, onSearch, onProject, onRename, onRemove }: Prop
           onRemove={onRemove}
         />
       )}
-    </motion.aside>
+    </aside>
   )
 }

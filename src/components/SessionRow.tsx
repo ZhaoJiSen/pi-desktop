@@ -27,17 +27,12 @@ export function SessionRow({
   const pinLabel = t(session.pinned ? 'sessions.unpin' : 'sessions.pin')
   return (
     <motion.div
-      layout="position"
       className={`session-row ${selected ? 'selected' : ''}`}
-      transition={{ duration: 0.18 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.12 }}
     >
-      {selected && (
-        <motion.span
-          layoutId="session-selection"
-          className="session-selection"
-          transition={{ duration: 0.18 }}
-        />
-      )}
+      {selected && <span className="session-selection" />}
       <Button
         variant="ghost"
         className="session"
