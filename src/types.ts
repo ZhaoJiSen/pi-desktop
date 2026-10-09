@@ -33,7 +33,11 @@ export interface Usage {
   contextWindow: number | null
 }
 
-export interface DiffLine { number?: number; kind: 'add' | 'remove' | 'context'; text: string }
+export interface DiffLine {
+  number?: number
+  kind: 'add' | 'remove' | 'context'
+  text: string
+}
 export interface ToolBlock {
   type: 'tool'
   id: string
@@ -81,9 +85,18 @@ export interface SlashCommand {
   source: 'extension' | 'prompt' | 'skill'
   sourceInfo?: { path?: string; source?: string; scope?: string }
 }
-export interface ExtensionPackage { source: string; scope: 'global' | 'project' }
-export interface PiEvent { type: string; [key: string]: unknown }
-export interface RuntimeEvent { runId: string; event: PiEvent }
+export interface ExtensionPackage {
+  source: string
+  scope: 'global' | 'project'
+}
+export interface PiEvent {
+  type: string
+  [key: string]: unknown
+}
+export interface RuntimeEvent {
+  runId: string
+  event: PiEvent
+}
 export interface RpcState {
   model?: Model
   thinkingLevel: ThinkingLevel

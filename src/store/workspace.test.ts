@@ -4,7 +4,15 @@ import { createWorkspaceStore } from './workspace'
 
 function memoryStorage() {
   const data = new Map<string, string>()
-  return { getItem: (name: string) => data.get(name) || null, setItem: (name: string, value: string) => { data.set(name, value) }, removeItem: (name: string) => { data.delete(name) } } satisfies StateStorage
+  return {
+    getItem: (name: string) => data.get(name) || null,
+    setItem: (name: string, value: string) => {
+      data.set(name, value)
+    },
+    removeItem: (name: string) => {
+      data.delete(name)
+    },
+  } satisfies StateStorage
 }
 
 describe('workspace persistence', () => {
@@ -18,9 +26,17 @@ describe('workspace persistence', () => {
     store.getState().togglePinSession(pinned)
     const restored = createWorkspaceStore(storage)
     expect(restored.getState().activeSessionId).toBe(active)
-    expect(restored.getState().sessions.find(session => session.id === pinned)).toMatchObject({ pinned: true, draft: '未发送的内容', updatedAt: 123 })
+    expect(restored.getState().sessions.find((session) => session.id === pinned)).toMatchObject({
+      pinned: true,
+      draft: '未发送的内容',
+      updatedAt: 123,
+    })
     restored.getState().togglePinSession(pinned)
-    expect(createWorkspaceStore(storage).getState().sessions.find(session => session.id === pinned)?.pinned).toBe(false)
+    expect(
+      createWorkspaceStore(storage)
+        .getState()
+        .sessions.find((session) => session.id === pinned)?.pinned,
+    ).toBe(false)
   })
 
   it('reports a failed session pin save while retaining the conversation in memory', async () => {
@@ -29,7 +45,9 @@ describe('workspace persistence', () => {
     store.getState().setPreference({ language: 'en' })
     const session = store.getState().createSession(store.getState().addProject('/tmp/project'))
     store.getState().updateSession(session, { draft: '保留草稿' })
-    storage.setItem = () => { throw new Error('QuotaExceededError') }
+    storage.setItem = () => {
+      throw new Error('QuotaExceededError')
+    }
     store.getState().togglePinSession(session)
     await Promise.resolve()
     expect(store.getState().storageError).toContain('Could not save locally')
@@ -74,7 +92,9 @@ describe('workspace persistence', () => {
     store.getState().setPreference({ language: 'en' })
     const project = store.getState().addProject('/tmp/project')
     const session = store.getState().createSession(project)
-    storage.setItem = () => { throw new Error('QuotaExceededError') }
+    storage.setItem = () => {
+      throw new Error('QuotaExceededError')
+    }
     store.getState().togglePinProject(project)
     await Promise.resolve()
     expect(store.getState().storageError).toContain('Could not save locally')
@@ -87,11 +107,18 @@ describe('workspace persistence', () => {
     const store = createWorkspaceStore(storage)
     const project = store.getState().addProject('/tmp/project')
     const removed = store.getState().createSession(project)
-    store.getState().updateSession(removed, { draft: 'discarded', attachments: [{ id: 'file', name: 'a.txt', kind: 'text', data: 'a', mimeType: 'text/plain' }] })
+    store.getState().updateSession(removed, {
+      draft: 'discarded',
+      attachments: [{ id: 'file', name: 'a.txt', kind: 'text', data: 'a', mimeType: 'text/plain' }],
+    })
     const active = store.getState().createSession(project)
     expect(store.getState().removeSession(removed)).toBe(true)
     expect(store.getState().activeSessionId).toBe(active)
-    expect(createWorkspaceStore(storage).getState().sessions.map(session => session.id)).toEqual([active])
+    expect(
+      createWorkspaceStore(storage)
+        .getState()
+        .sessions.map((session) => session.id),
+    ).toEqual([active])
   })
 
   it('selects the latest session in the same project, then another project, then empty state', () => {
@@ -111,7 +138,11 @@ describe('workspace persistence', () => {
     store.getState().removeSession(older)
     expect(store.getState().activeSessionId).toBe(other)
     store.getState().removeSession(other)
-    expect(store.getState()).toMatchObject({ activeSessionId: null, sessions: [], connection: 'disconnected' })
+    expect(store.getState()).toMatchObject({
+      activeSessionId: null,
+      sessions: [],
+      connection: 'disconnected',
+    })
   })
 
   it('protects a running or connecting active session from removal', () => {
@@ -129,16 +160,44 @@ describe('workspace persistence', () => {
     const store = createWorkspaceStore(storage)
     const project = store.getState().addProject('/tmp/my-project', 'feature/ui')
     const session = store.getState().createSession(project)
-    store.getState().updateSession(session, { draft: '还没有发送的想法', modelKey: 'anthropic/claude-sonnet', attachments: [{ id: 'file', name: 'notes.md', mimeType: 'text/plain', data: 'local notes', kind: 'text' }] })
+    store.getState().updateSession(session, {
+      draft: '还没有发送的想法',
+      modelKey: 'anthropic/claude-sonnet',
+      attachments: [
+        {
+          id: 'file',
+          name: 'notes.md',
+          mimeType: 'text/plain',
+          data: 'local notes',
+          kind: 'text',
+        },
+      ],
+    })
     store.getState().setPreference({ theme: 'dark', language: 'en' })
     const restored = createWorkspaceStore(storage)
-    expect(restored.getState()).toMatchObject({ activeSessionId: session, theme: 'dark', language: 'en', connection: 'disconnected', runningSessionId: null })
-    expect(restored.getState().sessions[0]).toMatchObject({ draft: '还没有发送的想法', modelKey: 'anthropic/claude-sonnet', attachments: [{ name: 'notes.md', data: 'local notes' }] })
+    expect(restored.getState()).toMatchObject({
+      activeSessionId: session,
+      theme: 'dark',
+      language: 'en',
+      connection: 'disconnected',
+      runningSessionId: null,
+    })
+    expect(restored.getState().sessions[0]).toMatchObject({
+      draft: '还没有发送的想法',
+      modelKey: 'anthropic/claude-sonnet',
+      attachments: [{ name: 'notes.md', data: 'local notes' }],
+    })
     expect(restored.getState().projects[0].branch).toBe('feature/ui')
   })
 
   it('keeps failed-to-save drafts in memory and reports a storage failure', async () => {
-    const storage = { getItem: () => null, setItem: () => { throw new Error('QuotaExceededError') }, removeItem: () => {} }
+    const storage = {
+      getItem: () => null,
+      setItem: () => {
+        throw new Error('QuotaExceededError')
+      },
+      removeItem: () => {},
+    }
     const store = createWorkspaceStore(storage)
     const project = store.getState().addProject('/tmp/project')
     const session = store.getState().createSession(project)
@@ -160,22 +219,44 @@ describe('workspace persistence', () => {
     store.setState({ runningSessionId: null })
     store.getState().selectSession(first)
     expect(store.getState().activeSessionId).toBe(first)
-    expect(store.getState().sessions.find(session => session.id === second)?.draft).toBe('second draft')
+    expect(store.getState().sessions.find((session) => session.id === second)?.draft).toBe(
+      'second draft',
+    )
   })
 
   it('does not persist process connection or replay running tool states after reload', () => {
     const storage = memoryStorage()
     const store = createWorkspaceStore(storage)
     const id = store.getState().createSession(store.getState().addProject('/tmp/project'))
-    store.getState().updateSession(id, { messages: [{ id: 'assistant', role: 'assistant', timestamp: 1, blocks: [{ type: 'tool', id: 'call', name: 'bash', label: 'pwd', args: {}, status: 'running', output: '' }] }] })
+    store.getState().updateSession(id, {
+      messages: [
+        {
+          id: 'assistant',
+          role: 'assistant',
+          timestamp: 1,
+          blocks: [
+            {
+              type: 'tool',
+              id: 'call',
+              name: 'bash',
+              label: 'pwd',
+              args: {},
+              status: 'running',
+              output: '',
+            },
+          ],
+        },
+      ],
+    })
     store.setState({ runningSessionId: id, connection: 'connected' })
     const restored = createWorkspaceStore(storage)
     expect(restored.getState().runningSessionId).toBeNull()
     expect(restored.getState().connection).toBe('disconnected')
-    expect(restored.getState().sessions[0].messages[0].blocks[0]).toMatchObject({ status: 'interrupted' })
+    expect(restored.getState().sessions[0].messages[0].blocks[0]).toMatchObject({
+      status: 'interrupted',
+    })
   })
 })
-
 
 describe('language preferences', () => {
   afterEach(() => vi.unstubAllGlobals())
@@ -212,14 +293,25 @@ describe('language preferences', () => {
 
   it('preserves legacy saved language settings and rejects unsupported saved languages', () => {
     const storage = memoryStorage()
-    storage.setItem('pi-desktop-workspace-v1', JSON.stringify({ version: 1, state: { language: 'zh' } }))
-    expect(createWorkspaceStore(storage).getState()).toMatchObject({ language: 'zh', languageSource: 'user' })
+    storage.setItem(
+      'pi-desktop-workspace-v1',
+      JSON.stringify({ version: 1, state: { language: 'zh' } }),
+    )
+    expect(createWorkspaceStore(storage).getState()).toMatchObject({
+      language: 'zh',
+      languageSource: 'user',
+    })
     vi.stubGlobal('navigator', { language: 'fr-FR' })
-    storage.setItem('pi-desktop-workspace-v1', JSON.stringify({ version: 1, state: { language: 'fr' } }))
-    expect(createWorkspaceStore(storage).getState()).toMatchObject({ language: 'en', languageSource: 'system' })
+    storage.setItem(
+      'pi-desktop-workspace-v1',
+      JSON.stringify({ version: 1, state: { language: 'fr' } }),
+    )
+    expect(createWorkspaceStore(storage).getState()).toMatchObject({
+      language: 'en',
+      languageSource: 'system',
+    })
   })
 })
-
 
 describe('language-independent session titles', () => {
   it('stores new conversations without localized placeholder text', () => {
@@ -248,8 +340,10 @@ describe('language-independent session titles', () => {
     saved.state.sessions.find((session: { id: string }) => session.id === initial).title = '新聊天'
     storage.setItem('pi-desktop-workspace-v1', JSON.stringify(saved))
     const restored = createWorkspaceStore(storage)
-    expect(restored.getState().sessions.find(session => session.id === initial)?.title).toBe('')
-    expect(restored.getState().sessions.find(session => session.id === custom)?.title).toBe('用户自己的标题')
+    expect(restored.getState().sessions.find((session) => session.id === initial)?.title).toBe('')
+    expect(restored.getState().sessions.find((session) => session.id === custom)?.title).toBe(
+      '用户自己的标题',
+    )
     expect(restored.getState().language).toBe('en')
     expect(JSON.parse(storage.getItem('pi-desktop-workspace-v1')!).version).toBe(2)
   })

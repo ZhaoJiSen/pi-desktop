@@ -25,8 +25,8 @@ pnpm dev
 
 打开 http://127.0.0.1:1420 。浏览器预览包含用于还原模板的固定会话与模型数据，可以验证界面、搜索、草稿和偏好；真实 Agent 运行只在桌面端提供，浏览器不会伪造模型回复。浏览器与桌面使用不同的本地存储键。
 
-
 前端翻译资源位于 `src/locales/en.ts` 和 `src/locales/zh.ts`，业务代码使用语义化 key，例如 `t('connection.connecting')`；含变量的完整文案使用 `t('composer.sendHint', { shortcut: '⌘ ↵' })`。TypeScript 校验 key 及必需参数，测试检查语言资源和插值参数一致性。新会话标题以空值保存，显示时使用 `sessions.new`，用户输入的标题与插件内容不作为翻译 key。
+
 ## 已实现
 
 - 项目文件夹组织会话；新建、切换、搜索标题和全文。右键会话可重命名、导出 Markdown 或移除，也支持 `Shift F10` / 菜单键。移除清理桌面端记录及草稿，保留 pi 原始会话文件；当前会话移除后优先打开同项目最近会话。未连接会话的名称会在下次连接时同步到 pi。
@@ -55,10 +55,13 @@ Tauri 2 + React/TypeScript + Vite + Tailwind CSS 4 + Zustand + ahooks + Motion +
 ```sh
 pnpm typecheck
 pnpm lint
+pnpm format:check
 pnpm verify
 cargo check --manifest-path src-tauri/Cargo.toml
 cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
 ```
+
+`pnpm lint` 使用 oxlint，覆盖前端、构建脚本和 Vite/Vitest 配置；`pnpm lint:fix` 自动修复 lint 问题。`pnpm format` 使用 oxfmt 格式化代码，`pnpm format:check` 仅检查格式。Rust 继续使用 rustfmt，设计稿和生成文件不参与 oxfmt 格式化。
 
 macOS 安装包：
 
@@ -66,7 +69,7 @@ macOS 安装包：
 pnpm package:mac
 ```
 
-产物在 `src-tauri/target/release/bundle/dmg/`。GitHub Actions 的 CI and macOS package 会在 PR（目标为 `dev` / `main`）、推送到 `dev` / `main`、推送 `v*` 标签或手动运行时执行类型检查、lint、全部前端测试、Rust fmt/Clippy/测试和前端生产构建。PR 只运行质量检查；其他触发在检查通过后构建同时支持 Apple Silicon 与 Intel 的 universal DMG，`v*` 标签再把 DMG 附到对应的 GitHub Release。当前安装包不签名、不公证。本机 pi RPC 冒烟检查需要显式启用，不在 CI 中运行。
+产物在 `src-tauri/target/release/bundle/dmg/`。GitHub Actions 的 `build` 仅支持手动运行：在 Actions → build → Run workflow 中选择分支，并填写必填的 `version`（如 `0.1.0` 或 `0.2.0-beta.1`，不带 `v` 前缀）。工作流执行类型检查、lint、全部前端测试、Rust fmt/Clippy/测试和前端生产构建；通过后使用填写的版本构建同时支持 Apple Silicon 与 Intel 的 universal DMG，上传到本次运行的 `pi-desktop-macos-<version>` artifact。版本通过临时 Tauri 配置覆盖，不修改仓库中的版本文件。Push、PR 和 tag 不自动触发，也不自动发布 GitHub Release。当前安装包不签名、不公证。本机 pi RPC 冒烟检查需要显式启用，不在 CI 中运行。
 
 只读本机 pi RPC 冒烟检查（不调用模型、不创建 pi 会话文件）：
 

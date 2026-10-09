@@ -1,0 +1,18 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "react", "oxc"],
+  "categories": { "correctness": "error" },
+  "env": { "browser": true },
+  "rules": {
+    "typescript/no-explicit-any": "error",
+    "react/rules-of-hooks": "error",
+    "react/exhaustive-deps": "warn"
+  },
+  "overrides": [
+    {
+      "files": ["scripts/**/*.ts", "*.config.ts"],
+      "env": { "browser": false, "node": true }
+    }
+  ],
+  "ignorePatterns": ["dist/**", "src-tauri/**", "docs/**", "coverage/**"]
+}

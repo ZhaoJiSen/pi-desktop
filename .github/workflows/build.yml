@@ -1,16 +1,17 @@
-name: CI and macOS package
+name: build
+run-name: build ${{ inputs.version }} (${{ github.ref_name }})
 
 on:
   workflow_dispatch:
-  pull_request:
-    branches: [dev, main]
-  push:
-    branches: [dev, main]
-    tags: ["v*"]
+    inputs:
+      version:
+        description: 'App version (SemVer, e.g. 0.1.0 or 0.2.0-beta.1; no v prefix)'
+        required: true
+        type: string
 
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.ref_type != 'tag' }}
+  group: build-${{ github.ref }}-${{ inputs.version }}
+  cancel-in-progress: false
 
 permissions:
   contents: read
@@ -35,6 +36,11 @@ jobs:
           node-version: 22
           cache: pnpm
 
+      - name: Validate version
+        env:
+          BUILD_VERSION: ${{ inputs.version }}
+        run: node --experimental-strip-types scripts/validate-version.ts
+
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -43,7 +49,7 @@ jobs:
       - name: Cache Rust
         uses: swatinem/rust-cache@v2
         with:
-          workspaces: "./src-tauri -> target"
+          workspaces: './src-tauri -> target'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -51,8 +57,11 @@ jobs:
       - name: TypeScript checks
         run: pnpm typecheck
 
-      - name: Lint frontend
+      - name: Lint JavaScript and TypeScript
         run: pnpm lint
+
+      - name: Check formatting
+        run: pnpm format:check
 
       - name: Test frontend
         run: pnpm verify
@@ -73,7 +82,6 @@ jobs:
     name: Build macOS app
     runs-on: macos-latest
     needs: checks
-    if: github.event_name != 'pull_request'
     timeout-minutes: 45
     steps:
       - name: Checkout
@@ -98,40 +106,21 @@ jobs:
       - name: Cache Rust
         uses: swatinem/rust-cache@v2
         with:
-          workspaces: "./src-tauri -> target"
+          workspaces: './src-tauri -> target'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Build universal macOS bundle
-        run: pnpm package:mac --target universal-apple-darwin --ci
+        env:
+          BUILD_VERSION: ${{ inputs.version }}
+        run: |
+          node --experimental-strip-types scripts/write-build-config.ts
+          pnpm package:mac --target universal-apple-darwin --ci --config "$RUNNER_TEMP/pi-build-config.json"
 
       - name: Upload DMG
         uses: actions/upload-artifact@v4
         with:
-          name: pi-desktop-macos
+          name: pi-desktop-macos-${{ inputs.version }}
           path: src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg
           if-no-files-found: error
-
-  release:
-    name: Publish GitHub release
-    needs: package
-    if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      actions: read
-    steps:
-      - name: Download DMG
-        uses: actions/download-artifact@v4
-        with:
-          name: pi-desktop-macos
-          path: dist
-
-      - name: Publish release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: dist/*
-          generate_release_notes: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

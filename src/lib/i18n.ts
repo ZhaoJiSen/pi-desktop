@@ -7,6 +7,7 @@ export function t<K extends MessageKey>(key: K, ...args: TranslationArgs<K>) {
 }
 
 export function useT(): Translator {
-  const language = useWorkspace(state => state.language)
-  return <K extends MessageKey>(key: K, ...args: TranslationArgs<K>) => translate(key, language, ...args)
+  const language = useWorkspace((state) => state.language)
+  return <K extends MessageKey>(key: K, ...args: TranslationArgs<K>) =>
+    translate(key, language, ...args)
 }

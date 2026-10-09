@@ -5,10 +5,25 @@ import { describe, expect, expectTypeOf, it } from 'vitest'
 import { languageFromLocale, messages, translate, type TranslationArgs } from './locale'
 
 describe('language resolution', () => {
-  it.each(['zh', 'zh-CN', 'zh-Hant-TW', 'zh_HK.UTF-8', 'ZH-sg', ' zh-MO '])('uses Chinese for %s', locale => {
-    expect(languageFromLocale(locale)).toBe('zh')
-  })
-  it.each([undefined, null, '', 'en', 'en-US', 'ja-JP', 'fr-FR', 'C', 'C.UTF-8', 'zhuang', 'zhong'])('defaults to English for %s', locale => {
+  it.each(['zh', 'zh-CN', 'zh-Hant-TW', 'zh_HK.UTF-8', 'ZH-sg', ' zh-MO '])(
+    'uses Chinese for %s',
+    (locale) => {
+      expect(languageFromLocale(locale)).toBe('zh')
+    },
+  )
+  it.each([
+    undefined,
+    null,
+    '',
+    'en',
+    'en-US',
+    'ja-JP',
+    'fr-FR',
+    'C',
+    'C.UTF-8',
+    'zhuang',
+    'zhong',
+  ])('defaults to English for %s', (locale) => {
     expect(languageFromLocale(locale)).toBe('en')
   })
   it('interpolates filenames, shortcuts and singular/plural counts as complete messages', () => {
@@ -21,7 +36,8 @@ describe('language resolution', () => {
   })
   it('keeps both catalogs complete with matching interpolation parameters', () => {
     expect(Object.keys(messages.zh).sort()).toEqual(Object.keys(messages.en).sort())
-    const placeholders = (text: string) => [...text.matchAll(/\{(\w+)\}/g)].map(match => match[1]).sort()
+    const placeholders = (text: string) =>
+      [...text.matchAll(/\{(\w+)\}/g)].map((match) => match[1]).sort()
     for (const key of Object.keys(messages.en) as (keyof typeof messages.en)[]) {
       expect(key).toMatch(/^[a-z][A-Za-z]*(\.[a-z][A-Za-z]*)+$/)
       expect(messages.zh[key]).not.toBe('')
@@ -30,8 +46,12 @@ describe('language resolution', () => {
     }
   })
   it('requires the parameters declared by each message', () => {
-    expectTypeOf<TranslationArgs<'attachments.remove'>>().toEqualTypeOf<[values: { file: string | number }]>()
-    expectTypeOf<TranslationArgs<'composer.sendHint'>>().toEqualTypeOf<[values: { shortcut: string | number }]>()
+    expectTypeOf<TranslationArgs<'attachments.remove'>>().toEqualTypeOf<
+      [values: { file: string | number }]
+    >()
+    expectTypeOf<TranslationArgs<'composer.sendHint'>>().toEqualTypeOf<
+      [values: { shortcut: string | number }]
+    >()
     const invalidCallsForTypecheck = () => {
       // @ts-expect-error Chinese text cannot be a translation key.
       translate('正在连接 pi…', 'en')
@@ -50,8 +70,18 @@ describe('language resolution', () => {
     const missing = new Set<string>()
     let checked = 0
     for (const relative of readdirSync(root, { recursive: true }) as string[]) {
-      if (!/\.tsx?$/.test(relative) || relative.endsWith('.test.ts') || relative.startsWith('locales/')) continue
-      const file = ts.createSourceFile(relative, readFileSync(`${root}/${relative}`, 'utf8'), ts.ScriptTarget.Latest, true)
+      if (
+        !/\.tsx?$/.test(relative) ||
+        relative.endsWith('.test.ts') ||
+        relative.startsWith('locales/')
+      )
+        continue
+      const file = ts.createSourceFile(
+        relative,
+        readFileSync(`${root}/${relative}`, 'utf8'),
+        ts.ScriptTarget.Latest,
+        true,
+      )
       const collect = (node: ts.Node) => {
         if (ts.isStringLiteral(node)) {
           checked++
@@ -63,8 +93,19 @@ describe('language resolution', () => {
         }
       }
       const visit = (node: ts.Node) => {
-        if (ts.isCallExpression(node) && ts.isIdentifier(node.expression) && ['t', 'translate'].includes(node.expression.text) && node.arguments[0]) collect(node.arguments[0])
-        if (relative.startsWith('components/') && (ts.isStringLiteral(node) || ts.isJsxText(node)) && /[\u4e00-\u9fff]/.test(node.text)) missing.add(`${relative}: ${node.text}`)
+        if (
+          ts.isCallExpression(node) &&
+          ts.isIdentifier(node.expression) &&
+          ['t', 'translate'].includes(node.expression.text) &&
+          node.arguments[0]
+        )
+          collect(node.arguments[0])
+        if (
+          relative.startsWith('components/') &&
+          (ts.isStringLiteral(node) || ts.isJsxText(node)) &&
+          /[\u4e00-\u9fff]/.test(node.text)
+        )
+          missing.add(`${relative}: ${node.text}`)
         ts.forEachChild(node, visit)
       }
       visit(file)
