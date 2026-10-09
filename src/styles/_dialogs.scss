@@ -5,7 +5,6 @@
   padding: 0;
   background: var(--paper);
   color: var(--ink);
-  border-radius: 12px;
   overflow: hidden;
 }
 .search-dialog .modal__header {
@@ -47,7 +46,6 @@
   font-weight: 400;
   text-align: left;
   background: transparent;
-  border-radius: 6px;
 }
 .search-result:hover {
   background: var(--hover);
@@ -71,7 +69,6 @@
 .form-dialog {
   background: var(--paper);
   color: var(--ink);
-  border-radius: 12px;
   padding: 20px;
 }
 .form-dialog .modal__header,
@@ -95,7 +92,6 @@
   height: 32px;
   min-height: 32px;
   padding: 0 12px;
-  border-radius: 6px;
   font-size: 13px;
   font-weight: 400;
 }
@@ -164,7 +160,7 @@
 .field-input {
   width: 100%;
   border: 1px solid var(--frame);
-  border-radius: 6px;
+  border-radius: var(--field-radius);
   padding: 9px 11px;
   font-size: 13px;
   color: var(--ink);

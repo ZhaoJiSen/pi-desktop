@@ -39,7 +39,7 @@
   .app-shell.browser {
     margin: 12px;
     height: calc(100dvh - 24px);
-    border-radius: 16px;
+    border-radius: var(--radius-2xl);
   }
   .metadata {
     font-size: 11px;

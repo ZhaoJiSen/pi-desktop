@@ -1,4 +1,4 @@
-import { Button, Chip, ProgressBar, Switch } from '@heroui/react'
+import { Alert, Button, Card, Chip, Link, ProgressBar, Separator, Switch } from '@heroui/react'
 import {
   ArrowUpRight,
   ChevronLeft,
@@ -20,6 +20,7 @@ import { PackageScrollArea } from './PackageScrollArea'
 import type { ExtensionPackagesController } from './useExtensionPackages'
 
 type Props = ExtensionPackagesController['detail'] & Pick<ExtensionPackagesController, 'feedback'>
+const MotionCard = motion.create(Card)
 
 export function PackageDetail({
   item,
@@ -54,7 +55,8 @@ export function PackageDetail({
     <PackageScrollArea className="package-detail-scroll" label={t('packages.detailHint')}>
       <AnimatePresence initial={false} mode="wait">
         {item && !loading ? (
-          <motion.article
+          <MotionCard
+            variant="transparent"
             className="package-detail"
             key={`${keyOf(item)}:${mobileDetail}`}
             initial={reduced ? false : { opacity: 0, x: 5 }}
@@ -66,13 +68,13 @@ export function PackageDetail({
               <ChevronLeft />
               {t('packages.backToList')}
             </Button>
-            <div className="package-detail-heading">
+            <Card.Header className="package-detail-heading">
               <div className="package-identity">
                 <div className="package-emblem" aria-hidden="true">
                   <Package />
                 </div>
                 <div className="package-identity-copy">
-                  <h3>{packageName(item.source)}</h3>
+                  <Card.Title>{packageName(item.source)}</Card.Title>
                   <div className="package-detail-status">
                     <Chip size="sm" variant="soft">
                       {installed
@@ -154,102 +156,106 @@ export function PackageDetail({
                   </Button>
                 )}
               </div>
-            </div>
-            {showProgress && (
-              <ProgressBar
-                className="package-update-progress"
-                aria-label={progressLabel}
-                value={completed}
-                maxValue={Math.max(1, progressStates.length)}
-                isIndeterminate={completed === 0}
-              >
-                <div className="package-progress-label">{progressLabel}</div>
-                <ProgressBar.Track>
-                  <ProgressBar.Fill />
-                </ProgressBar.Track>
-              </ProgressBar>
-            )}
-            <div className="package-mobile-feedback">
-              <PackageFeedback {...feedback} />
-            </div>
-            <p className="package-description">
-              {detail?.description || item.description || t('packages.noDescription')}
-            </p>
-            {name && checkErrors[name] && (
-              <p className="package-detail-error" role="alert">
-                {checkErrors[name]}
-              </p>
-            )}
-            {batchStates[keyOf(item)]?.error && (
-              <p className="package-detail-error" role="alert">
-                {batchStates[keyOf(item)].error}
-              </p>
-            )}
-            {installed && (pinned || running) && (
-              <p className="package-action-note">
-                {pinned ? t('packages.pinnedHint') : t('packages.runningHint')}
-              </p>
-            )}
-            {!installed && <p className="package-action-note">{t('packages.installHint')}</p>}
-            <dl className="package-facts">
-              {installed && (
-                <div>
-                  <dt>{t('packages.installedVersion')}</dt>
-                  <dd>
-                    {installed
-                      ? installed.version
-                        ? `v${installed.version}`
-                        : t('packages.unknownVersion')
-                      : '—'}
-                  </dd>
-                </div>
-              )}
-              <div>
-                <dt>{t('packages.latestVersion')}</dt>
-                <dd>{detail?.version ? `v${detail.version}` : '—'}</dd>
-              </div>
-              <div>
-                <dt>{t('packages.author')}</dt>
-                <dd>{detail?.author || '—'}</dd>
-              </div>
-              <div>
-                <dt>{t('packages.scope')}</dt>
-                <dd>{t(`extensions.scope.${installed?.scope || item.scope}`)}</dd>
-              </div>
-              <div>
-                <dt>{t('packages.license')}</dt>
-                <dd>{detail?.license || '—'}</dd>
-              </div>
-            </dl>
-            {Boolean(detail?.resources.length) && (
-              <section className="package-resources">
-                <h4>{t('packages.includes')}</h4>
-                <div>
-                  {detail!.resources.map((resource) => (
-                    <Chip key={resource} size="sm" variant="soft">
-                      {t(
-                        `packages.resource.${resource as 'extensions' | 'skills' | 'prompts' | 'themes'}`,
-                      )}
-                    </Chip>
-                  ))}
-                </div>
-              </section>
-            )}
-            <section className="package-source">
-              <h4>{t('extensions.source')}</h4>
-              <code>{item.source}</code>
-              {name && (
-                <Button
-                  className="package-documentation"
-                  variant="ghost"
-                  onPress={() => openPage(name)}
+            </Card.Header>
+            <Card.Content className="package-detail-content">
+              {showProgress && (
+                <ProgressBar
+                  className="package-update-progress"
+                  aria-label={progressLabel}
+                  value={completed}
+                  maxValue={Math.max(1, progressStates.length)}
+                  isIndeterminate={completed === 0}
                 >
-                  {t('packages.viewDocumentation')}
-                  <ArrowUpRight />
-                </Button>
+                  <div className="package-progress-label">{progressLabel}</div>
+                  <ProgressBar.Track>
+                    <ProgressBar.Fill />
+                  </ProgressBar.Track>
+                </ProgressBar>
               )}
-            </section>
-          </motion.article>
+              <div className="package-mobile-feedback">
+                <PackageFeedback {...feedback} />
+              </div>
+              <Card.Description className="package-description">
+                {detail?.description || item.description || t('packages.noDescription')}
+              </Card.Description>
+              {name && checkErrors[name] && (
+                <Alert status="danger" className="package-detail-error" role="alert">
+                  <Alert.Content>
+                    <Alert.Description>{checkErrors[name]}</Alert.Description>
+                  </Alert.Content>
+                </Alert>
+              )}
+              {batchStates[keyOf(item)]?.error && (
+                <Alert status="danger" className="package-detail-error" role="alert">
+                  <Alert.Content>
+                    <Alert.Description>{batchStates[keyOf(item)].error}</Alert.Description>
+                  </Alert.Content>
+                </Alert>
+              )}
+              {installed && pinned && (
+                <p className="package-action-note">{t('packages.pinnedHint')}</p>
+              )}
+              {!installed && <p className="package-action-note">{t('packages.installHint')}</p>}
+              <Separator className="package-facts-separator package-facts-start" />
+              <dl className="package-facts">
+                {installed && (
+                  <div>
+                    <dt>{t('packages.installedVersion')}</dt>
+                    <dd>
+                      {installed
+                        ? installed.version
+                          ? `v${installed.version}`
+                          : t('packages.unknownVersion')
+                        : '—'}
+                    </dd>
+                  </div>
+                )}
+                <div>
+                  <dt>{t('packages.latestVersion')}</dt>
+                  <dd>{detail?.version ? `v${detail.version}` : '—'}</dd>
+                </div>
+                <div>
+                  <dt>{t('packages.author')}</dt>
+                  <dd>{detail?.author || '—'}</dd>
+                </div>
+                <div>
+                  <dt>{t('packages.scope')}</dt>
+                  <dd>{t(`extensions.scope.${installed?.scope || item.scope}`)}</dd>
+                </div>
+                <div>
+                  <dt>{t('packages.license')}</dt>
+                  <dd>{detail?.license || '—'}</dd>
+                </div>
+              </dl>
+              <Separator className="package-facts-separator" />
+              {Boolean(detail?.resources.length) && (
+                <section className="package-resources">
+                  <h4>{t('packages.includes')}</h4>
+                  <div>
+                    {detail!.resources.map((resource) => (
+                      <Chip key={resource} size="sm" variant="soft">
+                        {t(
+                          `packages.resource.${resource as 'extensions' | 'skills' | 'prompts' | 'themes'}`,
+                        )}
+                      </Chip>
+                    ))}
+                  </div>
+                </section>
+              )}
+              <section className="package-source">
+                <h4>{t('extensions.source')}</h4>
+                <code>{item.source}</code>
+                {name && (
+                  <Link className="package-documentation" onPress={() => openPage(name)}>
+                    {t('packages.viewDocumentation')}
+                    <Link.Icon>
+                      <ArrowUpRight />
+                    </Link.Icon>
+                  </Link>
+                )}
+              </section>
+            </Card.Content>
+          </MotionCard>
         ) : (
           <div className="package-detail-empty">
             <Package aria-hidden="true" />

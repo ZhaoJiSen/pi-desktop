@@ -1,4 +1,4 @@
-import { Button, ProgressBar } from '@heroui/react'
+import { Alert, Button, ProgressBar } from '@heroui/react'
 import { PackageLoadingIcon } from './PackageLoadingIcon'
 import { useT } from '../../lib/i18n'
 import type { ExtensionPackagesController } from './useExtensionPackages'
@@ -77,12 +77,16 @@ export function PackageUpdateSummary({
         </ProgressBar>
       )}
       {!checking && Object.keys(checkErrors).length > 0 && (
-        <div className="package-check-error">
-          <span>{t('packages.checkFailed', { count: Object.keys(checkErrors).length })}</span>
+        <Alert status="danger" className="package-check-error" role="alert">
+          <Alert.Content>
+            <Alert.Description>
+              {t('packages.checkFailed', { count: Object.keys(checkErrors).length })}
+            </Alert.Description>
+          </Alert.Content>
           <Button variant="ghost" isDisabled={Boolean(busy)} onPress={() => void checkUpdates()}>
             {t('packages.retry')}
           </Button>
-        </div>
+        </Alert>
       )}
       {busy !== 'batch' && !checking && unknown > 0 && (
         <small>{t('packages.checkUnknown', { count: unknown })}</small>

@@ -1,4 +1,4 @@
-import { Tooltip } from '@heroui/react'
+import { Chip, Tooltip } from '@heroui/react'
 import { PackageLoadingIcon } from './PackageLoadingIcon'
 import { Check, ChevronRight, CircleAlert, Puzzle } from 'lucide-react'
 import { useLayoutEffect, useRef, useState } from 'react'
@@ -8,12 +8,14 @@ export function PackageOption({
   name,
   subtitle,
   installedLabel,
+  disabledLabel,
   updateLabel,
   updateState,
 }: {
   name: string
   subtitle: string
   installedLabel?: string
+  disabledLabel?: string
   updateLabel?: string
   updateState?: PackageUpdateState
 }) {
@@ -49,7 +51,14 @@ export function PackageOption({
             {name}
           </Tooltip.Content>
         </Tooltip>
-        <small>{subtitle}</small>
+        <span className="package-option-meta">
+          <small>{subtitle}</small>
+          {disabledLabel && (
+            <Chip size="sm" variant="soft" className="package-option-disabled">
+              {disabledLabel}
+            </Chip>
+          )}
+        </span>
       </span>
       {installedLabel && (
         <span className="package-option-installed">

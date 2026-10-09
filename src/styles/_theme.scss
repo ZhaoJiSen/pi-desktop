@@ -19,7 +19,7 @@
   --header-height: 40px;
   --body-inset: 26px;
   --chat-width: 736px;
-  --radius: 12px;
+  // HeroUI owns --radius and its scale; keep application surfaces on that scale.
   --background: var(--paper);
   --foreground: var(--ink);
   --surface: var(--paper);

@@ -4,7 +4,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  border-radius: 6px;
+  border-radius: var(--radius-md, calc(var(--radius) * 0.75));
   color: var(--danger);
   background: var(--removed);
   font-size: 12px;
@@ -71,7 +71,6 @@ body:has(.app-shell.browser) {
   background: var(--paper);
   color: var(--ink);
   border: 1px solid var(--line);
-  border-radius: 8px;
   box-shadow: 0 4px 16px #0000000f;
   font-size: 12px;
   line-height: 20px;
@@ -130,7 +129,6 @@ body:has(.app-shell.browser) {
   flex: none;
   padding: 0;
   border: 0;
-  border-radius: 5px;
   background: transparent;
   color: var(--muted);
   opacity: 1;

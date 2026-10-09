@@ -16,7 +16,7 @@
   max-width: 80%;
   margin: 0 0 32px auto;
   padding: 10px 13px;
-  border-radius: 9px;
+  border-radius: var(--radius-xl);
   background: var(--user);
   font-size: 14px;
   overflow-wrap: anywhere;
@@ -73,7 +73,7 @@
 }
 .reply-text :not(pre) > code {
   padding: 2px 4px;
-  border-radius: 3px;
+  border-radius: var(--radius-xs, calc(var(--radius) * 0.25));
   background: var(--code-head);
   font:
     12.5px ui-monospace,
@@ -114,7 +114,6 @@
   text-align: left;
   padding: 0;
   background: transparent;
-  border-radius: 4px;
 }
 .button.tool:hover {
   background: var(--code-head);
@@ -166,7 +165,7 @@
 }
 .diff {
   border: 1px solid var(--line);
-  border-radius: 7px;
+  border-radius: var(--radius-lg, var(--radius));
   overflow: hidden;
   margin: 10px 0 15px;
 }
@@ -278,7 +277,7 @@
   background: var(--code-head);
   padding: 12px;
   margin: 10px 0 15px;
-  border-radius: 7px;
+  border-radius: var(--radius-lg, var(--radius));
   max-height: 300px;
   overflow: auto;
 }
@@ -307,7 +306,7 @@
   padding: 14px;
   margin: 14px 0;
   overflow-x: auto;
-  border-radius: 7px;
+  border-radius: var(--radius-lg, var(--radius));
   background: var(--code-head);
   font:
     12.5px/1.75 ui-monospace,
@@ -343,7 +342,7 @@
   background: var(--removed);
   color: var(--danger);
   font-size: 13px;
-  border-radius: 6px;
+  border-radius: var(--radius-md, calc(var(--radius) * 0.75));
 }
 .empty-conversation {
   height: 100%;

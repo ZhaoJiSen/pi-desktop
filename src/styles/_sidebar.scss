@@ -26,7 +26,7 @@
 .traffic i {
   width: 10px;
   height: 10px;
-  border-radius: 50%;
+  border-radius: calc(infinity * 1px);
 }
 .traffic i:nth-child(1) {
   background: #fa6158;
@@ -59,7 +59,6 @@
   justify-content: center;
   color: var(--muted);
   background: transparent;
-  border-radius: 5px;
   box-shadow: none;
 }
 .button.icon-button:hover {
@@ -78,18 +77,18 @@
   min-height: 35px;
   width: 100%;
   padding: 0 7px;
+  border-radius: var(--radius-lg, var(--radius));
   justify-content: flex-start;
   text-align: left;
   color: var(--ink);
   font-size: 14px;
   font-weight: 400;
   background: transparent;
-  border-radius: 5px;
 }
 .button.nav-row svg {
   color: var(--muted);
 }
-.button.nav-row:hover,
+.button.nav-row:is(:hover, [data-hovered='true']):not(:disabled),
 .button.nav-active {
   background: var(--hover);
 }
@@ -104,7 +103,6 @@
   min-height: 32px;
   gap: 8px;
   font-size: 13px;
-  border-radius: 6px;
   transition:
     background-color 120ms ease-out,
     color 120ms ease-out;
@@ -159,7 +157,6 @@
   min-height: 24px;
   padding: 0;
   border: 0;
-  border-radius: 3px;
   background: transparent;
   color: var(--muted);
   box-shadow: none;
@@ -189,7 +186,7 @@
 }
 .project-heading {
   position: relative;
-  border-radius: 6px;
+  border-radius: var(--radius-3xl);
 }
 .project-heading:hover,
 .project-heading:focus-within,
@@ -210,7 +207,6 @@
   font-weight: 400;
   text-align: left;
   background: transparent;
-  border-radius: 5px;
 }
 .project-heading .button.folder-row {
   padding-right: 54px;
@@ -259,7 +255,6 @@
   max-width: calc(100vw - 24px);
   padding: 12px;
   border: 1px solid var(--line);
-  border-radius: 10px;
   background: var(--paper);
   color: var(--ink);
   box-shadow: 0 8px 28px #00000016;
@@ -337,7 +332,7 @@
   position: relative;
   height: 32px;
   flex: none;
-  border-radius: 6px;
+  border-radius: var(--radius-3xl);
 }
 .session-row:not(.selected):is(:hover, :focus-within) {
   background: var(--hover);
@@ -351,7 +346,6 @@
   height: 32px;
   min-height: 32px;
   padding: 0 54px 0 30px;
-  border-radius: 6px;
   width: 100%;
   min-width: 0;
   text-align: left;
@@ -405,7 +399,7 @@
 .session-selection {
   position: absolute;
   inset: 0;
-  border-radius: 6px;
+  border-radius: inherit;
   background: var(--selection);
   pointer-events: none;
 }

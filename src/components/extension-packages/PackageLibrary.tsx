@@ -1,6 +1,14 @@
 import { useState, type KeyboardEvent } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
-import { Button, ListBox, SearchField, Tabs } from '@heroui/react'
+import {
+  Button,
+  ListBox,
+  Pagination,
+  SearchField,
+  Tabs,
+  ToggleButton,
+  ToggleButtonGroup,
+} from '@heroui/react'
 import {
   ArrowUpRight,
   ChevronLeft,
@@ -194,35 +202,44 @@ export function PackageLibrary({
               className="package-sort"
               onSelectionChange={(key) => changeSort(key as typeof sort)}
             >
-              <Tabs.List aria-label={t('packages.discover')}>
-                <Tabs.Tab id="downloads">
-                  <Flame />
-                  {t('packages.popular')}
-                  <Tabs.Indicator />
-                </Tabs.Tab>
-                <Tabs.Tab id="recent">
-                  <Clock3 />
-                  {t('packages.recent')}
-                  <Tabs.Indicator />
-                </Tabs.Tab>
-              </Tabs.List>
+              <Tabs.ListContainer>
+                <Tabs.List aria-label={t('packages.discover')}>
+                  <Tabs.Tab id="downloads">
+                    <Flame />
+                    {t('packages.popular')}
+                    <Tabs.Indicator />
+                  </Tabs.Tab>
+                  <Tabs.Tab id="recent">
+                    <Clock3 />
+                    {t('packages.recent')}
+                    <Tabs.Indicator />
+                  </Tabs.Tab>
+                </Tabs.List>
+              </Tabs.ListContainer>
             </Tabs>
-            <div className="package-categories" role="group" aria-label={t('packages.categories')}>
+            <ToggleButtonGroup
+              className="package-categories"
+              aria-label={t('packages.categories')}
+              selectionMode="single"
+              disallowEmptySelection
+              isDetached
+              size="sm"
+              selectedKeys={[category || 'all']}
+              onSelectionChange={(keys) => {
+                const key = [...keys][0]
+                if (key != null) changeCategory(key === 'all' ? '' : (key as typeof category))
+              }}
+            >
               {(['', 'extension', 'skill', 'prompt', 'theme'] as const).map((kind) => (
-                <Button
-                  key={kind}
-                  variant="ghost"
-                  aria-pressed={category === kind}
-                  onPress={() => changeCategory(kind)}
-                >
+                <ToggleButton key={kind} id={kind || 'all'} variant="ghost">
                   {kind === ''
                     ? t('packages.categoryAll')
                     : t(
                         `packages.resource.${{ extension: 'extensions', skill: 'skills', prompt: 'prompts', theme: 'themes' }[kind] as 'extensions' | 'skills' | 'prompts' | 'themes'}`,
                       )}
-                </Button>
+                </ToggleButton>
               ))}
-            </div>
+            </ToggleButtonGroup>
           </>
         )}
       </div>
@@ -261,6 +278,10 @@ export function PackageLibrary({
           >
             {(pkg) => {
               const pkgName = npmName(pkg.source)
+              const installed =
+                mode === 'installed'
+                  ? pkg
+                  : packages.find((installed) => npmName(installed.source) === pkgName)
               const metadata = pkgName
                 ? updateInfo[pkgName] ||
                   info[pkgName] ||
@@ -277,10 +298,12 @@ export function PackageLibrary({
                   <PackageOption
                     name={packageName(pkg.source)}
                     installedLabel={
-                      mode === 'discover' &&
-                      packages.some((installed) => npmName(installed.source) === pkgName)
+                      mode === 'discover' && installed && installed.enabled !== false
                         ? t('packages.installed')
                         : undefined
+                    }
+                    disabledLabel={
+                      installed?.enabled === false ? t('packages.disabled') : undefined
                     }
                     subtitle={packageSubtitle(pkg, metadata)}
                     updateState={batchStates[keyOf(pkg)]}
@@ -309,25 +332,23 @@ export function PackageLibrary({
         )}
       </PackageScrollArea>
       {mode === 'discover' && (page > 1 || hasNext) && (
-        <div className="package-pagination">
-          <Button
-            variant="ghost"
+        <Pagination className="package-pagination" size="sm" aria-label={t('packages.discover')}>
+          <Pagination.Previous
             isDisabled={page <= 1 || loading}
             onPress={() => changePage(-1)}
             aria-label={t('packages.previousPage')}
           >
             <ChevronLeft />
-          </Button>
-          <span>{t('packages.pageNumber', { page })}</span>
-          <Button
-            variant="ghost"
+          </Pagination.Previous>
+          <Pagination.Summary>{t('packages.pageNumber', { page })}</Pagination.Summary>
+          <Pagination.Next
             isDisabled={!hasNext || loading}
             onPress={() => changePage(1)}
             aria-label={t('packages.nextPage')}
           >
             <ChevronRight />
-          </Button>
-        </div>
+          </Pagination.Next>
+        </Pagination>
       )}
     </section>
   )

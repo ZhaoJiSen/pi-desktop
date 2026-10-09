@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { act, createElement, StrictMode, useEffect } from 'react'
+import { act, createElement, Fragment, StrictMode, useEffect } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ExtensionPackage } from '../../src/types'
@@ -30,9 +30,16 @@ vi.mock('../../src/lib/desktop', () => ({
   refreshExtensionPackages: vi.fn(),
   connectSession: vi.fn(),
 }))
+// Interaction checks do not exercise native animation timing in Happy DOM.
+vi.mock('motion/react', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('motion/react')>()),
+  useReducedMotion: () => true,
+}))
 import { PackageServices } from '../../src/components/extension-packages/services'
 import { PackageUpdateSummary } from '../../src/components/extension-packages/PackageUpdateSummary'
 import { PackageLibrary } from '../../src/components/extension-packages/PackageLibrary'
+import { PackageDetail } from '../../src/components/extension-packages/PackageDetail'
+import { PackageFeedback } from '../../src/components/extension-packages/PackageFeedback'
 import {
   useExtensionPackages,
   type ExtensionPackagesController,
@@ -158,6 +165,113 @@ describe('HeroUI package list', () => {
     })
     expect(options[0]?.textContent).toContain('→ v2.0.0')
     expect(options[0]?.querySelector('.package-update-dot')).not.toBeNull()
+  })
+
+  it('reflects disabled state without disabling selection, and clears the chip after enabling', async () => {
+    renderLibrary = true
+    mocks.state.packages = [pkg('alpha'), { ...pkg('bravo'), enabled: false }]
+    await mount()
+    const options = container.querySelectorAll<HTMLElement>('[role="option"]')
+    expect(options[0]?.querySelector('.package-option-disabled')).toBeNull()
+    expect(options[1]?.querySelector('.chip')?.textContent).toBe('Disabled')
+    expect(options[1]?.getAttribute('aria-disabled')).not.toBe('true')
+    await act(async () => options[1]!.querySelector('strong')!.click())
+    expect(current.library.item?.source).toBe('npm:bravo')
+    mocks.state.packages = [pkg('alpha'), { ...pkg('bravo'), enabled: true }]
+    await mount()
+    expect(container.querySelector('.package-option-disabled')).toBeNull()
+    expect(current.library.item?.source).toBe('npm:bravo')
+  })
+
+  it('shows installed disabled status in discovery instead of the ordinary installed label', async () => {
+    renderLibrary = true
+    mocks.state.packages = [{ ...pkg('demo'), enabled: false }]
+    services.browsePackages = vi.fn(async () => ({ items: [metadata('demo')], hasNext: false }))
+    await mount()
+    await act(async () => current.changeMode('discover'))
+    const option = container.querySelector('[role="option"]')
+    expect(option?.querySelector('.chip')?.textContent).toBe('Disabled')
+    expect(option?.querySelector('.package-option-installed')).toBeNull()
+  })
+})
+
+describe('HeroUI package controls', () => {
+  it('keeps category selection exclusive and passes the filter to catalog requests', async () => {
+    renderLibrary = true
+    services.browsePackages = vi.fn(async (_query, options) => ({
+      items: options?.category === 'skill' ? [] : [metadata('demo')],
+      hasNext: false,
+    }))
+    await mount()
+    await act(async () => current.changeMode('discover'))
+    const category = container.querySelector('.package-categories')!
+    const all = category.querySelector<HTMLButtonElement>('button')!
+    const skills = Array.from(category.querySelectorAll<HTMLButtonElement>('button')).find(
+      (button) => button.textContent === 'Skills',
+    )!
+    expect(all.getAttribute('aria-checked')).toBe('true')
+    await act(async () => skills.click())
+    expect(current.library.category).toBe('skill')
+    expect(skills.getAttribute('aria-checked')).toBe('true')
+    expect(all.getAttribute('aria-checked')).toBe('false')
+    expect(services.browsePackages).toHaveBeenLastCalledWith(
+      '',
+      expect.objectContaining({ category: 'skill', page: 1 }),
+    )
+    await act(async () => skills.click())
+    expect(current.library.category).toBe('skill')
+    expect(skills.getAttribute('aria-checked')).toBe('true')
+  })
+
+  it('uses previous and next navigation without assuming a total page count', async () => {
+    renderLibrary = true
+    services.browsePackages = vi.fn(async (_query, options) => ({
+      items: [metadata('demo')],
+      hasNext: options?.page === 1,
+    }))
+    await mount()
+    await act(async () => current.changeMode('discover'))
+    const previous = () => container.querySelector<HTMLButtonElement>('[aria-label="Previous"]')!
+    const next = () => container.querySelector<HTMLButtonElement>('[aria-label="Next"]')!
+    expect(previous().disabled).toBe(true)
+    expect(next().disabled).toBe(false)
+    await act(async () => next().click())
+    expect(current.library.page).toBe(2)
+    expect(previous().disabled).toBe(false)
+    expect(next().disabled).toBe(true)
+    await act(async () => previous().click())
+    expect(current.library.page).toBe(1)
+  })
+
+  it('preserves keyboard activation of the directory link and retry actions in alerts', async () => {
+    await mount()
+    const openPage = vi.fn()
+    const retryOperation = vi.fn()
+    await act(async () =>
+      root.render(
+        createElement(
+          Fragment,
+          null,
+          createElement(PackageDetail, { ...current.detail, feedback: current.feedback, openPage }),
+          createElement(PackageFeedback, {
+            ...current.feedback,
+            error: 'Network unavailable',
+            retryOperation,
+          }),
+        ),
+      ),
+    )
+    const link = container.querySelector<HTMLElement>('[data-slot="link"]')!
+    await act(async () => {
+      link.focus()
+      link.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+      link.dispatchEvent(new KeyboardEvent('keyup', { key: 'Enter', bubbles: true }))
+    })
+    expect(openPage).toHaveBeenCalledWith('demo')
+    const alert = container.querySelector('[role="alert"]')!
+    expect(alert.textContent).toContain('Network unavailable')
+    await act(async () => alert.querySelector<HTMLButtonElement>('button')!.click())
+    expect(retryOperation).toHaveBeenCalledOnce()
   })
 })
 afterEach(async () => {

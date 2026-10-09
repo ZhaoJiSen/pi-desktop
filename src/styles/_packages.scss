@@ -40,7 +40,6 @@
   min-height: 32px;
   height: 32px;
   padding: 0 12px;
-  border-radius: 6px;
   font-size: 12px;
   font-weight: 400;
   color: var(--ink);
@@ -79,7 +78,6 @@
 }
 .package-tabs .tabs__indicator {
   background: var(--selection);
-  border-radius: 5px;
   box-shadow: none;
 }
 .package-count {
@@ -96,7 +94,6 @@
   min-height: 34px;
   height: 34px;
   border: 1px solid var(--line);
-  border-radius: 7px;
   background: var(--sidebar);
   padding-inline: 10px;
   gap: 7px;
@@ -119,7 +116,7 @@
   min-height: 0;
   flex: 1;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: var(--radius-xl);
   overflow: hidden;
 }
 .package-library {
@@ -162,7 +159,6 @@
   justify-content: flex-start;
   align-items: center;
   padding: 10px;
-  border-radius: 8px;
   font-weight: 400;
   text-align: left;
   white-space: normal;
@@ -211,6 +207,26 @@
   min-width: 0;
   width: 100%;
 }
+.package-option-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+
+  small {
+    min-width: 0;
+  }
+}
+.package-manager .package-option-disabled.chip {
+  flex: none;
+  height: 18px;
+  padding-inline: 5px;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 16px;
+  background: var(--hover);
+  color: var(--muted);
+}
 .package-option-copy small {
   font-size: 11px;
   color: var(--muted);
@@ -222,7 +238,6 @@
   max-width: min(360px, calc(100vw - 24px));
   padding: 7px 10px;
   border: 1px solid var(--line);
-  border-radius: 7px;
   background: var(--paper);
   color: var(--ink);
   box-shadow: 0 4px 16px #00000014;
@@ -242,7 +257,7 @@
 .package-update-dot {
   width: 6px;
   height: 6px;
-  border-radius: 50%;
+  border-radius: calc(infinity * 1px);
   background: var(--amber);
   flex: none;
   margin-inline: 3px;
@@ -262,8 +277,15 @@
 .package-detail {
   padding: 27px 30px 24px;
 }
+.package-detail.card {
+  gap: 0;
+}
+.package-detail-content.card__content {
+  gap: 0;
+}
 .package-detail-heading {
   display: flex;
+  flex-direction: row;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 19px;
@@ -274,7 +296,7 @@
   height: 44px;
   display: grid;
   place-items: center;
-  border-radius: 11px;
+  border-radius: var(--radius-xl);
   background: var(--selection);
   color: var(--ink);
 }
@@ -284,7 +306,6 @@
 }
 .package-manager .chip {
   height: 24px;
-  border-radius: 5px;
   padding-inline: 8px;
   background: var(--sidebar);
   color: var(--muted);
@@ -339,8 +360,6 @@
 .package-facts {
   margin: 0;
   padding: 18px 0;
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
   display: grid;
   gap: 12px;
 }
@@ -385,32 +404,17 @@
   color: var(--muted);
   overflow-wrap: anywhere;
 }
-.package-manager .package-source .button {
-  padding: 0 8px;
-  margin-left: -8px;
-  margin-top: 9px;
-  font-size: 12px;
-}
-
-/* A fixed SVG box keeps the Lucide loader rotating around its visual centre. */
-.package-manager svg.package-loading-icon {
-  display: block;
+/* HeroUI owns the spinner animation; only its compact dimensions are local. */
+.package-manager .package-loading-icon.spinner {
   width: 14px;
   height: 14px;
   flex: none;
   opacity: 1;
-  transform-box: view-box;
-  transform-origin: 50% 50%;
-  animation: package-loading-turn 0.9s linear infinite;
-}
-@keyframes package-loading-turn {
-  to {
-    transform: rotate(360deg);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .package-manager svg.package-loading-icon {
-    animation: none;
+
+  svg {
+    display: block;
+    width: 100%;
+    height: 100%;
   }
 }
 /* A separate thumb follows hover immediately, independent of macOS overlays. */
@@ -454,7 +458,7 @@
 .package-scroll-thumb {
   width: 5px;
   margin-inline: auto;
-  border-radius: 5px;
+  border-radius: calc(infinity * 1px);
   background: color-mix(in srgb, var(--muted) 35%, transparent);
   pointer-events: auto;
   touch-action: none;
@@ -473,7 +477,6 @@
   padding-top: 2px;
   .skeleton {
     background: var(--line);
-    border-radius: 4px;
   }
 }
 .package-skeleton-row {
@@ -521,11 +524,9 @@
   .progress-bar__track {
     height: 4px;
     background: var(--selection);
-    border-radius: 4px;
   }
   .progress-bar__fill {
     background: var(--accent);
-    border-radius: inherit;
   }
 }
 .package-update-summary .package-batch-progress {
@@ -570,11 +571,17 @@
 }
 .package-manager .package-source .package-documentation {
   gap: 6px;
+  margin-top: 9px;
+  font-size: 12px;
+  font-weight: 400;
   background: transparent;
   color: var(--muted);
   &:is(:hover, [data-hovered='true']) {
-    background: var(--hover);
     color: var(--ink);
+  }
+  svg {
+    width: 12px;
+    height: 12px;
   }
 }
 @media (max-width: 780px) {
@@ -618,7 +625,6 @@
   gap: 10px;
   margin: 0 0 12px;
   padding: 7px 11px;
-  border-radius: 6px;
   background: var(--sidebar);
   font-size: 12px;
   color: var(--ink);
@@ -630,6 +636,22 @@
 .package-feedback.is-error {
   background: var(--removed);
   color: var(--danger);
+}
+.package-feedback.alert,
+.package-check-error.alert,
+.package-detail-error.alert {
+  box-shadow: none;
+
+  .alert__content {
+    height: auto;
+    min-width: 0;
+  }
+  .alert__description {
+    color: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    overflow-wrap: anywhere;
+  }
 }
 .package-remove-name {
   color: var(--ink);
@@ -885,6 +907,10 @@
 .package-check-error {
   color: var(--danger);
 }
+.package-check-error.alert {
+  padding: 5px 0;
+  background: transparent;
+}
 .package-manager .package-row-done,
 .package-manager .package-row-failed {
   opacity: 1;
@@ -905,13 +931,18 @@
   overflow-wrap: anywhere;
   margin-top: 16px;
 }
+.package-detail-error.alert {
+  padding: 8px 10px;
+  background: var(--removed);
+}
 .package-sort {
   margin-top: 14px;
+  .tabs__list-container {
+    background: var(--hover);
+  }
   .tabs__list {
     width: 100%;
-    background: var(--hover);
     padding: 3px;
-    border-radius: 7px;
     gap: 3px;
   }
   .tabs__tab {
@@ -927,14 +958,19 @@
   .tabs__tab[data-selected='true'] {
     color: var(--ink);
   }
+  .tabs__tab:not([data-disabled='true']):is(:hover, [data-hovered='true']) {
+    color: var(--ink);
+    opacity: 1;
+  }
   .tabs__indicator {
     background: var(--paper);
-    border-radius: 5px;
     box-shadow: 0 1px 3px #00000008;
   }
   svg {
     width: 13px;
     height: 13px;
+    display: block;
+    pointer-events: none;
   }
 }
 .package-categories {
@@ -944,27 +980,39 @@
   scrollbar-width: none;
   gap: 4px;
   margin-top: 10px;
+  width: 100%;
+  justify-content: flex-start;
 }
-.package-manager .package-categories .button {
+.package-manager .package-categories .toggle-button {
   min-height: 26px;
   height: 26px;
   padding: 0 8px;
   color: var(--muted);
   background: transparent;
   font-size: 11px;
-  &[aria-pressed='true'] {
+  &[data-selected='true'] {
     background: var(--selection);
     color: var(--ink);
   }
 }
 .package-pagination {
   display: flex;
+  flex-direction: row;
   align-items: center;
   justify-content: space-between;
   color: var(--muted);
   font-size: 11px;
   padding-inline: 4px;
   flex: none;
+
+  .pagination__summary {
+    align-self: center;
+    font-size: 11px;
+  }
+  .pagination__link {
+    color: var(--muted);
+    --pagination-link-bg-hover: var(--hover);
+  }
 }
 .package-manager .package-primary {
   transition:
@@ -1063,7 +1111,7 @@
 .package-emblem {
   width: 36px;
   height: 36px;
-  border-radius: 9px;
+  border-radius: var(--radius-xl);
   flex: none;
   svg {
     width: 20px;
@@ -1116,7 +1164,6 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px 20px;
   padding: 18px 0;
-  margin-top: 20px;
   > div {
     display: flex;
     flex-direction: column;
@@ -1128,6 +1175,13 @@
   dd {
     font-size: 12px;
   }
+}
+.package-facts-separator.separator {
+  height: 1px;
+  background: var(--line);
+}
+.package-facts-start {
+  margin-top: 20px;
 }
 .package-resources {
   margin-top: 18px;
@@ -1248,7 +1302,6 @@
 }
 
 .package-reload-toast.toast {
-  border-radius: 12px;
   padding: 14px 16px;
   border: 1px solid var(--line);
   background: var(--paper);
@@ -1268,7 +1321,6 @@
     min-height: 28px;
     height: 28px;
     padding-inline: 10px;
-    border-radius: 6px;
     font-size: 12px;
   }
 }

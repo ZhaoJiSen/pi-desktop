@@ -84,7 +84,7 @@ svg {
   grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
   background: var(--paper);
   border: 3px solid #444a54;
-  border-radius: 28px;
+  border-radius: var(--radius-4xl, calc(var(--radius) * 4));
   overflow: hidden;
 }
 .app-shell.native {

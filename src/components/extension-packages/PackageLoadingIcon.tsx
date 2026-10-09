@@ -1,5 +1,5 @@
-import { LoaderCircle } from 'lucide-react'
+import { Spinner } from '@heroui/react'
 
 export function PackageLoadingIcon() {
-  return <LoaderCircle className="package-loading-icon" aria-hidden="true" />
+  return <Spinner size="sm" color="current" className="package-loading-icon" aria-hidden="true" />
 }
