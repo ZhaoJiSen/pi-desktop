@@ -171,6 +171,7 @@ pub fn run() {
             packages::extension_packages,
             packages::registry::package_info,
             packages::registry::discover_packages,
+            packages::registry::browse_extension_catalog,
             packages::registry::extension_package_metadata,
             packages::manage_extension_package,
             packages::open_extension_page

@@ -66,6 +66,31 @@ fn package_args(action: &str, source: &str, scope: &str) -> Result<Vec<String>, 
     Ok(args)
 }
 
+fn toggle_package(settings: &mut Value, source: &str, enabled: bool) -> Result<(), String> {
+    let entries = settings
+        .get_mut("packages")
+        .and_then(Value::as_array_mut)
+        .ok_or_else(|| Message::InvalidExtensions.text())?;
+    let entry = entries
+        .iter_mut()
+        .find(|entry| {
+            entry
+                .as_str()
+                .or_else(|| entry.get("source").and_then(Value::as_str))
+                == Some(source)
+        })
+        .ok_or_else(|| Message::PackageArguments.text())?;
+    if enabled {
+        if let Some(original) = entry.get("piDesktopDisabledOriginal").cloned() {
+            *entry = original;
+        }
+    } else if entry.get("piDesktopDisabledOriginal").is_none() {
+        let original = entry.clone();
+        *entry = json!({ "source": source, "extensions": [], "skills": [], "prompts": [], "themes": [], "piDesktopDisabledOriginal": original });
+    }
+    Ok(())
+}
+
 #[tauri::command]
 pub async fn manage_extension_package(
     app: tauri::AppHandle,
@@ -75,6 +100,44 @@ pub async fn manage_extension_package(
     path: String,
     executable: String,
 ) -> Result<(), String> {
+    if action == "enable" || action == "disable" {
+        if !["global", "project"].contains(&scope.as_str()) {
+            return Err(Message::PackageArguments.text());
+        }
+        let project = project_path(&app, &path)?;
+        let home = app
+            .path()
+            .home_dir()
+            .map_err(|e| Message::HomeDirectory.detail(e))?;
+        let agent = std::env::var_os("PI_CODING_AGENT_DIR")
+            .map(PathBuf::from)
+            .unwrap_or_else(|| home.join(".pi/agent"));
+        let file = if scope == "global" {
+            agent.join("settings.json")
+        } else {
+            project.join(".pi/settings.json")
+        };
+        return tauri::async_runtime::spawn_blocking(move || {
+            let _operation = PACKAGE_OPERATION
+                .try_lock()
+                .map_err(|_| Message::PackageBusy.text())?;
+            let text =
+                std::fs::read_to_string(&file).map_err(|e| Message::ReadExtensions.detail(e))?;
+            let mut settings: Value =
+                serde_json::from_str(&text).map_err(|e| Message::InvalidExtensions.detail(e))?;
+            toggle_package(&mut settings, &source, action == "enable")?;
+            let temporary = file.with_extension("json.pi-desktop.tmp");
+            std::fs::write(
+                &temporary,
+                serde_json::to_vec_pretty(&settings)
+                    .map_err(|e| Message::InvalidExtensions.detail(e))?,
+            )
+            .map_err(|e| Message::WriteExtensions.detail(e))?;
+            std::fs::rename(&temporary, &file).map_err(|e| Message::WriteExtensions.detail(e))
+        })
+        .await
+        .map_err(|e| Message::BackgroundTask.detail(e))?;
+    }
     let args = package_args(&action, &source, &scope)?;
     let cwd = project_path(&app, &path)?;
     let home = app
@@ -209,7 +272,7 @@ pub async fn extension_packages(app: tauri::AppHandle, path: String) -> Result<V
                         .as_str()
                         .or_else(|| entry.get("source").and_then(Value::as_str))
                     {
-                        let mut package = json!({ "source": source, "scope": scope });
+                        let mut package = json!({ "source": source, "scope": scope, "enabled": entry.get("piDesktopDisabledOriginal").is_none() });
                         if let Some(name) = npm_name(source) {
                             let roots = if scope == "project" {
                                 vec![project.join(".pi/npm/node_modules").join(name)]

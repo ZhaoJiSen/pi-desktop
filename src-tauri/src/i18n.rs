@@ -90,6 +90,7 @@ messages! {
     PackageRegistry => ("无法获取扩展信息，请重试", "Could not fetch package information. Try again"),
     PackageMetadata => ("扩展包元数据格式错误", "Invalid package metadata"),
     ReadExtensions => ("无法读取扩展配置", "Could not read the extension settings"),
+    WriteExtensions => ("无法保存扩展配置", "Could not save extension settings"),
     InvalidExtensions => ("扩展配置格式错误", "Invalid extension settings"),
     AppStart => ("无法启动 pi Desktop", "Could not start pi Desktop"),
     RuntimeState => ("pi 运行状态无法读取，请重新连接", "Could not read the pi runtime state. Please reconnect"),

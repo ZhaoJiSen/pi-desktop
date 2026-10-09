@@ -1,7 +1,12 @@
-use super::*;
+use super::catalog::{catalog_url, parse_catalog};
+use super::client::{redirect_policy, Registry};
+use super::metadata::{has_update, parse_info, parse_search};
+use reqwest::{Client, Url};
 use serde_json::json;
+use std::collections::BTreeMap;
 use std::io::{Read, Write};
 use std::net::TcpListener;
+use std::time::Duration;
 
 fn fixture(status: &str, body: &str) -> (Registry, std::thread::JoinHandle<String>) {
     let listener = TcpListener::bind("127.0.0.1:0").unwrap();
@@ -27,10 +32,108 @@ fn fixture(status: &str, body: &str) -> (Registry, std::thread::JoinHandle<Strin
     let client = Client::builder()
         .no_proxy()
         .timeout(Duration::from_secs(5))
-        .redirect(reqwest::redirect::Policy::none())
+        .redirect(redirect_policy())
         .build()
         .unwrap();
     (Registry { client, base }, server)
+}
+
+fn redirect_fixture(
+    location: &str,
+    redirects: usize,
+    body: Option<&str>,
+) -> (Registry, std::thread::JoinHandle<Vec<String>>) {
+    let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+    listener.set_nonblocking(true).unwrap();
+    let base = Url::parse(&format!("http://{}/", listener.local_addr().unwrap())).unwrap();
+    let registry = Registry {
+        client: Client::builder()
+            .no_proxy()
+            .timeout(Duration::from_secs(5))
+            .redirect(redirect_policy())
+            .build()
+            .unwrap(),
+        base,
+    };
+    let location = location.to_owned();
+    let body = body.map(str::to_owned);
+    let server = std::thread::spawn(move || {
+        let mut requests = Vec::new();
+        let started = std::time::Instant::now();
+        for index in 0..redirects + usize::from(body.is_some()) {
+            let (mut socket, _) = loop {
+                match listener.accept() {
+                    Ok(connection) => break connection,
+                    Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => {
+                        if started.elapsed() >= Duration::from_secs(5) {
+                            return requests;
+                        }
+                        std::thread::sleep(Duration::from_millis(5));
+                    }
+                    Err(error) => panic!("{error}"),
+                }
+            };
+            socket
+                .set_read_timeout(Some(Duration::from_secs(5)))
+                .unwrap();
+            let mut request = Vec::new();
+            let mut buffer = [0; 1024];
+            while !request.windows(4).any(|bytes| bytes == b"\r\n\r\n") {
+                let read = socket.read(&mut buffer).unwrap();
+                if read == 0 {
+                    break;
+                }
+                request.extend_from_slice(&buffer[..read]);
+            }
+            let reply = if index < redirects {
+                format!("HTTP/1.1 302 Found\r\nLocation: {location}\r\nContent-Length: 0\r\nConnection: close\r\n\r\n")
+            } else {
+                let body = body.as_deref().unwrap();
+                format!("HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}", body.len())
+            };
+            socket.write_all(reply.as_bytes()).unwrap();
+            requests.push(String::from_utf8(request).unwrap());
+        }
+        requests
+    });
+    (registry, server)
+}
+
+#[test]
+fn catalog_follows_same_origin_canonical_redirects_before_parsing() {
+    let html = r#"<form class="packages-action-bar"></form>
+        <article data-package-name="pi-zentui"><p class="packages-desc">Terminal UI</p></article>"#;
+    let (registry, server) = redirect_fixture("/packages", 1, Some(html));
+    let response = tauri::async_runtime::block_on(async {
+        registry
+            .get(
+                registry
+                    .base
+                    .join("packages?sort=downloads&page=1")
+                    .unwrap(),
+            )
+            .await
+            .unwrap()
+            .text()
+            .await
+            .unwrap()
+    });
+    let page = parse_catalog(&response, 1).unwrap();
+    assert_eq!(page.items[0].info.name, "pi-zentui");
+    let requests = server.join().unwrap();
+    assert_eq!(requests.len(), 2);
+    assert!(requests[1].starts_with("GET /packages HTTP/1.1"));
+}
+
+#[test]
+fn registry_rejects_cross_origin_redirects_and_redirect_loops() {
+    for (location, redirects) in [("https://example.invalid/packages", 1), ("/packages", 5)] {
+        let (registry, server) = redirect_fixture(location, redirects, None);
+        let result =
+            tauri::async_runtime::block_on(registry.get(registry.base.join("packages").unwrap()));
+        assert!(result.is_err());
+        assert_eq!(server.join().unwrap().len(), redirects);
+    }
 }
 
 #[test]
@@ -211,4 +314,55 @@ fn batch_metadata_fetches_each_npm_name_once_across_scopes() {
     );
     assert_eq!(info[0].newer_than, vec!["1.0.0"]);
     assert_eq!(info[1].newer_than, vec!["0.9.0"]);
+}
+
+#[test]
+fn catalog_uses_official_filters_and_encodes_search() {
+    assert_eq!(
+        catalog_url("  ", "downloads", "", 1).unwrap().as_str(),
+        "https://pi.dev/packages"
+    );
+    assert_eq!(
+        catalog_url("", "downloads", "", 2).unwrap().as_str(),
+        "https://pi.dev/packages?page=2"
+    );
+    let url = catalog_url("mcp &page=999", "recent", "skill", 2).unwrap();
+    assert_eq!(url.host_str(), Some("pi.dev"));
+    let pairs: BTreeMap<_, _> = url.query_pairs().into_owned().collect();
+    assert_eq!(pairs.get("name").unwrap(), "mcp &page=999");
+    assert_eq!(pairs.get("sort").unwrap(), "recent");
+    assert_eq!(pairs.get("type").unwrap(), "skill");
+    assert_eq!(pairs.get("page").unwrap(), "2");
+    for (sort, category, page) in [("bad", "", 1), ("downloads", "bad", 1), ("recent", "", 0)] {
+        assert!(catalog_url("", sort, category, page).is_err());
+    }
+}
+
+#[test]
+fn catalog_preserves_real_downloads_dates_and_resource_types() {
+    let html = r#"<form class="packages-action-bar"></form>
+    <article data-package-name="@demo/tool" data-package-downloads="12500" data-package-date="1791525331718" data-package-types="extension skill">
+      <p class="packages-desc">Tools &amp; skills</p><div class="packages-meta"><span>Alice</span><span>12.5K/mo</span></div>
+    </article>
+    <article data-package-name="../evil"></article>
+    <nav class="packages-pagination"><a class="pagination-link" href="/packages?sort=recent&amp;page=2">Next</a></nav>"#;
+    let page = parse_catalog(html, 1).unwrap();
+    assert!(page.has_next);
+    assert_eq!(page.items.len(), 1);
+    let pkg = &page.items[0];
+    assert_eq!(pkg.info.name, "@demo/tool");
+    assert_eq!(pkg.info.description, "Tools & skills");
+    assert_eq!(pkg.info.author, "Alice");
+    assert_eq!(pkg.downloads, Some(12500));
+    assert_eq!(pkg.published_at, Some(1791525331718));
+    assert_eq!(pkg.info.resources, ["extensions", "skills"]);
+    assert!(!parse_catalog(html, 2).unwrap().has_next);
+}
+
+#[test]
+fn catalog_rejects_changed_html_but_accepts_genuine_empty_results() {
+    assert!(parse_catalog("<html><body>Service unavailable</body></html>", 1).is_err());
+    let page = parse_catalog("<form class=\"packages-action-bar\"></form>", 1).unwrap();
+    assert!(page.items.is_empty());
+    assert!(!page.has_next);
 }

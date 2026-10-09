@@ -39,3 +39,23 @@ fn npm_sources_accept_scopes_and_versions_without_allowing_path_traversal() {
         assert_eq!(npm_name(source), None, "{source}");
     }
 }
+
+#[test]
+fn disabling_packages_preserves_filters_and_other_settings() {
+    for original in [
+        json!("npm:demo"),
+        json!({"source":"npm:demo", "autoload": false, "extensions":["custom.ts"], "skills":["skill"]}),
+    ] {
+        let mut settings = json!({"packages":[original.clone(), "npm:other"], "theme":"dark"});
+        toggle_package(&mut settings, "npm:demo", false).unwrap();
+        for resource in ["extensions", "skills", "prompts", "themes"] {
+            assert_eq!(settings["packages"][0][resource], json!([]));
+        }
+        toggle_package(&mut settings, "npm:demo", false).unwrap();
+        toggle_package(&mut settings, "npm:demo", true).unwrap();
+        assert_eq!(settings["packages"][0], original);
+        assert_eq!(settings["packages"][1], "npm:other");
+        assert_eq!(settings["theme"], "dark");
+        assert!(toggle_package(&mut settings, "npm:missing", false).is_err());
+    }
+}
