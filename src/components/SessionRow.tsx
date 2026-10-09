@@ -1,11 +1,12 @@
 import { selectChat } from '../router/navigation'
-import { Button } from '@heroui/react'
-import { MessageSquare, Pin, PinOff, Trash2 } from 'lucide-react'
+import { Button, Tooltip } from '@heroui/react'
+import { Pin, PinOff, Trash2 } from 'lucide-react'
 import { motion } from 'motion/react'
 import { useT } from '../lib/i18n'
 import { useWorkspace } from '../store/workspace'
 import type { Session } from '../types'
 import type { SessionMenuTarget } from './SessionContextMenu'
+import { useTextTruncated } from '../hooks/useTextTruncated'
 
 export function SessionRow({
   session,
@@ -24,10 +25,11 @@ export function SessionRow({
 }) {
   const t = useT()
   const title = session.title || t('sessions.new')
+  const { ref: titleRef, truncated } = useTextTruncated(title)
   const pinLabel = t(session.pinned ? 'sessions.unpin' : 'sessions.pin')
   return (
     <motion.div
-      className={`session-row ${selected ? 'selected' : ''}`}
+      className={`session-row list-box-item ${selected ? 'selected' : ''}`}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.12 }}
@@ -53,10 +55,21 @@ export function SessionRow({
           onMenu({ id: session.id, x: rect.left + 12, y: rect.bottom })
         }}
       >
-        <MessageSquare />
-        <span className="session-name" title={title}>
-          {title}
-        </span>
+        <Tooltip delay={450} closeDelay={100} isDisabled={!truncated}>
+          <Tooltip.Trigger<'span'>
+            render={(props) => <span {...props} />}
+            className="session-name"
+            role={undefined}
+            tabIndex={-1}
+          >
+            <span ref={titleRef} className="session-title">
+              {title}
+            </span>
+          </Tooltip.Trigger>
+          <Tooltip.Content placement="top start" offset={4}>
+            {title}
+          </Tooltip.Content>
+        </Tooltip>
       </Button>
       <div className="session-actions">
         <button

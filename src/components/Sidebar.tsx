@@ -1,6 +1,6 @@
 import { Button, Tooltip } from '@heroui/react'
 import { AnimatePresence, motion } from 'motion/react'
-import { Folder, Plus, Search, SquarePen } from 'lucide-react'
+import { Folder, Plus, Search, SquarePen, Terminal } from 'lucide-react'
 import { useCurrentPage } from '../router/hooks'
 import { useWorkspace } from '../store/workspace'
 import { useT } from '../lib/i18n'
@@ -52,10 +52,19 @@ export function Sidebar({ onSearch, onNew, onProject, onRename, onRemove }: Prop
         </Tooltip>
       </div>
       <nav className="nav" aria-label={t('sessions.actions')}>
-        <Button variant="ghost" className="nav-row" onPress={onNew} isDisabled={locked}>
+        <Button
+          variant="ghost"
+          className="nav-row list-box-item"
+          onPress={onNew}
+          isDisabled={locked}
+        >
           <SquarePen />
           {t('sessions.new')}
           <span className="shortcut">⌘ N</span>
+        </Button>
+        <Button variant="ghost" className="nav-row list-box-item" isDisabled>
+          <Terminal />
+          {t('navigation.terminal')}
         </Button>
       </nav>
       <div className="projects">

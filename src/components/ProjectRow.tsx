@@ -1,8 +1,6 @@
 import { createChat } from '../router/navigation'
 import { Button, Dropdown, Separator, Tooltip } from '@heroui/react'
 import {
-  ChevronDown,
-  ChevronRight,
   Ellipsis,
   Folder,
   FolderOpen,
@@ -35,7 +33,7 @@ export function ProjectRow({ project, count }: { project: Project; count: number
   }
   return (
     <>
-      <div className="project-heading" data-menu-open={menuOpen || undefined}>
+      <div className="project-heading list-box-item" data-menu-open={menuOpen || undefined}>
         <Tooltip delay={650} closeDelay={100} isDisabled={menuOpen}>
           <Tooltip.Trigger<'button'>
             render={(props) => <button {...props} type="button" />}
@@ -45,11 +43,6 @@ export function ProjectRow({ project, count }: { project: Project; count: number
             aria-controls={`project-${project.id}`}
             aria-label={project.name}
           >
-            {project.collapsed ? (
-              <ChevronRight className="chevron" />
-            ) : (
-              <ChevronDown className="chevron" />
-            )}
             {project.collapsed ? <Folder className="folder" /> : <FolderOpen className="folder" />}
             <span className="folder-name">{project.name}</span>
             {project.pinned && <Pin className="project-pin" aria-label={t('projects.pinned')} />}

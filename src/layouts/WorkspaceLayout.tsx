@@ -10,7 +10,7 @@ import {
   SearchDialog,
 } from '../components/Dialogs'
 import { Header } from '../components/Header'
-import { SplitPane } from '../components/SplitPane'
+import { SidebarLayout, SidebarWidthProvider } from './SidebarLayout'
 import { Sidebar } from '../components/Sidebar'
 import { ActivityRail } from '../components/ActivityRail'
 import { SidebarToggle, WindowControls } from '../components/Chrome'
@@ -104,50 +104,49 @@ export function WorkspaceLayout() {
     )
   return (
     <MotionConfig reducedMotion="user">
-      <main
-        className={`app-shell ${showSidebar ? '' : 'sidebar-collapsed'} ${isDesktop ? 'native' : 'browser'}`}
-        style={{ '--sidebar-width': `${sidebarWidth}px` } as CSSProperties}
-      >
-        <div className="window-chrome" data-tauri-drag-region="deep">
-          <div className="window-controls" data-tauri-drag-region="deep">
-            <WindowControls />
-            {view === 'chat' && <SidebarToggle />}
-          </div>
-          {view === 'chat' && <Header onRename={() => setRenameId(active)} />}
-        </div>
-        <ActivityRail />
-        <SplitPane
-          className="workspace-surface"
-          storageKey="pi.home-panel-width"
-          defaultWidth={280}
-          minWidth={200}
-          minContentWidth={320}
-          collapseAt={600}
-          enabled={showSidebar}
-          label={t('layout.resizeHome')}
-          onWidthChange={setSidebarWidth}
+      <SidebarWidthProvider>
+        <main
+          className={`app-shell ${showSidebar ? '' : 'sidebar-collapsed'} ${isDesktop ? 'native' : 'browser'}`}
+          style={{ '--sidebar-width': `${sidebarWidth}px` } as CSSProperties}
         >
-          {showSidebar && (
-            <Sidebar
-              onNew={newChat}
-              onSearch={() => setSearchOpen(true)}
-              onProject={() => void addProject()}
-              onRename={setRenameId}
-              onRemove={setRemoveId}
-            />
-          )}
-          <section className="main" aria-label={t('sessions.current')}>
-            {view !== 'chat' && view !== 'extensions' && (
-              <Header onRename={() => setRenameId(active)} />
-            )}
-            {view !== 'chat' && <ConnectionNotice utility />}
-            <WorkspaceActionsContext.Provider value={{ onProject: () => void addProject() }}>
-              <Outlet />
-            </WorkspaceActionsContext.Provider>
-            <RuntimeNotice />
-          </section>
-        </SplitPane>
-      </main>
+          <div className="window-chrome" data-tauri-drag-region="deep">
+            <div className="window-controls" data-tauri-drag-region="deep">
+              <WindowControls />
+              {view === 'chat' && <SidebarToggle />}
+            </div>
+            {view === 'chat' && <Header onRename={() => setRenameId(active)} />}
+          </div>
+          <ActivityRail />
+          <SidebarLayout
+            className="workspace-surface"
+            collapseAt={600}
+            label={t('layout.resizeHome')}
+            onWidthChange={setSidebarWidth}
+            sidebar={
+              showSidebar && (
+                <Sidebar
+                  onNew={newChat}
+                  onSearch={() => setSearchOpen(true)}
+                  onProject={() => void addProject()}
+                  onRename={setRenameId}
+                  onRemove={setRemoveId}
+                />
+              )
+            }
+          >
+            <section className="main" aria-label={t('sessions.current')}>
+              {view !== 'chat' && view !== 'extensions' && (
+                <Header onRename={() => setRenameId(active)} />
+              )}
+              {view !== 'chat' && <ConnectionNotice utility />}
+              <WorkspaceActionsContext.Provider value={{ onProject: () => void addProject() }}>
+                <Outlet />
+              </WorkspaceActionsContext.Provider>
+              <RuntimeNotice />
+            </section>
+          </SidebarLayout>
+        </main>
+      </SidebarWidthProvider>
       <SearchDialog open={searchOpen} onClose={() => setSearchOpen(false)} />
       <ProjectDialog open={projectOpen} onClose={() => setProjectOpen(false)} />
       {renameId && (

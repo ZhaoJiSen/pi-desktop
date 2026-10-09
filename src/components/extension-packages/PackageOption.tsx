@@ -1,7 +1,7 @@
 import { Chip, Tooltip } from '@heroui/react'
 import { PackageLoadingIcon } from './PackageLoadingIcon'
 import { Check, ChevronRight, CircleAlert, Puzzle } from 'lucide-react'
-import { useLayoutEffect, useRef, useState } from 'react'
+import { useTextTruncated } from '../../hooks/useTextTruncated'
 import type { PackageUpdateState } from '../../lib/packageUpdates'
 
 export function PackageOption({
@@ -19,18 +19,7 @@ export function PackageOption({
   updateLabel?: string
   updateState?: PackageUpdateState
 }) {
-  const nameRef = useRef<HTMLElement>(null)
-  const [truncated, setTruncated] = useState(false)
-
-  useLayoutEffect(() => {
-    const element = nameRef.current
-    if (!element) return
-    const measure = () => setTruncated(element.scrollWidth > element.clientWidth)
-    measure()
-    const observer = new ResizeObserver(measure)
-    observer.observe(element)
-    return () => observer.disconnect()
-  }, [name])
+  const { ref: nameRef, truncated } = useTextTruncated(name)
 
   return (
     <>

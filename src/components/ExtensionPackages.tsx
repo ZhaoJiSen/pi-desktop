@@ -1,5 +1,5 @@
 import { motion, useReducedMotion } from 'motion/react'
-import { SplitPane } from './SplitPane'
+import { SidebarLayout } from '../layouts/SidebarLayout'
 import { useT } from '../lib/i18n'
 import { PackageToast } from './extension-packages/PackageToast'
 import { PackageLibrary } from './extension-packages/PackageLibrary'
@@ -21,23 +21,21 @@ export function ExtensionPackages() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.18 }}
     >
-      <SplitPane
+      <SidebarLayout
         className={`package-workspace ${manager.mobileDetail ? 'detail-open' : ''}`}
-        storageKey="pi.extensions-panel-width"
-        defaultWidth={340}
-        minWidth={270}
-        minContentWidth={360}
         collapseAt={780}
         label={t('layout.resizeExtensions')}
+        sidebar={
+          <PackageLibrary
+            {...manager.library}
+            packageCount={manager.packageCount}
+            changeMode={manager.changeMode}
+            feedback={manager.feedback}
+          />
+        }
       >
-        <PackageLibrary
-          {...manager.library}
-          packageCount={manager.packageCount}
-          changeMode={manager.changeMode}
-          feedback={manager.feedback}
-        />
         <PackageDetail {...manager.detail} feedback={manager.feedback} />
-      </SplitPane>
+      </SidebarLayout>
       <PackageToast {...manager.toast} />
       <RemovePackageDialog {...manager.removeDialog} />
     </motion.div>

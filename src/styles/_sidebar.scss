@@ -2,13 +2,11 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  background: var(--paper);
-  border-right: 1px solid var(--line);
   overflow: hidden;
 }
 .sidebar-chrome {
-  min-height: 56px;
-  padding: 14px 18px 10px;
+  min-height: 48px;
+  padding: 10px 19px 8px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -73,20 +71,14 @@
   min-height: 35px;
   width: 100%;
   padding: 0 7px;
-  border-radius: var(--radius-lg, var(--radius));
   justify-content: flex-start;
   text-align: left;
   color: var(--ink);
   font-size: 14px;
   font-weight: 400;
-  background: transparent;
 }
 .button.nav-row svg {
   color: var(--muted);
-}
-.button.nav-row:is(:hover, [data-hovered='true']):not(:disabled),
-.button.nav-active {
-  background: var(--hover);
 }
 .shortcut {
   margin-left: auto;
@@ -95,17 +87,15 @@
   letter-spacing: 0.4px;
 }
 .nav .button.nav-row {
-  height: 36px;
-  min-height: 36px;
-  gap: 10px;
-  font-size: 14px;
-  transition:
-    background-color 120ms ease-out,
-    color 120ms ease-out;
+  height: 32px;
+  min-height: 32px;
+  gap: 8px;
+  font-size: 13px;
 }
-.nav .nav-row > svg {
-  width: 16px;
-  height: 16px;
+.nav .button.nav-row > svg {
+  width: 14px;
+  height: 14px;
+  margin: 0;
   flex: none;
   stroke-width: 1.75;
   transition: color 120ms ease-out;
@@ -128,17 +118,17 @@
 .projects {
   flex: 1;
   min-height: 0;
-  padding: 18px 12px 12px;
+  padding: 20px 12px 12px;
   overflow-y: auto;
 }
 .section-label {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 28px;
-  margin: 0 6px 8px 7px;
+  height: 24px;
+  margin: 0 6px 6px 7px;
   color: var(--muted);
-  font-size: 13px;
+  font-size: 12px;
 }
 .section-label svg {
   width: 15px;
@@ -190,18 +180,19 @@
   opacity: 0.4;
 }
 .project {
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
-.project-heading {
-  position: relative;
-  border-radius: var(--radius-lg, var(--radius));
+.project-heading.list-box-item {
+  padding: 0;
 }
-.project-heading:hover,
 .project-heading:focus-within,
 .project-heading[data-menu-open] {
-  background: var(--hover);
+  background: var(--default);
 }
 .button.folder-row {
+  --button-bg-hover: transparent;
+  --button-bg-pressed: transparent;
+  border-radius: inherit;
   width: 100%;
   min-width: 0;
   display: flex;
@@ -211,7 +202,7 @@
   min-height: 36px;
   gap: 8px;
   padding: 0 7px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 400;
   text-align: left;
   background: transparent;
@@ -220,17 +211,14 @@
   padding-right: 54px;
   color: var(--ink);
 }
-.folder-row .chevron {
-  width: 12px;
-  height: 12px;
-  color: var(--muted);
-}
 .folder-row .folder {
   width: 14px;
   height: 14px;
+  margin: 0;
   color: var(--muted);
 }
 .folder-name {
+  flex: 1;
   min-width: 0;
   overflow: hidden;
   white-space: nowrap;
@@ -336,24 +324,27 @@
   gap: 2px;
   padding-top: 2px;
 }
-.session-row {
-  position: relative;
-  height: 36px;
+.session-row.list-box-item {
+  height: 32px;
+  min-height: 32px;
   flex: none;
-  border-radius: var(--radius-lg, var(--radius));
+  padding: 0;
 }
-.session-row:not(.selected):is(:hover, :focus-within) {
-  background: var(--hover);
+.session-row:not(.selected):focus-within {
+  background: var(--default);
 }
 .button.session {
+  --button-bg-hover: transparent;
+  --button-bg-pressed: transparent;
+  border-radius: inherit;
   display: flex;
   align-items: center;
   justify-content: flex-start;
   gap: 8px;
   position: relative;
-  height: 36px;
-  min-height: 36px;
-  padding: 0 54px 0 30px;
+  height: 32px;
+  min-height: 32px;
+  padding: 0 54px 0 29px;
   width: 100%;
   min-width: 0;
   text-align: left;
@@ -362,14 +353,8 @@
   background: transparent;
   color: var(--ink);
 }
-.button.session:hover {
+.button.session:is(:hover, [data-hovered='true'], [data-pressed='true']) {
   background: transparent;
-}
-.session > svg {
-  width: 12px;
-  height: 12px;
-  color: var(--muted);
-  z-index: 1;
 }
 .session .session-name {
   flex: 1;
@@ -379,10 +364,16 @@
   text-overflow: ellipsis;
   position: relative;
 }
+.session-title {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
 .session-actions {
   position: absolute;
   right: 6px;
-  top: 6px;
+  top: 4px;
   display: flex;
   gap: 4px;
 }
@@ -408,11 +399,11 @@
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: var(--selection);
+  background: var(--default);
   pointer-events: none;
 }
 .button.folder-row:hover {
-  background: var(--hover);
+  background: transparent;
 }
 @media (hover: none) {
   .project-actions,
@@ -476,7 +467,7 @@
   background: var(--selection);
 }
 .sidebar-title {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
-  line-height: 28px;
+  line-height: 26px;
 }

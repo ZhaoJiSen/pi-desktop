@@ -92,9 +92,6 @@
     z-index: 20;
     box-shadow: 8px 0 20px #0002;
   }
-  .workspace-surface {
-    grid-template-columns: minmax(0, 1fr);
-  }
   .app-shell:not(.sidebar-collapsed) .main {
     margin-left: 0;
     min-width: 0;

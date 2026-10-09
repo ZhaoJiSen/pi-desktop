@@ -4,7 +4,9 @@ import { useT } from '../lib/i18n'
 interface Props {
   children: ReactNode
   className: string
-  storageKey: string
+  preferredWidth: number
+  onPreferredWidthChange: (width: number) => void
+  onResizeEnd: (width: number) => void
   defaultWidth: number
   minWidth: number
   minContentWidth: number
@@ -19,7 +21,9 @@ interface Props {
 export function SplitPane({
   children,
   className,
-  storageKey,
+  preferredWidth,
+  onPreferredWidthChange,
+  onResizeEnd,
   defaultWidth,
   minWidth,
   minContentWidth,
@@ -35,16 +39,6 @@ export function SplitPane({
   const [dragging, setDragging] = useState(false)
   const [availableWidth, setAvailableWidth] = useState<number | null>(null)
   const [narrow, setNarrow] = useState(() => matchMedia(`(max-width: ${collapseAt}px)`).matches)
-  const [preferredWidth, setPreferredWidth] = useState(() => {
-    try {
-      const stored = Number(localStorage.getItem(storageKey))
-      return Number.isFinite(stored) && stored >= minWidth
-        ? Math.min(stored, maxWidth)
-        : defaultWidth
-    } catch {
-      return defaultWidth
-    }
-  })
   const active = enabled && !narrow
   const maximum = Math.max(
     minWidth,
@@ -68,18 +62,11 @@ export function SplitPane({
     if (active) onWidthChange?.(width)
   }, [active, width, onWidthChange])
 
-  function persist(value: number) {
-    try {
-      localStorage.setItem(storageKey, String(value))
-    } catch {
-      // Resizing still works when browser storage is unavailable.
-    }
-  }
-
   return (
     <div
       ref={container}
       className={`split-pane ${className}`}
+      data-split-active={active || undefined}
       data-resizing={(active && dragging) || undefined}
       style={
         active
@@ -114,13 +101,13 @@ export function SplitPane({
           onPointerMove={(event) => {
             const start = drag.current
             if (start?.pointer !== event.pointerId) return
-            setPreferredWidth(clamp(start.width + event.clientX - start.x))
+            onPreferredWidthChange(clamp(start.width + event.clientX - start.x))
           }}
           onPointerUp={(event) => {
             if (drag.current?.pointer !== event.pointerId) return
             const next = clamp(drag.current.width + event.clientX - drag.current.x)
-            setPreferredWidth(next)
-            persist(next)
+            onPreferredWidthChange(next)
+            onResizeEnd(next)
             drag.current = null
             setDragging(false)
             event.currentTarget.releasePointerCapture(event.pointerId)
@@ -134,8 +121,8 @@ export function SplitPane({
             setDragging(false)
           }}
           onDoubleClick={() => {
-            setPreferredWidth(defaultWidth)
-            persist(defaultWidth)
+            onPreferredWidthChange(defaultWidth)
+            onResizeEnd(defaultWidth)
           }}
           onKeyDown={(event) => {
             let next: number
@@ -158,8 +145,8 @@ export function SplitPane({
             }
             event.preventDefault()
             next = clamp(next)
-            setPreferredWidth(next)
-            persist(next)
+            onPreferredWidthChange(next)
+            onResizeEnd(next)
           }}
         />
       )}
