@@ -1,3 +1,4 @@
+mod commands;
 mod i18n;
 mod packages;
 mod runtime;
@@ -156,6 +157,7 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .manage(Runtime::default())
         .invoke_handler(tauri::generate_handler![
+            commands::builtin_commands,
             system_locale,
             set_app_language,
             desktop_environment,

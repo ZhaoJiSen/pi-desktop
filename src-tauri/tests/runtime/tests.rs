@@ -3,11 +3,30 @@ use serde_json::{json, Value};
 use std::{path::PathBuf, sync::mpsc, time::Duration};
 use tauri::ipc::Channel;
 
+fn pi_v1_executable() -> String {
+    let executable = std::env::var("PI_DESKTOP_PI_V1_EXECUTABLE")
+        .expect("set PI_DESKTOP_PI_V1_EXECUTABLE to an isolated Pi CLI 1.0.0 installation");
+    assert!(
+        std::env::var_os("PI_CODING_AGENT_DIR").is_some(),
+        "use an isolated agent directory"
+    );
+    let version = std::process::Command::new(&executable)
+        .arg("--version")
+        .output()
+        .expect("read Pi CLI version");
+    assert!(version.status.success());
+    assert_eq!(
+        String::from_utf8_lossy(&version.stdout).trim(),
+        "1.0.0",
+        "these regression tests require the exact Pi CLI 1.0.0 baseline"
+    );
+    executable
+}
+
 #[test]
+#[ignore = "requires isolated Pi CLI 1.0.0; see docs/implementation/pi-v1-compatibility.md"]
 fn installed_pi_session_reuse_smoke() {
-    if std::env::var("PI_DESKTOP_RPC_SMOKE").as_deref() != Ok("1") {
-        return;
-    }
+    let executable = pi_v1_executable();
     let stamp = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .unwrap()
@@ -30,7 +49,7 @@ fn installed_pi_session_reuse_smoke() {
     runtime
         .start(
             dir.clone(),
-            "pi".into(),
+            executable.clone(),
             None,
             "reuse-smoke".into(),
             PathBuf::from(std::env::var_os("HOME").unwrap()),
@@ -151,7 +170,7 @@ fn installed_pi_session_reuse_smoke() {
     runtime
         .start(
             second_dir,
-            "pi".into(),
+            executable,
             None,
             "project-two".into(),
             PathBuf::from(std::env::var_os("HOME").unwrap()),
@@ -211,17 +230,15 @@ fn installed_pi_session_reuse_smoke() {
 }
 
 #[test]
+#[ignore = "requires isolated Pi CLI 1.0.0; see docs/implementation/pi-v1-compatibility.md"]
 fn installed_pi_rpc_smoke() {
-    // Explicit opt-in: needs the developer's installed pi and configuration.
-    if std::env::var("PI_DESKTOP_RPC_SMOKE").as_deref() != Ok("1") {
-        return;
-    }
+    let executable = pi_v1_executable();
     let home = PathBuf::from(std::env::var_os("HOME").expect("home directory"));
     let runtime = Runtime::default();
     runtime
         .start(
             std::env::current_dir().unwrap(),
-            "pi".into(),
+            executable,
             None,
             "smoke".into(),
             home,
