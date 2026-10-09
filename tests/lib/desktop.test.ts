@@ -77,6 +77,8 @@ describe('desktop prompt lifecycle', () => {
       connectionAction: null,
       language: 'zh',
       languageSource: 'user',
+      onboardingCompleted: true,
+      onboardingOpen: false,
     })
     const store = useWorkspace.getState()
     id = store.createSession(store.addProject('/tmp/project'))
@@ -315,26 +317,26 @@ describe('desktop prompt lifecycle', () => {
     await expect(renameSession(id, '')).rejects.toThrow('Enter a valid conversation name.')
   })
 
-  it('prepares a default project and connects before resolving the very first launch', async () => {
+  it('leaves first launch in onboarding without creating projects, sessions or Pi processes', async () => {
     await reloadFrontend()
-    useWorkspace.setState({ projects: [], sessions: [], activeSessionId: null })
+    useWorkspace.setState({
+      projects: [],
+      sessions: [],
+      activeSessionId: null,
+      onboardingCompleted: false,
+      onboardingOpen: true,
+    })
     mocks.invoke.mockClear()
-    mocks.invoke.mockImplementation(async (name, args) => {
-      if (name === 'desktop_environment') return { cwd: '/tmp/first-launch' }
-      if (name === 'inspect_project') return { path: args.path, branch: 'main' }
-      return name === 'pi_request'
-        ? metadata(args.command)
-        : ['extension_packages', 'pi_connections'].includes(name)
-          ? []
-          : undefined
-    })
     await initializeDesktop()
-    expect(useWorkspace.getState().projects[0].path).toBe('/tmp/first-launch')
     expect(useWorkspace.getState()).toMatchObject({
-      connection: 'connected',
-      activeSessionId: useWorkspace.getState().sessions[0].id,
+      projects: [],
+      sessions: [],
+      activeSessionId: null,
     })
-    expect(mocks.invoke.mock.calls.filter(([name]) => name === 'start_pi')).toHaveLength(1)
+    expect(mocks.invoke.mock.calls.map(([name]) => name)).toEqual([
+      'system_locale',
+      'set_app_language',
+    ])
   })
 
   it('does not terminate a live task when reading its state after reload fails', async () => {

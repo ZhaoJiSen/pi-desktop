@@ -42,6 +42,11 @@ interface WorkspaceState {
   runningSessionId: string | null
   connectionError: string | null
   storageError: string | null
+  onboardingCompleted: boolean
+  onboardingOpen: boolean
+  openOnboarding: () => void
+  closeOnboarding: () => void
+  completeOnboarding: () => void
   applySystemLocale: (locale: string | null) => void
   toggleSidebar: () => void
   toggleProject: (id: string) => void
@@ -107,6 +112,13 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
         runningSessionId: null,
         connectionError: null,
         storageError: null,
+        onboardingCompleted: preview,
+        onboardingOpen: !preview,
+        openOnboarding: () => set({ onboardingOpen: true }),
+        closeOnboarding: () => {
+          if (get().onboardingCompleted) set({ onboardingOpen: false })
+        },
+        completeOnboarding: () => set({ onboardingCompleted: true, onboardingOpen: false }),
         applySystemLocale: (locale) => {
           if (get().languageSource === 'system') set({ language: languageFromLocale(locale) })
         },
@@ -267,6 +279,7 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
           piExecutable: state.piExecutable,
           autoReloadAfterUpdate: state.autoReloadAfterUpdate,
           autoReloadAfterToggle: state.autoReloadAfterToggle,
+          onboardingCompleted: state.onboardingCompleted,
         }),
         migrate: (persisted, version) => {
           const saved = persisted as Partial<WorkspaceState>
@@ -285,12 +298,20 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
           const validLanguage = saved?.language === 'zh' || saved?.language === 'en'
           const languageSource =
             saved?.languageSource === 'system' ? 'system' : validLanguage ? 'user' : 'system'
+          // Existing installations already have a workspace. New installations
+          // stay in the guide until the user explicitly enters the workspace.
+          const onboardingCompleted =
+            saved?.onboardingCompleted ??
+            (Boolean(saved?.projects?.length || saved?.sessions?.length) ||
+              current.onboardingCompleted)
           return {
             ...current,
             ...saved,
             language:
               languageSource === 'user' && validLanguage ? saved.language! : current.language,
             languageSource,
+            onboardingCompleted,
+            onboardingOpen: !onboardingCompleted,
             sessions: (saved?.sessions || current.sessions).map((session) => ({
               ...session,
               messages: session.messages.map((message) => ({

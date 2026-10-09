@@ -91,6 +91,17 @@ export function SettingsPage() {
         <p className="setting-help">{t('settings.autoReloadAfterToggleHelp')}</p>
       </section>
       <section className="settings-section">
+        <h2>{t('onboarding.settingsTitle')}</h2>
+        <p className="setting-help">{t('onboarding.settingsHelp')}</p>
+        <Button
+          variant="secondary"
+          isDisabled={Boolean(running) || connection === 'connecting'}
+          onPress={() => useWorkspace.getState().openOnboarding()}
+        >
+          {t('onboarding.reopen')}
+        </Button>
+      </section>
+      <section className="settings-section">
         <h2>{t('settings.executable')}</h2>
         <form
           onSubmit={(event) => {

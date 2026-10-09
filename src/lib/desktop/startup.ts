@@ -34,15 +34,7 @@ async function prepareDesktop() {
   if (!isDesktop) return
   await initializeLanguage()
   let store = useWorkspace.getState()
-  if (!store.projects.length) {
-    const { cwd } = await invoke<{ cwd: string }>('desktop_environment')
-    const project = await invoke<{ path: string; branch: string | null }>('inspect_project', {
-      path: cwd,
-    })
-    const id = store.addProject(project.path, project.branch)
-    store.createSession(id)
-  }
-  store = useWorkspace.getState()
+  if (!store.onboardingCompleted || store.onboardingOpen) return
   const preferred = store.activeSessionId
   let resumedSession: string | null = null
   const live =

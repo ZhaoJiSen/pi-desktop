@@ -1,0 +1,319 @@
+.onboarding-screen {
+  height: 100%;
+  background: var(--paper);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+.onboarding-chrome {
+  min-height: var(--header-height);
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: none;
+}
+.onboarding-preferences {
+  display: flex;
+  gap: 8px;
+}
+.onboarding-preferences select {
+  font: inherit;
+  font-size: 12px;
+  background: var(--paper);
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 6px 8px;
+}
+.onboarding-body {
+  width: min(840px, 100%);
+  margin: auto;
+  padding: 40px 32px;
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 56px;
+}
+.onboarding-intro {
+  padding-top: 4px;
+}
+.onboarding-product {
+  display: block;
+  margin-top: 24px;
+  font-size: 17px;
+  font-weight: 600;
+}
+.onboarding-intro > p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+  margin: 8px 0 36px;
+}
+.onboarding-steps {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 20px;
+}
+.onboarding-steps li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.onboarding-steps li > span {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  font-size: 12px;
+  transition:
+    background 160ms,
+    color 160ms;
+}
+.onboarding-steps svg {
+  width: 13px;
+  height: 13px;
+}
+.onboarding-steps li[data-active='true'] {
+  color: var(--ink);
+  font-weight: 500;
+}
+.onboarding-steps li[data-active='true'] > span {
+  background: var(--accent);
+  color: var(--accent-foreground);
+  border-color: var(--accent);
+}
+.onboarding-steps li[data-done='true'] > span {
+  color: var(--mint);
+}
+.onboarding-panel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.onboarding-step-content {
+  flex: 1;
+  min-height: 310px;
+}
+.onboarding-screen[data-step='environment'] .onboarding-step-content {
+  min-height: 450px;
+}
+.onboarding-panel h1 {
+  font-size: 24px;
+  line-height: 1.4;
+  font-weight: 600;
+  margin: 0 0 12px;
+  letter-spacing: -0.4px;
+}
+.onboarding-panel h1:focus {
+  outline: none;
+}
+.onboarding-description {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.7;
+  margin: 0 0 28px;
+}
+.onboarding-features {
+  display: grid;
+  gap: 22px;
+}
+.onboarding-features > div {
+  display: flex;
+  gap: 14px;
+}
+.onboarding-features > div > svg {
+  margin-top: 3px;
+  color: var(--muted);
+}
+.onboarding-features h2 {
+  margin: 0 0 5px;
+  font-size: 14px;
+  font-weight: 500;
+}
+.onboarding-features p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+.onboarding-panel .field-label {
+  font-size: 13px;
+  display: block;
+  margin-bottom: 8px;
+}
+.onboarding-path-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.onboarding-path-row input {
+  min-width: 0;
+  flex: 1;
+  width: 100%;
+}
+.onboarding-panel .button {
+  font-size: 13px;
+  min-height: 34px;
+  height: auto;
+  padding: 8px 12px;
+}
+.onboarding-path-help {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.7;
+  margin: 12px 0 20px;
+}
+.onboarding-check {
+  padding: 16px;
+  background: var(--sidebar);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.onboarding-check > svg {
+  margin-top: 2px;
+  color: var(--muted);
+}
+.onboarding-check strong {
+  font-weight: 500;
+}
+.onboarding-check p {
+  margin: 6px 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+.onboarding-check code {
+  font-size: 12px;
+  color: var(--muted);
+}
+.onboarding-recovery {
+  margin-top: 16px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+.onboarding-recovery p {
+  margin: 8px 0;
+}
+.onboarding-recovery a {
+  text-decoration: underline;
+  color: var(--ink);
+}
+.onboarding-project-options {
+  display: grid;
+  gap: 12px;
+}
+.onboarding-panel .button.onboarding-project-option {
+  width: 100%;
+  padding: 16px;
+  justify-content: flex-start;
+  gap: 12px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  text-align: left;
+  white-space: normal;
+}
+.onboarding-panel .onboarding-project-option[aria-pressed='true'] {
+  border-color: var(--frame);
+  background: var(--sidebar);
+}
+.onboarding-project-option > span {
+  flex: 1;
+  min-width: 0;
+}
+.onboarding-project-option strong {
+  display: block;
+  font-weight: 500;
+  font-size: 13px;
+}
+.onboarding-project-option small {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 5px;
+  overflow-wrap: anywhere;
+}
+.onboarding-project-option > svg {
+  color: var(--muted);
+}
+.onboarding-offline {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+.onboarding-error {
+  color: var(--danger);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.onboarding-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding-top: 24px;
+  margin-top: 28px;
+  border-top: 1px solid var(--line);
+}
+.onboarding-actions > div {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.onboarding-panel .onboarding-primary {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+.onboarding-actions svg {
+  width: 14px;
+  height: 14px;
+}
+@media (max-width: 760px) {
+  .onboarding-body {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    padding: 28px 24px;
+  }
+  .onboarding-intro > p {
+    display: none;
+  }
+  .onboarding-intro > .pi-logo {
+    display: none;
+  }
+  .onboarding-product {
+    margin: 0 0 20px;
+  }
+  .onboarding-steps {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .onboarding-steps li {
+    gap: 6px;
+    font-size: 12px;
+  }
+  .onboarding-step-content {
+    min-height: 0;
+  }
+  .onboarding-actions {
+    flex-wrap: wrap;
+  }
+  .onboarding-panel h1 {
+    font-size: 22px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .onboarding-steps li > span {
+    transition: none;
+  }
+}

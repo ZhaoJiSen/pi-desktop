@@ -26,15 +26,18 @@ import { useDesktopLifecycle } from '../hooks/useDesktopLifecycle'
 import { useCurrentPage } from '../router/hooks'
 import { createChat, navigateToPage } from '../router/navigation'
 import { WorkspaceActionsContext } from './WorkspaceActions'
+import { OnboardingPage } from '../pages/OnboardingPage'
 
 export function WorkspaceLayout() {
   const sidebar = useWorkspace((state) => state.sidebarOpen)
   const active = useWorkspace((state) => state.activeSessionId)
   const connection = useWorkspace((state) => state.connection)
   const running = useWorkspace((state) => state.runningSessionId)
+  const onboardingOpen = useWorkspace((state) => state.onboardingOpen)
   const view = useCurrentPage()
   const showSidebar = sidebar && view === 'chat'
-  const { startup, startupError, retryStartup, continueStartup } = useDesktopLifecycle(view)
+  const { startup, startupError, retryStartup, continueStartup, finishOnboarding } =
+    useDesktopLifecycle(view, !onboardingOpen)
   const [sidebarWidth, setSidebarWidth] = useState(280)
   const [searchOpen, setSearchOpen] = useState(false)
   const [projectOpen, setProjectOpen] = useState(false)
@@ -70,16 +73,29 @@ export function WorkspaceLayout() {
   }
   useKeyPress(['meta.n', 'ctrl.n'], (event) => {
     event.preventDefault()
-    if (startup === 'ready') newChat()
+    if (!onboardingOpen && startup === 'ready') newChat()
   })
   useKeyPress(['meta.k', 'ctrl.k'], (event) => {
     event.preventDefault()
-    if (startup === 'ready') setSearchOpen(true)
+    if (!onboardingOpen && startup === 'ready') setSearchOpen(true)
   })
   useKeyPress(['meta.b', 'ctrl.b'], (event) => {
     event.preventDefault()
-    if (startup === 'ready') useWorkspace.getState().toggleSidebar()
+    if (!onboardingOpen && startup === 'ready') useWorkspace.getState().toggleSidebar()
   })
+  if (onboardingOpen)
+    return (
+      <MotionConfig reducedMotion="user">
+        <main className={`app-shell startup-shell ${isDesktop ? 'native' : 'browser'}`}>
+          <OnboardingPage
+            onEnter={(connect) => {
+              finishOnboarding(connect)
+              void navigateToPage('chat')
+            }}
+          />
+        </main>
+      </MotionConfig>
+    )
   if (startup !== 'ready')
     return (
       <MotionConfig reducedMotion="user">

@@ -1,4 +1,56 @@
 export const en = {
+  'onboarding.tagline': 'A desktop home for your Pi coding agent.',
+  'onboarding.progress': 'Getting started steps',
+  'onboarding.step.welcome': 'Meet your workspace',
+  'onboarding.step.environment': 'Connect Pi',
+  'onboarding.step.project': 'Open a project',
+  'onboarding.title.welcome': 'Welcome to Pi Desktop',
+  'onboarding.title.environment': 'Connect your local Pi CLI',
+  'onboarding.title.project': 'Start with your project',
+  'onboarding.description.welcome':
+    'Bring your terminal agent to the desktop and focus on the work at hand.',
+  'onboarding.description.environment':
+    'Pi Desktop uses your local Pi CLI. First, check that it can run.',
+  'onboarding.description.project':
+    'Choose where your agent will work, then start your first conversation.',
+  'onboarding.feature.sessions': 'Conversations, organized',
+  'onboarding.feature.sessionsHelp':
+    'Keep conversations with their projects and return to your work anytime.',
+  'onboarding.feature.management': 'Extensions and usage at a glance',
+  'onboarding.feature.managementHelp':
+    'Manage extensions visually and track token usage and costs.',
+  'onboarding.feature.sync': 'Cloud sync for extensions',
+  'onboarding.feature.syncHelp':
+    'Planned: sync extension configurations through the cloud to keep your workspace consistent across devices.',
+  'onboarding.checking': 'Checking…',
+  'onboarding.detect': 'Check environment',
+  'onboarding.available': 'Pi CLI is ready',
+  'onboarding.unavailable': 'Pi CLI is not ready',
+  'onboarding.checkHint': 'This check creates no session and leaves your Pi configuration intact.',
+  'onboarding.recovery':
+    'Confirm Pi CLI is installed and check the path and executable permissions. Update the path and check again.',
+  'onboarding.verifyTerminal': 'Verify in your terminal:',
+  'onboarding.installHelp': 'Installation and requirements:',
+  'onboarding.chooseProject': 'Choose a project folder',
+  'onboarding.chooseProjectHelp': 'Open an existing project for Pi to work in.',
+  'onboarding.defaultWorkspace': 'Use the default workspace',
+  'onboarding.defaultWorkspaceHelp': 'Create a Pi Desktop folder in your home directory.',
+  'onboarding.projectHelp': 'You can add more projects from the sidebar later.',
+  'onboarding.offline':
+    'You skipped the environment check. Enter the workspace now and connect Pi in Settings later.',
+  'onboarding.skip': 'Skip setup',
+  'onboarding.close': 'Return to workspace',
+  'onboarding.back': 'Back',
+  'onboarding.continue': 'Continue',
+  'onboarding.configureLater': 'Set up later',
+  'onboarding.start': 'Enter workspace',
+  'onboarding.preparing': 'Preparing…',
+  'onboarding.settingsTitle': 'Getting started',
+  'onboarding.settingsHelp':
+    'Revisit the introduction, check your environment or choose a project.',
+  'onboarding.reopen': 'Open setup guide',
+  'onboarding.desktopOnly': 'Open the desktop app to check your local Pi environment.',
+
   'composer.commandUnavailable': 'Unavailable',
   'composer.commandKeys': '↑ ↓ Select · ↵ Insert · Esc Close',
   'composer.editCommand': 'Edit command',
@@ -26,6 +78,7 @@ export const en = {
   'layout.resizeExtensions': 'Resize extension list',
   'layout.width': '{width} pixels',
   'navigation.home': 'Home',
+  'navigation.terminal': 'Terminal',
   'navigation.commands': 'Commands',
   'commands.search': 'Search commands, descriptions or sources',
   'commands.refresh': 'Refresh',

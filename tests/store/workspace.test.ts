@@ -17,6 +17,56 @@ function memoryStorage() {
 }
 
 describe('workspace persistence', () => {
+  it('shows setup for new installations and persists completion independently of projects', () => {
+    const storage = memoryStorage()
+    const store = createWorkspaceStore(storage)
+    expect(store.getState()).toMatchObject({
+      onboardingCompleted: false,
+      onboardingOpen: true,
+      projects: [],
+      sessions: [],
+    })
+    store.getState().closeOnboarding()
+    expect(store.getState().onboardingOpen).toBe(true)
+    store.getState().completeOnboarding()
+    const reopened = createWorkspaceStore(storage)
+    expect(reopened.getState()).toMatchObject({
+      onboardingCompleted: true,
+      onboardingOpen: false,
+      sessions: [],
+    })
+    reopened.getState().openOnboarding()
+    expect(reopened.getState().onboardingOpen).toBe(true)
+    expect(createWorkspaceStore(storage).getState().onboardingOpen).toBe(false)
+    reopened.getState().closeOnboarding()
+    expect(reopened.getState().onboardingOpen).toBe(false)
+  })
+  it('does not interrupt existing installations with setup after an upgrade', () => {
+    const storage = memoryStorage()
+    const store = createWorkspaceStore(storage)
+    const session = store.getState().createSession(store.getState().addProject('/tmp/legacy'))
+    const raw = JSON.parse(storage.getItem('pi-desktop-workspace-v1')!)
+    delete raw.state.onboardingCompleted
+    storage.setItem('pi-desktop-workspace-v1', JSON.stringify(raw))
+    const upgraded = createWorkspaceStore(storage)
+    expect(upgraded.getState()).toMatchObject({
+      onboardingCompleted: true,
+      onboardingOpen: false,
+      activeSessionId: session,
+    })
+  })
+  it('retains completion in memory and reports a failed persistence write', async () => {
+    const storage = memoryStorage()
+    const store = createWorkspaceStore(storage)
+    storage.setItem = () => {
+      throw new Error('disk full')
+    }
+    store.getState().completeOnboarding()
+    await Promise.resolve()
+    expect(store.getState()).toMatchObject({ onboardingCompleted: true, onboardingOpen: false })
+    expect(store.getState().storageError).not.toBeNull()
+    expect(createWorkspaceStore(storage).getState().onboardingOpen).toBe(true)
+  })
   it('restores mixed command drafts across sessions and restarts, and plain-text updates replace tags', () => {
     const storage = memoryStorage(),
       store = createWorkspaceStore(storage)
