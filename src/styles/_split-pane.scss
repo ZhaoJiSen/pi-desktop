@@ -1,0 +1,38 @@
+.split-pane {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+}
+.split-pane-handle {
+  position: absolute;
+  z-index: 30;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--split-width) - 4px);
+  width: 8px;
+  cursor: col-resize;
+  touch-action: none;
+  outline: none;
+  &:focus-visible {
+    outline: none;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0 3px;
+    background: var(--focus);
+    opacity: 0;
+    transition: opacity 120ms ease;
+  }
+  &:hover::after,
+  &:focus-visible::after,
+  .split-pane[data-resizing='true'] > &::after {
+    opacity: 0.65;
+  }
+}
+.split-pane[data-resizing='true'] {
+  cursor: col-resize;
+  user-select: none;
+}

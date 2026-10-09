@@ -22,6 +22,10 @@ export const en = {
   'commands.openComposer': 'Open conversation controls',
   'commands.loadFailed': 'Could not load commands',
 
+  'layout.resizeHome': 'Resize project sidebar',
+  'layout.resizeExtensions': 'Resize extension list',
+  'layout.width': '{width} pixels',
+  'navigation.home': 'Home',
   'navigation.commands': 'Commands',
   'commands.search': 'Search commands, descriptions or sources',
   'commands.refresh': 'Refresh',

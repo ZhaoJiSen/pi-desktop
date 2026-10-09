@@ -1,6 +1,7 @@
 // Load each module once; this order preserves the existing CSS cascade.
 @use 'theme';
 @use 'base';
+@use 'split-pane';
 @use 'startup';
 @use 'sidebar';
 @use 'header';

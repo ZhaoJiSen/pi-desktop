@@ -18,6 +18,10 @@ export const zh = {
   'commands.openComposer': '打开会话输入区',
   'commands.loadFailed': '无法加载命令',
 
+  'layout.resizeHome': '调整项目侧栏宽度',
+  'layout.resizeExtensions': '调整扩展列表宽度',
+  'layout.width': '{width} 像素',
+  'navigation.home': '主页',
   'navigation.commands': '命令',
   'commands.search': '搜索命令、描述或来源',
   'commands.refresh': '刷新',
