@@ -14,18 +14,18 @@ vi.mock('@tauri-apps/api/core', () => ({
   },
 }))
 vi.mock('@tauri-apps/plugin-dialog', () => ({ open: vi.fn() }))
-vi.mock('../store/workspace', async (importOriginal) => {
-  const original = await importOriginal<typeof import('../store/workspace')>()
+vi.mock('../../src/store/workspace', async (importOriginal) => {
+  const original = await importOriginal<typeof import('../../src/store/workspace')>()
   const storage = { getItem: () => null, setItem: () => {}, removeItem: () => {} }
   return { ...original, isDesktop: true, useWorkspace: original.createWorkspaceStore(storage) }
 })
 
-let useWorkspace: typeof import('../store/workspace').useWorkspace
-let connectSession: typeof import('./desktop').connectSession
-let removeSession: typeof import('./desktop').removeSession
-let renameSession: typeof import('./desktop').renameSession
-let sendPrompt: typeof import('./desktop').sendPrompt
-let initializeDesktop: typeof import('./desktop').initializeDesktop
+let useWorkspace: typeof import('../../src/store/workspace').useWorkspace
+let connectSession: typeof import('../../src/lib/desktop').connectSession
+let removeSession: typeof import('../../src/lib/desktop').removeSession
+let renameSession: typeof import('../../src/lib/desktop').renameSession
+let sendPrompt: typeof import('../../src/lib/desktop').sendPrompt
+let initializeDesktop: typeof import('../../src/lib/desktop').initializeDesktop
 
 const model = {
   id: 'test',
@@ -62,9 +62,9 @@ describe('desktop prompt lifecycle', () => {
   let id: string
   beforeEach(async () => {
     vi.resetModules()
-    ;({ useWorkspace } = await import('../store/workspace'))
+    ;({ useWorkspace } = await import('../../src/store/workspace'))
     ;({ connectSession, removeSession, renameSession, sendPrompt, initializeDesktop } =
-      await import('./desktop'))
+      await import('../../src/lib/desktop'))
     mocks.channels.length = 0
     mocks.invoke.mockReset()
     useWorkspace.setState({
@@ -91,7 +91,7 @@ describe('desktop prompt lifecycle', () => {
   })
 
   it('passes a project path to the native reveal command and reports failures', async () => {
-    const { revealProject } = await import('./desktop')
+    const { revealProject } = await import('../../src/lib/desktop')
     mocks.invoke.mockClear()
     const path = '/tmp/project with spaces'
     await revealProject(path)
@@ -176,6 +176,54 @@ describe('desktop prompt lifecycle', () => {
     await expect(initializeDesktop()).resolves.toBeUndefined()
   })
 
+  it('warms a saved project without sessions and reuses it for the first visible session', async () => {
+    const emptyProject = useWorkspace.getState().addProject('/tmp/empty-project')
+    const hiddenProject = useWorkspace.getState().addProject('/tmp/hidden-project')
+    useWorkspace.getState().removeProject(hiddenProject)
+    await reloadFrontend()
+    mocks.invoke.mockClear()
+    await initializeDesktop()
+    expect(mocks.invoke.mock.calls.filter(([name]) => name === 'start_pi')).toHaveLength(2)
+    expect(mocks.invoke).toHaveBeenCalledWith(
+      'start_pi',
+      expect.objectContaining({
+        path: '/tmp/empty-project',
+        sessionFile: null,
+      }),
+    )
+    expect(useWorkspace.getState().sessions).toHaveLength(1)
+    expect(useWorkspace.getState()).toMatchObject({ activeSessionId: id, connection: 'connected' })
+    mocks.invoke.mockClear()
+    const first = useWorkspace.getState().createSession(emptyProject)
+    await connectSession(first)
+    expect(
+      mocks.invoke.mock.calls.filter(([name]) => name === 'start_pi' || name === 'stop_pi'),
+    ).toHaveLength(0)
+    expect(mocks.invoke).toHaveBeenCalledWith(
+      'pi_request',
+      expect.objectContaining({
+        command: expect.objectContaining({ type: 'new_session' }),
+      }),
+    )
+  })
+
+  it('retries failed empty-project initialization without replacing healthy project processes', async () => {
+    useWorkspace.getState().addProject('/tmp/empty-project')
+    mocks.invoke.mockImplementation(async (name, args) => {
+      if (name === 'start_pi') throw new Error('Missing pi')
+      return name === 'pi_request' ? metadata(args.command) : []
+    })
+    await expect(initializeDesktop()).rejects.toThrow('empty-project: Missing pi')
+    expect(useWorkspace.getState()).toMatchObject({ activeSessionId: id, connection: 'connected' })
+    mocks.invoke.mockClear()
+    mocks.invoke.mockImplementation(async (name, args) =>
+      name === 'pi_request' ? metadata(args.command) : [],
+    )
+    await initializeDesktop()
+    expect(mocks.invoke.mock.calls.filter(([name]) => name === 'start_pi')).toHaveLength(1)
+    expect(mocks.invoke).not.toHaveBeenCalledWith('stop_pi', expect.anything())
+  })
+
   it('holds session activation until startup discovery finishes during Fast Refresh', async () => {
     let discover!: (connections: never[]) => void
     mocks.invoke.mockClear()
@@ -204,7 +252,7 @@ describe('desktop prompt lifecycle', () => {
     const { projects, sessions, activeSessionId, piExecutable, language, languageSource } =
       useWorkspace.getState()
     vi.resetModules()
-    ;({ useWorkspace } = await import('../store/workspace'))
+    ;({ useWorkspace } = await import('../../src/store/workspace'))
     useWorkspace.setState({
       projects,
       sessions,
@@ -213,7 +261,7 @@ describe('desktop prompt lifecycle', () => {
       language,
       languageSource,
     })
-    ;({ connectSession, initializeDesktop } = await import('./desktop'))
+    ;({ connectSession, initializeDesktop } = await import('../../src/lib/desktop'))
   }
 
   it('resolves native language before opening pi and uses English for non-Chinese systems', async () => {
@@ -251,7 +299,7 @@ describe('desktop prompt lifecycle', () => {
     expect(mocks.invoke).toHaveBeenCalledWith('set_app_language', { language: 'zh' })
     useWorkspace.getState().setPreference({ language: 'en' })
     mocks.invoke.mockClear()
-    const { syncDesktopLanguage } = await import('./desktop')
+    const { syncDesktopLanguage } = await import('../../src/lib/desktop')
     await syncDesktopLanguage()
     expect(mocks.invoke.mock.calls).toEqual([['set_app_language', { language: 'en' }]])
     await expect(renameSession(id, '')).rejects.toThrow('Enter a valid conversation name.')
@@ -430,7 +478,7 @@ describe('desktop prompt lifecycle', () => {
   })
 
   it('shows Ponytail loading once per new process despite duplicate and late startup events', async () => {
-    const { onRuntimeNotice } = await import('./desktop')
+    const { onRuntimeNotice } = await import('../../src/lib/desktop')
     const notice = vi.fn()
     const unsubscribe = onRuntimeNotice(notice)
     mocks.invoke.mockImplementation(async (name, args) => {
@@ -465,7 +513,7 @@ describe('desktop prompt lifecycle', () => {
   })
 
   it('suppresses Ponytail loading on same-project new/switch while keeping real extension notifications', async () => {
-    const { onRuntimeNotice, onExtensionRequest } = await import('./desktop')
+    const { onRuntimeNotice, onExtensionRequest } = await import('../../src/lib/desktop')
     const notice = vi.fn()
     const dialog = vi.fn()
     const unsubscribe = onRuntimeNotice(notice)
@@ -537,7 +585,7 @@ describe('desktop prompt lifecycle', () => {
   it('does not announce loading again for a native process reattached after frontend reload', async () => {
     const runId = mocks.invoke.mock.calls.find(([name]) => name === 'start_pi')![1].runId
     await reloadFrontend()
-    const { onRuntimeNotice } = await import('./desktop')
+    const { onRuntimeNotice } = await import('../../src/lib/desktop')
     const notice = vi.fn()
     const unsubscribe = onRuntimeNotice(notice)
     mocks.invoke.mockImplementation(async (name, args) =>
@@ -731,27 +779,307 @@ describe('desktop prompt lifecycle', () => {
     expect(mocks.invoke.mock.calls.filter(([name]) => name === 'start_pi')).toHaveLength(1)
   })
 
-  it('stops an active runtime before removal and ignores its late events', async () => {
+  it('retains the process after removing the last session and ignores its unbound events', async () => {
     const runId = mocks.invoke.mock.calls.find(([name]) => name === 'start_pi')![1].runId
     const channel = mocks.channels.at(-1)!
+    mocks.invoke.mockClear()
     await removeSession(id)
-    expect(mocks.invoke).toHaveBeenCalledWith('stop_pi', { runId })
-    channel.onmessage({ runId, event: { type: 'runtime_exit' } })
+    expect(mocks.invoke).not.toHaveBeenCalled()
+    channel.onmessage({ runId, event: { type: 'agent_start' } })
+    channel.onmessage({ runId, event: { type: 'session_info_changed', name: 'Deleted' } })
     expect(useWorkspace.getState()).toMatchObject({
       sessions: [],
       activeSessionId: null,
       connection: 'disconnected',
       connectionError: null,
+      runningSessionId: null,
     })
+    const next = useWorkspace.getState().createSession(useWorkspace.getState().projects[0].id)
+    await connectSession(next)
+    expect(
+      mocks.invoke.mock.calls.filter(([name]) => name === 'start_pi' || name === 'stop_pi'),
+    ).toHaveLength(0)
+    expect(mocks.invoke).toHaveBeenCalledWith(
+      'pi_request',
+      expect.objectContaining({
+        runId,
+        command: expect.objectContaining({ type: 'new_session' }),
+      }),
+    )
   })
 
-  it('keeps the session when stopping fails and rejects removal during generation', async () => {
-    mocks.invoke.mockRejectedValueOnce(new Error('Stop failed'))
-    await expect(removeSession(id)).rejects.toThrow('Stop failed')
-    expect(useWorkspace.getState().sessions).toHaveLength(1)
+  it('rejects removal during generation or connection', async () => {
     useWorkspace.setState({ runningSessionId: id })
     await expect(removeSession(id)).rejects.toThrow('请等待')
     await expect(renameSession(id, 'Busy')).rejects.toThrow('请等待')
+    useWorkspace.setState({ runningSessionId: null, connection: 'connecting' })
+    await expect(removeSession(id)).rejects.toThrow('请等待')
+    expect(useWorkspace.getState().sessions).toHaveLength(1)
+  })
+
+  it('reuses the active project when deletion selects another session', async () => {
+    const next = useWorkspace.getState().createSession(useWorkspace.getState().projects[0].id)
+    useWorkspace.getState().selectSession(id)
+    mocks.invoke.mockClear()
+    await removeSession(id)
+    expect(useWorkspace.getState().activeSessionId).toBe(next)
+    await connectSession(next)
+    expect(useWorkspace.getState().connection).toBe('connected')
+    expect(
+      mocks.invoke.mock.calls.filter(([name]) => name === 'start_pi' || name === 'stop_pi'),
+    ).toHaveLength(0)
+  })
+
+  it('keeps an inactive project process after deleting its bound session', async () => {
+    const store = useWorkspace.getState()
+    const other = store.createSession(store.addProject('/tmp/other-project'))
+    await connectSession(other)
+    mocks.invoke.mockClear()
+    await removeSession(id)
+    expect(useWorkspace.getState()).toMatchObject({
+      activeSessionId: other,
+      connection: 'connected',
+    })
+    const next = useWorkspace.getState().createSession(store.projects[0].id)
+    await connectSession(next)
+    expect(
+      mocks.invoke.mock.calls.filter(([name]) => name === 'start_pi' || name === 'stop_pi'),
+    ).toHaveLength(0)
+  })
+
+  it('reattaches an unbound process after deleting the last session without restoring deleted history', async () => {
+    const runId = mocks.invoke.mock.calls.find(([name]) => name === 'start_pi')![1].runId
+    await removeSession(id)
+    await reloadFrontend()
+    mocks.invoke.mockClear()
+    mocks.invoke.mockImplementation(async (name, args) =>
+      name === 'pi_connections'
+        ? [{ id: runId, path: '/tmp/project', executable: 'pi' }]
+        : name === 'pi_request'
+          ? metadata(args.command)
+          : [],
+    )
+    await initializeDesktop()
+    expect(useWorkspace.getState()).toMatchObject({
+      sessions: [],
+      activeSessionId: null,
+      connection: 'disconnected',
+    })
+    mocks.channels
+      .at(-1)!
+      .onmessage({ runId, event: { type: 'session_info_changed', name: 'Deleted' } })
+    const next = useWorkspace.getState().createSession(useWorkspace.getState().projects[0].id)
+    expect(useWorkspace.getState().sessions[0].piSessionFile).toBeUndefined()
+    await connectSession(next)
+    expect(
+      mocks.invoke.mock.calls.filter(([name]) => name === 'start_pi' || name === 'stop_pi'),
+    ).toHaveLength(0)
+    expect(mocks.invoke).toHaveBeenCalledWith(
+      'pi_request',
+      expect.objectContaining({
+        runId,
+        command: expect.objectContaining({ type: 'new_session' }),
+      }),
+    )
+  })
+
+  it('does not attach a deleted native history to a surviving session after reload', async () => {
+    const runId = mocks.invoke.mock.calls.find(([name]) => name === 'start_pi')![1].runId
+    const next = useWorkspace.getState().createSession(useWorkspace.getState().projects[0].id)
+    useWorkspace.getState().selectSession(id)
+    await removeSession(id)
+    await reloadFrontend()
+    mocks.invoke.mockClear()
+    mocks.invoke.mockImplementation(async (name, args) =>
+      name === 'pi_connections'
+        ? [{ id: runId, path: '/tmp/project', executable: 'pi' }]
+        : name === 'pi_request'
+          ? metadata(args.command)
+          : [],
+    )
+    await initializeDesktop()
+    expect(useWorkspace.getState().activeSessionId).toBe(next)
+    expect(mocks.invoke).toHaveBeenCalledWith(
+      'pi_request',
+      expect.objectContaining({
+        runId,
+        command: expect.objectContaining({ type: 'new_session' }),
+      }),
+    )
+    expect(
+      mocks.invoke.mock.calls.filter(([name]) => name === 'start_pi' || name === 'stop_pi'),
+    ).toHaveLength(0)
+  })
+
+  it.each(['new_session', 'get_messages', 'set_thinking_level'])(
+    'retains a reused process after %s fails and reconciles before retry',
+    async (failedCommand) => {
+      const next = useWorkspace.getState().createSession(useWorkspace.getState().projects[0].id)
+      const runId = mocks.invoke.mock.calls.find(([name]) => name === 'start_pi')![1].runId
+      const channel = mocks.channels.at(-1)!
+      let fail = true
+      mocks.invoke.mockClear()
+      mocks.invoke.mockImplementation(async (name, args) => {
+        if (name !== 'pi_request') return []
+        if (args.command.type === failedCommand && fail) {
+          fail = false
+          throw new Error('Transient failure')
+        }
+        return metadata(args.command)
+      })
+      await connectSession(next)
+      expect(useWorkspace.getState()).toMatchObject({
+        connection: 'error',
+        connectionError: 'Transient failure',
+        runningSessionId: null,
+      })
+      channel.onmessage({ runId, event: { type: 'session_info_changed', name: 'Wrong history' } })
+      channel.onmessage({
+        runId,
+        event: { type: 'extension_ui_request', method: 'set_editor_text', text: 'Wrong draft' },
+      })
+      expect(useWorkspace.getState().sessions.find((session) => session.id === next)).toMatchObject(
+        {
+          title: '',
+          draft: '',
+        },
+      )
+      useWorkspace.getState().updateSession(next, { draft: 'Send after recovery' })
+      expect(await sendPrompt([])).toBe(false)
+      mocks.invoke.mockClear()
+      await connectSession(next)
+      expect(mocks.invoke.mock.calls[0]).toEqual([
+        'pi_request',
+        expect.objectContaining({
+          runId,
+          command: expect.objectContaining({ type: 'get_state' }),
+        }),
+      ])
+      expect(useWorkspace.getState().connection).toBe('connected')
+      expect(
+        mocks.invoke.mock.calls.filter(([name]) => name === 'start_pi' || name === 'stop_pi'),
+      ).toHaveLength(0)
+      expect(await sendPrompt([])).toBe(true)
+    },
+  )
+
+  it('recognizes an applied switch after a lost acknowledgement without switching or restarting again', async () => {
+    const next = useWorkspace.getState().createSession(useWorkspace.getState().projects[0].id)
+    useWorkspace.getState().updateSession(next, { piSessionFile: '/tmp/next.jsonl' })
+    let fail = true
+    mocks.invoke.mockImplementation(async (name, args) => {
+      if (name !== 'pi_request') return []
+      if (args.command.type === 'switch_session' && fail) {
+        fail = false
+        throw new Error('Acknowledgement lost')
+      }
+      if (args.command.type === 'get_state')
+        return { ...metadata(args.command), sessionFile: '/tmp/next.jsonl' }
+      return metadata(args.command)
+    })
+    await connectSession(next)
+    mocks.invoke.mockClear()
+    await connectSession(next)
+    expect(useWorkspace.getState().connection).toBe('connected')
+    expect(
+      mocks.invoke.mock.calls.filter(
+        ([name, args]) =>
+          name === 'start_pi' ||
+          name === 'stop_pi' ||
+          (name === 'pi_request' && ['new_session', 'switch_session'].includes(args.command.type)),
+      ),
+    ).toHaveLength(0)
+  })
+
+  it('keeps sending blocked when reconciliation fails or finds a different running session', async () => {
+    const next = useWorkspace.getState().createSession(useWorkspace.getState().projects[0].id)
+    mocks.invoke.mockImplementation(async () => {
+      throw new Error('Unavailable')
+    })
+    await connectSession(next)
+    mocks.invoke.mockClear()
+    await connectSession(next)
+    expect(useWorkspace.getState().connection).toBe('error')
+    mocks.invoke.mockImplementation(async (name, args) =>
+      name === 'pi_request' ? { ...metadata(args.command), isStreaming: true } : [],
+    )
+    await connectSession(next)
+    expect(useWorkspace.getState()).toMatchObject({
+      connection: 'error',
+      connectionError: '请等待当前任务完成后切换会话。',
+    })
+    expect(
+      mocks.invoke.mock.calls.filter(([name]) => name === 'start_pi' || name === 'stop_pi'),
+    ).toHaveLength(0)
+    useWorkspace.getState().updateSession(next, { draft: 'Blocked' })
+    expect(await sendPrompt([])).toBe(false)
+  })
+
+  it('replaces only the selected project when the pi executable changes', async () => {
+    useWorkspace.getState().setPreference({ piExecutable: '/tmp/alternate-pi' })
+    mocks.invoke.mockClear()
+    await connectSession(id)
+    expect(mocks.invoke.mock.calls.filter(([name]) => name === 'start_pi')).toHaveLength(1)
+    expect(mocks.invoke.mock.calls.filter(([name]) => name === 'stop_pi')).toHaveLength(1)
+    expect(mocks.invoke).toHaveBeenCalledWith(
+      'start_pi',
+      expect.objectContaining({
+        executable: '/tmp/alternate-pi',
+      }),
+    )
+  })
+
+  it('remembers a failed synchronization after visiting another project and protects its running session', async () => {
+    const project = useWorkspace.getState().projects[0].id
+    const firstRun = mocks.invoke.mock.calls.find(([name]) => name === 'start_pi')![1].runId
+    let fail = true
+    mocks.invoke.mockImplementation(async (name, args) => {
+      if (name !== 'pi_request') return []
+      if (args.runId === firstRun && args.command.type === 'get_messages' && fail) {
+        fail = false
+        throw new Error('History unavailable')
+      }
+      return metadata(args.command)
+    })
+    const failed = useWorkspace.getState().createSession(project)
+    await connectSession(failed)
+    const other = useWorkspace
+      .getState()
+      .createSession(useWorkspace.getState().addProject('/tmp/other-project'))
+    await connectSession(other)
+    expect(useWorkspace.getState().connection).toBe('connected')
+    const next = useWorkspace.getState().createSession(project)
+    mocks.invoke.mockClear()
+    mocks.invoke.mockImplementation(async (name, args) =>
+      name === 'pi_request' ? { ...metadata(args.command), isStreaming: true } : [],
+    )
+    await connectSession(next)
+    expect(useWorkspace.getState().connection).toBe('error')
+    expect(mocks.invoke.mock.calls.map(([name, args]) => [name, args.command?.type])).toEqual([
+      ['pi_request', 'get_state'],
+    ])
+  })
+
+  it('rejects a late RPC reply after the same process has switched sessions', async () => {
+    const { request } = await import('../../src/lib/desktop')
+    let release!: (value: object) => void
+    let held = false
+    mocks.invoke.mockImplementation(async (name, args) => {
+      if (name !== 'pi_request') return []
+      if (args.command.type === 'get_messages' && !held) {
+        held = true
+        return new Promise((resolve) => {
+          release = resolve
+        })
+      }
+      return metadata(args.command)
+    })
+    const pending = request({ type: 'get_messages' })
+    const assertion = expect(pending).rejects.toThrow('会话已切换')
+    const next = useWorkspace.getState().createSession(useWorkspace.getState().projects[0].id)
+    await connectSession(next)
+    release({ messages: [] })
+    await assertion
   })
 
   it('retains an accepted message if the subsequent state refresh fails', async () => {

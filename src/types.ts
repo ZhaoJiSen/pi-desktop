@@ -88,6 +88,8 @@ export interface SlashCommand {
 export interface ExtensionPackage {
   source: string
   scope: 'global' | 'project'
+  version?: string
+  description?: string
 }
 export interface PiEvent {
   type: string

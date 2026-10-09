@@ -1,4 +1,4 @@
-import { Button, Dropdown, Tooltip } from '@heroui/react'
+import { Button, Dropdown, Separator, Tooltip } from '@heroui/react'
 import {
   ChevronDown,
   ChevronRight,
@@ -6,6 +6,7 @@ import {
   Folder,
   FolderOpen,
   MessageSquare,
+  Pencil,
   Pin,
   PinOff,
   SquarePen,
@@ -17,9 +18,11 @@ import { useT } from '../lib/i18n'
 import { errorText, shortPath } from '../lib/utils'
 import { useWorkspace } from '../store/workspace'
 import type { Project } from '../types'
+import { RenameProjectDialog } from './RenameProjectDialog'
 
 export function ProjectRow({ project, count }: { project: Project; count: number }) {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [renaming, setRenaming] = useState(false)
   const [error, setError] = useState('')
   const locked = useWorkspace(
     (state) => Boolean(state.runningSessionId) || state.connection === 'connecting',
@@ -92,41 +95,54 @@ export function ProjectRow({ project, count }: { project: Project; count: number
                   setMenuOpen(false)
                   setError('')
                   if (key === 'new') newSession()
+                  else if (key === 'rename') setRenaming(true)
                   else if (key === 'pin') useWorkspace.getState().togglePinProject(project.id)
                   else if (key === 'reveal')
                     void revealProject(project.path).catch((error) => setError(errorText(error)))
                   else if (key === 'remove') useWorkspace.getState().removeProject(project.id)
                 }}
               >
-                <Dropdown.Item
-                  id="new"
-                  textValue={t('sessions.create')}
-                  className="menu-row"
-                  isDisabled={locked}
-                >
-                  <SquarePen />
-                  {t('sessions.create')}
-                </Dropdown.Item>
-                <Dropdown.Item
-                  id="pin"
-                  textValue={t(project.pinned ? 'projects.unpin' : 'projects.pin')}
-                  className="menu-row"
-                >
-                  {project.pinned ? <PinOff /> : <Pin />}
-                  {t(project.pinned ? 'projects.unpin' : 'projects.pin')}
-                </Dropdown.Item>
-                <Dropdown.Item id="reveal" textValue={t('projects.reveal')} className="menu-row">
-                  <FolderOpen />
-                  {t('projects.reveal')}
-                </Dropdown.Item>
-                <Dropdown.Item
-                  id="remove"
-                  textValue={t('projects.remove')}
-                  className="menu-row project-remove"
-                >
-                  <X />
-                  {t('projects.remove')}
-                </Dropdown.Item>
+                <Dropdown.Section aria-label={t('projects.menu.conversations')}>
+                  <Dropdown.Item
+                    id="new"
+                    textValue={t('sessions.create')}
+                    className="menu-row"
+                    isDisabled={locked}
+                  >
+                    <SquarePen />
+                    {t('sessions.create')}
+                  </Dropdown.Item>
+                </Dropdown.Section>
+                <Separator />
+                <Dropdown.Section aria-label={t('projects.menu.manage')}>
+                  <Dropdown.Item id="rename" textValue={t('projects.rename')} className="menu-row">
+                    <Pencil />
+                    {t('projects.rename')}
+                  </Dropdown.Item>
+                  <Dropdown.Item
+                    id="pin"
+                    textValue={t(project.pinned ? 'projects.unpin' : 'projects.pin')}
+                    className="menu-row"
+                  >
+                    {project.pinned ? <PinOff /> : <Pin />}
+                    {t(project.pinned ? 'projects.unpin' : 'projects.pin')}
+                  </Dropdown.Item>
+                  <Dropdown.Item id="reveal" textValue={t('projects.reveal')} className="menu-row">
+                    <FolderOpen />
+                    {t('projects.reveal')}
+                  </Dropdown.Item>
+                </Dropdown.Section>
+                <Separator />
+                <Dropdown.Section aria-label={t('projects.remove')}>
+                  <Dropdown.Item
+                    id="remove"
+                    textValue={t('projects.remove')}
+                    className="menu-row project-remove"
+                  >
+                    <X />
+                    {t('projects.remove')}
+                  </Dropdown.Item>
+                </Dropdown.Section>
               </Dropdown.Menu>
             </Dropdown.Popover>
           </Dropdown>
@@ -141,6 +157,9 @@ export function ProjectRow({ project, count }: { project: Project; count: number
           </button>
         </div>
       </div>
+      {renaming && (
+        <RenameProjectDialog projectId={project.id} onClose={() => setRenaming(false)} />
+      )}
       {error && (
         <div className="project-error" role="alert">
           <span>{error}</span>

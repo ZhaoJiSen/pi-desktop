@@ -1,8 +1,10 @@
 //! Process pool and the runtime interface used by Tauri commands.
 
 mod process;
+pub(crate) use process::runtime_path;
 mod rpc;
 #[cfg(test)]
+#[path = "../tests/runtime/tests.rs"]
 mod tests;
 
 use serde_json::{json, Value};

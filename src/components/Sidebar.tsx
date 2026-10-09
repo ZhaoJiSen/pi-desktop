@@ -1,6 +1,14 @@
 import { Button } from '@heroui/react'
 import { AnimatePresence, motion } from 'motion/react'
-import { ChartNoAxesCombined, Folder, Grid2X2, Plus, Search, Send, Settings } from 'lucide-react'
+import {
+  ChartNoAxesCombined,
+  Folder,
+  Grid2X2,
+  Plus,
+  Search,
+  Settings,
+  SquarePen,
+} from 'lucide-react'
 import { useWorkspace } from '../store/workspace'
 import { SidebarToggle, WindowControls } from './Chrome'
 import { useT } from '../lib/i18n'
@@ -44,7 +52,7 @@ export function Sidebar({ onNew, onSearch, onProject, onRename, onRemove }: Prop
       </div>
       <nav className="nav" aria-label={t('navigation.label')}>
         <Button variant="ghost" className="nav-row" onPress={onNew} isDisabled={locked}>
-          <Send />
+          <SquarePen />
           {t('sessions.new')}
           <span className="shortcut">⌘ N</span>
         </Button>
@@ -56,6 +64,7 @@ export function Sidebar({ onNew, onSearch, onProject, onRename, onRemove }: Prop
         <Button
           variant="ghost"
           className={`nav-row ${view === 'extensions' ? 'nav-active' : ''}`}
+          aria-current={view === 'extensions' ? 'page' : undefined}
           onPress={() => setView('extensions')}
         >
           <Grid2X2 />

@@ -46,6 +46,7 @@ interface WorkspaceState {
   toggleSidebar: () => void
   toggleProject: (id: string) => void
   togglePinProject: (id: string) => void
+  renameProject: (id: string, name: string) => void
   removeProject: (id: string) => void
   addProject: (path: string, branch?: string | null) => string
   createSession: (projectId: string) => string
@@ -117,6 +118,15 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
               project.id === id ? { ...project, pinned: !project.pinned } : project,
             ),
           })),
+        renameProject: (id, name) => {
+          const normalized = name.trim()
+          if (!normalized) return
+          set((state) => ({
+            projects: state.projects.map((project) =>
+              project.id === id ? { ...project, name: normalized } : project,
+            ),
+          }))
+        },
         removeProject: (id) =>
           set((state) => ({
             projects: state.projects.map((project) =>

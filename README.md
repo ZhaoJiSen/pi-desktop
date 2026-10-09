@@ -15,7 +15,7 @@ pnpm desktop
 
 语言在首次加载时读取系统首选语言：`zh`（包括 `zh-CN`、`zh-Hant-TW` 等）使用中文，其余语言及读取不到语言的情况默认英文。浏览器预览使用 `navigator.language`，桌面端通过 Rust 读取操作系统语言并在连接 pi 前同步。设置中手动选择的语言会持久化，重新启动不会覆盖；旧版本已保存的中文/英文设置也会保留。前端提示、原生目录选择标题、导出标题以及 Rust 的应用错误使用同一语言；pi、模型提供商和扩展返回的原始内容保留原文。
 
-每个项目首次访问时启动一个 pi 进程，应用运行期间保留连接。同项目新建、切换会话通过 `new_session` / `switch_session` RPC 切换上下文；跨项目返回时复用该项目的进程，恢复其历史、模型、思考设置和扩展来源。只有首次启动、手动重连、修改可执行文件或进程退出后需要重新连接；停止或重连一个项目不会影响其他项目。关闭应用时清理全部子进程。复用连接时不会显示「正在连接 pi」，但扩展的 `session_start` 通知仍可能在会话切换时出现。
+应用启动时预热全部未隐藏项目的 pi 进程，包括没有会话的项目，准备完成后进入工作区。同项目新建、切换会话通过 `new_session` / `switch_session` RPC 切换上下文；跨项目返回时复用该项目的进程，恢复其历史、模型、思考设置和扩展来源。删除会话（包括最后一个会话）保留项目进程；切换或同步失败也保留已有进程，重试先核对实际会话状态。运行中新添加项目、手动重连、修改可执行文件或进程退出后允许按需连接，不显示「正在连接 pi」。停止或重连一个项目不会影响其他项目，关闭应用时清理全部子进程。扩展的 `session_start` 通知仍可能在会话切换时出现。
 
 浏览器预览：
 
@@ -47,7 +47,10 @@ Tauri 2 + React/TypeScript + Vite + Tailwind CSS 4 + Zustand + ahooks + Motion +
 - `src/store/workspace.ts`：工作区、草稿、偏好与持久化。
 - `src/lib/desktop.ts`：前端 RPC 与运行状态管理。
 - `src/lib/rpc.ts`：消息、工具结果、diff 和用量归一化。
+- `src/lib/packages.ts`：扩展界面的类型与原生 command 调用，不直接访问 npm registry。
+- `src-tauri/src/packages.rs` / `packages/registry.rs`：本地扩展配置、安装管理、npm 搜索、包详情、版本比较和批量检查更新。原生 HTTP 客户端复用连接，并设置连接和请求超时。
 - `src-tauri/src/runtime.rs`：本机 pi 子进程、JSONL 请求关联、事件转发与退出清理。
+- `tests/lib` / `tests/store`：对应 `src/lib` / `src/store` 的前端测试；`tests/scripts` 对应构建脚本；`src-tauri/tests` 保留 `src-tauri/src` 的模块层级，每个模块的测试文件统一命名为 `tests.rs`。Rust 通过仅测试时加载的模块引用这些文件，不暴露内部实现。
 - `PRODUCT.md` / `DESIGN.md`：产品范围与模板约束。
 
 ## 验证
@@ -61,7 +64,7 @@ cargo check --manifest-path src-tauri/Cargo.toml
 cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
 ```
 
-`pnpm lint` 使用 oxlint，覆盖前端、构建脚本和 Vite/Vitest 配置；`pnpm lint:fix` 自动修复 lint 问题。`pnpm format` 使用 oxfmt 格式化代码，`pnpm format:check` 仅检查格式。Rust 继续使用 rustfmt，设计稿和生成文件不参与 oxfmt 格式化。
+`pnpm typecheck` 分别检查前端、构建脚本和测试；`pnpm verify` 只扫描 `tests/**/*.test.ts`。`pnpm lint` 使用 oxlint，覆盖前端、构建脚本、测试和 Vite/Vitest 配置；`pnpm lint:fix` 自动修复 lint 问题。`pnpm format` 使用 oxfmt 格式化代码，`pnpm format:check` 仅检查格式。Rust（包括 `src-tauri/tests`）继续使用 rustfmt，设计稿和生成文件不参与 oxfmt 格式化。包获取只在桌面端执行，浏览器预览不发起 registry 请求。
 
 macOS 安装包：
 
@@ -69,7 +72,7 @@ macOS 安装包：
 pnpm package:mac
 ```
 
-产物在 `src-tauri/target/release/bundle/dmg/`。GitHub Actions 的 `build` 仅支持手动运行：在 Actions → build → Run workflow 中选择分支，并填写必填的 `version`（如 `0.1.0` 或 `0.2.0-beta.1`，不带 `v` 前缀）。工作流执行类型检查、lint、全部前端测试、Rust fmt/Clippy/测试和前端生产构建；通过后使用填写的版本构建同时支持 Apple Silicon 与 Intel 的 universal DMG，上传到本次运行的 `pi-desktop-macos-<version>` artifact。版本通过临时 Tauri 配置覆盖，不修改仓库中的版本文件。Push、PR 和 tag 不自动触发，也不自动发布 GitHub Release。当前安装包不签名、不公证。本机 pi RPC 冒烟检查需要显式启用，不在 CI 中运行。
+产物在 `src-tauri/target/release/bundle/dmg/`。GitHub Actions 的 `build` 仅支持手动运行：在 Actions → build → Run workflow 中选择分支，并填写必填的 `version`（如 `0.1.0` 或 `0.2.0-beta.1`，不带 `v` 前缀）。工作流执行类型检查、lint、全部前端测试、Rust fmt/Clippy/测试和前端生产构建；通过后使用填写的版本构建同时支持 Apple Silicon 与 Intel 的 universal DMG，上传到本次运行的 `pi-desktop-macos-<version>` artifact。随后发布任务自动创建 `v<version>` 标签和 GitHub Release，生成发布说明并附上本次构建的 DMG；标签指向本次运行的 commit，带预发布后缀的版本标记为 prerelease。已有 Release 不覆盖，已有同名标签若指向其他 commit 则拒绝发布，需要使用新版本号。仅发布任务拥有 `contents: write` 权限，使用内置 `GITHUB_TOKEN`，无需额外配置 PAT。版本通过临时 Tauri 配置覆盖，不修改仓库中的版本文件。Push、PR 和 tag 不自动触发。当前安装包不签名、不公证。本机 pi RPC 冒烟检查需要显式启用，不在 CI 中运行。
 
 只读本机 pi RPC 冒烟检查（不调用模型、不创建 pi 会话文件）：
 

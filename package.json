@@ -6,8 +6,8 @@
   "packageManager": "pnpm@10.33.0",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
-    "typecheck": "tsc --noEmit && tsc --project scripts/tsconfig.json",
-    "lint": "oxlint src scripts vite.config.ts vitest.config.ts",
+    "typecheck": "tsc --noEmit && tsc --project scripts/tsconfig.json && tsc --project tests/tsconfig.json",
+    "lint": "oxlint src scripts tests vite.config.ts vitest.config.ts",
     "lint:fix": "pnpm lint --fix",
     "format": "oxfmt --write .",
     "format:check": "oxfmt --check .",

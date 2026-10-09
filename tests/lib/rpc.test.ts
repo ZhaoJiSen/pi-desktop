@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { applyStreamEvent, normalizeMessages, normalizeUsage, parseDiff } from './rpc'
-import type { Message } from '../types'
+import { applyStreamEvent, normalizeMessages, normalizeUsage, parseDiff } from '../../src/lib/rpc'
+import type { Message } from '../../src/types'
 
 describe('pi RPC reconstruction', () => {
   it('replaces streamed deltas with authoritative completed content, preserving Unicode', () => {

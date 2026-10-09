@@ -268,7 +268,7 @@ export function RemoveSessionDialog({
       className="dialog-backdrop"
     >
       <Modal.Container size="sm">
-        <Modal.Dialog className="form-dialog">
+        <Modal.Dialog className="form-dialog remove-session-dialog">
           <Modal.Header>
             <Modal.Heading>{t('sessions.remove')}</Modal.Heading>
             <Modal.CloseTrigger isDisabled={saving} aria-label={t('common.close')} />
@@ -283,10 +283,15 @@ export function RemoveSessionDialog({
             )}
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="ghost" onPress={onClose} isDisabled={saving}>
+            <Button variant="ghost" className="remove-cancel" onPress={onClose} isDisabled={saving}>
               {t('common.cancel')}
             </Button>
-            <Button onPress={() => void remove()} isPending={saving}>
+            <Button
+              variant="danger"
+              className="remove-confirm"
+              onPress={() => void remove()}
+              isPending={saving}
+            >
               {t('sessions.remove')}
             </Button>
           </Modal.Footer>

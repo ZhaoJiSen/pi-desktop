@@ -83,6 +83,12 @@ messages! {
     RevealProject => ("无法显示项目目录", "Could not reveal the project directory"),
     RevealProjectMissing => ("无法显示项目目录，请检查文件夹是否存在。", "Could not reveal the project directory. Check that the folder exists."),
     BackgroundTask => ("后台操作失败", "The background operation failed"),
+    PackageArguments => ("扩展包操作参数无效", "Invalid package operation"),
+    PackageBusy => ("另一个扩展包操作正在进行，请稍后重试", "Another package operation is in progress. Try again shortly"),
+    PackageAction => ("扩展包操作失败", "Package operation failed"),
+    PackageTimeout => ("扩展包操作超时，请重试", "Package operation timed out. Try again"),
+    PackageRegistry => ("无法获取扩展信息，请重试", "Could not fetch package information. Try again"),
+    PackageMetadata => ("扩展包元数据格式错误", "Invalid package metadata"),
     ReadExtensions => ("无法读取扩展配置", "Could not read the extension settings"),
     InvalidExtensions => ("扩展配置格式错误", "Invalid extension settings"),
     AppStart => ("无法启动 pi Desktop", "Could not start pi Desktop"),
@@ -104,68 +110,5 @@ messages! {
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn only_chinese_locales_select_chinese() {
-        for locale in [
-            "zh",
-            "zh-CN",
-            "zh-Hant-TW",
-            "zh_HK.UTF-8",
-            "ZH-sg",
-            " zh-MO ",
-        ] {
-            assert_eq!(Language::from_locale(locale), Language::Zh);
-        }
-        for locale in [
-            "", "en", "en-US", "ja-JP", "fr-FR", "C", "C.UTF-8", "zhuang", "zhong",
-        ] {
-            assert_eq!(Language::from_locale(locale), Language::En);
-        }
-    }
-
-    #[test]
-    fn every_native_message_has_both_languages() {
-        for message in ALL_MESSAGES {
-            let en = message.in_language(Language::En);
-            let zh = message.in_language(Language::Zh);
-            assert!(
-                !en.is_empty() && en.is_ascii(),
-                "{message:?} needs English text"
-            );
-            assert!(
-                !zh.is_empty() && !zh.is_ascii(),
-                "{message:?} needs Chinese text"
-            );
-        }
-    }
-
-    #[test]
-    fn native_errors_follow_language_changes_without_replacing_runtime() {
-        let previous = language();
-        let runtime = crate::runtime::Runtime::default();
-        for (locale, expected) in [
-            ("ja-JP", "The pi session has changed. Please reconnect"),
-            ("zh-CN", "pi 会话已切换，请重新连接"),
-        ] {
-            set_language(locale);
-            let error = runtime
-                .request(
-                    "missing",
-                    serde_json::json!({ "id": "test", "type": "get_state" }),
-                )
-                .unwrap_err();
-            assert_eq!(error, expected);
-            let missing_id = runtime
-                .request("missing", serde_json::json!({ "type": "get_state" }))
-                .unwrap_err();
-            assert_eq!(missing_id, Message::MissingId.text());
-            assert!(Message::OpenProject
-                .detail("fixture detail")
-                .ends_with(": fixture detail"));
-        }
-        set_language(if previous == Language::Zh { "zh" } else { "en" });
-    }
-}
+#[path = "../tests/i18n/tests.rs"]
+mod tests;

@@ -5,6 +5,7 @@ import type {
   ExtensionPackage,
   ExtensionRequest,
   Model,
+  Project,
   RpcState,
   RuntimeEvent,
   SlashCommand,
@@ -17,11 +18,13 @@ import { errorText, list, modelKey, record, string } from './utils'
 
 interface PiConnection {
   id: string
-  sessionId: string
+  sessionId: string | null
   path: string
   executable: string
   packages: ExtensionPackage[]
   ponytailLoaded?: boolean
+  bindingUncertain?: boolean
+  needsReconcile?: boolean
 }
 let currentRun: PiConnection | null = null
 const projectConnections = new Map<string, PiConnection>()
@@ -46,11 +49,12 @@ export function onRuntimeNotice(listener: (message: string) => void) {
 export async function request<T>(command: Record<string, unknown>): Promise<T> {
   const run = currentRun
   if (!isDesktop || !run) throw new Error(t('errors.desktopRequired'))
+  const sessionId = run.sessionId
   const value = await invoke<T>('pi_request', {
     runId: run.id,
     command: { id: crypto.randomUUID(), ...command },
   })
-  if (currentRun !== run) throw new Error(t('errors.sessionChanged'))
+  if (currentRun !== run || run.sessionId !== sessionId) throw new Error(t('errors.sessionChanged'))
   return value
 }
 
@@ -80,8 +84,6 @@ function handleEvent({ runId, event }: RuntimeEvent) {
   if (currentRun?.id !== runId) return
   const sessionId = currentRun.sessionId
   const store = useWorkspace.getState()
-  if (event.type === 'agent_start')
-    useWorkspace.setState({ runningSessionId: sessionId, connectionError: null })
   if (event.type === 'runtime_exit') {
     currentRun = null
     useWorkspace.setState({
@@ -111,13 +113,27 @@ function handleEvent({ runId, event }: RuntimeEvent) {
         if (alreadyLoaded || store.connectionAction === 'switch') return
       }
       noticeListener?.(message)
-    } else if (method === 'set_editor_text' && store.connection !== 'connecting')
+    } else if (
+      method === 'set_editor_text' &&
+      sessionId &&
+      !currentRun.bindingUncertain &&
+      !currentRun.needsReconcile &&
+      store.connection === 'connected'
+    )
       store.updateSession(sessionId, { draft: string(event.text) })
     return
   }
   // pi replaces the session before its RPC acknowledgement; do not route replacement
   // events to the old desktop session while that transition is in progress.
-  if (store.connection === 'connecting') return
+  if (
+    !sessionId ||
+    currentRun.bindingUncertain ||
+    currentRun.needsReconcile ||
+    store.connection !== 'connected'
+  )
+    return
+  if (event.type === 'agent_start')
+    useWorkspace.setState({ runningSessionId: sessionId, connectionError: null })
   if (event.type === 'session_info_changed' && typeof event.name === 'string')
     store.updateSession(sessionId, { title: event.name })
   if (event.type === 'thinking_level_changed')
@@ -146,12 +162,75 @@ export async function connectSession(sessionId: string, force = false): Promise<
   await activateSession(sessionId, force)
 }
 
+async function startProjectConnection(
+  project: Project,
+  executable: string,
+  runId: string,
+  sessionId: string | null = null,
+  sessionFile: string | null = null,
+): Promise<PiConnection> {
+  const run: PiConnection = {
+    id: runId,
+    sessionId,
+    path: project.path,
+    executable,
+    packages: [],
+  }
+  currentRun = run
+  projectConnections.set(project.path, run)
+  const channel = new Channel<RuntimeEvent>()
+  channel.onmessage = handleEvent
+  await invoke('start_pi', {
+    path: project.path,
+    executable,
+    sessionFile,
+    runId,
+    onEvent: channel,
+  })
+  return run
+}
+
+async function warmProject(project: Project) {
+  const executable = useWorkspace.getState().piExecutable
+  const cached = projectConnections.get(project.path)
+  if (cached?.executable === executable) return
+  if (cached) {
+    await invoke('stop_pi', { runId: cached.id })
+    projectConnections.delete(project.path)
+    if (currentRun === cached) currentRun = null
+  }
+  const previous = currentRun
+  const previousConnection = useWorkspace.getState().connection
+  const runId = crypto.randomUUID()
+  useWorkspace.setState({ connection: 'connecting', connectionAction: 'start' })
+  try {
+    const run = await startProjectConnection(project, executable, runId)
+    await request<RpcState>({ type: 'get_state' })
+    run.packages = await invoke<ExtensionPackage[]>('extension_packages', {
+      path: project.path,
+    }).catch(() => [])
+    if (projectConnections.get(project.path) !== run) throw new Error(t('errors.processExited'))
+  } catch (error) {
+    if (projectConnections.get(project.path)?.id === runId) projectConnections.delete(project.path)
+    await invoke('stop_pi', { runId }).catch(() => {})
+    throw error
+  } finally {
+    currentRun = previous && projectConnections.get(previous.path) === previous ? previous : null
+    useWorkspace.setState({
+      connection: currentRun?.sessionId ? previousConnection : 'disconnected',
+      connectionAction: null,
+    })
+  }
+}
+
 async function activateSession(sessionId: string, force = false): Promise<void> {
   if (!isDesktop) return
   // Serialize replacements so a late start/switch cannot replace a newer session.
   while (connecting) await connecting
   if (
     currentRun?.sessionId === sessionId &&
+    currentRun.executable === useWorkspace.getState().piExecutable &&
+    !currentRun.needsReconcile &&
     !force &&
     useWorkspace.getState().connection === 'connected'
   )
@@ -175,19 +254,40 @@ async function activateSession(sessionId: string, force = false): Promise<void> 
     connectionError: null,
   })
   const operation = (async () => {
+    let replacing = false
     try {
       if (reusable) {
         currentRun = reusable
+        if (reusable.needsReconcile || reusable.bindingUncertain || store.connection === 'error') {
+          const actual = await request<RpcState>({ type: 'get_state' })
+          if (reusable.bindingUncertain) {
+            reusable.sessionId =
+              store.sessions.find(
+                (item) =>
+                  item.projectId === project.id &&
+                  actual.sessionFile &&
+                  item.piSessionFile === actual.sessionFile,
+              )?.id || null
+            reusable.bindingUncertain = false
+          }
+          if (actual.isStreaming && reusable.sessionId !== sessionId)
+            throw new Error(t('errors.switchWhileRunning'))
+        }
         if (reusable.sessionId !== sessionId) {
+          replacing = true
           const result = await request<{ cancelled?: boolean }>(
             session.piSessionFile
               ? { type: 'switch_session', sessionPath: session.piSessionFile }
               : { type: 'new_session' },
           )
+          replacing = false
           if (result?.cancelled) {
             currentRun = previous
             useWorkspace.setState({
-              connection: previous ? 'connected' : 'disconnected',
+              connection:
+                previous?.sessionId && store.connection === 'connected'
+                  ? 'connected'
+                  : 'disconnected',
               connectionAction: null,
               connectionError: t('errors.switchCancelled'),
               ...(store.activeSessionId === sessionId
@@ -196,6 +296,7 @@ async function activateSession(sessionId: string, force = false): Promise<void> 
             })
             return
           }
+          reusable.sessionId = sessionId
         }
       } else {
         if (cached) {
@@ -217,33 +318,15 @@ async function activateSession(sessionId: string, force = false): Promise<void> 
             return
           }
         }
-        currentRun = {
-          id: runId,
-          sessionId,
-          path: project.path,
-          executable: store.piExecutable,
-          packages: [],
-        }
-        projectConnections.set(project.path, currentRun)
-        const channel = new Channel<RuntimeEvent>()
-        channel.onmessage = handleEvent
-        await invoke('start_pi', {
-          path: project.path,
-          executable: store.piExecutable,
-          sessionFile: session.piSessionFile || null,
+        await startProjectConnection(
+          project,
+          store.piExecutable,
           runId,
-          onEvent: channel,
-        })
+          sessionId,
+          session.piSessionFile || null,
+        )
       }
       if (currentRun?.id !== runId) return
-      currentRun = {
-        id: runId,
-        sessionId,
-        path: project.path,
-        executable: store.piExecutable,
-        packages: cached?.packages || [],
-        ponytailLoaded: currentRun.ponytailLoaded,
-      }
       const [state, catalog, commands, packages] = await Promise.all([
         request<RpcState>({ type: 'get_state' }),
         request<{ models: Model[] }>({ type: 'get_available_models' }),
@@ -279,24 +362,34 @@ async function activateSession(sessionId: string, force = false): Promise<void> 
         useWorkspace.getState().updateSession(sessionId, { pendingSessionName: undefined })
       }
       await syncSession(sessionId)
-      if (currentRun?.id === runId)
+      if (currentRun?.id === runId) {
+        currentRun.needsReconcile = false
         useWorkspace.setState({
           connection: 'connected',
           connectionAction: null,
           runningSessionId: state.isStreaming ? sessionId : null,
         })
+      }
     } catch (error) {
       if (currentRun?.id === runId || currentRun === null) {
-        currentRun = null
-        if (projectConnections.get(project.path)?.id === runId)
-          projectConnections.delete(project.path)
+        if (reusable && projectConnections.get(project.path) === reusable) {
+          reusable.needsReconcile = true
+          if (replacing) {
+            reusable.sessionId = null
+            reusable.bindingUncertain = true
+          }
+        } else {
+          currentRun = null
+          if (projectConnections.get(project.path)?.id === runId)
+            projectConnections.delete(project.path)
+        }
         useWorkspace.setState({
           connection: 'error',
           connectionAction: null,
           connectionError: errorText(error),
           runningSessionId: null,
         })
-        await invoke('stop_pi', { runId }).catch(() => {})
+        if (!reuse) await invoke('stop_pi', { runId }).catch(() => {})
       }
     }
   })()
@@ -363,18 +456,20 @@ async function prepareDesktop() {
         command: { id: crypto.randomUUID(), type: 'get_state' },
       })
       const candidates = store.sessions.filter((session) => session.projectId === project.id)
+      const matched = candidates.find(
+        (session) => state.sessionFile && session.piSessionFile === state.sessionFile,
+      )
+      // An idle unmatched native session may belong to a deleted desktop session.
+      // Keep its process, but never copy its history into a surviving session.
       const session =
-        candidates.find(
-          (session) => state.sessionFile && session.piSessionFile === state.sessionFile,
-        ) ||
-        candidates.find((session) => session.id === preferred) ||
-        candidates[0]
-      if (!session) {
-        await invoke('stop_pi', { runId: run.id })
-        continue
-      }
+        matched ||
+        (state.isStreaming
+          ? candidates.find((session) => session.id === preferred) || candidates[0]
+          : undefined)
+      if (!session && state.isStreaming) throw new Error(t('errors.switchWhileRunning'))
       // Preserve a still-running or not-yet-saved session instead of replacing it.
       if (
+        session &&
         state.sessionFile &&
         !candidates.some((session) => session.piSessionFile === state.sessionFile)
       ) {
@@ -385,11 +480,11 @@ async function prepareDesktop() {
       }).catch(() => [])
       projectConnections.set(run.path, {
         ...run,
-        sessionId: session.id,
+        sessionId: session?.id || null,
         packages,
         ponytailLoaded: true,
       })
-      if (state.isStreaming) resumedSession = session.id
+      if (state.isStreaming && session) resumedSession = session.id
     } catch (error) {
       // Do not kill a potentially running task when attaching or reading state fails.
       // A retry discovers the pool again, including processes that exited meanwhile.
@@ -397,7 +492,12 @@ async function prepareDesktop() {
     }
   }
   store = useWorkspace.getState()
-  const target = resumedSession || preferred || store.sessions[0]?.id
+  const target =
+    resumedSession ||
+    preferred ||
+    store.sessions.find(
+      (session) => !store.projects.find((project) => project.id === session.projectId)?.hidden,
+    )?.id
   if (target && target !== store.activeSessionId) useWorkspace.setState({ activeSessionId: target })
   const failures: string[] = []
   // Warm every saved project before showing the workspace; restore the active one last.
@@ -408,7 +508,15 @@ async function prepareDesktop() {
       [...store.sessions]
         .filter((session) => session.projectId === project.id)
         .sort((a, b) => b.updatedAt - a.updatedAt)[0]
-    if (!session || session.id === target) continue
+    if (!session) {
+      try {
+        await warmProject(project)
+      } catch (error) {
+        failures.push(`${project.name}: ${errorText(error)}`)
+      }
+      continue
+    }
+    if (session.id === target) continue
     await activateSession(session.id)
     if (useWorkspace.getState().connection === 'error')
       failures.push(`${project.name}: ${useWorkspace.getState().connectionError}`)
@@ -472,7 +580,7 @@ export async function sendPrompt(attachments: Attachment[]): Promise<boolean> {
     useWorkspace.setState({ connectionError: t('errors.sendRequiresDesktop') })
     return false
   }
-  if (store.connection !== 'connected') {
+  if (store.connection !== 'connected' || currentRun?.sessionId !== session.id) {
     useWorkspace.setState({ connectionError: t('errors.notConnected') })
     return false
   }
@@ -600,29 +708,15 @@ export async function removeSession(sessionId: string) {
   if (!store.sessions.some((session) => session.id === sessionId)) return
   if (
     store.runningSessionId === sessionId ||
-    (store.activeSessionId === sessionId &&
-      (store.runningSessionId || store.connection === 'connecting'))
+    store.connection === 'connecting' ||
+    (store.activeSessionId === sessionId && store.runningSessionId)
   )
     throw new Error(t('errors.removeWhileRunning'))
   const run = [...projectConnections.values()].find((run) => run.sessionId === sessionId)
   if (isDesktop && run) {
-    const active = currentRun?.id === run.id
-    projectConnections.delete(run.path)
-    if (active) {
-      currentRun = null
-      useWorkspace.setState({ connection: 'connecting', connectionAction: 'switch' })
-    }
-    try {
-      await invoke('stop_pi', { runId: run.id })
-      if (active) useWorkspace.setState({ connection: 'disconnected', connectionAction: null })
-    } catch (error) {
-      projectConnections.set(run.path, run)
-      if (active) {
-        currentRun = run
-        useWorkspace.setState({ connection: store.connection, connectionAction: null })
-      }
-      throw error
-    }
+    run.sessionId = null
+    run.bindingUncertain = false
+    if (currentRun === run) currentRun = null
   }
   if (!useWorkspace.getState().removeSession(sessionId)) throw new Error(t('errors.removeSession'))
 }
@@ -663,4 +757,19 @@ export function decodeExtensionRequest(value: unknown): ExtensionRequest | null 
     options: list(req.options).map((value) => string(value)),
     timeout: typeof req.timeout === 'number' ? req.timeout : undefined,
   }
+}
+
+// Keep metadata and cached project connections consistent after package changes.
+export async function refreshExtensionPackages(path: string) {
+  if (!isDesktop) throw new Error(t('packages.desktopOnly'))
+  const packages = await invoke<ExtensionPackage[]>('extension_packages', { path })
+  const cached = projectConnections.get(path)
+  if (cached) cached.packages = packages
+  if (currentRun?.path === path) currentRun.packages = packages
+  const store = useWorkspace.getState()
+  const active = store.sessions.find((session) => session.id === store.activeSessionId)
+  if (store.projects.find((project) => project.id === active?.projectId)?.path === path) {
+    useWorkspace.setState({ packages })
+  }
+  return packages
 }

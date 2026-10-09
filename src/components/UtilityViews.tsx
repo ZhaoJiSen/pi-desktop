@@ -5,6 +5,7 @@ import { useWorkspace } from '../store/workspace'
 import { useT } from '../lib/i18n'
 import { connectSession } from '../lib/desktop'
 import { cost, tokens } from '../lib/utils'
+import { ExtensionPackages } from './ExtensionPackages'
 import type { Theme } from '../types'
 
 export function UsageView() {
@@ -99,10 +100,9 @@ export function UsageView() {
 
 export function ExtensionsView() {
   const commands = useWorkspace((state) => state.commands)
-  const packages = useWorkspace((state) => state.packages)
   const sessionId = useWorkspace((state) => state.activeSessionId)
   const [query, setQuery] = useState('')
-  const [tab, setTab] = useState<'commands' | 'packages'>('commands')
+  const [tab, setTab] = useState<'commands' | 'packages'>('packages')
   const [selected, setSelected] = useState<string | null>(null)
   const t = useT()
   const filtered = commands.filter((command) =>
@@ -138,7 +138,7 @@ export function ExtensionsView() {
     )
   }
   return (
-    <div className="utility-view">
+    <div className={`utility-view ${tab === 'packages' ? 'packages-view' : ''}`}>
       <div className="view-toolbar">
         <div className="segment">
           <Button
@@ -156,15 +156,17 @@ export function ExtensionsView() {
             {t('extensions.packages')}
           </Button>
         </div>
-        <label className="inline-search">
-          <Search />
-          <input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder={t('extensions.searchPlaceholder')}
-            aria-label={t('common.search')}
-          />
-        </label>
+        {tab === 'commands' && (
+          <label className="inline-search">
+            <Search />
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder={t('extensions.searchPlaceholder')}
+              aria-label={t('common.search')}
+            />
+          </label>
+        )}
       </div>
       {tab === 'commands' ? (
         filtered.length ? (
@@ -193,28 +195,7 @@ export function ExtensionsView() {
           </div>
         )
       ) : (
-        <div className="package-list">
-          {packages
-            .filter((item) => item.source.toLowerCase().includes(query.toLowerCase()))
-            .map((item) => (
-              <div key={`${item.scope}-${item.source}`} className="package-row">
-                <Grid2X2 />
-                <span>{item.source}</span>
-                <small>
-                  {t(
-                    item.scope === 'global'
-                      ? 'extensions.scope.global'
-                      : 'extensions.scope.project',
-                  )}
-                </small>
-              </div>
-            ))}
-          {!packages.length && (
-            <div className="utility-empty">
-              <p>{t('extensions.connectHint')}</p>
-            </div>
-          )}
-        </div>
+        <ExtensionPackages key={sessionId} />
       )}
     </div>
   )

@@ -1,7 +1,7 @@
 import { Button } from '@heroui/react'
 import { useKeyPress } from 'ahooks'
 import { MotionConfig } from 'motion/react'
-import { LoaderCircle, RotateCw, TriangleAlert, X } from 'lucide-react'
+import { RotateCw, TriangleAlert, X } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { Composer } from './components/Composer'
 import { Conversation } from './components/Conversation'
@@ -38,7 +38,6 @@ export default function App() {
   const error = useWorkspace((state) => state.connectionError)
   const storageError = useWorkspace((state) => state.storageError)
   const connection = useWorkspace((state) => state.connection)
-  const connectionAction = useWorkspace((state) => state.connectionAction)
   const running = useWorkspace((state) => state.runningSessionId)
   const [searchOpen, setSearchOpen] = useState(false)
   const [projectOpen, setProjectOpen] = useState(false)
@@ -209,12 +208,6 @@ export default function App() {
                     >
                       <X />
                     </Button>
-                  </div>
-                )}
-                {connection === 'connecting' && connectionAction === 'start' && (
-                  <div className="connecting-notice" role="status">
-                    <LoaderCircle className="spinner" />
-                    {t('connection.connecting')}
                   </div>
                 )}
                 <Composer key={active} />

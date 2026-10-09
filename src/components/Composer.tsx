@@ -32,7 +32,6 @@ export function Composer() {
     (state) => state.runningSessionId === session?.id && Boolean(session),
   )
   const connecting = useWorkspace((state) => state.connection === 'connecting')
-  const starting = useWorkspace((state) => state.connectionAction === 'start')
   const model = useWorkspace((state) =>
     state.models.find((model) => `${model.provider}/${model.id}` === session?.modelKey),
   )
@@ -219,11 +218,7 @@ export function Composer() {
           </Popover.Content>
         </Popover>
         <div className="send-area">
-          <span className="send-hint">
-            {connecting && starting
-              ? t('connection.connecting')
-              : t('composer.sendHint', { shortcut: '⌘ ↵' })}
-          </span>
+          <span className="send-hint">{t('composer.sendHint', { shortcut: '⌘ ↵' })}</span>
           <motion.div whileTap={{ scale: 0.97 }} transition={{ duration: 0.08 }}>
             <Button
               type={running ? 'button' : 'submit'}

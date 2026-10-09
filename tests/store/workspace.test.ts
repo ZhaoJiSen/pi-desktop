@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { StateStorage } from 'zustand/middleware'
-import { createWorkspaceStore } from './workspace'
+import { createWorkspaceStore } from '../../src/store/workspace'
 
 function memoryStorage() {
   const data = new Map<string, string>()
@@ -16,6 +16,36 @@ function memoryStorage() {
 }
 
 describe('workspace persistence', () => {
+  it('restores renamed projects and preserves names, paths and conversations when reopening a folder', () => {
+    const storage = memoryStorage()
+    const store = createWorkspaceStore(storage)
+    const project = store.getState().addProject('/tmp/project', 'main')
+    const session = store.getState().createSession(project)
+    store.getState().updateSession(session, { draft: '保留草稿' })
+    store.getState().togglePinProject(project)
+    store.getState().renameProject(project, '  My workspace  ')
+    store.getState().renameProject(project, '   ')
+    const restored = createWorkspaceStore(storage)
+    expect(restored.getState().projects[0]).toMatchObject({
+      id: project,
+      name: 'My workspace',
+      path: '/tmp/project',
+      branch: 'main',
+      pinned: true,
+    })
+    expect(restored.getState().activeSessionId).toBe(session)
+    expect(restored.getState().sessions[0]).toMatchObject({
+      id: session,
+      projectId: project,
+      draft: '保留草稿',
+    })
+    restored.getState().removeProject(project)
+    expect(restored.getState().addProject('/tmp/project')).toBe(project)
+    expect(restored.getState().projects).toHaveLength(1)
+    expect(restored.getState().projects[0].name).toBe('My workspace')
+    expect(createWorkspaceStore(storage).getState().projects[0].name).toBe('My workspace')
+  })
+
   it('persists session pins without changing the active conversation, draft or update time', () => {
     const storage = memoryStorage()
     const store = createWorkspaceStore(storage)

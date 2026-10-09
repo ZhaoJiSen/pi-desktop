@@ -1,4 +1,5 @@
 mod i18n;
+mod packages;
 mod runtime;
 
 use i18n::Message;
@@ -149,47 +150,6 @@ async fn stop_pi(runtime: State<'_, Runtime>, run_id: Option<String>) -> Result<
     .map_err(|e| Message::BackgroundTask.detail(e))?
 }
 
-#[tauri::command]
-async fn extension_packages(app: tauri::AppHandle, path: String) -> Result<Value, String> {
-    tauri::async_runtime::spawn_blocking(move || {
-        let home = app
-            .path()
-            .home_dir()
-            .map_err(|e| Message::HomeDirectory.detail(e))?;
-        let project = project_path(&app, &path)?;
-        let agent_dir = std::env::var_os("PI_CODING_AGENT_DIR")
-            .map(PathBuf::from)
-            .unwrap_or_else(|| home.join(".pi/agent"));
-        let mut packages = Vec::new();
-        for (file, scope) in [
-            (agent_dir.join("settings.json"), "global"),
-            (project.join(".pi/settings.json"), "project"),
-        ] {
-            if !file.exists() {
-                continue;
-            }
-            let text =
-                std::fs::read_to_string(file).map_err(|e| Message::ReadExtensions.detail(e))?;
-            let settings: Value =
-                serde_json::from_str(&text).map_err(|e| Message::InvalidExtensions.detail(e))?;
-            if let Some(entries) = settings.get("packages").and_then(Value::as_array) {
-                for entry in entries {
-                    if let Some(source) = entry
-                        .as_str()
-                        .or_else(|| entry.get("source").and_then(Value::as_str))
-                    {
-                        packages.push(json!({ "source": source, "scope": scope }));
-                    }
-                }
-            }
-        }
-        // Return only package sources, never authentication or other settings.
-        Ok(json!(packages))
-    })
-    .await
-    .map_err(|e| Message::BackgroundTask.detail(e))?
-}
-
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let app = tauri::Builder::default()
@@ -206,7 +166,12 @@ pub fn run() {
             attach_pi,
             pi_request,
             stop_pi,
-            extension_packages
+            packages::extension_packages,
+            packages::registry::package_info,
+            packages::registry::discover_packages,
+            packages::registry::extension_package_metadata,
+            packages::manage_extension_package,
+            packages::open_extension_page
         ])
         .build(tauri::generate_context!())
         .unwrap_or_else(|error| panic!("{}", Message::AppStart.detail(error)));

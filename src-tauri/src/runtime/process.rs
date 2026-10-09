@@ -103,7 +103,7 @@ impl PiProcess {
     }
 }
 
-fn runtime_path(home: &std::path::Path) -> std::ffi::OsString {
+pub(crate) fn runtime_path(home: &std::path::Path) -> std::ffi::OsString {
     let mut paths = vec![
         home.join(".volta/bin"),
         home.join(".local/bin"),

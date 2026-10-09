@@ -10,7 +10,7 @@ on:
         type: string
 
 concurrency:
-  group: build-${{ github.ref }}-${{ inputs.version }}
+  group: build-${{ inputs.version }}
   cancel-in-progress: false
 
 permissions:
@@ -124,3 +124,35 @@ jobs:
           name: pi-desktop-macos-${{ inputs.version }}
           path: src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg
           if-no-files-found: error
+
+  release:
+    name: Publish GitHub Release
+    runs-on: ubuntu-latest
+    needs: package
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Download DMG
+        uses: actions/download-artifact@v4
+        with:
+          name: pi-desktop-macos-${{ inputs.version }}
+          path: release-assets
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BUILD_VERSION: ${{ inputs.version }}
+          RELEASE_ASSET_DIR: release-assets
+        run: node --experimental-strip-types scripts/publish-release.ts

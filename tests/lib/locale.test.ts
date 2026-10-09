@@ -2,7 +2,7 @@ import { readFileSync, readdirSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import ts from 'typescript'
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import { languageFromLocale, messages, translate, type TranslationArgs } from './locale'
+import { languageFromLocale, messages, translate, type TranslationArgs } from '../../src/lib/locale'
 
 describe('language resolution', () => {
   it.each(['zh', 'zh-CN', 'zh-Hant-TW', 'zh_HK.UTF-8', 'ZH-sg', ' zh-MO '])(
@@ -66,7 +66,7 @@ describe('language resolution', () => {
     expect(invalidCallsForTypecheck).toBeTypeOf('function')
   })
   it('rejects unknown keys, Chinese keys and untranslated UI literals', () => {
-    const root = fileURLToPath(new URL('../', import.meta.url))
+    const root = fileURLToPath(new URL('../../src/', import.meta.url))
     const missing = new Set<string>()
     let checked = 0
     for (const relative of readdirSync(root, { recursive: true }) as string[]) {
