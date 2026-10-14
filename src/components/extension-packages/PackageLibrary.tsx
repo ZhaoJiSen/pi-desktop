@@ -294,7 +294,7 @@ export function PackageLibrary({
                 <ListBox.Item
                   id={keyOf(pkg)}
                   textValue={packageName(pkg.source)}
-                  className="package-option"
+                  className="package-option sidebar-option"
                 >
                   <PackageOption
                     name={packageName(pkg.source)}
