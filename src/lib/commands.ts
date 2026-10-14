@@ -53,7 +53,8 @@ export async function discoverCommands(): Promise<DiscoverableCommand[]> {
   const { activeSessionId, piExecutable } = useWorkspace.getState()
   const [runtime, builtin] = await Promise.all([
     request<{ commands: SlashCommand[] }>({ type: 'get_commands' }),
-    loadBuiltinCommands(piExecutable),
+    // Runtime commands remain useful when the optional installation catalog is unavailable.
+    loadBuiltinCommands(piExecutable).catch(() => []),
   ])
   const current = useWorkspace.getState()
   if (
@@ -69,7 +70,8 @@ export function insertCommand(command: DiscoverableCommand) {
   if (commandCapability(command) !== 'insert') return false
   const store = useWorkspace.getState()
   const session = store.sessions.find((item) => item.id === store.activeSessionId)
-  if (!session || store.runningSessionId || store.connection !== 'connected') return false
+  if (!session || store.runningSessionId || (isDesktop && store.connection !== 'connected'))
+    return false
   // Keep the user's draft intact; command parameters can be reviewed before sending.
   store.updateSession(session.id, {
     draftNodes: [createCommandTag(command), { type: 'text', text: ' ' }, ...sessionDraft(session)],

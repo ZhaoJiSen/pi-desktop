@@ -1,4 +1,83 @@
-import type { Model, Project, Session, Usage } from '../types'
+import type { CommandSource, Model, Project, Session, Usage } from '../types'
+
+export const previewCommands: {
+  name: string
+  description?: string
+  source: CommandSource
+  argumentHint?: string
+  sourceInfo?: { path?: string; source?: string }
+}[] = [
+  {
+    name: 'compact',
+    source: 'builtin',
+    description: '压缩当前会话的上下文，给后面的对话留出窗口。',
+  },
+  { name: 'model', source: 'builtin', description: '更换这个会话正在使用的模型。' },
+  { name: 'thinking', source: 'builtin', description: '调整下一条回复的推理深度。' },
+  { name: 'settings', source: 'builtin', description: '打开桌面端设置。' },
+  { name: 'session', source: 'builtin', description: '查看当前会话和全部会话的用量。' },
+  { name: 'tree', source: 'builtin', description: '在终端里查看这条会话是怎样分叉的。' },
+  { name: 'login', source: 'builtin', description: '登录模型服务。需要在 Pi 终端里完成。' },
+  { name: 'name', source: 'builtin', description: '在终端中重命名当前会话。' },
+  { name: 'hotkeys', source: 'builtin' },
+  {
+    name: 'review',
+    source: 'extension',
+    description: '对照当前改动写一段评审，指出行为、边界和测试上的风险。',
+    argumentHint: '[path]',
+    sourceInfo: { source: 'npm:pi-review' },
+  },
+  {
+    name: 'visual-diff',
+    source: 'extension',
+    description: '比较界面改动前后的两张截图，标出错位、裁切和看不清的字。',
+    sourceInfo: { source: 'npm:pi-visual-diff' },
+  },
+  {
+    name: 'skill:commit',
+    source: 'skill',
+    description: '根据已暂存的改动起草提交说明。不会执行 git commit。',
+    sourceInfo: { path: '~/.pi/agent/skills/commit/SKILL.md' },
+  },
+  {
+    name: 'plan',
+    source: 'prompt',
+    description: '先写实现步骤和取舍，确认之后再改代码。',
+    argumentHint: '<任务>',
+    sourceInfo: { source: 'prompts/plan.md' },
+  },
+  {
+    name: 'explain',
+    source: 'prompt',
+    description: '沿着调用链说明这段代码为什么这样写，而不是逐行翻译。',
+    sourceInfo: { path: '~/Projects/pi-desktop/.pi/prompts/explain.md' },
+  },
+]
+
+const englishCommandDescriptions: Record<string, string> = {
+  compact: 'Compact the current conversation to make room for the next messages.',
+  model: 'Change the model used by this conversation.',
+  thinking: 'Adjust the reasoning effort for the next response.',
+  settings: 'Open Desktop settings.',
+  session: 'View usage for this conversation and all sessions.',
+  tree: 'Explore conversation branches in the Pi terminal.',
+  login: 'Sign in to a model provider in the Pi terminal.',
+  name: 'Rename the current conversation in the Pi terminal.',
+  review: 'Review changes for behavior, edge cases and missing tests.',
+  'visual-diff': 'Compare two interface screenshots for alignment, clipping and readability.',
+  'skill:commit': 'Draft a commit message from staged changes without creating a commit.',
+  plan: 'Plan the implementation and tradeoffs before changing code.',
+  explain: 'Explain the reasons behind this code by following its calls.',
+}
+
+export function getPreviewCommands(language: 'zh' | 'en') {
+  if (language === 'zh') return previewCommands
+  return previewCommands.map((command) => ({
+    ...command,
+    description: englishCommandDescriptions[command.name],
+    argumentHint: command.name === 'plan' ? '<task>' : command.argumentHint,
+  }))
+}
 
 export const emptyUsage: Usage = {
   input: 0,

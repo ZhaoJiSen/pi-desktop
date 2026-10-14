@@ -151,7 +151,7 @@ export function WorkspaceLayout() {
             }
           >
             <section className="main" aria-label={t('sessions.current')}>
-              {view !== 'chat' && view !== 'extensions' && (
+              {view !== 'chat' && view !== 'extensions' && view !== 'commands' && (
                 <Header onRename={() => setRenameId(active)} />
               )}
               {view !== 'chat' && <ConnectionNotice utility />}

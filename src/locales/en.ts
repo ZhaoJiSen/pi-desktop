@@ -76,6 +76,7 @@ export const en = {
 
   'layout.resizeHome': 'Resize project sidebar',
   'layout.resizeExtensions': 'Resize extension list',
+  'layout.resizeCommands': 'Resize command list',
   'layout.width': '{width} pixels',
   'navigation.home': 'Home',
   'navigation.terminal': 'Terminal',
@@ -88,6 +89,11 @@ export const en = {
   'commands.source.extension': 'Extension',
   'commands.source.prompt': 'Prompt template',
   'commands.source.skill': 'Skill',
+  'commands.sourceShort.all': 'All',
+  'commands.sourceShort.builtin': 'Built-in',
+  'commands.sourceShort.extension': 'Extensions',
+  'commands.sourceShort.prompt': 'Prompts',
+  'commands.sourceShort.skill': 'Skills',
   'commands.completed': 'Context compacted',
   'commands.catalogUnavailable':
     'Built-in definitions could not be read from this Pi installation. Loaded runtime commands are shown below.',
@@ -103,8 +109,7 @@ export const en = {
     'This command requires the Pi terminal interface and cannot run in Desktop yet. Run it in Pi CLI.',
   'commands.reviewParameters':
     'Insert into the conversation, review the arguments, then send. Extensions may require arguments that the runtime does not describe.',
-  'commands.compactHint':
-    'Compact the current conversation context through Pi RPC. This changes the session context.',
+  'commands.compactHint': 'This changes the conversation context.',
   'commands.desktopAction': 'Use the corresponding Desktop control to complete this operation.',
   'commands.insert': 'Insert into conversation',
   'commands.execute': 'Compact context',

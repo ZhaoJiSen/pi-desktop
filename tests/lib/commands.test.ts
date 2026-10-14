@@ -36,6 +36,7 @@ const extension: DiscoverableCommand = {
 beforeEach(() => {
   vi.clearAllMocks()
   mocks.state.activeSessionId = 's'
+  mocks.state.piExecutable = 'pi'
   mocks.state.runningSessionId = null
   mocks.state.connection = 'connected'
 })
@@ -86,5 +87,12 @@ describe('command capabilities', () => {
     })
     expect(await discoverCommands()).toEqual([])
     expect(mocks.setState).not.toHaveBeenCalled()
+  })
+  it('keeps authoritative runtime commands if optional builtin discovery fails', async () => {
+    mocks.state.piExecutable = '/missing-catalog/pi'
+    mocks.invoke.mockRejectedValue(new Error('Catalog unavailable'))
+    mocks.request.mockResolvedValue({ commands: [extension] })
+    expect(await discoverCommands()).toEqual([extension])
+    expect(mocks.setState).toHaveBeenCalledWith({ commands: [extension] })
   })
 })
