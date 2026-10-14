@@ -102,4 +102,20 @@ describe('onboarding startup boundary', () => {
     await act(async () => lifecycle.retryStartup())
     expect(lifecycle.startup).toBe('ready')
   })
+  it('ignores a startup failure after the guide is reopened and skipped', async () => {
+    let reject!: (error: Error) => void
+    mocks.initialize.mockReturnValueOnce(
+      new Promise((_resolve, fail) => {
+        reject = fail
+      }),
+    )
+    await render(true)
+    await render(false)
+    await act(async () => lifecycle.finishOnboarding(false))
+    await render(true)
+    await act(async () => reject(new Error('Previous startup failed')))
+    expect(lifecycle.startup).toBe('ready')
+    expect(lifecycle.startupError).toBeNull()
+    expect(mocks.connect).not.toHaveBeenCalled()
+  })
 })

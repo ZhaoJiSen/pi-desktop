@@ -50,6 +50,32 @@ fn nonzero_empty_output_and_hung_processes_fail() {
 
 #[cfg(unix)]
 #[test]
+fn failed_version_checks_report_runtime_errors_from_stderr() {
+    let binary = fixture("printf 'Node runtime is unavailable\\n' >&2; exit 1");
+    let error = version_output(&binary, &std::env::temp_dir(), Duration::from_secs(1)).unwrap_err();
+    assert!(error.contains("Node runtime is unavailable"), "{error}");
+    std::fs::remove_file(binary).unwrap();
+}
+
+#[cfg(unix)]
+#[test]
+fn descendants_holding_version_pipes_do_not_block_detection() {
+    for script in [
+        "sleep 30 & printf '1.0.0\\n'; exit 0",
+        "sleep 30 >/dev/null & printf '1.0.0\\n'; exit 0",
+    ] {
+        let binary = fixture(script);
+        let started = Instant::now();
+        assert!(
+            version_output(&binary, &std::env::temp_dir(), Duration::from_millis(100)).is_err()
+        );
+        assert!(started.elapsed() < Duration::from_secs(2));
+        std::fs::remove_file(binary).unwrap();
+    }
+}
+
+#[cfg(unix)]
+#[test]
 fn custom_paths_expand_home_and_preserve_manager_symlinks() {
     let binary = fixture("printf '1.0.0\\n'");
     let link = binary.with_extension("link");

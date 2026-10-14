@@ -19,9 +19,9 @@ export const en = {
   'onboarding.feature.management': 'Extensions and usage at a glance',
   'onboarding.feature.managementHelp':
     'Manage extensions visually and track token usage and costs.',
-  'onboarding.feature.sync': 'Cloud sync for extensions',
-  'onboarding.feature.syncHelp':
-    'Planned: sync extension configurations through the cloud to keep your workspace consistent across devices.',
+  'onboarding.feature.commands': 'Commands you can insert',
+  'onboarding.feature.commandsHelp':
+    'Browse built-in, extension, and skill commands, then insert one into the conversation.',
   'onboarding.checking': 'Checking…',
   'onboarding.detect': 'Check environment',
   'onboarding.available': 'Pi CLI is ready',

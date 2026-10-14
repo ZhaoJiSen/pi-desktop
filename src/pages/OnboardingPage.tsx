@@ -1,4 +1,16 @@
-import { Button } from '@heroui/react'
+import {
+  Alert,
+  Button,
+  Chip,
+  Description,
+  Input,
+  Label,
+  ListBox,
+  Radio,
+  RadioGroup,
+  Skeleton,
+  TextField,
+} from '@heroui/react'
 import {
   ArrowLeft,
   ArrowRight,
@@ -7,7 +19,6 @@ import {
   FolderOpen,
   MessageSquare,
   Puzzle,
-  RefreshCw,
   Terminal,
 } from 'lucide-react'
 import { motion } from 'motion/react'
@@ -31,8 +42,6 @@ export function OnboardingPage({ onEnter }: { onEnter: (connect: boolean) => voi
   const t = useT()
   const completed = useWorkspace((s) => s.onboardingCompleted)
   const executable = useWorkspace((s) => s.piExecutable)
-  const language = useWorkspace((s) => s.language)
-  const theme = useWorkspace((s) => s.theme)
   const [step, setStep] = useState(0)
   const [path, setPath] = useState(executable)
   const [environment, setEnvironment] = useState<PiEnvironment | null>(null)
@@ -104,7 +113,7 @@ export function OnboardingPage({ onEnter }: { onEnter: (connect: boolean) => voi
       if (!skip) await prepareOnboardingWorkspace(project)
       const store = useWorkspace.getState()
       store.setPreference({ piExecutable: environment?.executable || path.trim() || 'pi' })
-      onEnter(Boolean(environment))
+      onEnter(!skip && Boolean(environment))
       store.completeOnboarding()
     } catch (reason) {
       setError(errorText(reason))
@@ -117,33 +126,6 @@ export function OnboardingPage({ onEnter }: { onEnter: (connect: boolean) => voi
     <div className="onboarding-screen" data-step={steps[step]}>
       <header className="onboarding-chrome" data-tauri-drag-region="deep">
         <WindowControls />
-        <div className="onboarding-preferences" data-tauri-drag-region="false">
-          <select
-            aria-label={t('settings.language')}
-            value={language}
-            onChange={(e) =>
-              useWorkspace.getState().setPreference({ language: e.target.value as 'zh' | 'en' })
-            }
-          >
-            <option value="zh">简体中文</option>
-            <option value="en">English</option>
-          </select>
-          <select
-            aria-label={t('settings.appearance')}
-            value={theme}
-            onChange={(e) =>
-              useWorkspace
-                .getState()
-                .setPreference({ theme: e.target.value as 'light' | 'dark' | 'system' })
-            }
-          >
-            {(['light', 'dark', 'system'] as const).map((value) => (
-              <option key={value} value={value}>
-                {t(`settings.theme.${value}`)}
-              </option>
-            ))}
-          </select>
-        </div>
       </header>
       <motion.div
         className="onboarding-body"
@@ -156,17 +138,28 @@ export function OnboardingPage({ onEnter }: { onEnter: (connect: boolean) => voi
           <span className="onboarding-product">Pi Desktop</span>
           <p>{t('onboarding.tagline')}</p>
           <ol className="onboarding-steps" aria-label={t('onboarding.progress')}>
-            {steps.map((name, index) => (
-              <li
-                key={name}
-                aria-current={step === index ? 'step' : undefined}
-                data-active={step === index}
-                data-done={step > index}
-              >
-                <span>{step > index ? <Check /> : index + 1}</span>
-                {t(`onboarding.step.${name}`)}
-              </li>
-            ))}
+            {steps.map((name, index) => {
+              const active = step === index
+              const done = step > index
+              return (
+                <li
+                  key={name}
+                  aria-current={active ? 'step' : undefined}
+                  data-active={active}
+                  data-done={done}
+                >
+                  <Chip
+                    className="onboarding-step-mark"
+                    size="sm"
+                    color={active ? 'accent' : done ? 'success' : 'default'}
+                    variant={active ? 'primary' : done ? 'soft' : 'tertiary'}
+                  >
+                    {done ? <Check /> : index + 1}
+                  </Chip>
+                  <span>{t(`onboarding.step.${name}`)}</span>
+                </li>
+              )
+            })}
           </ol>
         </aside>
         <section className="onboarding-panel" aria-labelledby="onboarding-title">
@@ -182,23 +175,36 @@ export function OnboardingPage({ onEnter }: { onEnter: (connect: boolean) => voi
             </h1>
             <p className="onboarding-description">{t(`onboarding.description.${steps[step]!}`)}</p>
             {step === 0 && (
-              <div className="onboarding-features">
+              <ListBox
+                className="onboarding-features"
+                aria-label={t('onboarding.title.welcome')}
+                selectionMode="none"
+              >
                 {(
                   [
                     { icon: MessageSquare, name: 'sessions' },
                     { icon: Puzzle, name: 'management' },
-                    { icon: RefreshCw, name: 'sync' },
+                    { icon: Terminal, name: 'commands' },
                   ] as const
                 ).map(({ icon: Icon, name }) => (
-                  <div key={name}>
+                  <ListBox.Item
+                    key={name}
+                    id={name}
+                    textValue={`${t(`onboarding.feature.${name}`)} ${t(`onboarding.feature.${name}Help`)}`}
+                    className="onboarding-feature"
+                  >
                     <Icon />
-                    <div>
-                      <h2>{t(`onboarding.feature.${name}`)}</h2>
-                      <p>{t(`onboarding.feature.${name}Help`)}</p>
-                    </div>
-                  </div>
+                    <span>
+                      <span className="onboarding-feature-title">
+                        {t(`onboarding.feature.${name}`)}
+                      </span>
+                      <span className="onboarding-feature-help">
+                        {t(`onboarding.feature.${name}Help`)}
+                      </span>
+                    </span>
+                  </ListBox.Item>
                 ))}
-              </div>
+              </ListBox>
             )}
             {step === 1 && (
               <>
@@ -208,62 +214,95 @@ export function OnboardingPage({ onEnter }: { onEnter: (connect: boolean) => voi
                     void detect()
                   }}
                 >
-                  <label className="field-label" htmlFor="onboarding-executable">
-                    {t('settings.executable')}
-                  </label>
-                  <div className="onboarding-path-row">
-                    <input
-                      id="onboarding-executable"
-                      className="field-input"
-                      value={path}
-                      placeholder="pi"
-                      onChange={(e) => {
-                        generation.current++
-                        setChecking(false)
-                        setPath(e.target.value)
-                        setEnvironment(null)
-                        setCheckError('')
-                      }}
-                    />
-                    <Button type="submit" variant="secondary" isDisabled={checking}>
-                      {t(checking ? 'onboarding.checking' : 'onboarding.detect')}
-                    </Button>
-                  </div>
+                  <TextField
+                    fullWidth
+                    className="onboarding-executable"
+                    value={path}
+                    onChange={(value) => {
+                      generation.current++
+                      setChecking(false)
+                      setPath(value)
+                      setEnvironment(null)
+                      setCheckError('')
+                    }}
+                  >
+                    <Label>{t('settings.executable')}</Label>
+                    <div className="onboarding-path-row">
+                      <Input
+                        id="onboarding-executable"
+                        className="onboarding-path"
+                        variant="secondary"
+                        placeholder="pi"
+                        spellCheck={false}
+                      />
+                      <Button type="submit" variant="secondary" isDisabled={checking}>
+                        {t(checking ? 'onboarding.checking' : 'onboarding.detect')}
+                      </Button>
+                    </div>
+                    <Description>{t('settings.executableHelp')}</Description>
+                  </TextField>
                 </form>
-                <p className="onboarding-path-help">{t('settings.executableHelp')}</p>
-                <div className="onboarding-check" aria-live="polite" aria-busy={checking}>
-                  {checking ? (
-                    <>
-                      <PiLogo size={24} loading />
-                      <span>{t('onboarding.checking')}</span>
-                    </>
-                  ) : environment ? (
-                    <>
+                <Alert
+                  className="onboarding-check"
+                  status={environment ? 'success' : checkError ? 'danger' : 'default'}
+                  aria-live="polite"
+                  aria-busy={checking}
+                >
+                  <Alert.Indicator>
+                    {checking ? (
+                      <Skeleton
+                        animationType="pulse"
+                        className="onboarding-check-mark"
+                        aria-hidden="true"
+                      />
+                    ) : environment ? (
                       <Check />
-                      <div>
-                        <strong>{t('onboarding.available')}</strong>
-                        <p>
+                    ) : checkError ? (
+                      <CircleAlert />
+                    ) : (
+                      <Terminal />
+                    )}
+                  </Alert.Indicator>
+                  <Alert.Content>
+                    {checking ? (
+                      <>
+                        <span className="sr-only">{t('onboarding.checking')}</span>
+                        <div className="onboarding-check-skeleton" aria-hidden="true">
+                          <Skeleton
+                            animationType="pulse"
+                            className="onboarding-check-line is-title"
+                          />
+                          <Skeleton
+                            animationType="pulse"
+                            className="onboarding-check-line is-meta"
+                          />
+                          <Skeleton
+                            animationType="pulse"
+                            className="onboarding-check-line is-path"
+                          />
+                        </div>
+                      </>
+                    ) : environment ? (
+                      <>
+                        <Alert.Title>{t('onboarding.available')}</Alert.Title>
+                        <Alert.Description>
                           Pi {environment.version}
                           {environment.nodeVersion ? ` · Node ${environment.nodeVersion}` : ''}
-                        </p>
+                        </Alert.Description>
                         <code>{environment.executable}</code>
-                      </div>
-                    </>
-                  ) : checkError ? (
-                    <>
-                      <CircleAlert />
-                      <div>
-                        <strong>{t('onboarding.unavailable')}</strong>
-                        <p role="alert">{checkError}</p>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <Terminal />
-                      <span>{t('onboarding.checkHint')}</span>
-                    </>
-                  )}
-                </div>
+                      </>
+                    ) : checkError ? (
+                      <>
+                        <Alert.Title>{t('onboarding.unavailable')}</Alert.Title>
+                        <Alert.Description>
+                          <span role="alert">{checkError}</span>
+                        </Alert.Description>
+                      </>
+                    ) : (
+                      <Alert.Description>{t('onboarding.checkHint')}</Alert.Description>
+                    )}
+                  </Alert.Content>
+                </Alert>
                 {checkError && (
                   <div className="onboarding-recovery">
                     <p>{t('onboarding.recovery')}</p>
@@ -282,36 +321,52 @@ export function OnboardingPage({ onEnter }: { onEnter: (connect: boolean) => voi
             )}
             {step === 2 && (
               <>
-                <div className="onboarding-project-options">
-                  <Button
-                    variant="secondary"
+                <RadioGroup
+                  aria-label={t('onboarding.title.project')}
+                  className="onboarding-project-options"
+                  value={project ? 'folder' : 'default'}
+                  isDisabled={busy}
+                  onChange={(value) => {
+                    if (value === 'default') setProject(null)
+                  }}
+                >
+                  <Radio
+                    value="folder"
                     className="onboarding-project-option"
-                    aria-pressed={Boolean(project)}
-                    onPress={() => void chooseProject()}
-                    isDisabled={busy}
+                    onPointerUp={(event) => {
+                      if (busy || event.button !== 0) return
+                      void chooseProject()
+                    }}
+                    onKeyDown={(event) => {
+                      if (busy || (event.key !== 'Enter' && event.key !== ' ')) return
+                      event.preventDefault()
+                      void chooseProject()
+                    }}
                   >
-                    <FolderOpen />
-                    <span>
-                      <strong>{t('onboarding.chooseProject')}</strong>
-                      <small>{project?.path || t('onboarding.chooseProjectHelp')}</small>
-                    </span>
-                    {project && <Check />}
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    className="onboarding-project-option"
-                    aria-pressed={!project}
-                    onPress={() => setProject(null)}
-                    isDisabled={busy}
-                  >
-                    <MessageSquare />
-                    <span>
-                      <strong>{t('onboarding.defaultWorkspace')}</strong>
-                      <small>{defaultPath || t('onboarding.defaultWorkspaceHelp')}</small>
-                    </span>
-                    {!project && <Check />}
-                  </Button>
-                </div>
+                    <Radio.Content className="onboarding-project-option-content">
+                      <FolderOpen />
+                      <span className="onboarding-project-option-copy">
+                        <strong>{t('onboarding.chooseProject')}</strong>
+                        <small>{project?.path || t('onboarding.chooseProjectHelp')}</small>
+                      </span>
+                      <Radio.Control>
+                        <Radio.Indicator />
+                      </Radio.Control>
+                    </Radio.Content>
+                  </Radio>
+                  <Radio value="default" className="onboarding-project-option">
+                    <Radio.Content className="onboarding-project-option-content">
+                      <MessageSquare />
+                      <span className="onboarding-project-option-copy">
+                        <strong>{t('onboarding.defaultWorkspace')}</strong>
+                        <small>{defaultPath || t('onboarding.defaultWorkspaceHelp')}</small>
+                      </span>
+                      <Radio.Control>
+                        <Radio.Indicator />
+                      </Radio.Control>
+                    </Radio.Content>
+                  </Radio>
+                </RadioGroup>
                 <p className="onboarding-path-help">{t('onboarding.projectHelp')}</p>
                 {!environment && <p className="onboarding-offline">{t('onboarding.offline')}</p>}
               </>

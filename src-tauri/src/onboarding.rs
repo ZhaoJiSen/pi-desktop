@@ -55,7 +55,7 @@ fn version_output(binary: &Path, home: &Path, timeout: Duration) -> Result<Strin
         .current_dir(home)
         .stdin(Stdio::null())
         .stdout(Stdio::piped())
-        .stderr(Stdio::null());
+        .stderr(Stdio::piped());
     #[cfg(unix)]
     {
         use std::os::unix::process::CommandExt;
@@ -65,9 +65,17 @@ fn version_output(binary: &Path, home: &Path, timeout: Duration) -> Result<Strin
         .spawn()
         .map_err(|e| Message::EnvironmentCheck.detail(e))?;
     let stdout = child.stdout.take();
+    let stderr = child.stderr.take();
     let reader = std::thread::spawn(move || {
         let mut output = String::new();
         if let Some(stream) = stdout {
+            let _ = stream.take(8192).read_to_string(&mut output);
+        }
+        output
+    });
+    let error_reader = std::thread::spawn(move || {
+        let mut output = String::new();
+        if let Some(stream) = stderr {
             let _ = stream.take(8192).read_to_string(&mut output);
         }
         output
@@ -93,8 +101,8 @@ fn version_output(binary: &Path, home: &Path, timeout: Duration) -> Result<Strin
             }
         }
     };
-    // A wrapper may leave children holding stdout after it exits; bound the read too.
-    while !reader.is_finished() {
+    // A wrapper may leave children holding output pipes after it exits; bound both reads too.
+    while !reader.is_finished() || !error_reader.is_finished() {
         if started.elapsed() >= timeout {
             #[cfg(unix)]
             unsafe {
@@ -105,8 +113,13 @@ fn version_output(binary: &Path, home: &Path, timeout: Duration) -> Result<Strin
         std::thread::sleep(Duration::from_millis(25));
     }
     let output = reader.join().unwrap_or_default().trim().to_owned();
+    let error = error_reader.join().unwrap_or_default();
     if !status.success() || output.is_empty() {
-        return Err(Message::EnvironmentCheck.text());
+        return Err(if error.trim().is_empty() {
+            Message::EnvironmentCheck.text()
+        } else {
+            Message::EnvironmentCheck.detail(error.trim())
+        });
     }
     Ok(output)
 }

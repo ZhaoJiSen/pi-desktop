@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   connectSession,
   initializeDesktop,
@@ -19,17 +19,29 @@ export function useDesktopLifecycle(view: Page, enabled = true) {
   )
   const [startupError, setStartupError] = useState<string | null>(null)
   const [deferred, setDeferred] = useState(false)
+  const startupRequest = useRef({ generation: 0 })
   const allowConnection = !deferred || connection === 'connected'
   const beginStartup = useCallback(() => {
     if (!isDesktop || !enabled || deferred) return
+    const request = startupRequest.current
+    const generation = ++request.generation
     void initializeDesktop()
-      .then(() => setStartup('ready'))
+      .then(() => {
+        if (generation === request.generation) setStartup('ready')
+      })
       .catch((error) => {
+        if (generation !== request.generation) return
         setStartupError(errorText(error))
         setStartup('error')
       })
   }, [enabled, deferred])
-  useEffect(beginStartup, [beginStartup])
+  useEffect(() => {
+    const request = startupRequest.current
+    beginStartup()
+    return () => {
+      request.generation++
+    }
+  }, [beginStartup])
   useEffect(() => {
     if (!enabled) void initializeLanguage().catch(() => {})
   }, [enabled])
@@ -69,6 +81,7 @@ export function useDesktopLifecycle(view: Page, enabled = true) {
     startup,
     startupError,
     finishOnboarding: (connect: boolean) => {
+      startupRequest.current.generation++
       setDeferred(!connect)
       setStartup(connect && isDesktop ? 'loading' : 'ready')
       setStartupError(null)

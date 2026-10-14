@@ -15,21 +15,145 @@ vi.mock('../../src/lib/onboarding', () => ({
   onboardingDefaultPath: mocks.defaultPath,
 }))
 vi.mock('@heroui/react', async () => {
-  const { createElement } = await import('react')
-  return {
-    Button: ({
-      onPress,
-      isDisabled,
-      isIconOnly: _icon,
-      variant: _variant,
+  const { createContext, createElement, useContext } = await import('react')
+  const FieldContext = createContext<{
+    value?: string
+    onChange?: (value: string) => void
+  }>({})
+  const RadioPressContext = createContext<(() => void) | undefined>(undefined)
+  const Button = ({
+    onPress,
+    isDisabled,
+    isIconOnly: _icon,
+    variant: _variant,
+    children,
+    ...props
+  }: Record<string, unknown>) =>
+    createElement(
+      'button',
+      { ...props, onClick: onPress, disabled: isDisabled },
+      children as React.ReactNode,
+    )
+  const Chip = ({
+    children,
+    className,
+  }: {
+    children?: React.ReactNode
+    className?: string
+  }) => createElement('span', { className }, children)
+  const Alert = ({
+    children,
+    className,
+    status,
+    ...props
+  }: Record<string, unknown> & { children?: React.ReactNode }) =>
+    createElement('div', { ...props, className, 'data-status': status }, children)
+  Alert.Indicator = ({ children }: { children?: React.ReactNode }) =>
+    createElement('div', null, children)
+  Alert.Content = ({ children }: { children?: React.ReactNode }) =>
+    createElement('div', null, children)
+  Alert.Title = ({ children }: { children?: React.ReactNode }) =>
+    createElement('strong', null, children)
+  Alert.Description = ({ children }: { children?: React.ReactNode }) =>
+    createElement('span', null, children)
+  const TextField = ({
+    children,
+    className,
+    value,
+    onChange,
+  }: {
+    children?: React.ReactNode
+    className?: string
+    value?: string
+    onChange?: (value: string) => void
+  }) =>
+    createElement(
+      FieldContext.Provider,
+      { value: { value, onChange } },
+      createElement('div', { className }, children),
+    )
+  const Label = ({ children }: { children?: React.ReactNode }) =>
+    createElement('label', null, children)
+  const Description = ({ children }: { children?: React.ReactNode }) =>
+    createElement('p', null, children)
+  function Input({
+    className,
+    placeholder,
+    id,
+  }: {
+    className?: string
+    placeholder?: string
+    id?: string
+  }) {
+    const field = useContext(FieldContext)
+    return createElement('input', {
+      id,
+      className,
+      placeholder,
+      value: field.value ?? '',
+      onInput: (event: Event) =>
+        field.onChange?.((event.currentTarget as HTMLInputElement).value),
+    })
+  }
+  const RadioGroup = ({
+    children,
+    className,
+    value,
+    onChange: _onChange,
+    isDisabled,
+    ...props
+  }: Record<string, unknown> & { children?: React.ReactNode }) =>
+    createElement(
+      'div',
+      {
+        ...props,
+        className,
+        role: 'radiogroup',
+        'data-value': value,
+        'data-disabled': isDisabled,
+      },
       children,
-      ...props
-    }: Record<string, unknown>) =>
-      createElement(
-        'button',
-        { ...props, onClick: onPress, disabled: isDisabled },
-        children as React.ReactNode,
-      ),
+    )
+  function Radio({
+    children,
+    className,
+    value,
+    onPointerUp,
+  }: {
+    children?: React.ReactNode
+    className?: string
+    value?: string
+    onPointerUp?: () => void
+  }) {
+    return createElement(
+      RadioPressContext.Provider,
+      { value: onPointerUp },
+      createElement('div', { className, 'data-value': value }, children),
+    )
+  }
+  Radio.Content = function RadioContent({
+    children,
+    className,
+  }: {
+    children?: React.ReactNode
+    className?: string
+  }) {
+    const onPointerUp = useContext(RadioPressContext)
+    return createElement('button', { type: 'button', className, onClick: onPointerUp }, children)
+  }
+  Radio.Control = ({ children }: { children?: React.ReactNode }) =>
+    createElement('span', null, children)
+  Radio.Indicator = () => createElement('span')
+  return {
+    Alert,
+    Button,
+    Chip,
+    Description,
+    Input,
+    Label,
+    Radio,
+    RadioGroup,
+    TextField,
   }
 })
 vi.mock('motion/react', async () => {
@@ -109,6 +233,15 @@ describe('setup guide', () => {
     await mount()
     await click('Skip setup')
     expect(mocks.check).not.toHaveBeenCalled()
+    expect(mocks.prepare).not.toHaveBeenCalled()
+    expect(enter).toHaveBeenCalledWith(false)
+    expect(useWorkspace.getState().onboardingCompleted).toBe(true)
+  })
+  it('skips runtime startup even after Pi has been detected successfully', async () => {
+    await mount()
+    await click('Continue')
+    expect(container.textContent).toContain('Pi CLI is ready')
+    await click('Skip setup')
     expect(mocks.prepare).not.toHaveBeenCalled()
     expect(enter).toHaveBeenCalledWith(false)
     expect(useWorkspace.getState().onboardingCompleted).toBe(true)
