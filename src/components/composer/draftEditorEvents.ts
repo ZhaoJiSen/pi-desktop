@@ -60,12 +60,17 @@ export function createDraftEditorHandlers(
       setQuery(null)
     },
     onCompositionStart: () => {
+      if (disabled) return
       composing.current = true
       setQuery(null)
     },
     onBeforeInput: (event) => {
       const type = (event.nativeEvent as InputEvent).inputType
-      if (composing.current || disabled) return
+      if (disabled) {
+        event.preventDefault()
+        return
+      }
+      if (composing.current) return
       if (type === 'historyUndo' || type === 'historyRedo') {
         event.preventDefault()
         moveHistory(type === 'historyUndo' ? -1 : 1)
@@ -75,6 +80,7 @@ export function createDraftEditorHandlers(
     },
     onCompositionEnd: () => {
       composing.current = false
+      if (disabled) return
       const root = editor.current!
       commit(
         readEditor(
@@ -85,7 +91,7 @@ export function createDraftEditorHandlers(
       )
     },
     onInput: () => {
-      if (composing.current) return
+      if (composing.current || disabled) return
       const root = editor.current!
       const nodes = readEditor(
         root,
@@ -105,6 +111,7 @@ export function createDraftEditorHandlers(
       }
     },
     onClick: (event) => {
+      if (disabled) return
       const atom = (event.target as Element).closest<HTMLElement>('[data-command-id]')
       if (!atom) {
         setSelected(null)
@@ -121,6 +128,7 @@ export function createDraftEditorHandlers(
       setQuery(null)
     },
     onDoubleClick: (event) => {
+      if (disabled) return
       const id = (event.target as Element).closest<HTMLElement>('[data-command-id]')?.dataset
         .commandId
       const item = latest.current.find((n): n is CommandTag => n.type === 'command' && n.id === id)
@@ -163,7 +171,7 @@ export function createDraftEditorHandlers(
       )
     },
     onKeyDown: (event) => {
-      if (event.nativeEvent.isComposing || composing.current) return
+      if (disabled || event.nativeEvent.isComposing || composing.current) return
       const modifier = event.metaKey || event.ctrlKey
       if (modifier && (event.key.toLowerCase() === 'z' || event.key.toLowerCase() === 'y')) {
         event.preventDefault()

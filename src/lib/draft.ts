@@ -3,7 +3,8 @@ import type { DiscoverableCommand } from './commands'
 
 export const DRAFT_MIME = 'application/x-pi-desktop-draft+json'
 export function commandOrigin(command: DiscoverableCommand) {
-  return command.sourceInfo?.source || command.sourceInfo?.path || ''
+  // Discovery labels such as 'auto' may describe many distinct resources.
+  return command.sourceInfo?.path || command.sourceInfo?.source || ''
 }
 export function createCommandTag(command: DiscoverableCommand): CommandTag {
   return {
@@ -123,10 +124,41 @@ export function slashQuery(nodes: DraftNode[], caret: number) {
   if (!match) return null
   const start = before.length - match[1]!.length - 1
   const prefix = before.slice(0, start)
-  const fences = prefix.match(/```|~~~/g)
-  if (fences && fences.length % 2) return null
+  let fence: { marker: string; length: number } | null = null
+  let inlineTicks = 0
+  for (const line of prefix.split('\n')) {
+    const delimiter = /^ {0,3}(`{3,}|~{3,})(.*)$/.exec(line)
+    if (fence) {
+      if (
+        delimiter &&
+        delimiter[1]![0] === fence.marker &&
+        delimiter[1]!.length >= fence.length &&
+        !delimiter[2]!.trim()
+      )
+        fence = null
+      continue
+    }
+    if (!inlineTicks && delimiter) {
+      fence = { marker: delimiter[1]![0]!, length: delimiter[1]!.length }
+      continue
+    }
+    for (let i = 0; i < line.length; i++) {
+      // Escaped delimiters are ordinary text outside a code span.
+      if (!inlineTicks && line[i] === '\\') {
+        i++
+        continue
+      }
+      if (line[i] !== '`') continue
+      let end = i + 1
+      while (line[end] === '`') end++
+      const count = end - i
+      if (!inlineTicks) inlineTicks = count
+      else if (inlineTicks === count) inlineTicks = 0
+      i = end - 1
+    }
+  }
   const line = prefix.slice(prefix.lastIndexOf('\n') + 1)
-  if ((line.match(/`/g)?.length ?? 0) % 2 || /^(?: {4}|\t)/.test(line)) return null
+  if (fence || inlineTicks || /^(?: {4}| {0,3}\t)/.test(line)) return null
   return { start, end: caret, query: match[1]! }
 }
 
@@ -157,9 +189,13 @@ export function planDraft(
   if (tags.length > 1) return { kind: 'error', problem: 'multiple', name: '' }
   const tag = tags[0]
   if (!tag) return { kind: 'prompt', message: draftText(nodes).trim() }
-  // RPC resolves extensions before templates and skills. Never invoke a different
-  // command merely because an identically named tag has a different source.
-  const runtime = commands.find((c) => c.source !== 'builtin' && c.name === tag.name)
+  // Pi dispatches extensions first, then expands skills before prompt templates.
+  // Match that precedence rather than trusting the catalog's display order.
+  const candidates = commands.filter((command) => command.name === tag.name)
+  const runtime =
+    candidates.find((command) => command.source === 'extension') ||
+    (tag.name.startsWith('skill:') && candidates.find((command) => command.source === 'skill')) ||
+    candidates.find((command) => command.source === 'prompt')
   if (
     tag.source !== 'builtin' &&
     runtime &&

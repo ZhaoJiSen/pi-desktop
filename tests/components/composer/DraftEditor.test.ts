@@ -33,14 +33,18 @@ const commands: DiscoverableCommand[] = [
 ]
 let root: Root, container: HTMLDivElement, nodes: DraftNode[]
 let initial: DraftNode[], catalog: DiscoverableCommand[]
+let disabled: boolean
+let replaceValue: (value: DraftNode[]) => void
 const submit = vi.fn()
 function Probe() {
   const [value, setValue] = useState(initial)
   useEffect(() => {
+    replaceValue = setValue
     nodes = value
   }, [value])
   return createElement(DraftEditor, {
     value,
+    disabled,
     commands: catalog,
     loading: false,
     catalogError: '',
@@ -87,6 +91,7 @@ function clipboardEvent(name: string, clipboard: Map<string, string>) {
 beforeEach(() => {
   vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
   initial = []
+  disabled = false
   catalog = commands
   submit.mockClear()
   container = document.createElement('div')
@@ -208,6 +213,49 @@ describe('command editor interactions', () => {
     await act(async () => container.querySelector<HTMLButtonElement>('[data-save]')!.click())
     expect(nodes[0]).toMatchObject({ arguments: 'main' })
     expect(nodes[1]).toEqual({ type: 'text', text: ' retained' })
+  })
+  it('keeps a disabled editor immutable under keyboard actions and hides tag editing', async () => {
+    initial = [createCommandTag(commands[0]!), { type: 'text', text: ' retained' }]
+    disabled = true
+    await mount()
+    selectEditor(editor(), { start: 0, end: 1 })
+    await key('Delete')
+    await key('Enter')
+    await key('Enter', { metaKey: true })
+    expect(nodes).toEqual(initial)
+    expect(submit).not.toHaveBeenCalled()
+    await act(async () => container.querySelector<HTMLElement>('.command-tag')!.click())
+    expect(container.querySelector('.command-selection-actions')).toBeNull()
+  })
+  it('does not undo a draft after the editor becomes disabled', async () => {
+    await mount()
+    await type('keep this')
+    disabled = true
+    await mount()
+    await key('z', { metaKey: true })
+    expect(draftText(nodes)).toBe('keep this')
+  })
+  it('clamps the caret and undo baseline after an external draft replacement', async () => {
+    initial = [{ type: 'text', text: 'a much longer draft' }]
+    await mount()
+    await act(async () => replaceValue([{ type: 'text', text: 'x' }]))
+    expect(editorSelection(editor())).toEqual({ start: 1, end: 1 })
+    await type('y')
+    expect(draftText(nodes)).toBe('xy')
+    await key('z', { metaKey: true })
+    expect(draftText(nodes)).toBe('x')
+    expect(editorSelection(editor())).toEqual({ start: 1, end: 1 })
+  })
+  it('does not move the page selection when the command catalog refreshes while blurred', async () => {
+    await mount()
+    const outside = document.createElement('input')
+    container.append(outside)
+    outside.focus()
+    window.getSelection()!.removeAllRanges()
+    catalog = []
+    await mount()
+    expect(window.getSelection()!.rangeCount).toBe(0)
+    expect(document.activeElement).toBe(outside)
   })
   it('does not trigger inside code or URLs, or submit during IME composition', async () => {
     await mount()

@@ -27,10 +27,11 @@ export function DraftEditor(props: DraftEditorProps) {
     cancelEditing,
   } = controller
   const handlers = createDraftEditorHandlers(controller, props.disabled ?? false, props.onSubmit)
+  const suggestionsOpen = Boolean(query && focused && !props.disabled)
   return (
     <div className="draft-editor-wrap">
       <SlashCommandMenu
-        open={Boolean(query && focused)}
+        open={suggestionsOpen}
         listId={listId}
         rows={rows}
         activeIndex={activeIndex}
@@ -46,18 +47,21 @@ export function DraftEditor(props: DraftEditorProps) {
         suppressContentEditableWarning
         role="textbox"
         aria-multiline="true"
+        aria-disabled={props.disabled || undefined}
         aria-label={t('composer.placeholder')}
         aria-autocomplete="list"
-        aria-controls={query ? listId : undefined}
-        aria-expanded={Boolean(query && focused)}
-        aria-activedescendant={query && rows.length ? `${listId}-${activeIndex}` : undefined}
+        aria-controls={suggestionsOpen ? listId : undefined}
+        aria-expanded={suggestionsOpen}
+        aria-activedescendant={
+          suggestionsOpen && rows.length ? `${listId}-${activeIndex}` : undefined
+        }
         data-placeholder={t('composer.placeholder')}
         {...handlers}
       />
       <CommandTagActions
-        selected={selected}
-        editing={editing}
-        tag={tag}
+        selected={props.disabled ? null : selected}
+        editing={props.disabled ? null : editing}
+        tag={props.disabled ? undefined : tag}
         args={args}
         setArgs={setArgs}
         editTag={editTag}

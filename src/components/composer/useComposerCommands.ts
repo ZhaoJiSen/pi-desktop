@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react'
 import { loadBuiltinCommands, type DiscoverableCommand } from '../../lib/commands'
-import { useWorkspace } from '../../store/workspace'
+import { isDesktop, useWorkspace } from '../../store/workspace'
+import { getPreviewCommands } from '../../lib/fixtures'
 import { useT } from '../../lib/i18n'
 
 export function useComposerCommands() {
   const runtime = useWorkspace((s) => s.commands)
   const executable = useWorkspace((s) => s.piExecutable)
   const connection = useWorkspace((s) => s.connection)
+  const language = useWorkspace((s) => s.language)
   const t = useT()
   const key = `${executable}:${connection}`
   const [catalog, setCatalog] = useState({
@@ -15,6 +17,7 @@ export function useComposerCommands() {
     failed: false,
   })
   useEffect(() => {
+    if (!isDesktop) return
     let cancelled = false
     void loadBuiltinCommands(executable)
       .then((builtin) => {
@@ -27,6 +30,8 @@ export function useComposerCommands() {
       cancelled = true
     }
   }, [executable, key])
+  if (!isDesktop)
+    return { commands: getPreviewCommands(language), loading: false, catalogError: '' }
   return {
     commands: [
       ...(catalog.key === key ? catalog.builtin : []),

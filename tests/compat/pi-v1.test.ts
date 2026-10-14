@@ -253,7 +253,17 @@ export default function (pi) {
       mocks.state.updateSession.mockClear()
       expect(insertCommand(command!)).toBe(true)
       expect(mocks.state.updateSession).toHaveBeenCalledWith('compat', {
-        draft: `/${name} review arguments`,
+        draftNodes: [
+          expect.objectContaining({
+            type: 'command',
+            name,
+            source,
+            origin: join(agentDir, path),
+            arguments: '',
+          }),
+          { type: 'text', text: ' ' },
+          { type: 'text', text: 'review arguments' },
+        ],
       })
     }
     expect(commands.some((c) => c.name === 'not-loaded-extension')).toBe(false)

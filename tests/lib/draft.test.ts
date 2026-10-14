@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  commandAvailable,
   createCommandTag,
   decodeDraft,
   draftText,
@@ -32,6 +33,12 @@ describe('structured command drafts', () => {
       expect(slashQuery([text(value)], value.length)).toBeNull()
     expect(slashQuery([text('`code` /rev')], 11)?.query).toBe('rev')
     expect(slashQuery([text('```\ncode\n```\n/')], 14)?.query).toBe('')
+  })
+  it('recognizes Markdown code delimiters rather than raw backtick counts', () => {
+    for (const value of ['``open /rev', '`multiline\n/rev', '```ts\n~~~\n/rev'])
+      expect(slashQuery([text(value)], value.length)).toBeNull()
+    for (const value of ['``closed`` /rev', '\\`escaped /rev', '```\ncode\n```\n/rev'])
+      expect(slashQuery([text(value)], value.length)?.query).toBe('rev')
   })
   it('inserts and deletes individual atoms without changing neighboring text or tags', () => {
     const first = createCommandTag(review),
@@ -111,9 +118,40 @@ describe('structured command drafts', () => {
       problem: 'attachments',
     })
   })
+  it('uses concrete resource paths to prevent replaced commands from inheriting old tags', () => {
+    const original: DiscoverableCommand = {
+      name: 'review',
+      source: 'extension',
+      sourceInfo: { source: 'auto', path: '/project/.pi/extensions/review.ts' },
+    }
+    const replacement: DiscoverableCommand = {
+      ...original,
+      sourceInfo: { source: 'auto', path: '/other/.pi/extensions/review.ts' },
+    }
+    const tag = createCommandTag(original)
+    expect(commandAvailable(tag, [original])).toBe(true)
+    expect(commandAvailable(tag, [replacement])).toBe(false)
+    expect(planDraft([tag], [replacement])).toMatchObject({
+      kind: 'error',
+      problem: 'unavailable',
+    })
+  })
   it('detects commands shadowed by another runtime source', () => {
     const prompt: DiscoverableCommand = { name: 'review', source: 'prompt' }
     expect(planDraft([createCommandTag(prompt)], [review, prompt])).toMatchObject({
+      kind: 'error',
+      problem: 'shadowed',
+    })
+    const skillTemplate: DiscoverableCommand = { name: skill.name, source: 'prompt' }
+    expect(planDraft([createCommandTag(skillTemplate)], [skillTemplate, skill])).toMatchObject({
+      kind: 'error',
+      problem: 'shadowed',
+    })
+    expect(planDraft([createCommandTag(skill)], [skillTemplate, skill])).toEqual({
+      kind: 'prompt',
+      message: '/skill:inspect',
+    })
+    expect(planDraft([createCommandTag(prompt)], [prompt, review])).toMatchObject({
       kind: 'error',
       problem: 'shadowed',
     })
