@@ -183,13 +183,14 @@ export const zh = {
   'extensions.connectHint': '连接 pi 后读取已安装的扩展与命令。',
   'extensions.useCommand': '运行命令',
   'settings.autoReloadAfterToggle': '启用或禁用扩展后自动重载 Pi',
-  'settings.autoReloadAfterToggleHelp':
-    '切换扩展开关后自动重载。关闭后，可点击重载按钮手动应用更改。',
+  'settings.autoReloadAfterToggleHelp': '让扩展的启用状态立即生效。',
   'settings.extensions': '扩展',
   'settings.autoReloadAfterUpdate': '更新扩展后自动重载 Pi',
-  'settings.autoReloadAfterUpdateHelp':
-    '单个更新或全部更新完成后自动重载。关闭后，可点击重载按钮手动应用更改。',
+  'settings.autoReloadAfterUpdateHelp': '适用于单个扩展更新和全部更新。',
   'settings.appearance': '外观',
+  'settings.reloadHelp': '关闭自动重载后，请手动重载 Pi 以应用更改。',
+  'settings.connection': 'Pi 连接',
+  'settings.saved': '路径已保存',
   'settings.theme.light': '浅色',
   'settings.theme.dark': '深色',
   'settings.theme.system': '跟随系统',

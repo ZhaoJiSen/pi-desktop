@@ -99,7 +99,7 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
         sidebarOpen: true,
         autoReloadAfterUpdate: true,
         autoReloadAfterToggle: true,
-        theme: 'light',
+        theme: 'system',
         language: browserLanguage(),
         languageSource: 'system',
         piExecutable: 'pi',

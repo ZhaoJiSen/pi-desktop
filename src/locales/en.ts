@@ -199,13 +199,14 @@ export const en = {
   'extensions.useCommand': 'Use command',
   'settings.autoReloadAfterToggle':
     'Automatically reload Pi after enabling or disabling extensions',
-  'settings.autoReloadAfterToggleHelp':
-    'Reload after toggling an extension. When disabled, use the reload button to apply changes manually.',
+  'settings.autoReloadAfterToggleHelp': 'Apply changes to enabled extensions immediately.',
   'settings.extensions': 'Extensions',
   'settings.autoReloadAfterUpdate': 'Automatically reload Pi after updating extensions',
-  'settings.autoReloadAfterUpdateHelp':
-    'Reload after individual or batch updates. When disabled, use the reload button to apply changes manually.',
+  'settings.autoReloadAfterUpdateHelp': 'Applies to individual and batch updates.',
   'settings.appearance': 'Appearance',
+  'settings.reloadHelp': 'When automatic reload is off, reload Pi manually to apply changes.',
+  'settings.connection': 'Pi connection',
+  'settings.saved': 'Path saved',
   'settings.theme.light': 'Light',
   'settings.theme.dark': 'Dark',
   'settings.theme.system': 'System',
