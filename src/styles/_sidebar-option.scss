@@ -1,0 +1,117 @@
+.sidebar-option {
+  position: relative;
+  height: auto;
+  min-height: 52px;
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 8px 10px;
+  font-weight: 400;
+  text-align: left;
+  white-space: normal;
+  color: var(--ink);
+}
+
+.sidebar-option.list-box-item[data-selected='true'] {
+  background: var(--default);
+  box-shadow: none;
+
+  > svg {
+    opacity: 1;
+  }
+}
+
+.sidebar-option-icon {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  color: var(--muted);
+  flex: none;
+
+  svg {
+    width: 18px;
+    height: 18px;
+    stroke-width: 1.5;
+  }
+}
+
+.sidebar-option-copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+
+  strong {
+    display: block;
+    overflow: hidden;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.4;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  small {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--muted);
+    font-size: 11px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.sidebar-option-title {
+  min-width: 0;
+  width: 100%;
+}
+
+.sidebar-option-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.sidebar-option .chip.sidebar-option-badge {
+  flex: none;
+  height: 18px;
+  padding-inline: 5px;
+  background: var(--hover);
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+.sidebar-option > svg {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  color: var(--muted);
+  opacity: 0;
+}
+
+.sidebar-option-tooltip.tooltip,
+.package-name-tooltip.tooltip {
+  max-width: min(360px, calc(100vw - 24px));
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 4px 16px #00000014;
+  font-size: 12px;
+  line-height: 18px;
+  overflow-wrap: anywhere;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar-option.list-box-item {
+    transition: none;
+  }
+}
