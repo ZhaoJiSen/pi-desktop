@@ -1,0 +1,26 @@
+[
+  {
+    "gap": 12,
+    "offset": 0,
+    "overflow": false,
+    "tabsLeft": 94,
+    "titleLeft": 94,
+    "width": 1600
+  },
+  {
+    "gap": 12,
+    "offset": 0,
+    "overflow": false,
+    "tabsLeft": 94,
+    "titleLeft": 94,
+    "width": 960
+  },
+  {
+    "gap": 12,
+    "offset": 0,
+    "overflow": false,
+    "tabsLeft": 78,
+    "titleLeft": 78,
+    "width": 390
+  }
+]

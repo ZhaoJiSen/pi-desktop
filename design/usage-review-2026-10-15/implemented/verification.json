@@ -1,0 +1,17 @@
+[
+  {
+    "run": 1,
+    "exitCode": 0,
+    "output": "\n RUN  v5.0.3 /Users/zhaojisen/pi-desktop\n\n\n Test Files  2 passed (2)\n      Tests  26 passed (26)\n   Start at  22:52:14\n   Duration  1.28s (import 58%, tests 16%, environment 15%, transform 10%)\n\n"
+  },
+  {
+    "run": 2,
+    "exitCode": 0,
+    "output": "\n RUN  v5.0.3 /Users/zhaojisen/pi-desktop\n\n\n Test Files  2 passed (2)\n      Tests  26 passed (26)\n   Start at  22:52:16\n   Duration  1.12s (import 60%, tests 18%, environment 11%, transform 10%, worker 1%)\n\n"
+  },
+  {
+    "run": 3,
+    "exitCode": 0,
+    "output": "\n RUN  v5.0.3 /Users/zhaojisen/pi-desktop\n\n\n Test Files  2 passed (2)\n      Tests  26 passed (26)\n   Start at  22:52:17\n   Duration  796ms (import 52%, tests 22%, transform 13%, environment 12%, worker 1%)\n\n"
+  }
+]

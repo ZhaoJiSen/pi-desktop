@@ -1,0 +1,21 @@
+{
+  "scope": "局部修正：标题与统计范围切换",
+  "direction": "与扩展、命令的页面标题及 HeroUI 控件保持一致",
+  "changes": [
+    "移除用量旧 main-header，标题移入工作面；共享16px/600/24px标题规则",
+    "用 HeroUI Tabs.List、Tabs.Tab、Tabs.Indicator、Tabs.Panel 替换 Button + 自定义 motion 指示器",
+    "去掉嵌套灰底、旧选中层，保留产品主题选中色",
+    "TabPanel 随选中项保持正确关联，保留现有160ms内容过渡；选中指示器使用HeroUI原有动效"
+  ],
+  "copyRemoved": [],
+  "review": "局部低风险改动，主 Agent 自检，未派独立评审",
+  "verification": {
+    "typecheck": "应用、scripts、tests全部通过",
+    "lint": "通过",
+    "format": "通过",
+    "tests": ["5/5", "5/5", "5/5"],
+    "browser": "中文浅色、英文深色、390px窄窗；点击和方向键切换通过",
+    "limitations": "本轮未重新验证200%浏览器缩放及原生桌面环境"
+  },
+  "evidence": ["current-light.jpg", "current-dark-en.jpg", "all-dark-en-narrow.jpg"]
+}

@@ -1,0 +1,41 @@
+[
+  {
+    "file": "motion-end.jpg",
+    "state": null,
+    "size": "1280x900",
+    "zoom": 1,
+    "issues": [],
+    "frames": {
+      "start": {
+        "file": "motion-start.jpg",
+        "source": "Page.captureScreenshot",
+        "timeMs": 570
+      },
+      "mid": {
+        "file": "motion-mid.jpg",
+        "source": "Page.screencastFrame",
+        "timeMs": 714
+      },
+      "end": {
+        "file": "motion-end.jpg",
+        "source": "Page.captureScreenshot",
+        "timeMs": 1926
+      }
+    },
+    "sampling": {
+      "mode": "action",
+      "step": 1,
+      "action": "click",
+      "raw": "click [role=\"option\"]:has-text(\"/thinking\")"
+    },
+    "durationMs": 1926,
+    "consistency": {
+      "status": "matched",
+      "reference": "motion-end.jpg",
+      "different": false,
+      "changedPixels": 0,
+      "maxTilePixels": 0,
+      "pixelRatio": 0
+    }
+  }
+]

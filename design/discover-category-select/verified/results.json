@@ -1,0 +1,47 @@
+[
+  {
+    "run": 1,
+    "language": "en",
+    "result": "passed",
+    "checks": [
+      "single row",
+      "narrow Select",
+      "keyboard selection",
+      "selection retained across resizing",
+      "390px",
+      "200% zoom",
+      "Installed/Discover isolation",
+      "no page errors"
+    ]
+  },
+  {
+    "run": 2,
+    "language": "en",
+    "result": "passed",
+    "checks": [
+      "single row",
+      "narrow Select",
+      "keyboard selection",
+      "selection retained across resizing",
+      "390px",
+      "200% zoom",
+      "Installed/Discover isolation",
+      "no page errors"
+    ]
+  },
+  {
+    "run": 3,
+    "language": "zh",
+    "result": "passed",
+    "checks": [
+      "single row",
+      "narrow Select",
+      "keyboard selection",
+      "selection retained across resizing",
+      "390px",
+      "200% zoom",
+      "Installed/Discover isolation",
+      "no page errors"
+    ]
+  }
+]

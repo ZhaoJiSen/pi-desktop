@@ -1,0 +1,44 @@
+[
+  {
+    "command": ["node", "node_modules/typescript/bin/tsc", "--noEmit"],
+    "exitCode": 0,
+    "output": ""
+  },
+  {
+    "command": ["node", "node_modules/typescript/bin/tsc", "--project", "scripts/tsconfig.json"],
+    "exitCode": 0,
+    "output": ""
+  },
+  {
+    "command": ["node", "node_modules/typescript/bin/tsc", "--project", "tests/tsconfig.json"],
+    "exitCode": 0,
+    "output": ""
+  },
+  {
+    "command": [
+      "node",
+      "node_modules/oxlint/bin/oxlint",
+      "src",
+      "scripts",
+      "tests",
+      "vite.config.ts",
+      "vitest.config.ts"
+    ],
+    "exitCode": 0,
+    "output": ""
+  },
+  {
+    "command": [
+      "node",
+      "node_modules/oxfmt/bin/oxfmt",
+      "--check",
+      "src/pages/UsagePage.tsx",
+      "src/styles/_usage.scss",
+      "tests/pages/UsagePage.test.ts",
+      "src/locales/en.ts",
+      "src/locales/zh.ts"
+    ],
+    "exitCode": 0,
+    "output": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 8ms on 5 files using 10 threads.\n"
+  }
+]

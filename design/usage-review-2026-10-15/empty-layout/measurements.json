@@ -1,0 +1,18 @@
+[
+  {
+    "centerX": 820,
+    "expectedX": 820,
+    "expectedY": 497,
+    "groupCenterY": 497,
+    "scrollWidth": 1600,
+    "width": 1600
+  },
+  {
+    "centerX": 215,
+    "expectedX": 215,
+    "expectedY": 495,
+    "groupCenterY": 495,
+    "scrollWidth": 390,
+    "width": 390
+  }
+]

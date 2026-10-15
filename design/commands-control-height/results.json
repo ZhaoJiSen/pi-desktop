@@ -1,0 +1,50 @@
+[
+  {
+    "run": 1,
+    "result": "passed",
+    "commandSearch": 34,
+    "extensionSearch": 34,
+    "select": 34.140625,
+    "refresh": 34,
+    "checks": [
+      "matching heights",
+      "centered input and icon",
+      "search and clear",
+      "390px",
+      "200% zoom",
+      "no page errors"
+    ]
+  },
+  {
+    "run": 2,
+    "result": "passed",
+    "commandSearch": 34,
+    "extensionSearch": 34,
+    "select": 34.140625,
+    "refresh": 34,
+    "checks": [
+      "matching heights",
+      "centered input and icon",
+      "search and clear",
+      "390px",
+      "200% zoom",
+      "no page errors"
+    ]
+  },
+  {
+    "run": 3,
+    "result": "passed",
+    "commandSearch": 34,
+    "extensionSearch": 34,
+    "select": 34.140625,
+    "refresh": 34,
+    "checks": [
+      "matching heights",
+      "centered input and icon",
+      "search and clear",
+      "390px",
+      "200% zoom",
+      "no page errors"
+    ]
+  }
+]

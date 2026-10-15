@@ -1,0 +1,32 @@
+{
+  "scope": "修复宽窗下标题与Tab错位，评估新增用量视图",
+  "cause": "usage-heading靠左，usage-content使用max-width:960px与margin-inline:auto导致Tab随窗口扩宽偏移",
+  "change": "usage-content设width:100%、margin:0，保留960px阅读宽度，使标题、Tab和正文共享左基线",
+  "peerEvidence": "扩展标题left94/top92，Tab left94/top128；原用量Tab left180，修复后left94/top128",
+  "verification": {
+    "widths": [1600, 960, 390],
+    "titleTabOffset": [0, 0, 0],
+    "titleTabGap": [12, 12, 12],
+    "horizontalOverflow": false,
+    "typecheck": "通过",
+    "lint": "通过",
+    "format": "通过",
+    "focusedTests": ["8/8", "8/8", "8/8"],
+    "review": "局部低风险修改，主Agent自检，未独立评审"
+  },
+  "designProposal": {
+    "placement": "全部会话：汇总→近90天点阵→项目费用排行→会话明细",
+    "heatmap": "一格一天，默认Token强度，可切换费用；沿用中性与琥珀色，提供分级图例，悬停/键盘聚焦查看日期、Token与费用，点击筛选当日明细",
+    "currentScope": "当前会话保留自身数据与空状态；日历不放进未产生用量的新会话",
+    "emptyState": "未记录与已记录零用量应使用不同状态，不把未知填成零",
+    "dataReadiness": "现有Session仅累计Usage；Message保留timestamp但没有逐条usage，因此页面尚无法精确分天。get_messages原始数据的用量保留与历史覆盖需后续核对接入，不能按会话updatedAt归集全部累计用量。",
+    "status": "本轮仅实现对齐修复；点阵图为具体设计建议，未实现，未改动统计数据流"
+  },
+  "motion": "沿用现有HeroUI控件与切换动效，本次不新增动效",
+  "copyRemoved": [],
+  "references": [
+    "https://docs.github.com/en/account-and-profile/concepts/contributions-on-your-profile",
+    "https://langfuse.com/docs/metrics/features/custom-dashboards"
+  ],
+  "evidence": ["wide-1600.jpg", "narrow-390.jpg", "measurements.json"]
+}

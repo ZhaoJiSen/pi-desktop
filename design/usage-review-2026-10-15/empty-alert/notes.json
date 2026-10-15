@@ -1,0 +1,35 @@
+{
+  "direction": "空状态集中解释缺少数据；费用口径采用可关闭信息条和按需说明",
+  "scope": "用量页面局部优化",
+  "changes": [
+    "无有效用量时隐藏指标、Token构成及费用提示",
+    "当前会话空状态提供返回会话按钮，保留会话名称与模型",
+    "有数据时使用HeroUI Alert，中性样式，role=note，不进行紧急播报，不自动消失",
+    "关闭后本地记忆，刷新仍隐藏；存储不可用时只在本次访问关闭",
+    "关闭后焦点移到费用说明入口，HeroUI Popover保留完整解释并支持Escape关闭",
+    "部分会话缺失统计时保留对应行及排除汇总说明"
+  ],
+  "motion": "保留既有160ms内容切换；按钮和Popover沿用HeroUI动效，遵循减少动态效果。信息条静态显示。",
+  "removedCopy": "移除页底常驻长说明；完整解释移入费用说明浮层；简化空状态文案并区分当前会话与全部会话。",
+  "review": "局部低风险修改，主Agent自检，未派独立评审",
+  "validation": {
+    "typecheck": "应用、scripts、tests通过；最终文案更新后再检查应用类型",
+    "lint": "通过",
+    "format": "通过",
+    "focusedTests": ["29/29", "29/29", "29/29"],
+    "interaction": "实际页面验证关闭、刷新记忆、费用说明浮层及Escape关闭、空状态返回会话",
+    "screenshots": "浅色中文、深色英文空状态，中文深色390px窄窗及2倍像素密度；最终静态截图无控制台错误、横向溢出、图片失败或样式lint提示",
+    "limitations": "浏览器预览数据验证；未重新验证原生桌面或真正200%浏览器缩放。2倍截图为像素密度，不是布局缩放。"
+  },
+  "evidence": {
+    "empty": "empty-light.jpg / empty-dark-en.jpg",
+    "notice": "notice-light.jpg / final-static/page-1280x800.png",
+    "help": "cost-help-light.jpg",
+    "narrow": "final-static/page-390x844.png / page-390x844-@2x.png",
+    "report": "final-static/report.json"
+  },
+  "references": [
+    "https://atlassian.design/foundations/content/designing-messages/",
+    "https://shopify.dev/docs/api/app-home/v1.1-rc/web-components/feedback-and-status-indicators/banner"
+  ]
+}

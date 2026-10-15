@@ -1,0 +1,117 @@
+{
+  "direction": "轻量用量账本：费用先行，随后是总Token、构成和会话明细；沿用DESIGN.md的字体、主题和导航。",
+  "implemented": [
+    "费用与Token形成两级数字层级",
+    "Token构成条及连续的输入、输出、缓存读写分项",
+    "当前会话摘要与返回入口，移除重复单行表格",
+    "全部会话的项目筛选、搜索、费用与Token双向排序，统计总额随筛选联动",
+    "无会话、暂无记录、搜索无结果、清除筛选状态",
+    "已知用量不依赖会话消息是否已加载，缺记录会话不伪装为零",
+    "极小正费用保留非零显示",
+    "浅暗主题、中英文、390px窄窗适配"
+  ],
+  "notImplemented": {
+    "趋势图和历史模型归因": "现有数据是会话累计值和当前模型，不能准确归因时间与历史模型。",
+    "CSV导出和新增同步协议": "本次聚焦Usage页面展示与筛选，未扩展原生文件保存或后端统计协议。"
+  },
+  "motion": [
+    "80ms范围按钮按压反馈",
+    "160ms选中底板移动及视图接入",
+    "160ms Token分布更新和120ms会话箭头反馈",
+    "遵从减少动态效果偏好"
+  ],
+  "review": {
+    "rounds": 1,
+    "mode": "存量已有界面润色评审，不打分",
+    "findings": ["英文桌面截图中两列表头不可见", "英文搜索占位文案过长"],
+    "resolution": [
+      "表头DOM与可见样式正常；浏览器视口恢复后立即截图出现未稳定画面，重新观察稳定状态并重截，已确认表头完整显示。",
+      "占位缩短为Search conversations…/搜索会话…；完整搜索范围保留在可访问名称。"
+    ],
+    "preserved": "醒目费用、克制的琥珀缓存强调、无卡片堆叠的明细结构。"
+  },
+  "subtraction": [
+    "移除当前会话中重复Token和费用的单行表格",
+    "移除搜索占位文字中项目、模型的枚举，保留搜索能力",
+    "未删除真实指标名称"
+  ],
+  "verification": {
+    "tests": [
+      {
+        "run": 1,
+        "exitCode": 0,
+        "output": "\n RUN  v5.0.3 /Users/zhaojisen/pi-desktop\n\n\n Test Files  2 passed (2)\n      Tests  26 passed (26)\n   Start at  22:52:14\n   Duration  1.28s (import 58%, tests 16%, environment 15%, transform 10%)\n\n"
+      },
+      {
+        "run": 2,
+        "exitCode": 0,
+        "output": "\n RUN  v5.0.3 /Users/zhaojisen/pi-desktop\n\n\n Test Files  2 passed (2)\n      Tests  26 passed (26)\n   Start at  22:52:16\n   Duration  1.12s (import 60%, tests 18%, environment 11%, transform 10%, worker 1%)\n\n"
+      },
+      {
+        "run": 3,
+        "exitCode": 0,
+        "output": "\n RUN  v5.0.3 /Users/zhaojisen/pi-desktop\n\n\n Test Files  2 passed (2)\n      Tests  26 passed (26)\n   Start at  22:52:17\n   Duration  796ms (import 52%, tests 22%, transform 13%, environment 12%, worker 1%)\n\n"
+      }
+    ],
+    "checks": [
+      {
+        "command": ["node", "node_modules/typescript/bin/tsc", "--noEmit"],
+        "exitCode": 0,
+        "output": ""
+      },
+      {
+        "command": [
+          "node",
+          "node_modules/typescript/bin/tsc",
+          "--project",
+          "scripts/tsconfig.json"
+        ],
+        "exitCode": 0,
+        "output": ""
+      },
+      {
+        "command": ["node", "node_modules/typescript/bin/tsc", "--project", "tests/tsconfig.json"],
+        "exitCode": 0,
+        "output": ""
+      },
+      {
+        "command": [
+          "node",
+          "node_modules/oxlint/bin/oxlint",
+          "src",
+          "scripts",
+          "tests",
+          "vite.config.ts",
+          "vitest.config.ts"
+        ],
+        "exitCode": 0,
+        "output": ""
+      },
+      {
+        "command": [
+          "node",
+          "node_modules/oxfmt/bin/oxfmt",
+          "--check",
+          "src/pages/UsagePage.tsx",
+          "src/styles/_usage.scss",
+          "tests/pages/UsagePage.test.ts",
+          "src/locales/en.ts",
+          "src/locales/zh.ts"
+        ],
+        "exitCode": 0,
+        "output": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 8ms on 5 files using 10 threads.\n"
+      }
+    ],
+    "visual": "已查看1280x720/1280x800桌面、390x844窄窗和2倍像素密度截图；英文窄窗表格宽度267px、scrollWidth267px，无横向溢出。2倍像素密度不是浏览器200%缩放重排，未单独验证浏览器200%缩放。",
+    "captureLimitation": "早期--evidence自动动效探测报工具自身__oilMotion未定义；入口与切换录屏已生成，不能据此声称自动动效探测通过。静态最终截图工具检查通过；录屏完整播放未验证，不据此宣称动效验收通过。",
+    "runtime": "浏览器使用项目内置预览数据，未启动真实Agent或验证新的桌面统计采集。"
+  },
+  "evidence": {
+    "latestChinese": "final/all-light-zh.jpg",
+    "latestEnglishDesktop": "final/all-dark-en.jpg",
+    "currentSession": "final/current-light-zh.jpg",
+    "narrowEnglishBeforePlaceholderShortening": "final/all-dark-en-narrow.jpg",
+    "staticChecks": "final/static/report.json",
+    "recordings": "evidence/record-entry.mp4 与 evidence/record-all.mp4（页脚文字大小修正前，动效实现相同）"
+  }
+}

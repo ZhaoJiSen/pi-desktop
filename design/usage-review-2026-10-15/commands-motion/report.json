@@ -1,0 +1,51 @@
+[
+  {
+    "file": "motion-enter-end.jpg",
+    "state": null,
+    "size": "1280x900",
+    "zoom": 1,
+    "group": "enter",
+    "issues": [],
+    "frames": {
+      "start": {
+        "file": "motion-enter-start.jpg",
+        "source": "Page.captureScreenshot",
+        "timeMs": 549
+      },
+      "mid": {
+        "file": "motion-enter-mid.jpg",
+        "source": "Page.screencastFrame",
+        "timeMs": 761
+      },
+      "end": {
+        "file": "motion-enter-end.jpg",
+        "source": "Page.captureScreenshot",
+        "timeMs": 1906
+      }
+    },
+    "sampling": {
+      "mode": "action",
+      "step": 1,
+      "action": "click",
+      "raw": "click [aria-label=\"Commands\"]"
+    },
+    "durationMs": 1906,
+    "consistency": {
+      "status": "matched",
+      "reference": "motion-enter-end.jpg",
+      "different": false,
+      "changedPixels": 0,
+      "maxTilePixels": 0,
+      "pixelRatio": 0
+    }
+  },
+  {
+    "file": "motion-switch-end.jpg",
+    "state": null,
+    "size": "1280x900",
+    "zoom": 1,
+    "group": "switch",
+    "failed": true,
+    "issues": ["ReferenceError: __oilRecordTiming is not defined\n    at <anonymous>:1:1"]
+  }
+]

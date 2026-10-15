@@ -1,0 +1,119 @@
+[
+  {
+    "run": 1,
+    "result": "passed",
+    "route": {
+      "frames": 16,
+      "animatedFrames": 12,
+      "maxTransientOverflow": 12
+    },
+    "selections": [
+      {
+        "frames": 11,
+        "animatedFrames": 5,
+        "maxTransientOverflow": 6
+      },
+      {
+        "frames": 17,
+        "animatedFrames": 12,
+        "maxTransientOverflow": 0
+      },
+      {
+        "frames": 17,
+        "animatedFrames": 12,
+        "maxTransientOverflow": 12
+      }
+    ],
+    "reduced": {
+      "frames": 4,
+      "animatedFrames": 0,
+      "maxTransientOverflow": 0
+    },
+    "checks": [
+      "normal-motion route entry and both selection directions",
+      "horizontal overflow hidden on every sampled transition frame",
+      "vertical scrolling remains functional",
+      "200% and 390px Chinese long content",
+      "reduced motion",
+      "no page errors"
+    ]
+  },
+  {
+    "run": 2,
+    "result": "passed",
+    "route": {
+      "frames": 15,
+      "animatedFrames": 10,
+      "maxTransientOverflow": 4
+    },
+    "selections": [
+      {
+        "frames": 17,
+        "animatedFrames": 11,
+        "maxTransientOverflow": 8
+      },
+      {
+        "frames": 17,
+        "animatedFrames": 12,
+        "maxTransientOverflow": 0
+      },
+      {
+        "frames": 17,
+        "animatedFrames": 12,
+        "maxTransientOverflow": 12
+      }
+    ],
+    "reduced": {
+      "frames": 4,
+      "animatedFrames": 0,
+      "maxTransientOverflow": 0
+    },
+    "checks": [
+      "normal-motion route entry and both selection directions",
+      "horizontal overflow hidden on every sampled transition frame",
+      "vertical scrolling remains functional",
+      "200% and 390px Chinese long content",
+      "reduced motion",
+      "no page errors"
+    ]
+  },
+  {
+    "run": 3,
+    "result": "passed",
+    "route": {
+      "frames": 17,
+      "animatedFrames": 12,
+      "maxTransientOverflow": 7
+    },
+    "selections": [
+      {
+        "frames": 16,
+        "animatedFrames": 10,
+        "maxTransientOverflow": 6
+      },
+      {
+        "frames": 17,
+        "animatedFrames": 12,
+        "maxTransientOverflow": 0
+      },
+      {
+        "frames": 17,
+        "animatedFrames": 12,
+        "maxTransientOverflow": 12
+      }
+    ],
+    "reduced": {
+      "frames": 4,
+      "animatedFrames": 0,
+      "maxTransientOverflow": 0
+    },
+    "checks": [
+      "normal-motion route entry and both selection directions",
+      "horizontal overflow hidden on every sampled transition frame",
+      "vertical scrolling remains functional",
+      "200% and 390px Chinese long content",
+      "reduced motion",
+      "no page errors"
+    ]
+  }
+]

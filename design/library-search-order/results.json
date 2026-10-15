@@ -1,0 +1,47 @@
+[
+  {
+    "run": 1,
+    "result": "passed",
+    "language": "en",
+    "checks": [
+      "same title typography and position",
+      "28px title-row tools",
+      "search precedes all modes and filters",
+      "34px search boxes align with 10px gaps",
+      "search close clears input",
+      "Installed/Discover controls",
+      "390px and actual 200% zoom",
+      "no page errors"
+    ]
+  },
+  {
+    "run": 2,
+    "result": "passed",
+    "language": "en",
+    "checks": [
+      "same title typography and position",
+      "28px title-row tools",
+      "search precedes all modes and filters",
+      "34px search boxes align with 10px gaps",
+      "search close clears input",
+      "Installed/Discover controls",
+      "390px and actual 200% zoom",
+      "no page errors"
+    ]
+  },
+  {
+    "run": 3,
+    "result": "passed",
+    "language": "zh",
+    "checks": [
+      "same title typography and position",
+      "28px title-row tools",
+      "search precedes all modes and filters",
+      "34px search boxes align with 10px gaps",
+      "search close clears input",
+      "Installed/Discover controls",
+      "390px and actual 200% zoom",
+      "no page errors"
+    ]
+  }
+]

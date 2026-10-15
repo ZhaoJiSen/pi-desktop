@@ -1,0 +1,38 @@
+[
+  {
+    "file": "page-1280x900.png",
+    "state": null,
+    "size": "1280x900",
+    "zoom": 1,
+    "animationWaitMs": 164,
+    "issues": [],
+    "lint": []
+  },
+  {
+    "file": "page-1280x900-@2x.png",
+    "state": null,
+    "size": "1280x900",
+    "zoom": 2,
+    "animationWaitMs": 120,
+    "issues": [],
+    "lint": []
+  },
+  {
+    "file": "page-390x844.png",
+    "state": null,
+    "size": "390x844",
+    "zoom": 1,
+    "animationWaitMs": 0,
+    "issues": [],
+    "lint": []
+  },
+  {
+    "file": "page-390x844-@2x.png",
+    "state": null,
+    "size": "390x844",
+    "zoom": 2,
+    "animationWaitMs": 0,
+    "issues": [],
+    "lint": []
+  }
+]
