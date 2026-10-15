@@ -28,19 +28,19 @@
 }
 
 .commands-browser-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin: 0 4px 18px;
+  margin-inline: 4px;
 }
 
-.commands-browser-title {
-  margin: 0;
-  color: var(--ink);
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 1.5;
+.commands-browser-identity {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 8px;
+}
+
+.commands-search-reveal {
+  flex-shrink: 0;
+  overflow: hidden;
 }
 
 .commands-view .chip {
@@ -59,7 +59,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin: 0 4px 14px;
+  margin: 0 4px 10px;
 
   .commands-search {
     flex: 1;
@@ -73,7 +73,8 @@
 
   .search-field__group {
     width: 100%;
-    height: 38px;
+    min-height: 34px;
+    height: 34px;
     border: 1px solid var(--line);
     border-radius: var(--radius-lg, var(--radius));
     color: var(--ink);
@@ -98,6 +99,7 @@
 
   input {
     min-width: 0;
+    padding-block: 0;
     color: var(--ink);
     font-size: 14px;
     line-height: 1.5;
@@ -109,22 +111,6 @@
 
     &:focus-visible {
       outline: none;
-    }
-  }
-
-  .button.commands-refresh {
-    width: 34px;
-    min-width: 34px;
-    height: 38px;
-    padding: 0;
-    border-radius: var(--radius-lg, var(--radius));
-    color: var(--muted);
-    background: transparent;
-
-    &:hover,
-    &[data-hovered='true'] {
-      color: var(--ink);
-      background: var(--hover);
     }
   }
 }
@@ -147,7 +133,6 @@
     height: 26px;
     min-height: 26px;
     padding: 0 8px;
-    border-radius: var(--radius-lg, var(--radius));
     font-size: 11px;
     font-weight: 400;
     color: var(--muted);
@@ -220,33 +205,36 @@
   }
 }
 
-.command-row .command-source-badge {
-  flex: none;
-  min-width: 4.75rem;
-  color: var(--muted);
-  font-size: 11px;
-  font-weight: 400;
-  line-height: 1.4;
-  text-align: end;
-  white-space: nowrap;
+.commands-source-group {
+  padding: 0;
+
+  & + & {
+    margin-top: 16px;
+  }
 }
 
-.command-row:is(
-    :hover,
-    :focus-visible,
-    [data-hovered='true'],
-    [data-focused='true'],
-    [data-focus-visible='true'],
-    [data-selected='true']
-  )
-  .command-source-badge {
-  color: color-mix(in srgb, var(--ink) 75%, var(--paper));
+.commands-group-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 10px 8px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.commands-group-count {
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
 }
 
 .commands-detail {
   min-width: 0;
   min-height: 0;
   height: 100%;
+  overflow-x: hidden;
   overscroll-behavior: contain;
 }
 
@@ -254,29 +242,28 @@
   display: flex;
   gap: 0;
   width: 100%;
-  max-width: 800px;
-  padding: 36px clamp(24px, 4vw, 56px) 48px;
+  padding: 22px 24px;
   background: transparent;
   box-shadow: none;
   border: 0;
 
   .card__header {
-    gap: 16px;
-    padding: 0 0 28px;
+    gap: 18px;
+    padding: 0 0 18px;
   }
 
   .card__content {
     display: flex;
     flex-direction: column;
-    gap: 24px;
-    padding: 0 0 28px;
+    gap: 18px;
+    padding: 0 0 20px;
   }
 
   h3 {
-    margin: 0 0 10px;
+    margin: 0 0 5px;
     color: var(--muted);
-    font-size: 13px;
-    font-weight: 500;
+    font-size: 11px;
+    font-weight: 400;
     line-height: 1.5;
   }
 
@@ -285,10 +272,10 @@
     color: var(--ink);
     overflow-wrap: anywhere;
     font-family: var(--command-mono);
-    font-size: clamp(24px, 2.4vw, 30px);
-    font-weight: 600;
+    font-size: 19px;
+    font-weight: 550;
     line-height: 1.35;
-    letter-spacing: -0.035em;
+    letter-spacing: -0.3px;
   }
 
   .button {
@@ -300,15 +287,15 @@
     max-width: 100%;
     height: 32px;
     min-height: 32px;
-    gap: 6px;
-    padding: 0 14px;
+    gap: 7px;
+    padding: 0 12px;
     border: 0;
     border-radius: calc(infinity * 1px);
     box-shadow: none;
     color: var(--accent-foreground);
     background-color: var(--button-bg);
-    font-size: 13px;
-    font-weight: 500;
+    font-size: 12px;
+    font-weight: 400;
     white-space: nowrap;
 
     svg {
@@ -336,66 +323,64 @@
   }
 }
 
+.command-inspector .chip.command-source {
+  height: 24px;
+  padding-inline: 8px;
+  color: var(--muted);
+  background: var(--sidebar);
+  font-size: 11px;
+}
+
 .command-inspector-heading {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 8px;
 }
 
 .command-summary {
   margin: 0;
-  max-width: 42em;
-  color: var(--ink);
-  font-size: 15px;
-  line-height: 1.75;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.65;
   overflow-wrap: anywhere;
 }
 
 .command-syntax {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 16px;
+  padding: 10px 12px;
   border: 1px solid var(--line);
   border-radius: var(--radius-lg, var(--radius));
   background: var(--code-head);
 
-  > svg {
-    margin-top: 3px;
-    color: var(--muted);
-  }
-
   code {
-    min-width: 0;
+    display: block;
     color: var(--ink);
     overflow-wrap: anywhere;
-    font: 14px/1.65 var(--command-mono);
+    font: 12px/1.7 var(--command-mono);
   }
 }
 
 .command-origin p {
   margin: 0;
-  color: var(--ink);
+  color: var(--muted);
   overflow-wrap: anywhere;
-  font: 13px/1.65 var(--command-mono);
+  font: 11px/1.7 var(--command-mono);
 }
 
 .command-actions {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 16px;
-  padding: 24px 0 0;
+  gap: 10px;
+  padding: 18px 0 0;
   border-top: 1px solid var(--line);
 }
 
 .commands-hint {
   margin: 0;
-  max-width: 42em;
   color: var(--muted);
-  font-size: 14px;
-  line-height: 1.65;
+  font-size: 11px;
+  line-height: 1.6;
 }
 
 .commands-alert {
@@ -466,7 +451,6 @@
     border-bottom: 1px solid var(--line);
   }
 
-  .commands-browser-heading,
   .commands-filters {
     margin-bottom: 12px;
   }
@@ -479,8 +463,10 @@
   .commands-detail {
     height: auto;
   }
+}
 
+@media (max-width: 950px) {
   .command-inspector {
-    padding: 28px 24px 36px;
+    padding: 20px;
   }
 }

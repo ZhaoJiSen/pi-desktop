@@ -64,8 +64,57 @@ afterEach(async () => {
   vi.unstubAllGlobals()
 })
 describe('command center actions', () => {
-  it('keeps the row source in the all group and shows it again in the detail', async () => {
+  it('waits for the complete catalog before selecting the initial command', async () => {
+    let finish!: (value: DiscoverableCommand[]) => void
+    services.discover = vi.fn(
+      () => new Promise<DiscoverableCommand[]>((resolve) => (finish = resolve)),
+    )
+    useWorkspace.setState({
+      commands: [{ name: 'websearch', source: 'extension', description: 'Search the web' }],
+    })
     await mount()
+    expect(container.querySelector('.command-inspector')).toBeNull()
+    expect(container.querySelector('.command-row')).toBeNull()
+    await act(async () =>
+      finish([{ name: 'settings', source: 'builtin', description: 'Open settings' }]),
+    )
+    expect(container.querySelector('.command-inspector h3')?.textContent).toBe('/settings')
+    expect(container.querySelectorAll('.command-row')).toHaveLength(2)
+  })
+  it('does not show the previous catalog while the next session catalog loads', async () => {
+    await mount()
+    let finish!: (value: DiscoverableCommand[]) => void
+    services.discover = vi.fn(
+      () => new Promise<DiscoverableCommand[]>((resolve) => (finish = resolve)),
+    )
+    await act(async () => useWorkspace.setState({ activeSessionId: 'files' }))
+    expect(container.querySelector('.command-inspector')).toBeNull()
+    await act(async () =>
+      finish([{ name: 'settings', source: 'builtin', description: 'Open settings' }]),
+    )
+    expect(container.querySelector('.command-inspector h3')?.textContent).toBe('/settings')
+  })
+  it('allows retry when the initial catalog fails to load', async () => {
+    services.discover = vi
+      .fn()
+      .mockRejectedValueOnce(new Error('Catalog unavailable'))
+      .mockResolvedValue(commands)
+    await mount()
+    expect(container.querySelector('[role="alert"]')?.textContent).toBe('Catalog unavailable')
+    expect(container.querySelector('.command-inspector')).toBeNull()
+    await act(async () =>
+      container.querySelector<HTMLButtonElement>('[aria-label="Refresh"]')!.click(),
+    )
+    expect(container.querySelector('[role="alert"]')).toBeNull()
+    expect(container.querySelector('.command-inspector h3')?.textContent).toBe('/compact')
+  })
+  it('keeps the source group while searching and shows the source again in the detail', async () => {
+    await mount()
+    await act(async () =>
+      container
+        .querySelector<HTMLButtonElement>('[aria-controls="commands-browser-search"]')!
+        .click(),
+    )
     const input = container.querySelector('input')!
     await act(async () => {
       Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(
@@ -75,7 +124,7 @@ describe('command center actions', () => {
       input.dispatchEvent(new Event('input', { bubbles: true }))
     })
     expect(container.querySelectorAll('.command-row')).toHaveLength(1)
-    expect(container.querySelector('.command-source-badge')?.textContent).toBe('Extension')
+    expect(container.querySelector('.commands-group-heading span')?.textContent).toBe('Extension')
     expect(container.querySelector('.command-summary')?.textContent).toBe('Review changes')
     expect(container.querySelector('.command-source')?.textContent).toBe('Extension')
   })
