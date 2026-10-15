@@ -254,7 +254,7 @@ export const en = {
   'projects.noMatches': 'No matching projects',
   'projects.invalidPath': 'Enter a full folder path, such as ~/Projects/my-project.',
   'sessions.search': 'Search conversations',
-  'composer.placeholder': 'Continue with your idea…',
+  'composer.placeholder': 'Message Pi, or type / for commands',
   'attachments.add': 'Attach files',
   'composer.send': 'Send',
   'composer.stop': 'Stop',

@@ -43,6 +43,9 @@ export function sessionDraft(session: Pick<Session, 'draft' | 'draftNodes'>): Dr
 export function draftLength(nodes: DraftNode[]) {
   return nodes.reduce((sum, node) => sum + (node.type === 'text' ? node.text.length : 1), 0)
 }
+export function isDraftEmpty(nodes: DraftNode[]) {
+  return nodes.every((node) => node.type === 'text' && !node.text.trim())
+}
 export function sliceDraft(nodes: DraftNode[], start: number, end = draftLength(nodes)) {
   let offset = 0
   const result: DraftNode[] = []

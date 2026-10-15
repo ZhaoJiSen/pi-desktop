@@ -107,16 +107,16 @@ describe('command editor interactions', () => {
   it('filters slash commands, navigates the menu and inserts a tag with Enter', async () => {
     await mount()
     await type('/')
-    expect(container.querySelectorAll('[role="option"]')).toHaveLength(3)
+    expect(document.body.querySelectorAll('[role="option"]')).toHaveLength(3)
     await key('ArrowDown')
     await key('Enter')
     expect(nodes[0]).toMatchObject({ type: 'command', name: 'skill:inspect' })
     expect(container.querySelector('.command-tag')).not.toBeNull()
-    expect(container.querySelector('[role="listbox"]')).toBeNull()
+    expect(document.body.querySelector('[role="listbox"]')).toBeNull()
     await type('/rev')
-    expect(container.querySelectorAll('[role="option"]')).toHaveLength(1)
+    expect(document.body.querySelectorAll('[role="option"]')).toHaveLength(1)
     await key('Escape')
-    expect(container.querySelector('[role="listbox"]')).toBeNull()
+    expect(document.body.querySelector('[role="listbox"]')).toBeNull()
     expect(draftText(nodes)).toContain('/rev')
   })
   it('supports mouse selection, multiple tags and insertion between text', async () => {
@@ -124,7 +124,7 @@ describe('command editor interactions', () => {
     await mount()
     selectEditor(editor(), { start: 7, end: 7 })
     await type('/rev')
-    await act(async () => container.querySelector<HTMLElement>('[role="option"]')!.click())
+    await act(async () => document.body.querySelector<HTMLElement>('[role="option"]')!.click())
     expect(nodes).toMatchObject([
       { type: 'text', text: 'before ' },
       { type: 'command', name: 'review' },
@@ -260,16 +260,20 @@ describe('command editor interactions', () => {
   it('does not trigger inside code or URLs, or submit during IME composition', async () => {
     await mount()
     await type('https://example.com/')
-    expect(container.querySelector('[role="listbox"]')).toBeNull()
+    expect(document.body.querySelector('[role="listbox"]')).toBeNull()
     await act(async () =>
       editor().dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true })),
     )
-    await key('Enter', { metaKey: true, isComposing: true })
+    await key('Enter', { isComposing: true })
     expect(submit).not.toHaveBeenCalled()
     await act(async () =>
       editor().dispatchEvent(new CompositionEvent('compositionend', { bubbles: true })),
     )
     await key('Enter', { metaKey: true })
+    expect(submit).not.toHaveBeenCalled()
+    await key('Enter', { shiftKey: true })
+    expect(draftText(nodes)).toBe('https://example.com/\n')
+    await key('Enter')
     expect(submit).toHaveBeenCalledOnce()
   })
 })

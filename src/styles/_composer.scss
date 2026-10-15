@@ -1,6 +1,18 @@
 .composer-area {
   flex: none;
 }
+// Empty sessions use the conversation column, the same measure as the thread.
+// ChatGPT (~768), Claude (~720) and Gemini (~640–768) do this: the first
+// message does not resize the field. The cluster sits with the mark; the
+// well stays two lines so the column reads as a place to write.
+.chat-page.is-empty .composer {
+  min-height: 0;
+  margin-top: 40px;
+  margin-bottom: 0;
+}
+.chat-page.is-empty .composer .draft-editor {
+  min-height: 44px;
+}
 .composer {
   position: relative;
   width: calc(100% - 2 * var(--body-inset));
@@ -9,9 +21,9 @@
   min-height: 100px;
   flex: none;
   border: 1px solid var(--frame);
-  border-radius: var(--field-radius);
+  border-radius: 20px;
   background: var(--paper);
-  padding: 17px 12px 8px;
+  padding: 16px 16px 12px;
   display: flex;
   flex-direction: column;
 }
@@ -59,44 +71,59 @@
   flex: none;
   overflow-y: auto;
   overscroll-behavior: contain;
-  font-size: 13px;
+  font-size: 15px;
   line-height: 22px;
   box-shadow: none;
-
-  &[data-empty='true']::before {
-    content: attr(data-placeholder);
-    position: absolute;
-    pointer-events: none;
-    color: var(--muted);
-    opacity: 1;
-  }
 
   &:focus-visible {
     outline: none;
   }
 }
+.draft-field {
+  position: relative;
+}
+.draft-placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 22px;
+  max-width: 100%;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 22px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
 .composer-toolbar {
   display: flex;
   align-items: center;
   gap: 4px;
-  margin-top: auto;
-  height: 29px;
+  margin-top: 12px;
+  height: 34px;
   flex: none;
 }
 .button.attach {
-  width: 29px;
-  min-width: 29px;
-  height: 29px;
-  min-height: 29px;
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  min-height: 34px;
   padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: transparent;
+  border-radius: 50%;
+  background: var(--hover);
+  color: var(--ink);
+}
+.composer .button.attach svg {
+  width: 16px;
+  height: 16px;
 }
 .button.composer-select {
-  height: 29px;
-  min-height: 29px;
+  height: 34px;
+  min-height: 34px;
   min-width: 0;
   display: flex;
   flex-direction: row;
@@ -108,9 +135,13 @@
   background: transparent;
 }
 .button.composer-select:hover,
-.button.composer-select[aria-expanded='true'],
-.button.attach:hover {
+.button.composer-select[aria-expanded='true'] {
   background: var(--hover);
+  color: var(--ink);
+}
+.button.attach:hover:not(:disabled, [data-disabled='true']) {
+  background: color-mix(in srgb, var(--ink) 10%, var(--hover));
+  color: var(--ink);
 }
 .model-trigger {
   max-width: 260px;
@@ -135,31 +166,30 @@
 }
 .send-area {
   display: flex;
-  gap: 13px;
   align-items: center;
   margin-left: auto;
 }
-.send-hint {
-  color: var(--muted);
-  font-size: 11px;
-  white-space: nowrap;
-}
 .button.send {
-  width: 29px;
-  min-width: 29px;
-  height: 29px;
-  min-height: 29px;
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  min-height: 34px;
   padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 50%;
   background: var(--accent);
   color: var(--accent-foreground);
   box-shadow: 0 1px 2px #0002;
 }
+.button.send:is(:hover, [data-hovered='true']):not(:disabled, [data-disabled='true']) {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
 .send svg {
-  width: 17px;
-  height: 17px;
+  width: 16px;
+  height: 16px;
 }
 .send .stop-icon {
   width: 12px;
@@ -207,10 +237,11 @@
 }
 
 .draft-editor-wrap {
-  position: relative;
+  position: static;
   min-width: 0;
 }
 .draft-editor {
+  position: relative;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
@@ -255,18 +286,20 @@
   color: var(--muted);
 }
 .slash-panel {
-  position: absolute;
-  bottom: calc(100% + 24px);
-  left: -4px;
-  width: min(480px, calc(100% + 8px));
+  display: flex;
+  flex-direction: column;
+  width: calc(var(--trigger-width) - 24px);
+  max-width: calc(100vw - 48px);
   z-index: 30;
   border: 1px solid var(--line);
   border-radius: var(--radius-xl);
   background: var(--paper);
-  box-shadow: 0 8px 32px #00000018;
+  box-shadow: 0 8px 24px #00000014;
   padding: 8px;
+  overflow: hidden;
 }
 .slash-panel-heading {
+  flex: none;
   display: flex;
   justify-content: space-between;
   gap: 12px;
@@ -276,7 +309,8 @@
   color: var(--muted);
 }
 .slash-options {
-  max-height: min(280px, 35vh);
+  min-height: 0;
+  max-height: 280px;
   overflow-y: auto;
   overscroll-behavior: contain;
 }

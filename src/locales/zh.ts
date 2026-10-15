@@ -227,7 +227,7 @@ export const zh = {
   'projects.noMatches': '没有匹配的项目',
   'projects.invalidPath': '请输入完整的文件夹路径，例如 ~/Projects/my-project。',
   'sessions.search': '搜索会话',
-  'composer.placeholder': '继续描述你的想法…',
+  'composer.placeholder': '输入消息，或输入 / 使用命令',
   'attachments.add': '添加附件',
   'composer.send': '发送',
   'composer.stop': '停止',

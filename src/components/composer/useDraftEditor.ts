@@ -6,6 +6,7 @@ import {
   commandAvailable,
   createCommandTag,
   draftLength,
+  isDraftEmpty,
   normalizeDraft,
   replaceDraft,
   slashQuery,
@@ -62,7 +63,7 @@ export function useDraftEditor({
       const label = (node: CommandTag) =>
         unavailable(node) ? t('composer.commandUnavailable') : t(`commands.source.${node.source}`)
       renderEditor(editor.current, nodes, label, unavailable)
-      editor.current.dataset.empty = String(!nodes.length)
+      editor.current.dataset.empty = String(isDraftEmpty(nodes))
       if (cursor) selectEditor(editor.current, cursor)
     },
     [commands, loading, t],

@@ -12,7 +12,14 @@ import type { Model } from '../types'
 export function ModelSelector({
   isOpen,
   onOpenChange,
-}: { isOpen?: boolean; onOpenChange?: (open: boolean) => void } = {}) {
+  placement = 'bottom start',
+  boundaryElement,
+}: {
+  isOpen?: boolean
+  onOpenChange?: (open: boolean) => void
+  placement?: 'top start' | 'bottom start'
+  boundaryElement?: Element
+} = {}) {
   const models = useWorkspace((state) => state.models)
   const recent = useWorkspace((state) => state.recentModels)
   const session = useWorkspace((state) =>
@@ -103,11 +110,19 @@ export function ModelSelector({
         <span>{selected?.name || t('models.choose')}</span>
         <ChevronDown className="chevron" />
       </Button>
-      <Popover.Content placement="top start" className="model-popover" offset={12}>
+      <Popover.Content
+        placement={placement}
+        shouldFlip
+        containerPadding={24}
+        boundaryElement={boundaryElement}
+        className="model-popover"
+        offset={12}
+      >
         <Popover.Dialog aria-label={t('models.choose')}>
           <AnimatePresence>
             <motion.div
-              initial={{ opacity: 0, y: 6 }}
+              className="model-popover-content"
+              initial={{ opacity: 0, y: -6 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.2 }}
             >

@@ -133,7 +133,7 @@ The app is Tauri 2, React, TypeScript, and Vite, with TanStack Router, Tailwind 
 
 On first load, a Chinese system locale selects Simplified Chinese. Any other locale, or an unavailable locale, selects English. A language chosen in the app is saved and wins on the next launch.
 
-Strings live in `src/locales/en.ts` and `src/locales/zh.ts`. Use semantic keys such as `t('connection.connecting')`, and pass interpolation values such as `t('composer.sendHint', { shortcut: '⌘ ↵' })`. Type checking and tests cover keys and interpolation parameters. Native dialog labels and application errors follow the selected language. Text from the user, Pi, providers, and extensions is left as written.
+Strings live in `src/locales/en.ts` and `src/locales/zh.ts`. Use semantic keys such as `t('connection.connecting')`, and pass interpolation values such as `t('composer.sendHint', { shortcut: '↵' })`. Type checking and tests cover keys and interpolation parameters. Native dialog labels and application errors follow the selected language. Text from the user, Pi, providers, and extensions is left as written.
 
 ### Checks
 

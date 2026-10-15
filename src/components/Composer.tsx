@@ -1,7 +1,7 @@
 import { Button, Popover } from '@heroui/react'
 import { ArrowUp, Brain, Check, ChevronDown, GitBranch, Paperclip, Square, X } from 'lucide-react'
 import { motion } from 'motion/react'
-import { useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { isDesktop, useWorkspace } from '../store/workspace'
 import { abortPrompt, changeThinking, readAttachments, sendPrompt } from '../lib/desktop'
 import { useT } from '../lib/i18n'
@@ -53,8 +53,15 @@ function SessionComposer() {
   const [commandError, setCommandError] = useState('')
   const catalog = useComposerCommands()
   const fileInput = useRef<HTMLInputElement>(null)
+  const composer = useRef<HTMLFormElement>(null)
+  const [menuBoundary, setMenuBoundary] = useState<HTMLElement | undefined>()
+  const setComposer = useCallback((element: HTMLFormElement | null) => {
+    composer.current = element
+    setMenuBoundary(element?.closest<HTMLElement>('.main') ?? undefined)
+  }, [])
   const t = useT()
   if (!session) return null
+  const menuPlacement = session.messages.length === 0 ? 'bottom start' : 'top start'
   const navigationOnly =
     planDraft(sessionDraft(session), catalog.commands, attachments.length).kind === 'navigate'
   async function submit() {
@@ -102,6 +109,7 @@ function SessionComposer() {
   }
   return (
     <motion.form
+      ref={setComposer}
       className="composer"
       initial={{ opacity: 0, y: 5 }}
       animate={{ opacity: 1, y: 0 }}
@@ -167,6 +175,9 @@ function SessionComposer() {
       )}
       <DraftEditor
         key={session.id}
+        menuAnchorRef={composer}
+        menuPlacement={menuPlacement}
+        menuBoundary={menuBoundary}
         value={sessionDraft(session)}
         {...catalog}
         onChange={(draftNodes) => {
@@ -202,7 +213,12 @@ function SessionComposer() {
         >
           <Paperclip />
         </Button>
-        <ModelSelector isOpen={modelOpen} onOpenChange={setModelOpen} />
+        <ModelSelector
+          isOpen={modelOpen}
+          onOpenChange={setModelOpen}
+          placement={menuPlacement}
+          boundaryElement={menuBoundary}
+        />
         <Popover isOpen={thinkingOpen} onOpenChange={setThinkingOpen}>
           <Button
             variant="ghost"
@@ -214,7 +230,14 @@ function SessionComposer() {
             <span>{t(thinkingLabel[session.thinking])}</span>
             <ChevronDown className="chevron" />
           </Button>
-          <Popover.Content placement="top start" className="thinking-popover" offset={12}>
+          <Popover.Content
+            placement={menuPlacement}
+            shouldFlip
+            containerPadding={24}
+            boundaryElement={menuBoundary}
+            className="thinking-popover"
+            offset={12}
+          >
             <Popover.Dialog aria-label={t('thinking.effort')}>
               {levels.map((level) => (
                 <Button
@@ -232,7 +255,6 @@ function SessionComposer() {
           </Popover.Content>
         </Popover>
         <div className="send-area">
-          <span className="send-hint">{t('composer.sendHint', { shortcut: '⌘ ↵' })}</span>
           <motion.div whileTap={{ scale: 0.97 }} transition={{ duration: 0.08 }}>
             <Button
               type={running ? 'button' : 'submit'}

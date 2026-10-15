@@ -178,7 +178,7 @@ export function createDraftEditorHandlers(
         moveHistory(event.shiftKey || event.key.toLowerCase() === 'y' ? 1 : -1)
         return
       }
-      if (query && !modifier) {
+      if (query && !modifier && !event.shiftKey) {
         if (event.key === 'Escape') {
           event.preventDefault()
           setQuery(null)
@@ -198,19 +198,19 @@ export function createDraftEditorHandlers(
           return
         }
       }
-      if (modifier && event.key === 'Enter') {
-        event.preventDefault()
-        setQuery(null)
-        onSubmit()
-        return
-      }
       if (event.key === 'Backspace' || event.key === 'Delete') {
         if (removeAdjacent(event.key === 'Backspace')) event.preventDefault()
         return
       }
       if (event.key === 'Enter') {
         event.preventDefault()
-        insert([{ type: 'text', text: '\n' }])
+        if (modifier) return
+        if (event.shiftKey) {
+          insert([{ type: 'text', text: '\n' }])
+          return
+        }
+        setQuery(null)
+        onSubmit()
         return
       }
       if (
