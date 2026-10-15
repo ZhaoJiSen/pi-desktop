@@ -158,7 +158,12 @@
   cursor: default;
   white-space: normal;
 }
-.onboarding-feature.list-box-item:is(:hover, [data-hovered='true'], :active, [data-pressed='true']) {
+.onboarding-feature.list-box-item:is(
+    :hover,
+    [data-hovered='true'],
+    :active,
+    [data-pressed='true']
+  ) {
   background: transparent;
   transform: none;
 }

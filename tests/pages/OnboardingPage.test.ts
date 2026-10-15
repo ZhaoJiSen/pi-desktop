@@ -14,7 +14,8 @@ vi.mock('../../src/lib/onboarding', () => ({
   prepareOnboardingWorkspace: mocks.prepare,
   onboardingDefaultPath: mocks.defaultPath,
 }))
-vi.mock('@heroui/react', async () => {
+vi.mock('@heroui/react', async (importOriginal) => {
+  const { ListBox, Skeleton } = await importOriginal<typeof import('@heroui/react')>()
   const { createContext, createElement, useContext } = await import('react')
   const FieldContext = createContext<{
     value?: string
@@ -34,13 +35,8 @@ vi.mock('@heroui/react', async () => {
       { ...props, onClick: onPress, disabled: isDisabled },
       children as React.ReactNode,
     )
-  const Chip = ({
-    children,
-    className,
-  }: {
-    children?: React.ReactNode
-    className?: string
-  }) => createElement('span', { className }, children)
+  const Chip = ({ children, className }: { children?: React.ReactNode; className?: string }) =>
+    createElement('span', { className }, children)
   const Alert = ({
     children,
     className,
@@ -91,8 +87,7 @@ vi.mock('@heroui/react', async () => {
       className,
       placeholder,
       value: field.value ?? '',
-      onInput: (event: Event) =>
-        field.onChange?.((event.currentTarget as HTMLInputElement).value),
+      onInput: (event: Event) => field.onChange?.((event.currentTarget as HTMLInputElement).value),
     })
   }
   const RadioGroup = ({
@@ -151,8 +146,10 @@ vi.mock('@heroui/react', async () => {
     Description,
     Input,
     Label,
+    ListBox,
     Radio,
     RadioGroup,
+    Skeleton,
     TextField,
   }
 })

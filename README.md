@@ -84,12 +84,12 @@ Open [http://127.0.0.1:1420](http://127.0.0.1:1420). The preview supplies sample
 
 The command list mixes built-in definitions with the resources loaded by the connected Pi process. Commands shown in the preview are fixtures.
 
-| Command type                                   | On the desktop                                                                    |
-| ---------------------------------------------- | --------------------------------------------------------------------------------- |
-| `/compact`                                     | Compacts the current conversation through RPC.                                    |
-| `/settings`, `/model`, `/thinking`, `/session` | Opens the matching desktop view or control.                                       |
-| Other Pi built-ins                             | Explains that the command belongs in the Pi terminal, and does not send it.       |
-| Extension commands, skills, prompt templates   | Inserts a tag into the draft so arguments can be reviewed before sending.         |
+| Command type                                   | On the desktop                                                              |
+| ---------------------------------------------- | --------------------------------------------------------------------------- |
+| `/compact`                                     | Compacts the current conversation through RPC.                              |
+| `/settings`, `/model`, `/thinking`, `/session` | Opens the matching desktop view or control.                                 |
+| Other Pi built-ins                             | Explains that the command belongs in the Pi terminal, and does not send it. |
+| Extension commands, skills, prompt templates   | Inserts a tag into the draft so arguments can be reviewed before sending.   |
 
 Type `/` in the composer to search. A tag keeps the resource identity and its arguments, and each conversation stores its own draft. Several tags can be edited, but sending more than one command in a single draft is rejected in the editor. Dispatch follows Pi’s command precedence.
 
