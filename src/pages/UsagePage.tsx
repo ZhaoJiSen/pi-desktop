@@ -1,95 +1,110 @@
-import { Button } from '@heroui/react'
-import { ArrowUpRight } from 'lucide-react'
-import { useState } from 'react'
-import { useWorkspace } from '../store/workspace'
+import { Button, Tabs } from '@heroui/react'
+import { ArrowRight } from 'lucide-react'
+import { motion, useReducedMotion } from 'motion/react'
 import { useT } from '../lib/i18n'
-import { cost, tokens } from '../lib/utils'
 import { selectChat } from '../router/navigation'
+import { useUsagePage } from './usage/useUsagePage'
+import { UsageOverview } from './usage/UsageOverview'
+import { UsageConversations } from './usage/UsageConversations'
+import { UsageProjectFilter } from './usage/UsageProjectFilter'
+import { UsageEmpty } from './usage/UsageEmpty'
 
 export function UsagePage() {
-  const sessions = useWorkspace((state) => state.sessions)
-  const active = useWorkspace((state) => state.activeSessionId)
-  const session = sessions.find((item) => item.id === active)
-  const [scope, setScope] = useState<'current' | 'all'>('current')
+  const controller = useUsagePage()
+  const {
+    scope,
+    changeScope,
+    showAllTools,
+    emptyView,
+    session,
+    known,
+    projectName,
+    chosen,
+    recorded,
+  } = controller
+  const reducedMotion = useReducedMotion()
   const t = useT()
-  const chosen = scope === 'all' ? sessions : session ? [session] : []
-  const total = chosen.reduce(
-    (sum, item) => ({
-      input: sum.input + item.usage.input,
-      output: sum.output + item.usage.output,
-      cacheRead: sum.cacheRead + item.usage.cacheRead,
-      cacheWrite: sum.cacheWrite + item.usage.cacheWrite,
-      total: sum.total + item.usage.total,
-      cost: sum.cost + item.usage.cost,
-    }),
-    { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0, cost: 0 },
-  )
   return (
-    <div className="utility-view">
-      <div className="view-toolbar">
-        <div className="segment">
-          <Button
-            variant="ghost"
-            className={scope === 'current' ? 'active' : ''}
-            onPress={() => setScope('current')}
-          >
-            {t('sessions.current')}
-          </Button>
-          <Button
-            variant="ghost"
-            className={scope === 'all' ? 'active' : ''}
-            onPress={() => setScope('all')}
-          >
-            {t('sessions.all')}
-          </Button>
+    <motion.div
+      className={`utility-view usage-view${emptyView ? ' is-empty' : ''}`}
+      initial={reducedMotion ? false : { opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.2 }}
+    >
+      <header className="usage-heading">
+        <h1 className="utility-page-title">{t('navigation.usage')}</h1>
+      </header>
+      <Tabs
+        className="usage-content"
+        selectedKey={scope}
+        onSelectionChange={(key) => changeScope(key as typeof scope)}
+      >
+        <div className="usage-toolbar">
+          <Tabs.List className="usage-scope" aria-label={t('usage.scope')}>
+            {(['current', 'all'] as const).map((value) => (
+              <Tabs.Tab key={value} id={value}>
+                {t(`sessions.${value}`)}
+                <Tabs.Indicator />
+              </Tabs.Tab>
+            ))}
+          </Tabs.List>
+          {scope === 'all' && showAllTools && <UsageProjectFilter {...controller} />}
         </div>
-      </div>
-      <dl className="usage-breakdown">
-        {(
-          [
-            ['usage.totalTokens', tokens(total.total)],
-            ['usage.estimatedCost', cost(total.cost)],
-            ['usage.input', tokens(total.input)],
-            ['usage.output', tokens(total.output)],
-            ['usage.cacheRead', tokens(total.cacheRead)],
-            ['usage.cacheWrite', tokens(total.cacheWrite)],
-          ] as const
-        ).map(([label, value]) => (
-          <div key={label}>
-            <dt>{t(label)}</dt>
-            <dd>{value}</dd>
-          </div>
-        ))}
-      </dl>
-      <div className="table-scroll">
-        <table className="usage-table">
-          <thead>
-            <tr>
-              <th>{t('usage.conversation')}</th>
-              <th>{t('usage.model')}</th>
-              <th>{t('usage.tokens')}</th>
-              <th>{t('usage.cost')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {chosen
-              .filter((item) => item.messages.length)
-              .map((item) => (
-                <tr key={item.id}>
-                  <td>
-                    <Button variant="ghost" onPress={() => selectChat(item.id)}>
-                      {item.title || t('sessions.new')}
-                      <ArrowUpRight />
-                    </Button>
-                  </td>
-                  <td>{item.modelKey.split('/').slice(1).join('/') || '—'}</td>
-                  <td>{tokens(item.usage.total)}</td>
-                  <td>{cost(item.usage.cost)}</td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+
+        <Tabs.Panel key={scope} id={scope}>
+          <motion.div
+            className="usage-body"
+            key={scope}
+            initial={reducedMotion ? false : { opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.16 }}
+          >
+            {scope === 'current' && session && known && (
+              <div className="usage-session-heading">
+                <div>
+                  <h2>{session.title || t('sessions.new')}</h2>
+                  <p>
+                    {projectName(session)}
+                    <span aria-hidden="true"> · </span>
+                    {session.modelKey.split('/').slice(1).join('/') || t('usage.noModel')}
+                  </p>
+                </div>
+                {known && (
+                  <Button
+                    variant="ghost"
+                    className="usage-open"
+                    onPress={() => selectChat(session.id)}
+                  >
+                    {t('usage.openConversation')}
+                    <ArrowRight aria-hidden="true" />
+                  </Button>
+                )}
+              </div>
+            )}
+
+            {known && <UsageOverview {...controller} />}
+
+            {scope === 'all' ? (
+              <UsageConversations {...controller} />
+            ) : (
+              !known && <UsageEmpty session={session} projectName={projectName} />
+            )}
+
+            {scope === 'all' && chosen.length > recorded.length && (
+              <footer className="usage-footnote">
+                <p>
+                  {t(
+                    chosen.length - recorded.length === 1
+                      ? 'usage.missingUsage.one'
+                      : 'usage.missingUsage.other',
+                    { count: chosen.length - recorded.length },
+                  )}
+                </p>
+              </footer>
+            )}
+          </motion.div>
+        </Tabs.Panel>
+      </Tabs>
+    </motion.div>
   )
 }

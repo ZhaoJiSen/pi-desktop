@@ -160,9 +160,10 @@ export function WorkspaceLayout() {
             }
           >
             <section className="main" aria-label={t('sessions.current')}>
-              {view !== 'chat' && view !== 'extensions' && view !== 'commands' && (
-                <Header onRename={() => setRenameId(active)} />
-              )}
+              {view !== 'chat' &&
+                view !== 'extensions' &&
+                view !== 'commands' &&
+                view !== 'usage' && <Header onRename={() => setRenameId(active)} />}
               {view !== 'chat' && <ConnectionNotice utility />}
               <WorkspaceActionsContext.Provider value={{ onProject: () => void addProject() }}>
                 <Outlet />
