@@ -1,0 +1,77 @@
+.pi-update-drag-region,
+.pi-install-drag-region {
+  position: fixed;
+  inset: 0 0 auto;
+  height: var(--header-height);
+  pointer-events: auto;
+  user-select: none;
+  touch-action: none;
+}
+.pi-update-dialog {
+  padding: 24px;
+  background: var(--paper);
+  color: var(--ink);
+}
+.pi-update-dialog .alert-dialog__header {
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+}
+.pi-update-dialog .alert-dialog__heading,
+.pi-update-inline h2 {
+  font-size: 16px;
+  font-weight: 500;
+}
+.pi-update-content {
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.pi-update-versions {
+  margin-top: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.pi-update-description {
+  margin-top: 8px;
+  color: var(--muted);
+}
+.pi-update-progress {
+  margin-top: 16px;
+  .progress-bar__track {
+    background: var(--selection);
+  }
+}
+.pi-update-error {
+  margin-top: 12px;
+  white-space: pre-wrap;
+  color: var(--danger, #b42318);
+}
+.pi-update-error a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.pi-update-error code {
+  white-space: normal;
+}
+.pi-update-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 20px;
+}
+.pi-update-actions .button {
+  color: var(--ink);
+}
+.pi-update-actions .button--primary {
+  color: var(--accent-foreground);
+}
+.pi-update-actions .button[data-pending='true'] {
+  opacity: 1;
+  cursor: progress;
+}
+.pi-update-inline {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}

@@ -16,6 +16,7 @@ import { requestConnection, syncSession } from './requests'
 import { runtimeState, type PiConnection } from './runtimeState'
 
 export async function connectSession(sessionId: string, force = false): Promise<void> {
+  if (useWorkspace.getState().piUpdating) return
   // A retained React state during Fast Refresh must not race startup recovery.
   if (runtimeState.initializing) {
     try {
@@ -56,7 +57,8 @@ async function startProjectConnection(
   return run
 }
 
-export async function warmProject(project: Project) {
+export async function warmProject(project: Project, restoring = false) {
+  if (useWorkspace.getState().piUpdating && !restoring) return
   const executable = useWorkspace.getState().piExecutable
   const cached = runtimeState.projectConnections.get(project.path)
   if (cached?.executable === executable) return
@@ -93,10 +95,16 @@ export async function warmProject(project: Project) {
   }
 }
 
-export async function activateSession(sessionId: string, force = false): Promise<void> {
+export async function activateSession(
+  sessionId: string,
+  force = false,
+  restoring = false,
+): Promise<void> {
   if (!isDesktop) return
+  if (useWorkspace.getState().piUpdating && !restoring) return
   // Serialize replacements so a late start/switch cannot replace a newer session.
   while (runtimeState.connecting) await runtimeState.connecting
+  if (useWorkspace.getState().piUpdating && !restoring) return
   if (
     runtimeState.currentRun?.sessionId === sessionId &&
     runtimeState.currentRun.executable === useWorkspace.getState().piExecutable &&

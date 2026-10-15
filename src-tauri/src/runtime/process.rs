@@ -29,8 +29,8 @@ impl PiProcess {
         on_event: Channel<Value>,
     ) -> Result<(Self, ChildStdout, ChildStderr), String> {
         let configured_executable = executable.clone();
-        let path = runtime_path(&home);
         let executable = crate::onboarding::resolve_executable(&executable, &home)?;
+        let path = crate::onboarding::executable_path(&executable, &home);
         let mut command = Command::new(executable);
         command
             .args(["--mode", "rpc", "--offline"])
@@ -108,5 +108,20 @@ pub(crate) fn runtime_path(home: &std::path::Path) -> std::ffi::OsString {
         paths.extend(std::env::split_paths(&existing));
     }
     paths.extend([PathBuf::from("/usr/bin"), PathBuf::from("/bin")]);
+    // Finder does not inherit shell initialization. Use installed NVM runtimes
+    // only as a fallback, after explicit manager and inherited PATH entries.
+    if let Ok(entries) = std::fs::read_dir(home.join(".nvm/versions/node")) {
+        let mut versions: Vec<_> = entries
+            .flatten()
+            .filter_map(|entry| {
+                let version =
+                    semver::Version::parse(entry.file_name().to_str()?.trim_start_matches('v'))
+                        .ok()?;
+                Some((version, entry.path().join("bin")))
+            })
+            .collect();
+        versions.sort_by(|a, b| b.0.cmp(&a.0));
+        paths.extend(versions.into_iter().map(|(_, path)| path));
+    }
     std::env::join_paths(paths).unwrap_or_default()
 }

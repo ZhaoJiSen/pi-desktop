@@ -7,7 +7,7 @@ use std::{
     time::{Duration, Instant},
 };
 use tauri::Manager;
-static PACKAGE_OPERATION: std::sync::Mutex<()> = std::sync::Mutex::new(());
+pub(crate) static PACKAGE_OPERATION: std::sync::Mutex<()> = std::sync::Mutex::new(());
 use serde_json::{json, Value};
 
 fn npm_name(source: &str) -> Option<&str> {

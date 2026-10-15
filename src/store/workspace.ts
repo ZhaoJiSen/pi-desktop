@@ -33,6 +33,8 @@ interface WorkspaceState {
   autoReloadAfterToggle: boolean
   autoReloadAfterUpdate: boolean
   piExecutable: string
+  piUpdating: boolean
+  piBusyRuns: string[]
   models: Model[]
   thinkingLevels: ThinkingLevel[]
   commands: SlashCommand[]
@@ -103,6 +105,8 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
         language: browserLanguage(),
         languageSource: 'system',
         piExecutable: 'pi',
+        piUpdating: false,
+        piBusyRuns: [],
         models: preview ? previewModels : [],
         thinkingLevels: ['off', 'minimal', 'low', 'medium', 'high'],
         commands: [],

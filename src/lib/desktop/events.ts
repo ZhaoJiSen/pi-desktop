@@ -22,6 +22,12 @@ export function onRuntimeNotice(listener: (message: string) => void) {
 }
 
 export function handleEvent({ runId, event }: RuntimeEvent) {
+  if (event.type === 'agent_start')
+    useWorkspace.setState((state) => ({ piBusyRuns: [...new Set([...state.piBusyRuns, runId])] }))
+  if (event.type === 'agent_settled' || event.type === 'runtime_exit')
+    useWorkspace.setState((state) => ({
+      piBusyRuns: state.piBusyRuns.filter((id) => id !== runId),
+    }))
   if (event.type === 'runtime_exit') {
     for (const [path, run] of runtimeState.projectConnections)
       if (run.id === runId) runtimeState.projectConnections.delete(path)

@@ -7,15 +7,29 @@ const mocks = vi.hoisted(() => ({
   choose: vi.fn(),
   prepare: vi.fn(),
   defaultPath: vi.fn(),
+  checkUpdate: vi.fn(),
+  upgrade: vi.fn(),
+  suppress: vi.fn(),
+  plan: vi.fn(),
+  install: vi.fn(),
+}))
+vi.mock('../../src/lib/piUpdates', () => ({
+  PiReconnectError: class extends Error {},
+  checkPiUpdate: mocks.checkUpdate,
+  upgradePi: mocks.upgrade,
+  suppressPiUpdatePrompt: mocks.suppress,
 }))
 vi.mock('../../src/lib/onboarding', () => ({
-  checkPiEnvironment: mocks.check,
+  inspectPiEnvironment: mocks.check,
+  preparePiInstall: mocks.plan,
+  installPi: mocks.install,
   chooseOnboardingProject: mocks.choose,
   prepareOnboardingWorkspace: mocks.prepare,
   onboardingDefaultPath: mocks.defaultPath,
 }))
 vi.mock('@heroui/react', async (importOriginal) => {
-  const { ListBox, Skeleton } = await importOriginal<typeof import('@heroui/react')>()
+  const { ListBox, Skeleton, ProgressBar, AlertDialog } =
+    await importOriginal<typeof import('@heroui/react')>()
   const { createContext, createElement, useContext } = await import('react')
   const FieldContext = createContext<{
     value?: string
@@ -25,6 +39,7 @@ vi.mock('@heroui/react', async (importOriginal) => {
   const Button = ({
     onPress,
     isDisabled,
+    isPending: _pending,
     isIconOnly: _icon,
     variant: _variant,
     children,
@@ -150,6 +165,8 @@ vi.mock('@heroui/react', async (importOriginal) => {
     Radio,
     RadioGroup,
     Skeleton,
+    ProgressBar,
+    AlertDialog,
     TextField,
   }
 })
@@ -171,10 +188,35 @@ import { OnboardingPage } from '../../src/pages/OnboardingPage'
 import { useWorkspace } from '../../src/store/workspace'
 let root: Root, container: HTMLDivElement
 const enter = vi.fn()
+function readyReport(version = '1.0.0', authentication = 'ready') {
+  return {
+    kind: 'ready',
+    environment: {
+      executable: '/bin/pi',
+      version,
+      nodeVersion: 'v22',
+      defaultWorkspace: '/home/Pi Desktop',
+    },
+    compatibility: version === '1.0.0' ? 'verified' : 'unverified',
+    authentication,
+    pathRecovered: false,
+    discoveredExecutable: null,
+    detail: null,
+    canRepair: false,
+  }
+}
+const missingReport = {
+  kind: 'missing',
+  environment: null,
+  compatibility: 'unknown',
+  authentication: 'unknown',
+  pathRecovered: false,
+  discoveredExecutable: null,
+  detail: null,
+  canRepair: false,
+}
 async function click(text: string) {
-  const button = [...container.querySelectorAll('button')].find(
-    (item) => item.textContent === text,
-  )!
+  const button = [...document.querySelectorAll('button')].find((item) => item.textContent === text)!
   expect(button, text).toBeDefined()
   await act(async () => button.click())
 }
@@ -183,19 +225,31 @@ async function mount() {
 }
 beforeEach(() => {
   vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
-  mocks.check.mockReset().mockResolvedValue({
-    executable: '/bin/pi',
-    version: '1.0.0',
-    nodeVersion: 'v22',
-    defaultWorkspace: '/home/Pi Desktop',
-  })
+  mocks.check.mockReset().mockResolvedValue(readyReport())
   mocks.choose.mockReset().mockResolvedValue({ path: '/home/project', branch: 'main' })
   mocks.prepare.mockReset().mockResolvedValue(undefined)
   mocks.defaultPath.mockReset().mockResolvedValue('/home/Pi Desktop')
+  mocks.checkUpdate.mockReset().mockResolvedValue(null)
+  mocks.suppress.mockReset().mockResolvedValue(undefined)
+  mocks.upgrade.mockReset().mockImplementation(async () => {
+    mocks.check.mockResolvedValue(readyReport('1.2.0'))
+    mocks.checkUpdate.mockResolvedValue(null)
+    return readyReport('1.2.0').environment
+  })
+  mocks.plan.mockReset().mockResolvedValue({
+    id: 'plan-1',
+    command: 'node npm-cli.js install --ignore-scripts @earendil-works/pi-coding-agent@1.0.0',
+    source: 'https://registry.npmjs.org',
+    version: '1.0.0',
+    nodeVersion: 'v22.19.0',
+    directory: '/home/isolated-pi',
+  })
+  mocks.install.mockReset().mockResolvedValue(readyReport())
   enter.mockReset()
   useWorkspace.setState({
     language: 'en',
     piExecutable: 'pi',
+    piUpdating: false,
     onboardingCompleted: false,
     onboardingOpen: true,
   })
@@ -209,6 +263,47 @@ afterEach(async () => {
   vi.unstubAllGlobals()
 })
 describe('setup guide', () => {
+  it('offers an inline upgrade after a successful installation check and shows the new version', async () => {
+    mocks.checkUpdate.mockResolvedValue({
+      executable: '/bin/pi',
+      currentVersion: '1.0.0',
+      latestVersion: '1.2.0',
+      hasUpdate: true,
+    })
+    await mount()
+    await click('Continue')
+    expect(mocks.checkUpdate).toHaveBeenCalledWith('/bin/pi')
+    expect(container.textContent).toContain('A new Pi version is available')
+    expect(container.querySelector('[role="dialog"]')).toBeNull()
+    await click('Update now')
+    expect(container.textContent).toContain('Pi 1.2.0')
+    expect(container.textContent).not.toContain('A new Pi version is available')
+  })
+  it('keeps the installed CLI usable when the update check is offline', async () => {
+    mocks.checkUpdate.mockRejectedValue(new Error('offline'))
+    await mount()
+    await click('Continue')
+    expect(container.textContent).toContain('Pi CLI is ready')
+    expect(container.textContent).not.toContain('offline')
+    await click('Continue')
+    expect(container.textContent).toContain('Start with your project')
+  })
+  it('keeps an upgrade failure visible with retry and manual instructions', async () => {
+    mocks.checkUpdate.mockResolvedValue({
+      executable: '/bin/pi',
+      currentVersion: '1.0.0',
+      latestVersion: '1.2.0',
+      hasUpdate: true,
+    })
+    mocks.upgrade.mockRejectedValueOnce(new Error('Nix installation cannot self-update'))
+    await mount()
+    await click('Continue')
+    await click('Update now')
+    expect(container.textContent).toContain('Nix installation cannot self-update')
+    expect(container.textContent).toContain('Official update instructions')
+    await click('Retry update')
+    expect(container.textContent).toContain('Pi 1.2.0')
+  })
   it('checks Pi, selects a folder, creates the workspace, then completes', async () => {
     await mount()
     await click('Continue')
@@ -287,7 +382,12 @@ describe('setup guide', () => {
       )
       input.dispatchEvent(new Event('input', { bubbles: true }))
     })
-    await act(async () => resolve({ executable: '/old/pi', version: '1.0.0' }))
+    await act(async () =>
+      resolve({
+        ...readyReport(),
+        environment: { ...readyReport().environment, executable: '/old/pi' },
+      }),
+    )
     expect(container.textContent).not.toContain('Pi CLI is ready')
     expect(input.value).toBe('/new/pi')
   })
@@ -301,5 +401,101 @@ describe('setup guide', () => {
       piExecutable: '/existing/pi',
       onboardingOpen: false,
     })
+  })
+})
+
+describe('environment diagnosis and confirmed installation', () => {
+  it('shows the reviewed command and source before installing, then connects through normal setup', async () => {
+    mocks.check.mockResolvedValue(missingReport)
+    await mount()
+    await click('Continue')
+    expect(mocks.install).not.toHaveBeenCalled()
+    await click('Review installation')
+    expect(document.querySelector('[role="alertdialog"]')?.textContent).toContain(
+      'https://registry.npmjs.org',
+    )
+    expect(document.querySelector('[role="alertdialog"]')?.textContent).toContain(
+      '--ignore-scripts',
+    )
+    expect(mocks.install).not.toHaveBeenCalled()
+    await click('Confirm and install')
+    expect(mocks.install).toHaveBeenCalledWith('plan-1', expect.any(Function))
+    expect(container.textContent).toContain('RPC check passed')
+    await click('Continue')
+    await click('Enter workspace')
+    expect(enter).toHaveBeenCalledWith(true)
+    expect(useWorkspace.getState().piExecutable).toBe('/bin/pi')
+  })
+  it('can cancel without installing and can keep using a manually specified path', async () => {
+    mocks.check.mockResolvedValue(missingReport)
+    await mount()
+    await click('Continue')
+    await click('Review installation')
+    await click('Cancel')
+    expect(mocks.install).not.toHaveBeenCalled()
+    expect(container.querySelector('input')?.value).toBe('pi')
+    expect(useWorkspace.getState().piExecutable).toBe('pi')
+  })
+  it('shows real progress and errors, blocks duplicate submissions and prepares a new retry', async () => {
+    mocks.check.mockResolvedValue(missingReport)
+    let reject!: (reason: Error) => void
+    mocks.install.mockImplementation((_id, progress) => {
+      progress({ stage: 'installing', stream: 'stdout', text: 'download started\n' })
+      return new Promise((_resolve, fail) => {
+        reject = fail
+      })
+    })
+    await mount()
+    await click('Continue')
+    await click('Review installation')
+    await click('Confirm and install')
+    expect(document.body.textContent).toContain('download started')
+    expect(document.querySelector('[role="progressbar"]')).not.toBeNull()
+    await click('Installing Pi…')
+    expect(mocks.install).toHaveBeenCalledOnce()
+    for (const text of ['Skip setup', 'Back', 'Set up later']) {
+      expect(
+        [...container.querySelectorAll('button')].find((b) => b.textContent === text)?.disabled,
+      ).toBe(true)
+    }
+    await act(async () => reject(new Error('Network offline')))
+    expect(document.body.textContent).toContain('Network offline')
+    expect(container.querySelector('input')?.value).toBe('pi')
+    await click('Review and retry')
+    expect(mocks.plan).toHaveBeenCalledTimes(2)
+    expect(mocks.install).toHaveBeenCalledOnce()
+  })
+  it('does not offer installation when only the configured path is wrong', async () => {
+    mocks.check.mockResolvedValue({
+      ...missingReport,
+      kind: 'pathProblem',
+      discoveredExecutable: '/detected/pi',
+    })
+    await mount()
+    await click('Continue')
+    expect(container.textContent).toContain('configured Pi path is unavailable')
+    expect(container.textContent).not.toContain('Review installation')
+    mocks.check.mockResolvedValue(readyReport())
+    await click('Use the detected Pi')
+    expect(mocks.check).toHaveBeenLastCalledWith('/detected/pi')
+    expect(mocks.plan).not.toHaveBeenCalled()
+  })
+  it('distinguishes unsupported versions, unverified versions and missing authentication', async () => {
+    mocks.check.mockResolvedValue({
+      ...readyReport('0.60.0'),
+      kind: 'incompatible',
+      compatibility: 'unsupported',
+      authentication: 'unknown',
+    })
+    await mount()
+    await click('Continue')
+    expect(container.textContent).toContain('not supported')
+    expect(container.textContent).not.toContain('RPC check passed')
+    mocks.check.mockResolvedValue(readyReport('1.2.0', 'missing'))
+    await click('Check environment')
+    expect(container.textContent).toContain('not been fully verified')
+    expect(container.textContent).toContain('No model credentials')
+    await click('Continue')
+    expect(container.textContent).toContain('Start with your project')
   })
 })

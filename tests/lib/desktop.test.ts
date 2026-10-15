@@ -73,6 +73,8 @@ describe('desktop prompt lifecycle', () => {
       sessions: [],
       activeSessionId: null,
       runningSessionId: null,
+      piUpdating: false,
+      piBusyRuns: [],
       connection: 'disconnected',
       connectionAction: null,
       language: 'zh',
@@ -91,6 +93,25 @@ describe('desktop prompt lifecycle', () => {
     )
     await connectSession(id, true)
     store.updateSession(id, { title: 'Existing session', draft: '请读取这个文件' })
+  })
+
+  it('blocks prompts and reconnects during an upgrade while allowing extension confirmations during recovery', async () => {
+    const { request } = await import('../../src/lib/desktop')
+    useWorkspace.setState({ piUpdating: true })
+    mocks.invoke.mockClear()
+    expect(await sendPrompt([])).toBe(false)
+    await connectSession(id, true)
+    await expect(
+      request({ type: 'set_model', provider: 'local', modelId: 'other' }),
+    ).rejects.toThrow()
+    expect(mocks.invoke).not.toHaveBeenCalled()
+    await request({ type: 'extension_ui_response', id: 'confirmation', confirmed: true })
+    expect(mocks.invoke).toHaveBeenCalledWith(
+      'pi_request',
+      expect.objectContaining({
+        command: expect.objectContaining({ type: 'extension_ui_response' }),
+      }),
+    )
   })
 
   it('passes a project path to the native reveal command and reports failures', async () => {

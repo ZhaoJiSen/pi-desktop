@@ -27,6 +27,8 @@ import { useCurrentPage } from '../router/hooks'
 import { createChat, navigateToPage } from '../router/navigation'
 import { WorkspaceActionsContext } from './WorkspaceActions'
 import { OnboardingPage } from '../pages/OnboardingPage'
+import { PiUpdateDialog } from '../components/PiUpdateDialog'
+import { usePiUpdatePrompt } from '../hooks/usePiUpdatePrompt'
 
 export function WorkspaceLayout() {
   const sidebar = useWorkspace((state) => state.sidebarOpen)
@@ -34,6 +36,7 @@ export function WorkspaceLayout() {
   const connection = useWorkspace((state) => state.connection)
   const running = useWorkspace((state) => state.runningSessionId)
   const onboardingOpen = useWorkspace((state) => state.onboardingOpen)
+  const updating = useWorkspace((state) => state.piUpdating)
   const view = useCurrentPage()
   const showSidebar = sidebar && view === 'chat'
   const { startup, startupError, retryStartup, continueStartup, finishOnboarding } =
@@ -44,6 +47,11 @@ export function WorkspaceLayout() {
   const [renameId, setRenameId] = useState<string | null>(null)
   const [removeId, setRemoveId] = useState<string | null>(null)
   const [extensionRequests, setExtensionRequests] = useState<ExtensionRequest[]>([])
+  const piUpdate = usePiUpdatePrompt(
+    startup === 'ready',
+    onboardingOpen,
+    searchOpen || projectOpen || Boolean(renameId || removeId || extensionRequests.length),
+  )
   const t = useT()
   const closeExtension = useCallback(() => setExtensionRequests((items) => items.slice(1)), [])
   useEffect(
@@ -51,7 +59,7 @@ export function WorkspaceLayout() {
     [],
   )
   async function addProject() {
-    if (running || connection === 'connecting') return
+    if (updating || running || connection === 'connecting') return
     if (!isDesktop) {
       setProjectOpen(true)
       return
@@ -65,7 +73,7 @@ export function WorkspaceLayout() {
   }
   function newChat() {
     const store = useWorkspace.getState()
-    if (store.runningSessionId || store.connection === 'connecting') return
+    if (store.piUpdating || store.runningSessionId || store.connection === 'connecting') return
     const current = store.sessions.find((session) => session.id === store.activeSessionId)
     const projectId = current?.projectId || store.projects.find((project) => !project.hidden)?.id
     if (projectId) createChat(projectId)
@@ -73,16 +81,24 @@ export function WorkspaceLayout() {
   }
   useKeyPress(['meta.n', 'ctrl.n'], (event) => {
     event.preventDefault()
-    if (!onboardingOpen && startup === 'ready') newChat()
+    if (!onboardingOpen && startup === 'ready' && !updating && !piUpdate.update) newChat()
   })
   useKeyPress(['meta.k', 'ctrl.k'], (event) => {
     event.preventDefault()
-    if (!onboardingOpen && startup === 'ready') setSearchOpen(true)
+    if (!onboardingOpen && startup === 'ready' && !updating && !piUpdate.update) setSearchOpen(true)
   })
   useKeyPress(['meta.b', 'ctrl.b'], (event) => {
     event.preventDefault()
-    if (!onboardingOpen && startup === 'ready') useWorkspace.getState().toggleSidebar()
+    if (!onboardingOpen && startup === 'ready' && !updating && !piUpdate.update)
+      useWorkspace.getState().toggleSidebar()
   })
+  const extensionDialog = extensionRequests[0] && (
+    <ExtensionDialog
+      key={extensionRequests[0].id}
+      current={extensionRequests[0]}
+      onClose={closeExtension}
+    />
+  )
   if (onboardingOpen)
     return (
       <MotionConfig reducedMotion="user">
@@ -94,6 +110,7 @@ export function WorkspaceLayout() {
             }}
           />
         </main>
+        {extensionDialog}
       </MotionConfig>
     )
   if (startup !== 'ready')
@@ -109,13 +126,7 @@ export function WorkspaceLayout() {
             }}
           />
         </main>
-        {extensionRequests[0] && (
-          <ExtensionDialog
-            key={extensionRequests[0].id}
-            current={extensionRequests[0]}
-            onClose={closeExtension}
-          />
-        )}
+        {extensionDialog}
       </MotionConfig>
     )
   return (
@@ -164,6 +175,7 @@ export function WorkspaceLayout() {
         </main>
       </SidebarWidthProvider>
       <SearchDialog open={searchOpen} onClose={() => setSearchOpen(false)} />
+      {piUpdate.update && <PiUpdateDialog update={piUpdate.update} onClose={piUpdate.dismiss} />}
       <ProjectDialog open={projectOpen} onClose={() => setProjectOpen(false)} />
       {renameId && (
         <RenameDialog key={renameId} sessionId={renameId} open onClose={() => setRenameId(null)} />
@@ -175,13 +187,7 @@ export function WorkspaceLayout() {
           onClose={() => setRemoveId(null)}
         />
       )}
-      {extensionRequests[0] && (
-        <ExtensionDialog
-          key={extensionRequests[0].id}
-          current={extensionRequests[0]}
-          onClose={closeExtension}
-        />
-      )}
+      {extensionDialog}
     </MotionConfig>
   )
 }

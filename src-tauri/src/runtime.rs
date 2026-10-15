@@ -11,16 +11,19 @@ use serde_json::{json, Value};
 use std::{
     collections::HashMap,
     path::PathBuf,
-    sync::{Arc, Mutex},
+    sync::{Arc, Mutex, RwLock, RwLockReadGuard, RwLockWriteGuard},
 };
 use tauri::ipc::Channel;
 
 use crate::i18n::Message;
 use process::PiProcess;
 
+static NEXT_IDLE_REQUEST: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+
 #[derive(Clone, Default)]
 pub struct Runtime {
     processes: Arc<Mutex<HashMap<String, PiProcess>>>,
+    maintenance: Arc<RwLock<()>>,
 }
 
 fn lock_error<T>(_: std::sync::PoisonError<T>) -> String {
@@ -28,6 +31,50 @@ fn lock_error<T>(_: std::sync::PoisonError<T>) -> String {
 }
 
 impl Runtime {
+    pub(crate) fn operation(&self) -> Result<RwLockReadGuard<'_, ()>, String> {
+        self.maintenance
+            .try_read()
+            .map_err(|_| Message::PiUpdateBusy.text())
+    }
+
+    pub(crate) fn maintenance(&self) -> Result<RwLockWriteGuard<'_, ()>, String> {
+        self.maintenance
+            .try_write()
+            .map_err(|_| Message::PiUpdateBusy.text())
+    }
+
+    // The caller holds an operation or maintenance guard. Query every native run,
+    // including projects that are not currently selected in the webview.
+    pub(crate) fn idle_sessions(&self) -> Result<Vec<crate::updates::RunSnapshot>, String> {
+        let connections = self.connections()?;
+        let mut sessions = Vec::new();
+        for run in connections
+            .as_array()
+            .ok_or_else(|| Message::RuntimeState.text())?
+        {
+            let id = run["id"]
+                .as_str()
+                .ok_or_else(|| Message::RuntimeState.text())?;
+            let sequence = NEXT_IDLE_REQUEST.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+            let state = self.request_unchecked(
+                id,
+                json!({ "id": format!("update-idle-{sequence}"), "type": "get_state" }),
+            )?;
+            if state["isStreaming"].as_bool() != Some(false)
+                || state["isCompacting"].as_bool() == Some(true)
+                || state["pendingMessageCount"].as_u64().unwrap_or(0) > 0
+            {
+                return Err(Message::PiUpdateBusy.text());
+            }
+            sessions.push(crate::updates::RunSnapshot {
+                run_id: id.to_owned(),
+                session_file: state["sessionFile"].as_str().map(str::to_owned),
+            });
+        }
+        sessions.sort_by(|a, b| a.run_id.cmp(&b.run_id));
+        Ok(sessions)
+    }
+
     pub fn start(
         &self,
         cwd: PathBuf,
@@ -37,6 +84,7 @@ impl Runtime {
         home: PathBuf,
         on_event: Channel<Value>,
     ) -> Result<(), String> {
+        let _operation = self.operation()?;
         self.stop_run(&run_id)?;
         let (process, stdout, stderr) =
             PiProcess::spawn(cwd, executable, session_file, home, on_event)?;
@@ -94,6 +142,11 @@ impl Runtime {
     }
 
     pub fn request(&self, run_id: &str, command: Value) -> Result<Value, String> {
+        let _operation = self.operation()?;
+        self.request_unchecked(run_id, command)
+    }
+
+    fn request_unchecked(&self, run_id: &str, command: Value) -> Result<Value, String> {
         let id = rpc::command_id(&command)?;
         let (stdin, replies) = {
             let process = self.processes.lock().map_err(lock_error)?;

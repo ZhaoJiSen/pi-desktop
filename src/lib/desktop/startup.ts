@@ -32,6 +32,7 @@ export function initializeDesktop(): Promise<void> {
 
 async function prepareDesktop() {
   if (!isDesktop) return
+  if (useWorkspace.getState().piUpdating) return
   await initializeLanguage()
   let store = useWorkspace.getState()
   if (!store.onboardingCompleted || store.onboardingOpen) return
@@ -43,6 +44,9 @@ async function prepareDesktop() {
     >('pi_connections')
   // Discovery is authoritative even if an exit event was lost during a reload.
   const liveIds = new Set(live.map((run) => run.id))
+  useWorkspace.setState((current) => ({
+    piBusyRuns: current.piBusyRuns.filter((id) => liveIds.has(id)),
+  }))
   for (const [path, cached] of runtimeState.projectConnections) {
     if (liveIds.has(cached.id)) continue
     runtimeState.projectConnections.delete(path)
@@ -72,6 +76,11 @@ async function prepareDesktop() {
         runId: run.id,
         command: { id: crypto.randomUUID(), type: 'get_state' },
       })
+      useWorkspace.setState((current) => ({
+        piBusyRuns: state.isStreaming
+          ? [...new Set([...current.piBusyRuns, run.id])]
+          : current.piBusyRuns.filter((id) => id !== run.id),
+      }))
       if (exited) continue
       const candidates = store.sessions.filter((session) => session.projectId === project.id)
       const matched = candidates.find(

@@ -52,7 +52,9 @@ fn nonzero_empty_output_and_hung_processes_fail() {
 #[test]
 fn failed_version_checks_report_runtime_errors_from_stderr() {
     let binary = fixture("printf 'Node runtime is unavailable\\n' >&2; exit 1");
-    let error = version_output(&binary, &std::env::temp_dir(), Duration::from_secs(1)).unwrap_err();
+    // This verifies stderr, not deadlines. Allow process startup under parallel
+    // CI load; the dedicated hung-process tests retain their short deadline.
+    let error = version_output(&binary, &std::env::temp_dir(), Duration::from_secs(5)).unwrap_err();
     assert!(error.contains("Node runtime is unavailable"), "{error}");
     std::fs::remove_file(binary).unwrap();
 }

@@ -1,8 +1,10 @@
 mod commands;
+mod environment;
 mod i18n;
 mod onboarding;
 mod packages;
 mod runtime;
+mod updates;
 
 use i18n::Message;
 use runtime::Runtime;
@@ -157,9 +159,18 @@ pub fn run() {
     let app = tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .manage(Runtime::default())
+        .manage(updates::PiUpdates::default())
+        .manage(environment::PiInstaller::default())
         .invoke_handler(tauri::generate_handler![
             commands::builtin_commands,
             onboarding::check_pi_environment,
+            environment::inspect_pi_environment,
+            environment::prepare_pi_install,
+            environment::install_pi,
+            updates::check_pi_update,
+            updates::suppress_pi_update_prompt,
+            updates::claim_pi_update_prompt,
+            updates::upgrade_pi,
             onboarding::default_workspace,
             system_locale,
             set_app_language,
@@ -183,6 +194,7 @@ pub fn run() {
         .unwrap_or_else(|error| panic!("{}", Message::AppStart.detail(error)));
     app.run(|handle, event| {
         if matches!(event, tauri::RunEvent::Exit) {
+            environment::cancel_install();
             let _ = handle.state::<Runtime>().stop();
         }
     });

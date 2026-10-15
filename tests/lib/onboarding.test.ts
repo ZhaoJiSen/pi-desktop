@@ -1,6 +1,18 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-const mocks = vi.hoisted(() => ({ invoke: vi.fn(), open: vi.fn() }))
-vi.mock('@tauri-apps/api/core', () => ({ invoke: mocks.invoke }))
+const mocks = vi.hoisted(() => ({
+  invoke: vi.fn(),
+  open: vi.fn(),
+  channels: [] as { onmessage: (event: unknown) => void }[],
+}))
+vi.mock('@tauri-apps/api/core', () => ({
+  invoke: mocks.invoke,
+  Channel: class {
+    onmessage = (_event: unknown) => {}
+    constructor() {
+      mocks.channels.push(this)
+    }
+  },
+}))
 vi.mock('@tauri-apps/plugin-dialog', () => ({ open: mocks.open }))
 vi.mock('../../src/store/workspace', async (original) => {
   const module = await original<typeof import('../../src/store/workspace')>()
@@ -17,6 +29,9 @@ vi.mock('../../src/store/workspace', async (original) => {
 import { useWorkspace } from '../../src/store/workspace'
 import {
   checkPiEnvironment,
+  inspectPiEnvironment,
+  preparePiInstall,
+  installPi,
   chooseOnboardingProject,
   onboardingDefaultPath,
   prepareOnboardingWorkspace,
@@ -31,6 +46,8 @@ beforeEach(() => {
     activeSessionId: null,
     connection: 'disconnected',
     runningSessionId: null,
+    piBusyRuns: [],
+    piUpdating: false,
   })
   mocks.invoke.mockImplementation(async (name, args) => {
     if (name === 'default_workspace') return '/home/user/Pi Desktop'
@@ -84,5 +101,54 @@ describe('onboarding native boundary', () => {
       sessions: [],
       onboardingCompleted: false,
     })
+  })
+})
+
+describe('installation native boundary', () => {
+  it('diagnoses the configured path and preparing a plan never invokes installation', async () => {
+    await inspectPiEnvironment(' /custom/pi ')
+    await preparePiInstall(' /custom/pi ')
+    expect(mocks.invoke).toHaveBeenCalledWith('inspect_pi_environment', {
+      executable: '/custom/pi',
+    })
+    expect(mocks.invoke).toHaveBeenCalledWith('prepare_pi_install', { executable: '/custom/pi' })
+    expect(mocks.invoke.mock.calls.some(([name]) => name === 'install_pi')).toBe(false)
+  })
+  it('forwards progress after explicit confirmation and releases its lock on failure', async () => {
+    let reject!: (error: Error) => void
+    mocks.invoke.mockImplementation((name) =>
+      name === 'install_pi'
+        ? new Promise((_resolve, fail) => {
+            reject = fail
+          })
+        : Promise.resolve(),
+    )
+    const progress = vi.fn()
+    const pending = installPi('reviewed-id', progress)
+    expect(useWorkspace.getState().piUpdating).toBe(true)
+    await expect(installPi('reviewed-id', vi.fn())).rejects.toThrow()
+    expect(mocks.invoke).toHaveBeenCalledOnce()
+    expect(mocks.invoke).toHaveBeenCalledWith('install_pi', {
+      planId: 'reviewed-id',
+      confirmed: true,
+      onProgress: expect.anything(),
+    })
+    const event = { stage: 'installing', stream: 'stdout', text: 'downloaded' }
+    mocks.channels.at(-1)!.onmessage(event)
+    expect(progress).toHaveBeenCalledWith(event)
+    reject(new Error('offline'))
+    await expect(pending).rejects.toThrow('offline')
+    expect(useWorkspace.getState().piUpdating).toBe(false)
+    expect(useWorkspace.getState().piExecutable).toBe('pi')
+  })
+  it('refuses installation while projects are busy or reconnecting', async () => {
+    for (const state of [
+      { piBusyRuns: ['background'] },
+      { connection: 'connecting' as const, piBusyRuns: [] },
+    ]) {
+      useWorkspace.setState(state)
+      await expect(installPi('id', vi.fn())).rejects.toThrow()
+    }
+    expect(mocks.invoke).not.toHaveBeenCalled()
   })
 })

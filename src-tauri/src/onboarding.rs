@@ -9,13 +9,13 @@ use std::{
 };
 use tauri::Manager;
 
-#[derive(Serialize)]
+#[derive(Clone, Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct EnvironmentCheck {
-    executable: String,
-    version: String,
-    node_version: Option<String>,
-    default_workspace: String,
+    pub(crate) executable: String,
+    pub(crate) version: String,
+    pub(crate) node_version: Option<String>,
+    pub(crate) default_workspace: String,
 }
 
 pub(crate) fn resolve_executable(executable: &str, home: &Path) -> Result<PathBuf, String> {
@@ -46,11 +46,24 @@ pub(crate) fn resolve_executable(executable: &str, home: &Path) -> Result<PathBu
     Ok(path)
 }
 
-fn version_output(binary: &Path, home: &Path, timeout: Duration) -> Result<String, String> {
+pub(crate) fn version_output(
+    binary: &Path,
+    home: &Path,
+    timeout: Duration,
+) -> Result<String, String> {
+    command_output(binary, &["--version"], home, timeout)
+}
+
+pub(crate) fn command_output(
+    binary: &Path,
+    args: &[&str],
+    home: &Path,
+    timeout: Duration,
+) -> Result<String, String> {
     let mut command = Command::new(binary);
     command
-        .arg("--version")
-        .env("PATH", runtime_path(home))
+        .args(args)
+        .env("PATH", executable_path(binary, home))
         .env("NO_COLOR", "1")
         .current_dir(home)
         .stdin(Stdio::null())
@@ -124,7 +137,15 @@ fn version_output(binary: &Path, home: &Path, timeout: Duration) -> Result<Strin
     Ok(output)
 }
 
-fn check_environment(executable: &str, home: &Path) -> Result<EnvironmentCheck, String> {
+// A custom Pi launcher must find the Node installation beside it, including
+// when macOS launches the desktop app without the user's shell PATH.
+pub(crate) fn executable_path(binary: &Path, home: &Path) -> std::ffi::OsString {
+    let mut paths = vec![binary.parent().unwrap_or(home).to_path_buf()];
+    paths.extend(std::env::split_paths(&runtime_path(home)));
+    std::env::join_paths(paths).unwrap_or_else(|_| runtime_path(home))
+}
+
+pub(crate) fn check_environment(executable: &str, home: &Path) -> Result<EnvironmentCheck, String> {
     let binary =
         resolve_executable(executable, home).map_err(|_| Message::PiEnvironmentMissing.text())?;
     let version = version_output(&binary, home, Duration::from_secs(8))?;
@@ -134,8 +155,13 @@ fn check_environment(executable: &str, home: &Path) -> Result<EnvironmentCheck, 
     Ok(EnvironmentCheck {
         executable: binary.to_string_lossy().into_owned(),
         version,
-        node_version: resolve_executable("node", home)
-            .ok()
+        node_version: binary
+            .parent()
+            .map(|parent| parent.join(if cfg!(windows) { "node.exe" } else { "node" }))
+            .filter(|path| path.is_file())
+            .or_else(|| {
+                resolve_executable(if cfg!(windows) { "node.exe" } else { "node" }, home).ok()
+            })
             .and_then(|node| version_output(&node, home, Duration::from_secs(3)).ok()),
         default_workspace: home.join("Pi Desktop").to_string_lossy().into_owned(),
     })

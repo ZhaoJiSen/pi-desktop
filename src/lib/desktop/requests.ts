@@ -10,6 +10,8 @@ export async function request<T>(command: Record<string, unknown>): Promise<T> {
   const run = runtimeState.currentRun
   if (!isDesktop || !run) throw new Error(t('errors.desktopRequired'))
   const store = useWorkspace.getState()
+  if (store.piUpdating && command.type !== 'extension_ui_response')
+    throw new Error(t('piUpdate.busy'))
   // Extensions can ask for confirmation while initialization is still in progress.
   if (
     command.type !== 'extension_ui_response' &&

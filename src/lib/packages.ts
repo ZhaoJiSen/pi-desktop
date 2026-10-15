@@ -96,6 +96,7 @@ export async function managePackage(
   item: ExtensionPackage,
   path: string,
 ) {
+  if (useWorkspace.getState().piUpdating) throw new Error(t('piUpdate.busy'))
   if (!isTauri()) throw new Error(t('packages.desktopOnly'))
   await invoke('manage_extension_package', {
     action,

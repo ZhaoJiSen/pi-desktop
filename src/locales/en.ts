@@ -1,4 +1,65 @@
 export const en = {
+  'piUpdate.title': 'A new Pi version is available',
+  'piUpdate.versions': 'Installed {current} → Latest {latest}',
+  'piUpdate.description':
+    'Pi will reconnect automatically after the update. Your conversations and drafts are kept.',
+  'piUpdate.later': 'Later',
+  'piUpdate.now': 'Update now',
+  'piUpdate.retry': 'Retry update',
+  'piUpdate.retryConnection': 'Retry connection',
+  'piUpdate.updating': 'Updating Pi…',
+  'piUpdate.reconnecting': 'Reconnecting Pi…',
+  'piUpdate.failed': 'Could not update Pi.',
+  'piUpdate.busy':
+    'Pi is busy. Wait for tasks and connection operations to finish before updating.',
+  'piUpdate.unsavedSession':
+    'A conversation could not be saved. Resolve the connection or storage error before updating.',
+  'piUpdate.reconnectFailed': 'Pi could not reconnect. Check the executable path in Settings.',
+  'piUpdate.manualHelp':
+    'Retry the update, or follow the official instructions for your installation source.',
+  'piUpdate.instructions': 'Official update instructions',
+  'piUpdate.settings': 'Open Settings',
+  'piEnvironment.missing': 'Pi CLI is not installed or could not be found',
+  'piEnvironment.pathProblem': 'The configured Pi path is unavailable',
+  'piEnvironment.runtimeError': 'Pi could not run',
+  'piEnvironment.incompatible': 'This Pi version is not supported',
+  'piEnvironment.rpcError': 'Pi could not complete the connection check',
+  'piEnvironment.useDiscovered': 'Use the detected Pi',
+  'piEnvironment.pathRecovered':
+    'Pi was found outside the app’s inherited PATH. Its full path will be used.',
+  'piEnvironment.verified': 'Verified compatibility: Pi 1.0.0 · RPC check passed',
+  'piEnvironment.unverified':
+    'This version has not been fully verified. The read-only RPC check passed; the tested baseline is Pi 1.0.0.',
+  'piEnvironment.unsupported':
+    'Pi 1.0.0 or newer is required. Upgrade with the original installer or package manager.',
+  'piEnvironment.authMissing':
+    'No model credentials are available. Run Pi in your terminal and use /login, or configure a local model, then check again. You can continue setup now.',
+  'piEnvironment.authReady':
+    'Model credentials are available. This check does not contact a model provider or validate the credentials online.',
+  'piEnvironment.authHelp': 'Model and authentication setup',
+  'piInstall.title': 'Install Pi CLI',
+  'piInstall.intro':
+    'Install the verified Pi 1.0.0 from the official npm package, in a separate Pi Desktop directory.',
+  'piInstall.requirements':
+    'Requires Node.js 22.19.0 or newer, npm, internet access and a writable home directory.',
+  'piInstall.source': 'Source',
+  'piInstall.version': 'Version',
+  'piInstall.directory': 'Install location',
+  'piInstall.effects':
+    'Downloads Pi and its dependencies. No administrator access, global PATH changes or dependency scripts. Your existing Pi configuration and credentials are kept.',
+  'piInstall.details': 'Installation details',
+  'piInstall.command': 'Command to run',
+  'piInstall.review': 'Review installation',
+  'piInstall.confirm': 'Confirm and install',
+  'piInstall.cancel': 'Cancel',
+  'piInstall.retry': 'Review and retry',
+  'piInstall.manual': 'Manual installation guide',
+  'piInstall.nodeHelp': 'Install Node.js',
+  'piInstall.preparing': 'Checking installation requirements…',
+  'piInstall.installing': 'Installing Pi…',
+  'piInstall.verifying': 'Verifying version and RPC…',
+  'piInstall.progress': 'Pi installation progress',
+  'piInstall.output': 'Installation output',
   'onboarding.tagline': 'A desktop home for your Pi coding agent.',
   'onboarding.progress': 'Getting started steps',
   'onboarding.step.welcome': 'Meet your workspace',

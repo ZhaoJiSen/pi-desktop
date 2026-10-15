@@ -11,7 +11,7 @@ import { runtimeState } from './runtimeState'
 export async function sendPrompt(attachments: Attachment[]): Promise<boolean> {
   const store = useWorkspace.getState()
   const session = store.sessions.find((item) => item.id === store.activeSessionId)
-  if (!session || store.runningSessionId) return false
+  if (!session || store.runningSessionId || store.piUpdating) return false
   if (!isDesktop) {
     useWorkspace.setState({ connectionError: t('errors.sendRequiresDesktop') })
     return false
