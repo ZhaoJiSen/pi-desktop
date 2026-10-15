@@ -1,6 +1,52 @@
 .dialog-backdrop {
   background: #08090b38;
 }
+.remove-dialog {
+  background: var(--paper);
+  color: var(--ink);
+  padding: 24px;
+}
+.remove-dialog .alert-dialog__header {
+  gap: 12px;
+}
+.remove-dialog .alert-dialog__heading {
+  font-size: 16px;
+  font-weight: 500;
+}
+.remove-dialog .alert-dialog__body {
+  margin-top: 16px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.remove-dialog-name {
+  color: var(--ink);
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.remove-dialog-detail {
+  margin-top: 4px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+.remove-dialog-description {
+  margin-top: 12px;
+  color: var(--muted);
+}
+.remove-dialog .alert-dialog__footer {
+  margin-top: 24px;
+  gap: 8px;
+}
+.remove-dialog .alert-dialog__footer .button {
+  min-height: 32px;
+  height: auto;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 400;
+}
+.remove-dialog .button--danger {
+  --button-fg: var(--paper);
+  color: var(--button-fg);
+}
 .search-dialog {
   padding: 0;
   background: var(--paper);

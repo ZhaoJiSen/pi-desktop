@@ -1,0 +1,138 @@
+.clone-dialog {
+  width: min(480px, calc(100vw - 32px));
+  max-width: none;
+}
+.clone-dialog .modal__body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-inline: 0;
+}
+.clone-dialog .textfield {
+  --disabled-opacity: 0.8;
+  width: 100%;
+  gap: 6px;
+}
+.clone-dialog .label {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 20px;
+}
+.clone-dialog .input {
+  width: 100%;
+  min-width: 0;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--frame);
+  border-radius: var(--radius);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 13px;
+  box-shadow: none;
+}
+.clone-dialog .input:is(:focus, [data-focused='true'], [data-focus-visible='true']) {
+  border-color: var(--focus);
+  outline: none;
+  box-shadow: inset 0 0 0 1px var(--focus);
+}
+.clone-dialog .input[data-invalid='true'] {
+  border-color: var(--danger);
+  box-shadow: none;
+}
+.clone-dialog .input[data-invalid='true']:is(:focus, [data-focused='true']) {
+  box-shadow: inset 0 0 0 1px var(--danger);
+}
+.clone-location {
+  display: flex;
+  gap: 8px;
+  min-width: 0;
+}
+.clone-location .input {
+  flex: 1;
+}
+.clone-dialog .button {
+  min-height: 32px;
+  height: auto;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 400;
+  border-radius: var(--radius);
+}
+.clone-dialog .button.clone-submit {
+  --button-bg: var(--accent);
+  --button-fg: var(--accent-foreground);
+  color: var(--accent-foreground);
+  background: var(--accent);
+}
+.clone-dialog
+  .button.clone-submit:is(:hover, [data-hovered='true']):not(:disabled, [aria-disabled='true']) {
+  background: color-mix(in srgb, var(--accent) 90%, var(--paper));
+}
+.clone-dialog .button.clone-submit:is(:disabled, [aria-disabled='true']) {
+  background: var(--hover);
+  color: var(--muted);
+  opacity: 1;
+}
+.clone-dialog .field-error {
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--danger);
+}
+.clone-target {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: -2px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 18px;
+  overflow-wrap: anywhere;
+}
+.clone-target > span:last-child {
+  color: var(--ink);
+}
+.clone-feedback:empty {
+  display: none;
+}
+.clone-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: clone-feedback-in 140ms ease-out;
+}
+.clone-progress-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.clone-note,
+.clone-error {
+  margin: 0;
+  font-size: 13px;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}
+.clone-note {
+  color: var(--muted);
+}
+.clone-error {
+  color: var(--danger);
+}
+.clone-error:not(:first-child) {
+  margin-top: 8px;
+}
+@keyframes clone-feedback-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .clone-progress {
+    animation: none;
+  }
+}

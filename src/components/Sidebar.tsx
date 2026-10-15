@@ -1,6 +1,6 @@
-import { Button, Tooltip } from '@heroui/react'
+import { Accordion, Button, Separator, Tooltip } from '@heroui/react'
 import { AnimatePresence, motion } from 'motion/react'
-import { Folder, Plus, Search, SquarePen, Terminal } from 'lucide-react'
+import { ChevronRight, Search, SquarePen, Terminal } from 'lucide-react'
 import { useCurrentPage } from '../router/hooks'
 import { useWorkspace } from '../store/workspace'
 import { useT } from '../lib/i18n'
@@ -8,6 +8,7 @@ import { useState } from 'react'
 import { SessionContextMenu, type SessionMenuTarget } from './SessionContextMenu'
 import { ProjectRow } from './ProjectRow'
 import { SessionRow } from './SessionRow'
+import { ProjectPicker } from './ProjectPicker'
 
 interface Props {
   onSearch: () => void
@@ -60,83 +61,83 @@ export function Sidebar({ onSearch, onNew, onProject, onRename, onRemove }: Prop
         >
           <SquarePen />
           {t('sessions.new')}
-          <span className="shortcut">⌘ N</span>
         </Button>
         <Button variant="ghost" className="nav-row list-box-item" isDisabled>
           <Terminal />
           {t('navigation.terminal')}
         </Button>
       </nav>
-      <div className="projects">
-        <div className="section-label">
-          <span>{t('navigation.projects')}</span>
-          <Button
-            isIconOnly
-            variant="ghost"
-            className="sidebar-action"
-            onPress={onProject}
-            isDisabled={locked}
-            aria-label={t('projects.add')}
-          >
-            <Plus />
-          </Button>
-        </div>
-        <AnimatePresence initial={false}>
-          {projects.map((project) => {
-            const items = sessions
-              .filter((session) => session.projectId === project.id)
-              .sort(
-                (a, b) =>
-                  Number(Boolean(b.pinned)) - Number(Boolean(a.pinned)) ||
-                  b.updatedAt - a.updatedAt,
-              )
-            return (
-              <motion.section
-                key={project.id}
-                className="project"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0, height: 0, marginBottom: 0 }}
-                transition={{ duration: 0.18 }}
-              >
-                <ProjectRow project={project} count={items.length} />
-                <AnimatePresence initial={false}>
-                  {!project.collapsed && (
-                    <motion.div
-                      id={`project-${project.id}`}
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.18 }}
-                      className="session-list"
-                    >
-                      {items.map((session) => (
-                        <SessionRow
-                          key={session.id}
-                          session={session}
-                          selected={active === session.id && view === 'chat'}
-                          locked={locked}
-                          removalLocked={
-                            running === session.id || (active === session.id && locked)
-                          }
-                          onMenu={setMenu}
-                          onRemove={onRemove}
-                        />
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.section>
-            )
-          })}
-        </AnimatePresence>
-        {!projects.length && (
-          <Button variant="ghost" className="folder-row" onPress={onProject}>
-            <Folder />
-            <span>{t('projects.openFolder')}</span>
-          </Button>
-        )}
-      </div>
+      <Separator className="sidebar-nav-separator" />
+      <Accordion className="projects" hideSeparator defaultExpandedKeys={['projects']}>
+        <Accordion.Item id="projects">
+          <div className="section-label">
+            <Accordion.Heading className="projects-heading">
+              <Accordion.Trigger className="projects-toggle">
+                <span>{t('navigation.projects')}</span>
+                <Accordion.Indicator className="projects-indicator">
+                  <ChevronRight />
+                </Accordion.Indicator>
+              </Accordion.Trigger>
+            </Accordion.Heading>
+            <ProjectPicker onBrowse={onProject} isDisabled={locked} />
+          </div>
+          <Accordion.Panel>
+            <AnimatePresence initial={false}>
+              {projects.map((project) => {
+                const items = sessions
+                  .filter((session) => session.projectId === project.id)
+                  .sort(
+                    (a, b) =>
+                      Number(Boolean(b.pinned)) - Number(Boolean(a.pinned)) ||
+                      b.updatedAt - a.updatedAt,
+                  )
+                return (
+                  <motion.section
+                    key={project.id}
+                    className="project"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+                    transition={{ duration: 0.18 }}
+                  >
+                    <ProjectRow project={project} count={items.length} />
+                    <AnimatePresence initial={false}>
+                      {!project.collapsed && (
+                        <motion.div
+                          id={`project-${project.id}`}
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.18 }}
+                          className="session-list"
+                        >
+                          {items.map((session) => (
+                            <SessionRow
+                              key={session.id}
+                              session={session}
+                              selected={active === session.id && view === 'chat'}
+                              locked={locked}
+                              removalLocked={
+                                running === session.id || (active === session.id && locked)
+                              }
+                              onMenu={setMenu}
+                              onRemove={onRemove}
+                            />
+                          ))}
+                          {!items.length && (
+                            <p className="session-list-empty">{t('sessions.empty')}</p>
+                          )}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.section>
+                )
+              })}
+            </AnimatePresence>
+            {!projects.length && <p className="projects-empty">{t('projects.emptyTitle')}</p>}
+          </Accordion.Panel>
+        </Accordion.Item>
+      </Accordion>
       {menu && (
         <SessionContextMenu
           key={menu.id}

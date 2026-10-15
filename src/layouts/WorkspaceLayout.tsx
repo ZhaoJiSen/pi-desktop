@@ -2,13 +2,11 @@ import { Outlet } from '@tanstack/react-router'
 import { useKeyPress } from 'ahooks'
 import { MotionConfig } from 'motion/react'
 import { useCallback, useEffect, useState, type CSSProperties } from 'react'
-import {
-  ExtensionDialog,
-  ProjectDialog,
-  RemoveSessionDialog,
-  RenameDialog,
-  SearchDialog,
-} from '../components/Dialogs'
+import { ExtensionDialog } from '../components/dialogs/ExtensionDialog'
+import { ProjectDialog } from '../components/dialogs/ProjectDialog'
+import { RemoveSessionDialog } from '../components/dialogs/RemoveSessionDialog'
+import { RenameDialog } from '../components/dialogs/RenameDialog'
+import { SearchDialog } from '../components/dialogs/SearchDialog'
 import { Header } from '../components/Header'
 import { SidebarLayout, SidebarWidthProvider } from './SidebarLayout'
 import { Sidebar } from '../components/Sidebar'

@@ -2,7 +2,7 @@
 export { connectSession } from './desktop/connections'
 export { request, syncSession } from './desktop/requests'
 export { initializeDesktop, initializeLanguage, syncDesktopLanguage } from './desktop/startup'
-export { pickProject, revealProject } from './desktop/projects'
+export { openProject, pickProject, revealProject } from './desktop/projects'
 export {
   changeModel,
   changeThinking,

@@ -5,8 +5,8 @@
   overflow: hidden;
 }
 .sidebar-chrome {
-  min-height: 48px;
-  padding: 10px 19px 8px;
+  min-height: 60px;
+  padding: 16px 15px 16px 19px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -60,8 +60,8 @@
 }
 .nav {
   display: grid;
-  gap: 3px;
-  padding: 2px 12px 0;
+  gap: 4px;
+  padding: 0 12px;
 }
 .button.nav-row {
   display: flex;
@@ -80,19 +80,16 @@
 .button.nav-row svg {
   color: var(--muted);
 }
-.shortcut {
-  margin-left: auto;
-  color: var(--muted);
-  font-size: 11px;
-  letter-spacing: 0.4px;
-}
-.nav .button.nav-row {
+.nav .button.nav-row,
+.projects .projects-toggle {
   height: 32px;
   min-height: 32px;
   gap: 8px;
   font-size: 13px;
+  line-height: 20px;
 }
-.nav .button.nav-row > svg {
+.nav .button.nav-row > svg,
+.projects-toggle .projects-indicator {
   width: 14px;
   height: 14px;
   margin: 0;
@@ -106,33 +103,74 @@
 .nav .nav-active {
   background: var(--selection);
 }
-.nav .shortcut {
-  font:
-    11px/1 ui-monospace,
-    SFMono-Regular,
-    Menlo,
-    monospace;
-  letter-spacing: 0;
-  white-space: nowrap;
+.sidebar .sidebar-nav-separator {
+  flex: none;
+  width: auto;
+  height: 1px;
+  margin: 12px 12px 0;
+  background: var(--line);
 }
 .projects {
   flex: 1;
   min-height: 0;
-  padding: 20px 12px 12px;
+  padding: 12px;
   overflow-y: auto;
+}
+.projects-empty,
+.session-list-empty {
+  margin: 0;
+  padding: 4px 7px 12px 29px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.session-list-empty {
+  padding: 4px 7px 6px 29px;
 }
 .section-label {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 24px;
-  margin: 0 6px 6px 7px;
+  height: 32px;
+  min-height: 32px;
+  gap: 0;
+  padding: 0 7px 0 0;
+  margin: 0 0 6px;
   color: var(--muted);
   font-size: 12px;
 }
 .section-label svg {
   width: 15px;
   height: 15px;
+}
+.projects-heading {
+  flex: 1;
+  min-width: 0;
+  align-self: stretch;
+  border-radius: inherit;
+}
+.projects .projects-toggle {
+  min-width: 0;
+  justify-content: flex-start;
+  padding: 0 7px;
+  gap: 6px;
+  border-radius: inherit;
+  background: transparent;
+  color: var(--ink);
+  font-weight: 400;
+}
+.projects-toggle .projects-indicator {
+  margin-inline-start: 0;
+  rotate: 0deg;
+  opacity: 0;
+  transition: opacity 120ms ease-out;
+}
+.projects-toggle:is(:hover, :focus-visible, [data-focus-visible='true']) .projects-indicator {
+  opacity: 1;
+}
+.projects-toggle .projects-indicator[data-expanded='true'] {
+  rotate: 90deg;
 }
 .sidebar .sidebar-action {
   display: inline-flex;
@@ -153,6 +191,40 @@
 .sidebar .sidebar-action svg {
   width: 12px;
   height: 12px;
+}
+.sidebar .section-label .sidebar-action {
+  color: var(--ink);
+}
+.sidebar .section-label .project-picker-trigger {
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  min-height: 28px;
+  border-radius: var(--radius);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 120ms ease-out,
+    background-color 120ms ease-out;
+}
+.sidebar .section-label:hover .project-picker-trigger,
+.sidebar
+  .section-label
+  .project-picker-trigger:is(:focus-visible, [data-focus-visible='true'], [aria-expanded='true']) {
+  opacity: 1;
+  pointer-events: auto;
+}
+.sidebar .section-label:hover .project-picker-trigger:is(:disabled, [aria-disabled='true']) {
+  opacity: 0.4;
+  pointer-events: none;
+}
+.sidebar
+  .section-label
+  .project-picker-trigger:is(:hover, [data-hovered='true'], [aria-expanded='true']):not(
+    :disabled,
+    [aria-disabled='true']
+  ) {
+  background: var(--hover);
 }
 .sidebar .sidebar-search {
   width: 28px;
@@ -185,7 +257,6 @@
 .project-heading.list-box-item {
   padding: 0;
 }
-.project-heading:focus-within,
 .project-heading[data-menu-open] {
   background: var(--default);
 }
@@ -241,7 +312,7 @@
   transition: opacity 140ms ease-out;
 }
 .project-heading:hover .project-actions,
-.project-heading:focus-within .project-actions,
+.project-heading:has(:focus-visible, [data-focus-visible='true']) .project-actions,
 .project-heading[data-menu-open] .project-actions {
   opacity: 1;
   pointer-events: auto;
@@ -406,6 +477,17 @@
   background: transparent;
 }
 @media (hover: none) {
+  .sidebar .section-label .project-picker-trigger {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .sidebar .section-label .project-picker-trigger:is(:disabled, [aria-disabled='true']) {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+  .projects-toggle .projects-indicator {
+    opacity: 1;
+  }
   .project-actions,
   .session-actions .sidebar-action {
     opacity: 1;
@@ -413,6 +495,7 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
+  .projects-toggle .projects-indicator,
   .project-actions,
   .sidebar .sidebar-action,
   .session-actions .sidebar-action {

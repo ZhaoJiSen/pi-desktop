@@ -3,6 +3,7 @@ mod environment;
 mod i18n;
 mod onboarding;
 mod packages;
+mod repositories;
 mod runtime;
 mod updates;
 
@@ -159,6 +160,7 @@ pub fn run() {
     let app = tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .manage(Runtime::default())
+        .manage(repositories::RepositoryClones::default())
         .manage(updates::PiUpdates::default())
         .manage(environment::PiInstaller::default())
         .invoke_handler(tauri::generate_handler![
@@ -176,6 +178,8 @@ pub fn run() {
             set_app_language,
             desktop_environment,
             inspect_project,
+            repositories::clone_repository,
+            repositories::cancel_clone,
             reveal_project,
             start_pi,
             pi_connections,
@@ -195,6 +199,9 @@ pub fn run() {
     app.run(|handle, event| {
         if matches!(event, tauri::RunEvent::Exit) {
             environment::cancel_install();
+            handle
+                .state::<repositories::RepositoryClones>()
+                .cancel_all();
             let _ = handle.state::<Runtime>().stop();
         }
     });

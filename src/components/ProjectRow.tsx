@@ -18,10 +18,12 @@ import { errorText, shortPath } from '../lib/utils'
 import { useWorkspace } from '../store/workspace'
 import type { Project } from '../types'
 import { RenameProjectDialog } from './RenameProjectDialog'
+import { RemoveProjectDialog } from './RemoveProjectDialog'
 
 export function ProjectRow({ project, count }: { project: Project; count: number }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [renaming, setRenaming] = useState(false)
+  const [removing, setRemoving] = useState(false)
   const [error, setError] = useState('')
   const locked = useWorkspace(
     (state) => Boolean(state.runningSessionId) || state.connection === 'connecting',
@@ -92,7 +94,7 @@ export function ProjectRow({ project, count }: { project: Project; count: number
                   else if (key === 'pin') useWorkspace.getState().togglePinProject(project.id)
                   else if (key === 'reveal')
                     void revealProject(project.path).catch((error) => setError(errorText(error)))
-                  else if (key === 'remove') useWorkspace.getState().removeProject(project.id)
+                  else if (key === 'remove') setRemoving(true)
                 }}
               >
                 <Dropdown.Section aria-label={t('projects.menu.conversations')}>
@@ -153,6 +155,7 @@ export function ProjectRow({ project, count }: { project: Project; count: number
       {renaming && (
         <RenameProjectDialog projectId={project.id} onClose={() => setRenaming(false)} />
       )}
+      {removing && <RemoveProjectDialog project={project} onClose={() => setRemoving(false)} />}
       {error && (
         <div className="project-error" role="alert">
           <span>{error}</span>

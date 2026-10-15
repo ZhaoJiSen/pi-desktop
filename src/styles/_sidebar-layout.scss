@@ -17,3 +17,65 @@
     border-right: 1px solid var(--line);
   }
 }
+
+/* Peer library pages share their title row and compact HeroUI tools. */
+.commands-browser-heading,
+.package-library-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.commands-browser-title,
+.package-library-title,
+.utility-page-title {
+  margin: 0;
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
+}
+
+.commands-tools,
+.package-library-tools {
+  display: flex;
+  align-items: center;
+  flex: none;
+  gap: 2px;
+}
+
+.sidebar-layout .commands-tools .button.commands-tool-button,
+.sidebar-layout .package-library-tools .button.package-tool-button {
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  min-height: 28px;
+  padding: 0;
+  border: 0;
+  color: var(--muted);
+  background: transparent;
+
+  &:is(:hover, [data-hovered='true'], [aria-expanded='true']) {
+    color: var(--ink);
+    background: var(--hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+@media (max-width: 780px) {
+  .sidebar-layout .commands-browser,
+  .sidebar-layout .package-library {
+    padding-top: 16px;
+  }
+}
