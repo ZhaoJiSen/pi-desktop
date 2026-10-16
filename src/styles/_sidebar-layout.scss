@@ -10,7 +10,7 @@
   }
 
   &.has-sidebar > :first-child {
-    background: var(--paper);
+    background: var(--sidebar);
   }
 
   &[data-split-active='true'] > :first-child {

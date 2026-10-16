@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist, type StateStorage } from 'zustand/middleware'
+import { palettes, type Palette } from '../types'
 import type {
   ExtensionPackage,
   Model,
@@ -28,6 +29,7 @@ interface WorkspaceState {
   recentModels: string[]
   sidebarOpen: boolean
   theme: Theme
+  palette: Palette
   language: Language
   languageSource: 'system' | 'user'
   autoReloadAfterToggle: boolean
@@ -67,7 +69,12 @@ interface WorkspaceState {
     patch: Partial<
       Pick<
         WorkspaceState,
-        'theme' | 'language' | 'piExecutable' | 'autoReloadAfterUpdate' | 'autoReloadAfterToggle'
+        | 'theme'
+        | 'palette'
+        | 'language'
+        | 'piExecutable'
+        | 'autoReloadAfterUpdate'
+        | 'autoReloadAfterToggle'
       >
     >,
   ) => void
@@ -102,6 +109,7 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
         autoReloadAfterUpdate: true,
         autoReloadAfterToggle: true,
         theme: 'system',
+        palette: 'ink',
         language: browserLanguage(),
         languageSource: 'system',
         piExecutable: 'pi',
@@ -278,6 +286,7 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
           recentModels: state.recentModels,
           sidebarOpen: state.sidebarOpen,
           theme: state.theme,
+          palette: state.palette,
           language: state.language,
           languageSource: state.languageSource,
           piExecutable: state.piExecutable,
@@ -308,9 +317,13 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
             saved?.onboardingCompleted ??
             (Boolean(saved?.projects?.length || saved?.sessions?.length) ||
               current.onboardingCompleted)
+          const palette = palettes.includes(saved?.palette as Palette)
+            ? (saved?.palette as Palette)
+            : current.palette
           return {
             ...current,
             ...saved,
+            palette,
             language:
               languageSource === 'user' && validLanguage ? saved.language! : current.language,
             languageSource,

@@ -1,5 +1,16 @@
 export type ThinkingLevel = 'off' | 'minimal' | 'low' | 'medium' | 'high' | 'xhigh' | 'max'
 export type Theme = 'light' | 'dark' | 'system'
+export const palettes = [
+  'ink',
+  'gruvbox',
+  'catppuccin',
+  'linear',
+  'nord',
+  'ayu',
+  'one-dark',
+  'min-dark',
+] as const
+export type Palette = (typeof palettes)[number]
 
 export interface Model {
   id: string

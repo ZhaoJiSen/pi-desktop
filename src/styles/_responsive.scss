@@ -1,21 +1,3 @@
-:root[data-theme='dark'] .token.keyword {
-  color: #e898bd;
-}
-:root[data-theme='dark'] .token.string,
-:root[data-theme='dark'] .token.attr-value {
-  color: #e9a4b1;
-}
-:root[data-theme='dark'] .token.function,
-:root[data-theme='dark'] .token.class-name {
-  color: #9cbae6;
-}
-:root[data-theme='dark'] .status-label,
-:root[data-theme='dark'] .tool .spinner {
-  color: #e1ba63;
-}
-:root[data-theme='dark'] .reply-text a {
-  color: #9cbae6;
-}
 @media (max-width: 1050px) {
   :root {
     --sidebar-width: 210px;

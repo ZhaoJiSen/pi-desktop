@@ -306,7 +306,7 @@
 .settings-preview-sidebar span {
   height: 4px;
   border-radius: 2px;
-  background: #aeb4bd;
+  background: var(--preview-mark, #aeb4bd);
 }
 .settings-preview-sidebar span:last-child {
   width: 65%;
@@ -333,8 +333,83 @@
 .settings-preview-input {
   height: 12px;
   margin-top: auto;
-  border: 1px solid #929aa5;
+  border: 1px solid var(--preview-mark, #929aa5);
   border-radius: 3px;
+}
+.settings-palette-block {
+  margin-top: 20px;
+}
+.settings-palette-block > span {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.settings-palettes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px 16px;
+}
+.settings-palette {
+  min-width: 0;
+}
+.settings-palette-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+}
+.settings-palette-content .label {
+  min-width: 0;
+}
+.settings-palette-content .radio__control {
+  margin-left: auto;
+}
+.settings-palette:not([data-selected='true']) .radio__control {
+  border: 1px solid var(--settings-selected-border);
+}
+.settings-swatch {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 18%, transparent);
+}
+.settings-swatch--ink {
+  background: #2e3033;
+}
+.settings-swatch--gruvbox {
+  background: #fe8019;
+}
+.settings-swatch--catppuccin {
+  background: #8839ef;
+}
+.settings-swatch--linear {
+  background: #5e6ad2;
+}
+.settings-swatch--nord {
+  background: #5e81ac;
+}
+.settings-swatch--ayu {
+  background: #ff9940;
+}
+.settings-swatch--one-dark {
+  background: #61afef;
+}
+.settings-swatch--min-dark {
+  background: #3c3c3c;
+}
+:root[data-theme='dark'] .settings-swatch--ink {
+  background: #e2e4e8;
+}
+:root[data-theme='dark'] .settings-swatch--catppuccin {
+  background: #cba6f7;
+}
+:root[data-theme='dark'] .settings-swatch--nord {
+  background: #88c0d0;
+}
+:root[data-theme='dark'] .settings-swatch--min-dark {
+  background: #d4d4d4;
 }
 .settings-language {
   display: flex;
@@ -449,6 +524,10 @@
   }
   .settings-themes {
     gap: 8px;
+  }
+  .settings-palettes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px 12px;
   }
   .settings-theme-label {
     display: grid;

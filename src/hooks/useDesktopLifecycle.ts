@@ -12,6 +12,7 @@ import type { Page } from '../router/paths'
 export function useDesktopLifecycle(view: Page, enabled = true) {
   const active = useWorkspace((state) => state.activeSessionId)
   const theme = useWorkspace((state) => state.theme)
+  const palette = useWorkspace((state) => state.palette)
   const language = useWorkspace((state) => state.language)
   const connection = useWorkspace((state) => state.connection)
   const [startup, setStartup] = useState<'loading' | 'error' | 'ready'>(
@@ -65,6 +66,9 @@ export function useDesktopLifecycle(view: Page, enabled = true) {
     preference.addEventListener('change', apply)
     return () => preference.removeEventListener('change', apply)
   }, [theme])
+  useEffect(() => {
+    document.documentElement.dataset.palette = palette
+  }, [palette])
   useEffect(() => {
     document.documentElement.lang = language === 'zh' ? 'zh-CN' : 'en'
     document.title = 'pi Desktop'

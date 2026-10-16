@@ -15,7 +15,7 @@ import { useState } from 'react'
 import { useWorkspace } from '../store/workspace'
 import { useT } from '../lib/i18n'
 import { connectSession } from '../lib/desktop'
-import type { Theme } from '../types'
+import { palettes, type Palette, type Theme } from '../types'
 
 const themeOptions = [
   { mode: 'light', icon: Sun },
@@ -27,6 +27,7 @@ export function SettingsPage() {
   const autoReloadAfterToggle = useWorkspace((state) => state.autoReloadAfterToggle)
   const autoReload = useWorkspace((state) => state.autoReloadAfterUpdate)
   const theme = useWorkspace((state) => state.theme)
+  const palette = useWorkspace((state) => state.palette)
   const language = useWorkspace((state) => state.language)
   const executable = useWorkspace((state) => state.piExecutable)
   const active = useWorkspace((state) => state.activeSessionId)
@@ -87,6 +88,31 @@ export function SettingsPage() {
                 </Radio>
               ))}
             </RadioGroup>
+            <div className="settings-palette-block">
+              <span id="settings-palette-label">{t('settings.palette')}</span>
+              <RadioGroup
+                aria-labelledby="settings-palette-label"
+                className="settings-palettes"
+                orientation="horizontal"
+                value={palette}
+                onChange={(value) => setPreference({ palette: value as Palette })}
+              >
+                {palettes.map((id) => (
+                  <Radio key={id} value={id} className="settings-palette">
+                    <Radio.Content className="settings-palette-content">
+                      <span
+                        className={`settings-swatch settings-swatch--${id}`}
+                        aria-hidden="true"
+                      />
+                      <Label>{t(`settings.palette.${id}`)}</Label>
+                      <Radio.Control>
+                        <Radio.Indicator />
+                      </Radio.Control>
+                    </Radio.Content>
+                  </Radio>
+                ))}
+              </RadioGroup>
+            </div>
             <div className="settings-language">
               <span id="settings-language-label">{t('settings.language')}</span>
               <ToggleButtonGroup

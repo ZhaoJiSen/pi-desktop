@@ -67,7 +67,7 @@
   list-style: revert;
 }
 .reply-text a {
-  color: #3d6c99;
+  color: var(--link);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
@@ -131,7 +131,7 @@
 .tool .spinner {
   width: 13px;
   height: 13px;
-  color: #a57b18;
+  color: var(--status);
 }
 .tool-error-icon {
   color: var(--danger);
@@ -158,7 +158,7 @@
   white-space: nowrap;
 }
 .status-label {
-  color: #936b14;
+  color: var(--status);
   font-size: 11px;
   margin-left: 5px;
   white-space: nowrap;
@@ -255,15 +255,15 @@
   color: var(--danger);
 }
 .token.keyword {
-  color: #af3767;
+  color: var(--syntax-keyword);
 }
 .token.string,
 .token.attr-value {
-  color: #9f4c67;
+  color: var(--syntax-string);
 }
 .token.function,
 .token.class-name {
-  color: #4772ae;
+  color: var(--syntax-function);
 }
 .token.comment {
   color: var(--muted);
