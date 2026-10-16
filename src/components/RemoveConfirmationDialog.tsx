@@ -1,5 +1,5 @@
 import { AlertDialog, Button } from '@heroui/react'
-import { useId } from 'react'
+import { useId, useLayoutEffect } from 'react'
 import { useT } from '../lib/i18n'
 
 export function RemoveConfirmationDialog({
@@ -25,6 +25,11 @@ export function RemoveConfirmationDialog({
 }) {
   const t = useT()
   const descriptionId = useId()
+  const dialogId = useId()
+  // The dialog is the initial focus target so neither action opens selected.
+  useLayoutEffect(() => {
+    document.getElementById(dialogId)?.focus({ preventScroll: true })
+  }, [dialogId])
   return (
     <AlertDialog.Backdrop
       isOpen
@@ -35,7 +40,11 @@ export function RemoveConfirmationDialog({
       className="dialog-backdrop"
     >
       <AlertDialog.Container size="sm">
-        <AlertDialog.Dialog className="remove-dialog" aria-describedby={descriptionId}>
+        <AlertDialog.Dialog
+          id={dialogId}
+          className="remove-dialog"
+          aria-describedby={descriptionId}
+        >
           <AlertDialog.Header>
             <AlertDialog.Icon status="danger" />
             <AlertDialog.Heading>{title}</AlertDialog.Heading>
@@ -53,7 +62,7 @@ export function RemoveConfirmationDialog({
             )}
           </AlertDialog.Body>
           <AlertDialog.Footer>
-            <Button variant="secondary" autoFocus onPress={onClose} isDisabled={pending}>
+            <Button variant="secondary" onPress={onClose} isDisabled={pending}>
               {t('common.cancel')}
             </Button>
             <Button variant="danger" onPress={onConfirm} isPending={pending} isDisabled={pending}>
