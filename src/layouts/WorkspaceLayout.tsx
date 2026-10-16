@@ -17,7 +17,7 @@ import { RuntimeNotice } from '../components/RuntimeNotice'
 import { StartupScreen } from '../components/StartupScreen'
 import { onExtensionRequest, pickProject } from '../lib/desktop'
 import { useT } from '../lib/i18n'
-import { errorText } from '../lib/utils'
+import { reportActionNotice } from '../lib/notices'
 import { isDesktop, useWorkspace } from '../store/workspace'
 import type { ExtensionRequest } from '../types'
 import { useDesktopLifecycle } from '../hooks/useDesktopLifecycle'
@@ -66,7 +66,7 @@ export function WorkspaceLayout() {
       const projectId = await pickProject()
       if (projectId) void navigateToPage('chat')
     } catch (error) {
-      useWorkspace.setState({ connectionError: errorText(error) })
+      reportActionNotice(error)
     }
   }
   function newChat() {

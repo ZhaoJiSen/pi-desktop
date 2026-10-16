@@ -256,6 +256,67 @@ describe('desktop prompt lifecycle', () => {
     expect(mocks.invoke).not.toHaveBeenCalledWith('stop_pi', expect.anything())
   })
 
+  it.each([
+    'Could not open the project directory: No such file or directory (os error 2)',
+    '无法打开项目目录: 没有那个文件或目录 (os error 2)',
+  ])('opens the workspace when the selected project directory is missing (%s)', async (message) => {
+    const notices: string[] = []
+    const { onActionNotice } = await import('../../src/lib/notices')
+    const stop = onActionNotice((notice) => notices.push(notice))
+    mocks.invoke.mockImplementation(async (name, args) => {
+      if (name === 'start_pi') throw new Error(message)
+      return name === 'pi_request'
+        ? metadata(args.command)
+        : ['extension_packages', 'pi_connections'].includes(name)
+          ? []
+          : undefined
+    })
+    try {
+      await expect(initializeDesktop()).resolves.toBeUndefined()
+      expect(useWorkspace.getState()).toMatchObject({
+        activeSessionId: id,
+        connection: 'error',
+        connectionError: message,
+      })
+      expect(notices).toEqual([])
+    } finally {
+      stop()
+    }
+  })
+
+  it('reports a missing folder without blocking the selected session', async () => {
+    const run = mocks.invoke.mock.calls.find(([name]) => name === 'start_pi')![1].runId
+    const live = [{ id: run, path: '/tmp/project', executable: 'pi' }]
+    const store = useWorkspace.getState()
+    store.addProject('/tmp/missing-folder')
+    store.createSession(store.addProject('/tmp/missing-session'))
+    store.selectSession(id)
+    const notices: string[] = []
+    const { onActionNotice } = await import('../../src/lib/notices')
+    const stop = onActionNotice((notice) => notices.push(notice))
+    const closed = 'Could not open the project directory: No such file or directory (os error 2)'
+    mocks.invoke.mockImplementation(async (name, args) => {
+      if (name === 'start_pi' && args.path !== '/tmp/project') throw new Error(closed)
+      if (name === 'pi_connections') return live
+      return name === 'pi_request'
+        ? metadata(args.command)
+        : ['extension_packages', 'pi_connections'].includes(name)
+          ? []
+          : undefined
+    })
+    try {
+      await expect(initializeDesktop()).resolves.toBeUndefined()
+      expect(useWorkspace.getState()).toMatchObject({
+        activeSessionId: id,
+        connection: 'connected',
+        connectionError: null,
+      })
+      expect(notices).toEqual([`missing-folder: ${closed}`, `missing-session: ${closed}`])
+    } finally {
+      stop()
+    }
+  })
+
   it('holds session activation until startup discovery finishes during Fast Refresh', async () => {
     const run = mocks.invoke.mock.calls.find(([name]) => name === 'start_pi')![1].runId
     let discover!: (connections: { id: string; path: string; executable: string }[]) => void

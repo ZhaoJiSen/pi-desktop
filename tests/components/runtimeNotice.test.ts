@@ -1,0 +1,41 @@
+// @vitest-environment happy-dom
+import { act, createElement } from 'react'
+import { createRoot, type Root } from 'react-dom/client'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { RuntimeNotice } from '../../src/components/RuntimeNotice'
+import { reportActionNotice } from '../../src/lib/notices'
+import { useWorkspace } from '../../src/store/workspace'
+
+let root: Root
+let container: HTMLDivElement
+
+beforeEach(() => {
+  vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
+  useWorkspace.setState({ language: 'en', connectionError: 'still connected' })
+  container = document.createElement('div')
+  document.body.append(container)
+  root = createRoot(container)
+})
+
+afterEach(async () => {
+  await act(async () => root.unmount())
+  container.remove()
+  vi.unstubAllGlobals()
+})
+
+describe('action failure toast', () => {
+  it('shows the sentence and the cause without treating it as a lost connection', async () => {
+    await act(async () => root.render(createElement(RuntimeNotice)))
+    await act(async () => {
+      reportActionNotice(
+        new Error('Could not open the project directory: No such file or directory (os error 2)'),
+      )
+    })
+    const toast = document.querySelector('.runtime-notice.is-warning')
+    expect(toast?.textContent).toContain('Could not open the project directory')
+    expect(toast?.textContent).toContain('No such file or directory (os error 2)')
+    expect(toast?.textContent).not.toContain('Reconnect')
+    expect(document.querySelector('.runtime-notice-icon.is-warning')).not.toBeNull()
+    expect(useWorkspace.getState().connectionError).toBe('still connected')
+  })
+})

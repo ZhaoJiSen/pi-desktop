@@ -57,7 +57,8 @@ body:has(.app-shell.browser) {
   inset-inline-end: calc(var(--body-inset) + var(--runtime-frame-inset, 0px));
   inset-inline-start: auto;
   z-index: 30;
-  width: min(320px, calc(100% - 2 * (var(--body-inset) + var(--runtime-frame-inset, 0px))));
+  /* 48px rail plus a 12px gap, so a narrow window does not cover the rail. */
+  width: min(320px, calc(100% - var(--body-inset) - 2 * var(--runtime-frame-inset, 0px) - 60px));
   min-width: 0;
 }
 .toast.runtime-notice {
@@ -102,6 +103,12 @@ body:has(.app-shell.browser) {
 .runtime-notice-icon.is-success {
   color: var(--mint);
 }
+.runtime-notice-icon.is-warning {
+  color: var(--danger);
+}
+.runtime-notice.is-warning .runtime-notice-title {
+  text-wrap: pretty;
+}
 .runtime-notice-copy {
   min-width: 0;
   flex: 1;
@@ -119,6 +126,9 @@ body:has(.app-shell.browser) {
   font-size: 12px;
   line-height: 18px;
   color: var(--muted);
+}
+.runtime-notice-code {
+  white-space: nowrap;
 }
 .runtime-notice .toast__close-button {
   position: static;

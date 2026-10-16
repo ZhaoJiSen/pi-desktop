@@ -1,11 +1,25 @@
 import { Channel, invoke } from '@tauri-apps/api/core'
-import type { ExtensionPackage, RpcState, RuntimeEvent } from '../../types'
+import type { ExtensionPackage, Project, RpcState, RuntimeEvent } from '../../types'
 import { isDesktop, useWorkspace } from '../../store/workspace'
 import { t } from '../i18n'
+import { reportActionNotice } from '../notices'
 import { errorText } from '../utils'
 import { handleEvent } from './events'
 import { activateSession, warmProject } from './connections'
 import { runtimeState, type PiConnection } from './runtimeState'
+
+// Rust localizes this before the process starts. A deleted folder belongs to
+// that project; it must not keep the rest of the app on the startup screen.
+function isClosedProjectDirectory(message: string | null | undefined) {
+  if (!message) return false
+  return (
+    message.includes('Could not open the project directory') || message.includes('无法打开项目目录')
+  )
+}
+
+function noteClosedProject(project: Pick<Project, 'id' | 'name'>, message: string) {
+  reportActionNotice(`${project.name}: ${message}`)
+}
 
 export async function syncDesktopLanguage() {
   if (isDesktop) await invoke('set_app_language', { language: useWorkspace.getState().language })
@@ -133,7 +147,7 @@ async function prepareDesktop() {
   const failures: string[] = []
   // Warm every saved project before showing the workspace; restore the active one last.
   for (const project of store.projects) {
-    if (project.hidden) continue
+    if (project.hidden || !project.path) continue
     const session =
       store.sessions.find((session) => session.projectId === project.id && session.id === target) ||
       [...store.sessions]
@@ -143,19 +157,37 @@ async function prepareDesktop() {
       try {
         await warmProject(project)
       } catch (error) {
-        failures.push(`${project.name}: ${errorText(error)}`)
+        const message = errorText(error)
+        if (isClosedProjectDirectory(message)) noteClosedProject(project, message)
+        else failures.push(`${project.name}: ${message}`)
       }
       continue
     }
     if (session.id === target) continue
     await activateSession(session.id)
-    if (useWorkspace.getState().connection === 'error')
-      failures.push(`${project.name}: ${useWorkspace.getState().connectionError}`)
+    recordProjectFailure(project, failures)
   }
   if (target) {
     await activateSession(target)
-    if (useWorkspace.getState().connection === 'error')
-      failures.push(useWorkspace.getState().connectionError || t('connection.failed'))
+    const state = useWorkspace.getState()
+    // Leave the selected session's directory error in the connection banner.
+    if (state.connection === 'error' && !isClosedProjectDirectory(state.connectionError))
+      failures.push(state.connectionError || t('connection.failed'))
   }
   if (failures.length) throw new Error(failures.join('\n'))
+}
+
+function recordProjectFailure(
+  project: Pick<Project, 'id' | 'name'>,
+  failures: string[],
+) {
+  const state = useWorkspace.getState()
+  if (state.connection !== 'error') return
+  const message = state.connectionError || t('connection.failed')
+  if (!isClosedProjectDirectory(message)) {
+    failures.push(`${project.name}: ${message}`)
+    return
+  }
+  noteClosedProject(project, message)
+  useWorkspace.setState({ connection: 'disconnected', connectionError: null })
 }
