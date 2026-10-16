@@ -1,0 +1,22 @@
+[
+  {
+    "file": "page-light-1280x860.png",
+    "state": null,
+    "size": "1280x860",
+    "zoom": 1,
+    "group": "light",
+    "animationWaitMs": 38,
+    "issues": [],
+    "lint": []
+  },
+  {
+    "file": "page-light-800x700.png",
+    "state": null,
+    "size": "800x700",
+    "zoom": 1,
+    "group": "light",
+    "animationWaitMs": 0,
+    "issues": [],
+    "lint": []
+  }
+]

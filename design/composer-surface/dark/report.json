@@ -1,0 +1,32 @@
+[
+  {
+    "file": "page-focused.png",
+    "state": null,
+    "size": "1280x860",
+    "zoom": 1,
+    "group": "focused",
+    "animationWaitMs": 0,
+    "issues": [],
+    "lint": []
+  },
+  {
+    "file": "page-rest.png",
+    "state": null,
+    "size": "1280x860",
+    "zoom": 1,
+    "group": "rest",
+    "animationWaitMs": 0,
+    "issues": [],
+    "lint": []
+  },
+  {
+    "file": "page-thread.png",
+    "state": null,
+    "size": "1280x860",
+    "zoom": 1,
+    "group": "thread",
+    "animationWaitMs": 0,
+    "issues": [],
+    "lint": []
+  }
+]

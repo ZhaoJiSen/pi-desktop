@@ -17,29 +17,36 @@
   position: relative;
   width: calc(100% - 2 * var(--body-inset));
   max-width: var(--chat-width);
-  margin: 22px auto;
+  // Room above the well for the status line, which sits clear of the surface.
+  margin: 32px auto 22px;
   min-height: 100px;
   flex: none;
-  border: 1px solid var(--frame);
+  border: 0;
   border-radius: 20px;
-  background: var(--paper);
+  background: var(--composer-fill);
+  box-shadow: var(--composer-shadow);
   padding: 16px 16px 12px;
   display: flex;
   flex-direction: column;
+  transition:
+    background-color 150ms ease,
+    box-shadow 150ms ease;
 }
-.composer:focus-within {
-  border-color: #a9b2c0;
+.composer:hover,
+.composer:has(.draft-editor:focus) {
+  background: var(--composer-fill-hover);
+  box-shadow: var(--composer-shadow-hover);
 }
 .metadata {
   position: absolute;
-  top: 0;
-  transform: translateY(-50%);
+  top: -8px;
   right: 24px;
+  transform: translateY(-100%);
   display: flex;
   align-items: center;
   gap: 7px;
-  padding: 0 6px;
-  background: var(--paper);
+  padding: 0;
+  background: none;
   font-size: 12px;
   line-height: 18px;
   white-space: nowrap;
@@ -114,7 +121,7 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: var(--hover);
+  background: var(--composer-control);
   color: var(--ink);
 }
 .composer .button.attach svg {
@@ -140,7 +147,7 @@
   color: var(--ink);
 }
 .button.attach:hover:not(:disabled, [data-disabled='true']) {
-  background: color-mix(in srgb, var(--ink) 10%, var(--hover));
+  background: var(--composer-control-hover);
   color: var(--ink);
 }
 .model-trigger {
@@ -403,6 +410,7 @@
   margin: 6px 0 10px;
 }
 @media (prefers-reduced-motion: reduce) {
+  .composer,
   .command-tag {
     transition: none;
   }

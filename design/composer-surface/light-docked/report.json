@@ -1,0 +1,23 @@
+[
+  {
+    "file": "page-docked-@2x.png",
+    "state": null,
+    "size": "1280x860",
+    "zoom": 2,
+    "group": "docked",
+    "animationWaitMs": 246,
+    "issues": [],
+    "lint": [
+      {
+        "rule": "contrastLow",
+        "label": "文字对比度不达标（正文低于 4.5:1，大字低于 3:1）",
+        "count": 3,
+        "examples": [
+          "span.token.function「useMemo」（4.44:1）",
+          "span.token.function「filterModels」（4.44:1）",
+          "span.token.class-name「SearchInput」（4.44:1）"
+        ]
+      }
+    ]
+  }
+]
