@@ -53,31 +53,23 @@ export function EnvironmentStatus({
             <code>{environment.executable}</code>
             {diagnosis?.kind === 'ready' && (
               <>
-                <p className="pi-environment-note">
-                  {t(
-                    diagnosis.compatibility === 'verified'
-                      ? 'piEnvironment.verified'
-                      : 'piEnvironment.unverified',
-                  )}
-                </p>
+                {diagnosis.compatibility === 'verified' && (
+                  <p className="pi-environment-note">{t('piEnvironment.verified')}</p>
+                )}
                 {diagnosis.pathRecovered && (
                   <p className="pi-environment-note">{t('piEnvironment.pathRecovered')}</p>
                 )}
-                <p className="pi-environment-note">
-                  {t(
-                    diagnosis.authentication === 'missing'
-                      ? 'piEnvironment.authMissing'
-                      : 'piEnvironment.authReady',
-                  )}
-                </p>
                 {diagnosis.authentication === 'missing' && (
-                  <a
-                    href="https://pi.dev/docs/latest/quickstart#3-choose-a-model"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {t('piEnvironment.authHelp')} ↗
-                  </a>
+                  <>
+                    <p className="pi-environment-note">{t('piEnvironment.authMissing')}</p>
+                    <a
+                      href="https://pi.dev/docs/latest/quickstart#3-choose-a-model"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {t('piEnvironment.authHelp')} ↗
+                    </a>
+                  </>
                 )}
               </>
             )}

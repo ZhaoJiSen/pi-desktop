@@ -11,7 +11,7 @@ import {
   ToggleButtonGroup,
 } from '@heroui/react'
 import { Check, Monitor, Moon, RotateCcw, Sun } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useWorkspace } from '../store/workspace'
 import { useT } from '../lib/i18n'
 import { connectSession } from '../lib/desktop'
@@ -37,6 +37,10 @@ export function SettingsPage() {
   const storageError = useWorkspace((state) => state.storageError)
   const [path, setPath] = useState(executable)
   const [saved, setSaved] = useState(false)
+  const pathTouched = useRef(false)
+  useEffect(() => {
+    if (!pathTouched.current) setPath(executable)
+  }, [executable])
   const t = useT()
   const busy = Boolean(running) || connection === 'connecting'
   async function save() {
@@ -180,6 +184,7 @@ export function SettingsPage() {
               fullWidth
               value={path}
               onChange={(value) => {
+                pathTouched.current = true
                 setPath(value)
                 setSaved(false)
               }}

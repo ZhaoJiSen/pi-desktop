@@ -21,6 +21,12 @@ export function useOnboarding(onEnter: (connect: boolean) => void) {
   const [update, setUpdate] = useState<PiUpdate | null>(null)
   const [step, setStep] = useState(0)
   const [path, setPath] = useState(executable)
+  // Persist restores the saved executable after the first paint. Follow it
+  // until the user edits the field, so the default command name does not stick.
+  const pathTouched = useRef(false)
+  useEffect(() => {
+    if (!pathTouched.current) setPath(executable)
+  }, [executable])
   const [environment, setEnvironment] = useState<PiEnvironment | null>(null)
   const [diagnosis, setDiagnosis] = useState<PiDiagnosis | null>(null)
   const [installBusy, setInstallBusy] = useState(false)
@@ -66,6 +72,10 @@ export function useOnboarding(onEnter: (connect: boolean) => void) {
       if (!lifecycleRef.current.alive || request !== generation.current) return
       acceptDiagnosis(report)
       const result = report.kind === 'ready' ? report.environment : null
+      if (report.environment?.executable) {
+        pathTouched.current = true
+        setPath(report.environment.executable)
+      }
       if (!result) return
       void checkPiUpdate(result.executable)
         .then((available) => {
@@ -114,6 +124,7 @@ export function useOnboarding(onEnter: (connect: boolean) => void) {
     }
   }
   function changePath(value: string) {
+    pathTouched.current = true
     generation.current++
     setChecking(false)
     setPath(value)
@@ -126,6 +137,7 @@ export function useOnboarding(onEnter: (connect: boolean) => void) {
     const request = ++generation.current
     acceptDiagnosis(report)
     if (report.environment) {
+      pathTouched.current = true
       setPath(report.environment.executable)
       void checkPiUpdate(report.environment.executable)
         .then((available) => {

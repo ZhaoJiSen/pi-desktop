@@ -391,6 +391,37 @@ describe('setup guide', () => {
     expect(container.textContent).not.toContain('Pi CLI is ready')
     expect(input.value).toBe('/new/pi')
   })
+  it('shows the executable resolved by the check instead of the command name', async () => {
+    await mount()
+    await click('Continue')
+    expect(container.querySelector('input')?.value).toBe('/bin/pi')
+  })
+  it('uses the saved executable after workspace state is restored', async () => {
+    const saved = '/Users/me/.nvm/versions/node/v24.18.0/bin/pi'
+    mocks.check.mockResolvedValue({
+      ...readyReport(),
+      environment: { ...readyReport().environment, executable: saved },
+    })
+    await mount()
+    await act(async () => useWorkspace.setState({ piExecutable: saved }))
+    await click('Continue')
+    expect(mocks.check).toHaveBeenCalledWith(saved)
+    expect(container.querySelector('input')?.value).toBe(saved)
+  })
+  it('keeps a path the user edited when the saved executable arrives later', async () => {
+    await mount()
+    await click('Continue')
+    const input = container.querySelector('input')!
+    await act(async () => {
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(
+        input,
+        '/typed/pi',
+      )
+      input.dispatchEvent(new Event('input', { bubbles: true }))
+    })
+    await act(async () => useWorkspace.setState({ piExecutable: '/restored/pi' }))
+    expect(input.value).toBe('/typed/pi')
+  })
   it('can close a reopened guide without changing its existing configuration', async () => {
     useWorkspace.setState({ onboardingCompleted: true, piExecutable: '/existing/pi' })
     await mount()
@@ -493,7 +524,8 @@ describe('environment diagnosis and confirmed installation', () => {
     expect(container.textContent).not.toContain('RPC check passed')
     mocks.check.mockResolvedValue(readyReport('1.2.0', 'missing'))
     await click('Check environment')
-    expect(container.textContent).toContain('not been fully verified')
+    expect(container.textContent).not.toContain('not been fully verified')
+    expect(container.textContent).not.toContain('Model credentials are available')
     expect(container.textContent).toContain('No model credentials')
     await click('Continue')
     expect(container.textContent).toContain('Start with your project')

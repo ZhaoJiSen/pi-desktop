@@ -63,14 +63,10 @@ export const en = {
   'piEnvironment.pathRecovered':
     'Pi was found outside the app’s inherited PATH. Its full path will be used.',
   'piEnvironment.verified': 'Verified compatibility: Pi 1.0.0 · RPC check passed',
-  'piEnvironment.unverified':
-    'This version has not been fully verified. The read-only RPC check passed; the tested baseline is Pi 1.0.0.',
   'piEnvironment.unsupported':
     'Pi 1.0.0 or newer is required. Upgrade with the original installer or package manager.',
   'piEnvironment.authMissing':
     'No model credentials are available. Run Pi in your terminal and use /login, or configure a local model, then check again. You can continue setup now.',
-  'piEnvironment.authReady':
-    'Model credentials are available. This check does not contact a model provider or validate the credentials online.',
   'piEnvironment.authHelp': 'Model and authentication setup',
   'piInstall.title': 'Install Pi CLI',
   'piInstall.intro':

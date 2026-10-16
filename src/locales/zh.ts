@@ -57,12 +57,9 @@ export const zh = {
   'piEnvironment.useDiscovered': '使用检测到的 Pi',
   'piEnvironment.pathRecovered': '已在应用的 PATH 之外找到 Pi，将使用它的完整路径连接。',
   'piEnvironment.verified': '兼容性已验证：Pi 1.0.0 · RPC 检查通过',
-  'piEnvironment.unverified':
-    '此版本尚未完整验证。只读 RPC 检查已通过，经过测试的基线为 Pi 1.0.0。',
   'piEnvironment.unsupported': '需要 Pi 1.0.0 或更高版本。请使用原安装方式或包管理器升级。',
   'piEnvironment.authMissing':
     '尚无可用的模型认证。请在终端运行 Pi，使用 /login 登录，或配置本地模型后重新检测。也可以先继续完成引导。',
-  'piEnvironment.authReady': '已有可用的模型认证。本次检查不会连接模型服务，也不会在线验证凭证。',
   'piEnvironment.authHelp': '模型与认证设置说明',
   'piInstall.title': '安装 Pi CLI',
   'piInstall.intro': '从官方 npm 包安装经过验证的 Pi 1.0.0，使用 Pi Desktop 独立目录。',
