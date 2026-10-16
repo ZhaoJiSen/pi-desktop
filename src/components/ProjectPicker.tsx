@@ -7,6 +7,7 @@ import { projectPath } from '../lib/projectPaths'
 import { errorText } from '../lib/utils'
 import { navigateToPage } from '../router/navigation'
 import { isDesktop, useWorkspace } from '../store/workspace'
+import { isRecentProject } from '../lib/recentProject'
 import { repositoryUrl } from '../lib/repositories'
 import { CloneRepositoryDialog } from './CloneRepositoryDialog'
 
@@ -17,7 +18,9 @@ export function ProjectPicker({
   onBrowse: () => void
   isDisabled: boolean
 }) {
-  const projects = useWorkspace((state) => state.projects)
+  const projects = useWorkspace((state) => state.projects).filter(
+    (project) => !isRecentProject(project),
+  )
   const sessions = useWorkspace((state) => state.sessions)
   const updating = useWorkspace((state) => state.piUpdating)
   const [open, setOpen] = useState(false)

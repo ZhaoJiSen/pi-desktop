@@ -14,6 +14,7 @@ import type {
 import { createPreviewSessions, makeSession, previewModels, previewProjects } from '../lib/fixtures'
 import { applyStreamEvent } from '../lib/rpc'
 import { draftText, normalizeDraft } from '../lib/draft'
+import { isRecentProject, RECENT_PROJECT_ID } from '../lib/recentProject'
 import {
   browserLanguage,
   languageFromLocale,
@@ -28,6 +29,7 @@ interface WorkspaceState {
   activeSessionId: string | null
   recentModels: string[]
   sidebarOpen: boolean
+  recentCollapsed: boolean
   theme: Theme
   palette: Palette
   language: Language
@@ -53,11 +55,13 @@ interface WorkspaceState {
   completeOnboarding: () => void
   applySystemLocale: (locale: string | null) => void
   toggleSidebar: () => void
+  toggleRecentCollapsed: () => void
   toggleProject: (id: string) => void
   togglePinProject: (id: string) => void
   renameProject: (id: string, name: string) => void
   removeProject: (id: string) => void
   addProject: (path: string, branch?: string | null) => string
+  ensureRecentProject: (path: string) => string
   createSession: (projectId: string) => string
   selectSession: (id: string) => void
   togglePinSession: (id: string) => void
@@ -106,6 +110,7 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
         activeSessionId: preview ? 'model-selector' : null,
         recentModels: preview ? ['anthropic/claude-sonnet'] : [],
         sidebarOpen: true,
+        recentCollapsed: false,
         autoReloadAfterUpdate: true,
         autoReloadAfterToggle: true,
         theme: 'system',
@@ -135,19 +140,23 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
           if (get().languageSource === 'system') set({ language: languageFromLocale(locale) })
         },
         toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
+        toggleRecentCollapsed: () => set((state) => ({ recentCollapsed: !state.recentCollapsed })),
         toggleProject: (id) =>
           set((state) => ({
             projects: state.projects.map((project) =>
               project.id === id ? { ...project, collapsed: !project.collapsed } : project,
             ),
           })),
-        togglePinProject: (id) =>
+        togglePinProject: (id) => {
+          if (isRecentProject(get().projects.find((project) => project.id === id))) return
           set((state) => ({
             projects: state.projects.map((project) =>
               project.id === id ? { ...project, pinned: !project.pinned } : project,
             ),
-          })),
+          }))
+        },
         renameProject: (id, name) => {
+          if (isRecentProject(get().projects.find((project) => project.id === id))) return
           const normalized = name.trim()
           if (!normalized) return
           set((state) => ({
@@ -156,19 +165,76 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
             ),
           }))
         },
-        removeProject: (id) =>
+        removeProject: (id) => {
+          if (isRecentProject(get().projects.find((project) => project.id === id))) return
           set((state) => ({
             projects: state.projects.map((project) =>
               project.id === id ? { ...project, hidden: true, pinned: false } : project,
             ),
-          })),
+          }))
+        },
+        ensureRecentProject: (path) => {
+          const state = get()
+          const builtin = state.projects.find((project) => isRecentProject(project))
+          const samePath = state.projects.find(
+            (project) => project.path === path && project.id !== builtin?.id,
+          )
+          const asRecent = {
+            builtin: 'recent' as const,
+            hidden: false,
+            pinned: false,
+            branch: null,
+            collapsed: false,
+          }
+          if (builtin && samePath) {
+            set({
+              projects: state.projects
+                .filter((project) => project.id !== samePath.id)
+                .map((project) =>
+                  project.id === builtin.id ? { ...project, ...asRecent, path } : project,
+                ),
+              sessions: state.sessions.map((session) =>
+                session.projectId === samePath.id ? { ...session, projectId: builtin.id } : session,
+              ),
+            })
+            return builtin.id
+          }
+          if (builtin) {
+            set({
+              projects: state.projects.map((project) =>
+                project.id === builtin.id ? { ...project, ...asRecent, path } : project,
+              ),
+            })
+            return builtin.id
+          }
+          if (samePath) {
+            set({
+              projects: state.projects.map((project) =>
+                project.id === samePath.id ? { ...project, ...asRecent, path } : project,
+              ),
+            })
+            return samePath.id
+          }
+          set({
+            projects: [
+              ...state.projects,
+              { id: RECENT_PROJECT_ID, name: 'Recent', path, ...asRecent },
+            ],
+          })
+          return RECENT_PROJECT_ID
+        },
         addProject: (path, branch = null) => {
           const existing = get().projects.find((project) => project.path === path)
           if (existing) {
             set((state) => ({
               projects: state.projects.map((project) =>
                 project.id === existing.id
-                  ? { ...project, hidden: false, collapsed: false }
+                  ? {
+                      ...project,
+                      hidden: false,
+                      collapsed: false,
+                      ...(isRecentProject(project) ? { branch: null } : {}),
+                    }
                   : project,
               ),
             }))
@@ -285,6 +351,7 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
           activeSessionId: state.activeSessionId,
           recentModels: state.recentModels,
           sidebarOpen: state.sidebarOpen,
+          recentCollapsed: state.recentCollapsed,
           theme: state.theme,
           palette: state.palette,
           language: state.language,

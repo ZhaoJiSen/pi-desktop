@@ -7,6 +7,7 @@ import { runtimeState, type PiConnection } from './desktop/runtimeState'
 import { normalizeMessages, normalizeUsage } from './rpc'
 import { errorText, modelKey } from './utils'
 import { t } from './i18n'
+import { projectTitle } from './recent'
 
 export interface PiUpdate {
   executable: string
@@ -120,7 +121,7 @@ async function restoreConnections(runs: PiConnection[], active: string | null) {
           throw new Error(useWorkspace.getState().connectionError || t('connection.failed'))
       } else await warmProject(project, true)
     } catch (error) {
-      failures.push(`${project.name}: ${errorText(error)}`)
+      failures.push(`${projectTitle(project)}: ${errorText(error)}`)
     }
   }
   // The selected session may have lost its process before the update started.

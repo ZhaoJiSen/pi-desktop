@@ -137,6 +137,32 @@ describe('opening projects', () => {
     expect(mocks.open).not.toHaveBeenCalled()
   })
 
+  it('opens the default workspace as Recent instead of adding a folder', async () => {
+    mocks.invoke.mockImplementation(async (command: string, args?: { path?: string }) => {
+      if (command === 'default_workspace') return '/home/user/Pi Desktop'
+      return { path: args?.path, branch: 'main' }
+    })
+    const id = await openProject('/home/user/Pi Desktop')
+    expect(id).toBe('recent')
+    expect(useWorkspace.getState().projects).toEqual([
+      expect.objectContaining({
+        id: 'recent',
+        builtin: 'recent',
+        path: '/home/user/Pi Desktop',
+        branch: null,
+      }),
+    ])
+    const folder = await openProject('/tmp/app')
+    expect(folder).not.toBe('recent')
+    expect(useWorkspace.getState().projects).toHaveLength(2)
+    expect(useWorkspace.getState().projects.find((project) => project.id === folder)).toMatchObject(
+      {
+        path: '/tmp/app',
+        branch: 'main',
+      },
+    )
+  })
+
   it('rechecks locks after inspecting a folder', async () => {
     mocks.invoke.mockImplementation(async () => {
       useWorkspace.setState({ runningSessionId: 'busy' })

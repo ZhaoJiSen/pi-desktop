@@ -197,6 +197,7 @@ export const zh = {
   'projects.removeTitle': '移除这个项目？',
   'projects.removeDescription': '从侧栏隐藏此项目，保留文件和会话。重新打开文件夹即可恢复。',
   'projects.emptyTitle': '没有项目',
+  'projects.recentChats': '最近',
   'projects.rename': '重命名项目',
   'projects.menu.conversations': '会话',
   'projects.menu.manage': '项目管理',

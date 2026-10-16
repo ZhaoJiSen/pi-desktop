@@ -3,6 +3,7 @@ import type { ExtensionPackage, Project, RpcState, RuntimeEvent } from '../../ty
 import { isDesktop, useWorkspace } from '../../store/workspace'
 import { t } from '../i18n'
 import { reportActionNotice } from '../notices'
+import { projectTitle } from '../recent'
 import { errorText } from '../utils'
 import { handleEvent } from './events'
 import { activateSession, warmProject } from './connections'
@@ -17,8 +18,8 @@ function isClosedProjectDirectory(message: string | null | undefined) {
   )
 }
 
-function noteClosedProject(project: Pick<Project, 'id' | 'name'>, message: string) {
-  reportActionNotice(`${project.name}: ${message}`)
+function noteClosedProject(project: Pick<Project, 'id' | 'name' | 'builtin'>, message: string) {
+  reportActionNotice(`${projectTitle(project)}: ${message}`)
 }
 
 export async function syncDesktopLanguage() {
@@ -133,7 +134,7 @@ async function prepareDesktop() {
       if (exited) continue
       // Do not kill a potentially running task when attaching or reading state fails.
       // A retry discovers the pool again, including processes that exited meanwhile.
-      throw new Error(`${project.name}: ${errorText(error)}`, { cause: error })
+      throw new Error(`${projectTitle(project)}: ${errorText(error)}`, { cause: error })
     }
   }
   store = useWorkspace.getState()
@@ -159,7 +160,7 @@ async function prepareDesktop() {
       } catch (error) {
         const message = errorText(error)
         if (isClosedProjectDirectory(message)) noteClosedProject(project, message)
-        else failures.push(`${project.name}: ${message}`)
+        else failures.push(`${projectTitle(project)}: ${message}`)
       }
       continue
     }
@@ -178,14 +179,14 @@ async function prepareDesktop() {
 }
 
 function recordProjectFailure(
-  project: Pick<Project, 'id' | 'name'>,
+  project: Pick<Project, 'id' | 'name' | 'builtin'>,
   failures: string[],
 ) {
   const state = useWorkspace.getState()
   if (state.connection !== 'error') return
   const message = state.connectionError || t('connection.failed')
   if (!isClosedProjectDirectory(message)) {
-    failures.push(`${project.name}: ${message}`)
+    failures.push(`${projectTitle(project)}: ${message}`)
     return
   }
   noteClosedProject(project, message)

@@ -31,7 +31,8 @@ export function ProjectRow({ project, count }: { project: Project; count: number
   const t = useT()
   function newSession() {
     const store = useWorkspace.getState()
-    if (!store.runningSessionId && store.connection !== 'connecting') createChat(project.id)
+    if (store.runningSessionId || store.connection === 'connecting') return
+    createChat(project.id)
   }
   return (
     <>
@@ -145,7 +146,7 @@ export function ProjectRow({ project, count }: { project: Project; count: number
             type="button"
             className="sidebar-action"
             aria-label={t('projects.createSessionFor', { project: project.name })}
-            onClick={newSession}
+            onClick={() => void newSession()}
             disabled={locked}
           >
             <SquarePen />

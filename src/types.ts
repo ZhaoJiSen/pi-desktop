@@ -29,6 +29,7 @@ export interface Project {
   collapsed: boolean
   pinned?: boolean
   hidden?: boolean
+  builtin?: 'recent'
 }
 
 export interface Usage {

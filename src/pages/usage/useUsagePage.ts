@@ -1,4 +1,6 @@
 import { useRef, useState } from 'react'
+import { useT } from '../../lib/i18n'
+import { isRecentProject } from '../../lib/recentProject'
 import { useWorkspace } from '../../store/workspace'
 import type { Session } from '../../types'
 import { parts, hasUsage, hasActivity } from './usageData'
@@ -33,7 +35,13 @@ export function useUsagePage() {
       // Keep the notice dismissed for this visit if storage is unavailable.
     }
   }
-  const projectNames = new Map(projects.map((item) => [item.id, item.name]))
+  const t = useT()
+  const projectNames = new Map(
+    projects.map((item) => [
+      item.id,
+      isRecentProject(item) ? t('projects.recentChats') : item.name,
+    ]),
+  )
   const projectName = (item: Session) => projectNames.get(item.projectId) || item.projectId || '—'
   const effectiveProject = projectNames.has(project) ? project : 'all'
   const search = query.trim().toLocaleLowerCase()
@@ -68,9 +76,12 @@ export function useUsagePage() {
     return (ascending ? 1 : -1) * (a.usage[sort] - b.usage[sort]) || b.updatedAt - a.updatedAt
   })
   const partTotal = parts.reduce((sum, key) => sum + total[key], 0)
-  const availableProjects = projects.filter((item) =>
-    sessions.some((entry) => entry.projectId === item.id && hasActivity(entry)),
-  )
+  const availableProjects = projects
+    .filter((item) => sessions.some((entry) => entry.projectId === item.id && hasActivity(entry)))
+    .map((item) => ({
+      ...item,
+      name: isRecentProject(item) ? t('projects.recentChats') : item.name,
+    }))
   const activeProject = availableProjects.find((item) => item.id === project)
   const filtered = effectiveProject !== 'all' || Boolean(search)
   const known = recorded.length > 0

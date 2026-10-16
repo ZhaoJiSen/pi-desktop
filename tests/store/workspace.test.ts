@@ -467,3 +467,59 @@ describe('language-independent session titles', () => {
     expect(JSON.parse(storage.getItem('pi-desktop-workspace-v1')!).version).toBe(2)
   })
 })
+
+describe('recent chats', () => {
+  it('keeps Recent resident and refuses folder management', () => {
+    const store = createWorkspaceStore(memoryStorage())
+    store.getState().toggleRecentCollapsed()
+    expect(store.getState().recentCollapsed).toBe(true)
+    const id = store.getState().ensureRecentProject('/home/user/Pi Desktop')
+    expect(id).toBe('recent')
+    expect(store.getState().projects).toEqual([
+      expect.objectContaining({
+        id: 'recent',
+        builtin: 'recent',
+        path: '/home/user/Pi Desktop',
+        branch: null,
+        collapsed: false,
+        hidden: false,
+      }),
+    ])
+    store.getState().renameProject(id, 'Pi Desktop')
+    store.getState().togglePinProject(id)
+    store.getState().removeProject(id)
+    expect(store.getState().projects[0]).toMatchObject({
+      name: 'Recent',
+      builtin: 'recent',
+      pinned: false,
+      hidden: false,
+    })
+    const session = store.getState().createSession(id)
+    expect(store.getState().sessions[0].projectId).toBe(id)
+    expect(store.getState().ensureRecentProject('/home/user/Pi Desktop')).toBe(id)
+    expect(store.getState().projects).toHaveLength(1)
+    expect(store.getState().activeSessionId).toBe(session)
+  })
+
+  it('folds the default workspace folder into Recent and leaves other folders alone', () => {
+    const store = createWorkspaceStore(memoryStorage())
+    const home = store.getState().addProject('/home/user/Pi Desktop', 'main')
+    const chat = store.getState().createSession(home)
+    store.getState().togglePinProject(home)
+    const other = store.getState().addProject('/tmp/app')
+    expect(store.getState().ensureRecentProject('/home/user/Pi Desktop')).toBe(home)
+    expect(store.getState().projects).toHaveLength(2)
+    expect(store.getState().projects.find((project) => project.id === home)).toMatchObject({
+      builtin: 'recent',
+      pinned: false,
+      branch: null,
+    })
+    expect(
+      store.getState().projects.find((project) => project.id === other)?.builtin,
+    ).toBeUndefined()
+    expect(store.getState().sessions.find((session) => session.id === chat)?.projectId).toBe(home)
+    store.getState().removeProject(other)
+    expect(store.getState().projects.find((project) => project.id === other)?.hidden).toBe(true)
+    expect(store.getState().projects.find((project) => project.id === home)?.hidden).toBe(false)
+  })
+})

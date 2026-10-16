@@ -16,6 +16,8 @@ import { ConnectionNotice } from '../components/ConnectionNotice'
 import { RuntimeNotice } from '../components/RuntimeNotice'
 import { StartupScreen } from '../components/StartupScreen'
 import { onExtensionRequest, pickProject } from '../lib/desktop'
+import { openRecentProject } from '../lib/recent'
+import { folderForNewChat } from '../lib/recentProject'
 import { useT } from '../lib/i18n'
 import { reportActionNotice } from '../lib/notices'
 import { isDesktop, useWorkspace } from '../store/workspace'
@@ -69,13 +71,19 @@ export function WorkspaceLayout() {
       reportActionNotice(error)
     }
   }
-  function newChat() {
+  async function newChat() {
     const store = useWorkspace.getState()
     if (store.piUpdating || store.runningSessionId || store.connection === 'connecting') return
-    const current = store.sessions.find((session) => session.id === store.activeSessionId)
-    const projectId = current?.projectId || store.projects.find((project) => !project.hidden)?.id
-    if (projectId) createChat(projectId)
-    else void addProject()
+    const folderId = folderForNewChat(store)
+    if (folderId) {
+      createChat(folderId)
+      return
+    }
+    try {
+      createChat(await openRecentProject())
+    } catch (error) {
+      reportActionNotice(error)
+    }
   }
   useKeyPress(['meta.n', 'ctrl.n'], (event) => {
     event.preventDefault()

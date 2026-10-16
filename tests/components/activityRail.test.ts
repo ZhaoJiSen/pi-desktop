@@ -23,7 +23,12 @@ vi.mock('motion/react', async () => {
     }: Record<string, unknown>) =>
       createElement(tag, props)
   return {
-    motion: { nav: element('nav'), span: element('span') },
+    motion: {
+      nav: element('nav'),
+      span: element('span'),
+      section: element('section'),
+      div: element('div'),
+    },
     AnimatePresence: ({ children }: { children: import('react').ReactNode }) =>
       createElement(Fragment, null, children),
   }
@@ -66,6 +71,17 @@ describe('activity rail', () => {
     )
     expect(container.querySelector('.sidebar-title')?.textContent).toBe('Pi Desktop')
     expect(container.querySelector('.sidebar-chrome')?.textContent).not.toContain('主页')
+    const recent = container.querySelector('.recent-section')
+    const recentLabel = recent?.querySelector('.recent-toggle')
+    expect(recentLabel?.firstElementChild?.textContent).toBe('最近')
+    expect(recentLabel?.firstElementChild?.tagName).toBe('SPAN')
+    const headings = [...container.querySelectorAll('.projects-toggle')].map(
+      (toggle) => toggle.querySelector('span')?.textContent,
+    )
+    expect(headings).toEqual(['最近', '项目'])
+    expect(container.querySelector('.project .folder-name')?.textContent).not.toBe('最近')
+    expect(container.querySelector('.projects-empty')?.textContent).toBe('没有项目')
+    expect(container.querySelector('.recent-section .projects-empty')).toBeNull()
     await click('搜索')
     expect(search).toHaveBeenCalledTimes(1)
     expect(mocks.navigate).not.toHaveBeenCalled()

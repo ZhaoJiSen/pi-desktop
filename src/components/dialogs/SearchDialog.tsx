@@ -2,6 +2,7 @@ import { Button, Modal } from '@heroui/react'
 import { useState } from 'react'
 import { useWorkspace } from '../../store/workspace'
 import { useT } from '../../lib/i18n'
+import { isRecentProject } from '../../lib/recentProject'
 import { selectChat } from '../../router/navigation'
 import { Search, MessageSquare, ChevronRight } from 'lucide-react'
 import { useDebounce } from 'ahooks'
@@ -16,6 +17,11 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
     (state) => Boolean(state.runningSessionId) || state.connection === 'connecting',
   )
   const t = useT()
+  const projectLabel = (projectId: string) => {
+    const project = projects.find((item) => item.id === projectId)
+    if (!project) return null
+    return isRecentProject(project) ? t('projects.recentChats') : project.name
+  }
   const results = sessions
     .filter((session) =>
       `${session.title || t('sessions.new')} ${session.messages.map((message) => messageText(message.blocks)).join(' ')}`
@@ -67,9 +73,7 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
                   <MessageSquare />
                   <span>
                     <span>{session.title || t('sessions.new')}</span>
-                    <small>
-                      {projects.find((project) => project.id === session.projectId)?.name}
-                    </small>
+                    <small>{projectLabel(session.projectId)}</small>
                   </span>
                   <ChevronRight />
                 </Button>

@@ -13,6 +13,7 @@ import { DraftEditor } from './composer/DraftEditor'
 import { useComposerCommands } from './composer/useComposerCommands'
 import { planDraft, sessionDraft } from '../lib/draft'
 import { draftProblemMessage } from '../lib/draftMessages'
+import { isRecentProject } from '../lib/recentProject'
 import { navigateToPage } from '../router/navigation'
 
 const thinkingLabel = {
@@ -125,7 +126,7 @@ function SessionComposer() {
       }}
     >
       <div className="metadata" aria-label={t('composer.status')}>
-        {project?.branch && (
+        {project?.branch && !isRecentProject(project) && (
           <>
             <GitBranch />
             <span className="value">{project.branch}</span>

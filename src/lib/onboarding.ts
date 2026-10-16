@@ -2,6 +2,7 @@ import { Channel, invoke } from '@tauri-apps/api/core'
 import { open } from '@tauri-apps/plugin-dialog'
 import { isDesktop, useWorkspace } from '../store/workspace'
 import { t } from './i18n'
+import { openRecentProject } from './recent'
 
 export interface PiEnvironment {
   executable: string
@@ -95,10 +96,13 @@ export async function onboardingDefaultPath(): Promise<string> {
 // the guide reuses a project's existing session rather than creating duplicates.
 export async function prepareOnboardingWorkspace(project: OnboardingProject | null) {
   if (!isDesktop) return
-  const path = project?.path ?? (await invoke<string>('default_workspace', { create: true }))
-  const inspected = await invoke<OnboardingProject>('inspect_project', { path })
+  let projectId: string
+  if (!project) projectId = await openRecentProject()
+  else {
+    const inspected = await invoke<OnboardingProject>('inspect_project', { path: project.path })
+    projectId = useWorkspace.getState().addProject(inspected.path, inspected.branch)
+  }
   const store = useWorkspace.getState()
-  const projectId = store.addProject(inspected.path, inspected.branch)
   const existing = store.sessions.find((session) => session.projectId === projectId)
   if (existing) store.selectSession(existing.id)
   else store.createSession(projectId)

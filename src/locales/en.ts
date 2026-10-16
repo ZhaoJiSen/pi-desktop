@@ -223,6 +223,7 @@ export const en = {
   'projects.removeDescription':
     'Hide this project from the sidebar. Your files and conversations are kept. Open the folder again to bring it back.',
   'projects.emptyTitle': 'No projects',
+  'projects.recentChats': 'Recent',
   'projects.rename': 'Rename project',
   'projects.menu.conversations': 'Conversations',
   'projects.menu.manage': 'Project management',

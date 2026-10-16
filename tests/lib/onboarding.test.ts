@@ -92,6 +92,15 @@ describe('onboarding native boundary', () => {
       ['inspect_project', { path: '/home/user/Pi Desktop' }],
     ])
     expect(useWorkspace.getState().sessions).toHaveLength(1)
+    expect(useWorkspace.getState().projects).toEqual([
+      expect.objectContaining({
+        builtin: 'recent',
+        path: '/home/user/Pi Desktop',
+        branch: null,
+      }),
+    ])
+    await prepareOnboardingWorkspace(null)
+    expect(useWorkspace.getState().sessions).toHaveLength(1)
   })
   it('leaves state untouched after filesystem failure', async () => {
     mocks.invoke.mockRejectedValue(new Error('Permission denied'))
