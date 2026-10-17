@@ -21,6 +21,15 @@ export function PackageUpdateSummary({
   updateAll,
 }: Props) {
   const t = useT()
+  const onlyRepeatsEmpty =
+    !checking &&
+    busy !== 'batch' &&
+    updates === 0 &&
+    checked &&
+    checkSummary.status === 'empty' &&
+    Object.keys(checkErrors).length === 0 &&
+    unknown === 0
+  if (onlyRepeatsEmpty) return null
   const progressLabel = t('packages.updateProgress', {
     done: batchDone,
     total: Object.keys(batchStates).length,
@@ -42,9 +51,7 @@ export function PackageUpdateSummary({
               t('packages.checkNoneSucceeded')
             ) : checkSummary.status === 'unavailable' ? (
               t('packages.checkUnavailable')
-            ) : checkSummary.status === 'empty' ? (
-              t('packages.noPackages')
-            ) : (
+            ) : checkSummary.status === 'empty' ? null : (
               t('packages.checkCurrent')
             )
           ) : (

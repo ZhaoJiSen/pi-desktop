@@ -98,6 +98,11 @@ export function WorkspaceLayout() {
     if (!onboardingOpen && startup === 'ready' && !updating && !piUpdate.update)
       useWorkspace.getState().toggleSidebar()
   })
+  useKeyPress(['meta.comma', 'ctrl.comma'], (event) => {
+    event.preventDefault()
+    if (!onboardingOpen && startup === 'ready' && !updating && !piUpdate.update)
+      void navigateToPage('settings')
+  })
   const extensionDialog = extensionRequests[0] && (
     <ExtensionDialog
       key={extensionRequests[0].id}
@@ -168,10 +173,6 @@ export function WorkspaceLayout() {
             }
           >
             <section className="main" aria-label={t('sessions.current')}>
-              {view !== 'chat' &&
-                view !== 'extensions' &&
-                view !== 'commands' &&
-                view !== 'usage' && <Header onRename={() => setRenameId(active)} />}
               {view !== 'chat' && <ConnectionNotice utility />}
               <WorkspaceActionsContext.Provider value={{ onProject: () => void addProject() }}>
                 <Outlet />

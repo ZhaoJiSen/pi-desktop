@@ -13,6 +13,7 @@
     background: var(--sidebar);
   }
 
+  // The session list meets the conversation on this line only.
   &[data-split-active='true'] > :first-child {
     border-right: 1px solid var(--line);
   }
