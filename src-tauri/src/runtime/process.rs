@@ -32,8 +32,11 @@ impl PiProcess {
         let executable = crate::onboarding::resolve_executable(&executable, &home)?;
         let path = crate::onboarding::executable_path(&executable, &home);
         let mut command = Command::new(executable);
+        let bridge = super::bridge::extension_path(&home)?;
         command
             .args(["--mode", "rpc", "--offline"])
+            .arg("--extension")
+            .arg(bridge)
             .env("PATH", path)
             .current_dir(&cwd)
             .stdin(Stdio::piped())

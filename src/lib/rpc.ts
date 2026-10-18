@@ -1,3 +1,4 @@
+import { normalizeCapabilityIcon } from './capabilities/icons'
 import type { DiffLine, Message, MessageBlock, PiEvent, ToolBlock, Usage } from '../types'
 import { emptyUsage } from './fixtures'
 import { fileName, list, number, record, string } from './utils'
@@ -77,6 +78,14 @@ export function normalizeMessage(value: unknown, id: string = crypto.randomUUID(
     role: raw.role,
     timestamp: number(raw.timestamp) || Date.now(),
     blocks,
+    ...(typeof record(raw.capabilityLabel).name === 'string'
+      ? {
+          capabilityLabel: {
+            name: String(record(raw.capabilityLabel).name),
+            icon: normalizeCapabilityIcon(record(raw.capabilityLabel).icon),
+          },
+        }
+      : {}),
     ...(raw.errorMessage ? { error: string(raw.errorMessage) } : {}),
   }
 }

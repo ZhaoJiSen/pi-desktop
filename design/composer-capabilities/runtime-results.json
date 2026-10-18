@@ -1,0 +1,65 @@
+[
+  {
+    "round": 1,
+    "passed": true,
+    "version": "1.3.0",
+    "modelRequests": 5,
+    "receipts": 4,
+    "cases": [
+      "plan tool blocking",
+      "plugin blocking",
+      "resume",
+      "new session",
+      "switch back",
+      "restore tools",
+      "hidden context",
+      "once context cleanup",
+      "request deduplication",
+      "native template expansion",
+      "origin validation",
+      "consumed command receipt"
+    ]
+  },
+  {
+    "round": 2,
+    "passed": true,
+    "version": "1.3.0",
+    "modelRequests": 5,
+    "receipts": 4,
+    "cases": [
+      "plan tool blocking",
+      "plugin blocking",
+      "resume",
+      "new session",
+      "switch back",
+      "restore tools",
+      "hidden context",
+      "once context cleanup",
+      "request deduplication",
+      "native template expansion",
+      "origin validation",
+      "consumed command receipt"
+    ]
+  },
+  {
+    "round": 3,
+    "passed": true,
+    "version": "1.3.0",
+    "modelRequests": 5,
+    "receipts": 4,
+    "cases": [
+      "plan tool blocking",
+      "plugin blocking",
+      "resume",
+      "new session",
+      "switch back",
+      "restore tools",
+      "hidden context",
+      "once context cleanup",
+      "request deduplication",
+      "native template expansion",
+      "origin validation",
+      "consumed command receipt"
+    ]
+  }
+]

@@ -1,5 +1,6 @@
 //! Process pool and the runtime interface used by Tauri commands.
 
+mod bridge;
 mod process;
 pub(crate) use process::runtime_path;
 mod rpc;

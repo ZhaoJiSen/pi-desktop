@@ -1270,12 +1270,16 @@ describe('desktop prompt lifecycle', () => {
       const store = useWorkspace.getState()
       const next = store.createSession(store.projects[0].id)
       let fail = true
+      let acceptedThinking = 'medium'
       mocks.invoke.mockImplementation(async (name, args) => {
         if (name !== 'pi_request') return []
         if (args.command.type === failedCommand && fail) {
           fail = false
           throw new Error('Transient failure')
         }
+        if (args.command.type === 'set_thinking_level') acceptedThinking = args.command.level
+        if (args.command.type === 'get_state')
+          return { ...metadata(args.command), thinkingLevel: acceptedThinking }
         return metadata(args.command)
       })
       await connectSession(next)

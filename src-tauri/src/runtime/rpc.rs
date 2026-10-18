@@ -27,6 +27,7 @@ fn command_allowed(command: &Value) -> bool {
         command.get("type").and_then(Value::as_str),
         Some(
             "prompt"
+                | "desktop_bridge"
                 | "new_session"
                 | "switch_session"
                 | "abort"
@@ -71,7 +72,20 @@ pub(super) fn request(
             .insert(id.clone(), sender);
     }
     // command is passed as structured JSON; no shell interpolation is used.
-    command["id"] = json!(id);
+    if command.get("type").and_then(Value::as_str) == Some("desktop_bridge") {
+        let mut call = command
+            .get("call")
+            .cloned()
+            .ok_or_else(|| "Missing bridge call".to_owned())?;
+        call["id"] = json!(id);
+        call["version"] = json!(1);
+        command = json!({
+            "id": format!("bridge-transport-{id}"), "type": "prompt",
+            "message": format!("/desktop-bridge {}", serde_json::to_string(&call).map_err(|e| e.to_string())?)
+        });
+    } else {
+        command["id"] = json!(id);
+    }
     let write_result = (|| -> Result<(), String> {
         let mut writer = stdin.lock().map_err(lock_error)?;
         serde_json::to_writer(&mut *writer, &command).map_err(|e| e.to_string())?;
@@ -108,7 +122,18 @@ pub(super) fn spawn_stdout_reader(
             match reader.read_until(b'\n', &mut bytes) {
                 Ok(0) | Err(_) => break,
                 Ok(_) => {
-                    if let Ok(event) = serde_json::from_slice::<Value>(&bytes) {
+                    if let Ok(mut event) = serde_json::from_slice::<Value>(&bytes) {
+                        // Pi reserves stdout for RPC. The bundled extension replies
+                        // over the public notify transport, then we correlate it here.
+                        if event["type"] == "extension_ui_request" && event["method"] == "notify" {
+                            if let Some(message) = event["message"].as_str() {
+                                if let Ok(reply) = serde_json::from_str::<Value>(message) {
+                                    if reply["protocol"] == "pi-desktop-bridge-v1" {
+                                        event = reply;
+                                    }
+                                }
+                            }
+                        }
                         if event.get("type").and_then(Value::as_str) == Some("response") {
                             let id = event.get("id").and_then(Value::as_str).unwrap_or_default();
                             if let Ok(mut waiting) = replies.lock() {

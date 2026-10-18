@@ -14,6 +14,7 @@ import { errorText, modelKey } from '../utils'
 import { handleEvent } from './events'
 import { requestConnection, syncSession } from './requests'
 import { runtimeState, type PiConnection } from './runtimeState'
+import { refreshCapabilityBridge } from '../capabilities/bridge'
 
 export async function connectSession(sessionId: string, force = false): Promise<void> {
   if (useWorkspace.getState().piUpdating) return
@@ -134,6 +135,8 @@ export async function activateSession(
     connection: 'connecting',
     connectionAction: reuse ? 'switch' : 'start',
     connectionError: null,
+    capabilityBridge: null,
+    capabilityBridgeError: '',
   })
   const operation = (async () => {
     let replacing = false
@@ -225,6 +228,13 @@ export async function activateSession(
       runtimeState.currentRun.packages = packages
       runtimeState.projectConnections.set(project.path, runtimeState.currentRun)
       useWorkspace.setState({ models: catalog.models, commands: commands.commands, packages })
+      const bridge = await refreshCapabilityBridge(true)
+      if (bridge) {
+        const current = useWorkspace.getState().sessions.find((item) => item.id === sessionId)
+        store.updateSession(sessionId, {
+          capabilities: { ...current?.capabilities, mode: bridge.mode },
+        })
+      }
       const selected = catalog.models.find((model) => modelKey(model) === session.modelKey)
       if (
         !state.isStreaming &&

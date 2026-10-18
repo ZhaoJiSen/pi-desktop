@@ -3,9 +3,10 @@ import { navigateToPage } from '../router/navigation'
 import { request } from './desktop'
 import { isDesktop, useWorkspace } from '../store/workspace'
 import type { SlashCommand } from '../types'
-import { createCommandTag, sessionDraft } from './draft'
+import { createCommandTag, sessionDraft, commandOrigin } from './draft'
 
 export interface DiscoverableCommand extends Omit<SlashCommand, 'source'> {
+  capabilityId?: string
   source: SlashCommand['source'] | 'builtin'
   argumentHint?: string
 }
@@ -18,6 +19,14 @@ export function commandCapability(command: DiscoverableCommand) {
 }
 export function commandSource(command: DiscoverableCommand) {
   return command.sourceInfo?.source || command.sourceInfo?.path || ''
+}
+export function desktopCommandId(command: DiscoverableCommand) {
+  return `${command.source}:${command.name}:${commandOrigin(command)}`
+}
+export function desktopCommandEnabled(command: DiscoverableCommand) {
+  return !useWorkspace
+    .getState()
+    .capabilityPreferences.disabledCommandIds?.includes(desktopCommandId(command))
 }
 const builtinCache = new Map<string, Promise<DiscoverableCommand[]>>()
 export function loadBuiltinCommands(executable: string): Promise<DiscoverableCommand[]> {
@@ -64,7 +73,10 @@ export async function discoverCommands(): Promise<DiscoverableCommand[]> {
   )
     return []
   useWorkspace.setState({ commands: runtime.commands })
-  return [...builtin, ...runtime.commands]
+  return [
+    ...builtin,
+    ...runtime.commands.filter((command) => !command.name.startsWith('desktop-bridge')),
+  ]
 }
 export function insertCommand(command: DiscoverableCommand) {
   if (commandCapability(command) !== 'insert') return false

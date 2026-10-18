@@ -5,6 +5,8 @@ import { t } from '../i18n'
 import { normalizeMessages, normalizeUsage } from '../rpc'
 import { modelKey } from '../utils'
 import { runtimeState } from './runtimeState'
+import { refreshCapabilityBridge } from '../capabilities/bridge'
+import { applyCapabilityReceipts } from '../capabilities/presentation'
 
 export async function request<T>(command: Record<string, unknown>): Promise<T> {
   const run = runtimeState.currentRun
@@ -58,9 +60,22 @@ export async function syncSession(sessionId: string) {
     run.bindingVersion !== bindingVersion
   )
     return
+  const bridge = await refreshCapabilityBridge(true)
+  if (runtimeState.currentRun !== run || run.bindingVersion !== bindingVersion) return
+  const current = useWorkspace.getState().sessions.find((session) => session.id === sessionId)
   useWorkspace.getState().updateSession(sessionId, {
     piSessionFile: state.sessionFile,
-    messages: normalizeMessages(data.messages),
+    messages:
+      !bridge && current?.pendingCapabilitySend
+        ? current.messages
+        : normalizeMessages(
+            applyCapabilityReceipts(
+              data.messages,
+              bridge?.receipts || current?.capabilityReceipts || [],
+            ),
+          ),
+    ...(bridge ? { capabilityReceipts: bridge.receipts } : {}),
+    ...(bridge ? { capabilities: { ...current?.capabilities, mode: bridge.mode } } : {}),
     usage: normalizeUsage(stats),
     modelKey: state.model ? modelKey(state.model) : '',
     thinking: state.thinkingLevel,

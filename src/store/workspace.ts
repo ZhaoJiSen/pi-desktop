@@ -22,6 +22,7 @@ import type {
 import { createPreviewSessions, makeSession, previewModels, previewProjects } from '../lib/fixtures'
 import { applyStreamEvent } from '../lib/rpc'
 import { draftText, normalizeDraft } from '../lib/draft'
+import type { CapabilityPreferences, CapabilityBridgeState } from '../lib/capabilities/types'
 import { isRecentProject, RECENT_PROJECT_ID } from '../lib/recentProject'
 import {
   browserLanguage,
@@ -31,7 +32,20 @@ import {
   type Language,
 } from '../lib/locale'
 
+export type SettingsSectionId =
+  | 'general'
+  | 'appearance'
+  | 'shortcuts'
+  | 'capabilities'
+  | 'extensions'
+  | 'connection'
+
 interface WorkspaceState {
+  commandCapabilityId: string | null
+  settingsSection: SettingsSectionId
+  capabilityPreferences: CapabilityPreferences
+  capabilityBridge: CapabilityBridgeState | null
+  capabilityBridgeError: string
   projects: Project[]
   sessions: Session[]
   activeSessionId: string | null
@@ -46,7 +60,10 @@ interface WorkspaceState {
   languageSource: 'system' | 'user'
   autoReloadAfterToggle: boolean
   autoReloadAfterUpdate: boolean
+  wrapLines: boolean
   piExecutable: string
+  lastCustomPiExecutable: string
+  extensionSelection: { key: string | null; category: '' | 'skill' } | null
   piUpdating: boolean
   piBusyRuns: string[]
   models: Model[]
@@ -89,8 +106,11 @@ interface WorkspaceState {
         | 'accentOverrides'
         | 'language'
         | 'piExecutable'
+        | 'lastCustomPiExecutable'
         | 'autoReloadAfterUpdate'
         | 'autoReloadAfterToggle'
+        | 'wrapLines'
+        | 'capabilityPreferences'
       >
     >,
   ) => void
@@ -117,6 +137,11 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
   const store = create<WorkspaceState>()(
     persist(
       (set, get) => ({
+        settingsSection: 'general',
+        commandCapabilityId: null,
+        capabilityPreferences: { showShortcuts: true, visibleCount: 2, items: [] },
+        capabilityBridge: null,
+        capabilityBridgeError: '',
         projects: preview ? structuredClone(previewProjects) : [],
         sessions: preview ? createPreviewSessions() : [],
         activeSessionId: preview ? 'model-selector' : null,
@@ -125,6 +150,7 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
         recentCollapsed: false,
         autoReloadAfterUpdate: true,
         autoReloadAfterToggle: true,
+        wrapLines: false,
         theme: 'system',
         palette: 'ink',
         palettesByMode: { light: 'ink', dark: 'ink' },
@@ -132,6 +158,8 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
         language: browserLanguage(),
         languageSource: 'system',
         piExecutable: 'pi',
+        lastCustomPiExecutable: '',
+        extensionSelection: null,
         piUpdating: false,
         piBusyRuns: [],
         models: preview ? previewModels : [],
@@ -385,9 +413,12 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
           language: state.language,
           languageSource: state.languageSource,
           piExecutable: state.piExecutable,
+          lastCustomPiExecutable: state.lastCustomPiExecutable,
           autoReloadAfterUpdate: state.autoReloadAfterUpdate,
           autoReloadAfterToggle: state.autoReloadAfterToggle,
+          wrapLines: state.wrapLines,
           onboardingCompleted: state.onboardingCompleted,
+          capabilityPreferences: state.capabilityPreferences,
         }),
         migrate: (persisted, version) => {
           const saved = persisted as Partial<WorkspaceState>
@@ -419,6 +450,7 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
           return {
             ...current,
             ...saved,
+            capabilityPreferences: saved?.capabilityPreferences || current.capabilityPreferences,
             palette:
               palettesByMode[resolveColorMode(saved?.theme ?? current.theme, systemIsDark())],
             palettesByMode,

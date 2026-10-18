@@ -76,6 +76,7 @@ export interface Message {
   timestamp: number
   error?: string
   attachments?: string[]
+  capabilityLabel?: { name: string; icon: import('./lib/capabilities/types').CapabilityIcon }
 }
 export interface Attachment {
   id: string
@@ -85,6 +86,9 @@ export interface Attachment {
   kind: 'image' | 'text'
 }
 export interface Session {
+  capabilities?: import('./lib/capabilities/types').CapabilitySelection
+  pendingCapabilitySend?: import('./lib/capabilities/types').CapabilitySubmission
+  capabilityReceipts?: import('./lib/capabilities/types').CapabilityReceipt[]
   id: string
   projectId: string
   title: string
