@@ -1,78 +1,424 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Command center</title></head><body><div id="root"></div><script type="module">
-const params=new URLSearchParams(location.search), prefix='command-center-refinement:'+(params.get('seed')||'default')+':'
-Object.defineProperty(window,'localStorage',{value:{getItem:key=>sessionStorage.getItem(prefix+key),setItem:(key,value)=>{if(storageFail)throw new Error('Storage full');sessionStorage.setItem(prefix+key,value)},removeItem:key=>sessionStorage.removeItem(prefix+key)}})
-if(params.get('reduced')==='1'){const original=window.matchMedia.bind(window);window.matchMedia=query=>query.includes('prefers-reduced-motion')?{matches:true,media:query,addListener(){},removeListener(){},addEventListener(){},removeEventListener(){}}:original(query)}
-document.body.dataset.motionReduced=String(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
-let storageFail=false,fail=false,modeFail=false,timeout=false,ledger=JSON.parse(sessionStorage.getItem(prefix+'ledger')||'[]'),raw=JSON.parse(sessionStorage.getItem(prefix+'raw')||'[]'),mode=JSON.parse(sessionStorage.getItem(prefix+'mode')||'null'),prepared,log=[]
-const commands=[{name:'desktop-bridge',source:'extension',description:'Pi Desktop capability transport v1',sourceInfo:{path:'/fixture/desktop-bridge.mjs'}},{name:'review-loop',source:'prompt',description:'Review and fix in bounded rounds',sourceInfo:{path:'/fixture/prompts/review-loop.md'}},{name:'consume',source:'extension',description:'Run a plugin action',sourceInfo:{path:'/fixture/plugin.js'}}]
-commands.push({name:'skill:api-design',source:'skill',description:'Design and review API contracts',sourceInfo:{path:'/fixture/.pi/skills/api-design/SKILL.md'}})
-commands.push({name:'skill:security-review',source:'skill',description:'Security-focused review of changed code',sourceInfo:{path:'/fixture/node_modules/pi-review-tools/skills/security-review/SKILL.md',source:'npm:pi-review-tools',scope:'global'}})
-let liveCommands=commands
-if(params.get('many')==='1')for(let i=0;i<144;i++)commands.push({name:'workflow-'+i,source:'prompt',description:['Review API compatibility and response contracts','Explain database query performance','Check accessibility in changed views'][i%3],sourceInfo:{path:'/fixture/node_modules/'+['pi-review-tools','pi-database','pi-ui-tools'][i%3]+'/prompts/workflow-'+i+'.md'}})
-const model={id:'grok-4.7',provider:'xai',name:'Grok 4.7',reasoning:true,contextWindow:200000}
-const state=()=>({version:1,mode,plan:mode?.builtin==='plan',tools:mode?.builtin==='plan'?['read']:['read','write','bash'],receipts:ledger})
-const persist=()=>{sessionStorage.setItem(prefix+'ledger',JSON.stringify(ledger));sessionStorage.setItem(prefix+'raw',JSON.stringify(raw));sessionStorage.setItem(prefix+'mode',JSON.stringify(mode))}
-window.__TAURI_INTERNALS__={invoke:async(name,args)=>{
- if(name==='builtin_commands')return [{name:'model',source:'builtin',description:'Choose a model'},{name:'thinking',source:'builtin',description:'Set thinking effort'},{name:'compact',source:'builtin',description:'Compact the conversation'},{name:'login',source:'builtin',description:'Sign in to a provider'}]
- if(name!=='pi_request')throw new Error('Unexpected fixture IPC '+name)
- const c=args.command;log.push(c);document.body.dataset.requests=JSON.stringify(log)
- if(c.type==='desktop_bridge'){
-  const call=c.call
-  if(call.op==='mode'){await new Promise(r=>setTimeout(r,120));if(modeFail)throw new Error('Mode could not be changed');mode=call.mode;persist();return state()}
-  if(call.op==='prepare'){
-   if(ledger.some(r=>r.id===call.submission.id))return {...state(),accepted:true}
-   if(mode?.builtin==='plan'&&(call.submission.task?.modifies||call.submission.task?.target))throw new Error('capability.planConflict')
-   prepared=call.submission;return state()
-  }
-  if(call.op==='cancel'){prepared=null;return state()}
-  if(call.op==='finish')return state()
-  return state()
- }
- if(c.type==='prompt'){
-  await new Promise(r=>setTimeout(r,100))
-  if(fail)throw new Error('Fixture send failure')
-  const timestamp=Date.now();raw.push({role:'user',timestamp,content:c.message.startsWith('/review-loop')?'EXPANDED_PLUGIN_PROMPT':c.message})
-  if(prepared){ledger.push({id:prepared.id,body:prepared.body,timestamp,sourceTimestamp:timestamp,userIndex:raw.filter(m=>m.role==='user').length-1,selection:{mode:prepared.mode,task:prepared.task}});prepared=null}
-  raw.push({role:'assistant',timestamp:timestamp+2,content:'The requested check is complete.'});persist()
-  if(timeout)throw new Error('Request timeout')
-  setTimeout(()=>{handleEvent({runId:'fixture-run',event:{type:'agent_settled'}})},80)
-  return {disposition:'started'}
- }
- if(c.type==='get_commands')return {commands:liveCommands}
- if(c.type==='get_messages')return {messages:raw}
- if(c.type==='get_state')return {model,thinkingLevel:'medium',sessionFile:'/fixture/session.jsonl',isStreaming:false}
- if(c.type==='get_session_stats')return {tokens:{},cost:0}
- if(c.type==='get_available_thinking_levels')return {levels:['low','medium','high','xhigh']}
- return undefined
-}}
-const {useWorkspace}=await import('/src/store/workspace.ts'),{createPreviewSessions,previewProjects}=await import('/src/lib/fixtures.ts'),{runtimeState}=await import('/src/lib/desktop/runtimeState.ts'),{handleEvent}=await import('/src/lib/desktop/events.ts')
-const installedPackages=[{source:'npm:pi-review-tools',scope:'global',version:'1.0.0',enabled:true}]
-const packageChecks=[],packageActions=[]
-const session=useWorkspace.getState().sessions[0]||createPreviewSessions()[0]
-session.modelKey='xai/grok-4.7';session.messages=[];session.capabilities={...session.capabilities,mode:mode||undefined}
-useWorkspace.setState({projects:previewProjects,sessions:[session],activeSessionId:session.id,models:[model],commands,capabilityBridge:state(),capabilityBridgeError:'',connection:'connected',runningSessionId:null,onboardingOpen:false,settingsSection:params.get('section')||'general',language:params.get('lang')||'en',theme:params.get('theme')||'dark',palette:'nord'})
-if(params.get('custom')==='1'&&!sessionStorage.getItem(prefix+'customSeeded')){useWorkspace.setState({piExecutable:'/fixture/bin/pi',lastCustomPiExecutable:''});sessionStorage.setItem(prefix+'customSeeded','1')}
-useWorkspace.setState({packages:installedPackages})
-runtimeState.currentRun={id:'fixture-run',sessionId:session.id,bindingVersion:0,path:'/fixture',executable:'pi',packages:[]}
-const {syncSession}=await import('/src/lib/desktop/requests.ts');await syncSession(session.id)
-if(params.get('nosession')==='1')useWorkspace.setState({activeSessionId:null,connection:'disconnected'})
-document.addEventListener('keydown',e=>{document.body.dataset.lastKey=e.key;if(e.key==='F9'){e.preventDefault();fail=true}if(e.key==='F10'){e.preventDefault();fail=false;modeFail=false;timeout=false;storageFail=false;liveCommands=commands;useWorkspace.setState({commands,connection:'connected'})}if(e.key==='F8'){e.preventDefault();storageFail=true}if(e.key==='F7'){e.preventDefault();modeFail=true}if(e.key==='F6'){e.preventDefault();timeout=true}if(e.key==='F5'){e.preventDefault();liveCommands=commands.filter(c=>c.name!=='review-loop');useWorkspace.setState({commands:liveCommands})}if(e.key==='F3'){e.preventDefault();liveCommands=[...commands,{name:'review-loop',source:'extension',description:'A different review command',sourceInfo:{path:'/fixture/node_modules/other-plugin/index.js'}}];useWorkspace.setState({commands:liveCommands});document.body.dataset.conflict='added'}if(e.key==='F2'){e.preventDefault();useWorkspace.setState({connection:'disconnected'})}if(e.key==='F4'){e.preventDefault();useWorkspace.setState({commands:commands.filter(c=>c.name!=='desktop-bridge')});void syncSession(session.id)}})
-await import('/src/styles/vendor.css');await import('/src/styles/index.scss')
-const {createRoot}=await import('react-dom/client'),{createElement:h,useState,useEffect}=await import('react'),{Composer}=await import('/src/components/Composer.tsx'),{Conversation}=await import('/src/components/Conversation.tsx'),{SettingsPage}=await import('/src/pages/SettingsPage.tsx'),{CommandsPage}=await import('/src/pages/CommandsPage.tsx'),{SidebarWidthProvider}=await import('/src/layouts/SidebarLayout.tsx'),{ConnectionNotice}=await import('/src/components/ConnectionNotice.tsx'),{Button}=await import('@heroui/react')
-document.documentElement.dataset.theme=params.get('theme')||'dark';document.documentElement.dataset.palette='nord'
-const style=document.createElement('style');style.textContent='body{margin:0;background:var(--sidebar);color:var(--ink);font-family:var(--font-sans,system-ui)}.fixture-nav{display:flex;gap:8px;padding:12px 28px}.fixture-main{width:min(1180px,calc(100% - 40px));height:calc(100dvh - 76px);margin:0 20px;background:var(--paper);border-radius:18px;padding:24px;min-height:0}.fixture-chat{height:100%;display:flex;flex-direction:column}.fixture-chat .conversation-scroll{flex:1}.fixture-chat .composer{width:100%;margin:16px auto}.fixture-main:has(.settings-workspace){padding:0}.settings-workspace,.commands-view{height:100%}.fixture-main:has(.commands-view){padding:0}.fixture-main:has(.packages-view){padding:0}.packages-view{height:100%}';document.head.append(style)
-if(params.get('zoom')==='2')style.textContent+=':root{zoom:2}'
-if(params.has('width'))style.textContent+=`.fixture-main{width:${Number(params.get('width'))}px;padding:16px}`
-const {ExtensionsPage}=await import('/src/pages/ExtensionsPage.tsx'),{PackageServices}=await import('/src/components/extension-packages/services.ts')
-const packageMetadata=[{name:'pi-review-tools',version:'2.0.0',description:'Review tasks and security skills',author:'Maintainers',license:'MIT',resources:['skills'],newerThan:['1.0.0']}]
-const packageServices={
- discoverPackages:async()=>packageMetadata,browsePackages:async()=>({items:packageMetadata,hasNext:false}),
- packageInfo:async name=>{packageChecks.push(name);document.body.dataset.packageChecks=JSON.stringify(packageChecks);return packageMetadata.find(item=>item.name===name)},
- packageMetadata:async()=>packageMetadata,
- managePackage:async(action,item)=>{packageActions.push({action,source:item.source,scope:item.scope});document.body.dataset.packageActions=JSON.stringify(packageActions);if(action==='update')installedPackages[0].version='2.0.0'},
- refreshExtensionPackages:async()=>{useWorkspace.setState({packages:installedPackages.map(item=>({...item}))});return installedPackages},connectSession:async()=>{}
-}
-const {router}=await import('/src/router/index.ts')
-function App(){const [view,setView]=useState(params.get('view')||'chat');useEffect(()=>router.history.subscribe(()=>setView(router.history.location.pathname==='/settings'?'settings':router.history.location.pathname==='/commands'?'commands':router.history.location.pathname==='/extensions'?'extensions':'chat')),[]);return h(PackageServices.Provider,{value:packageServices},h(SidebarWidthProvider,null,h('main',null,h('nav',{className:'fixture-nav'},...['chat','settings','commands'].map(next=>h(Button,{key:next,variant:'ghost',onPress:()=>setView(next)},next))),h('section',{className:'fixture-main main'},view==='settings'?h(SettingsPage):view==='commands'?h(CommandsPage):view==='extensions'?h(ExtensionsPage):h('div',{className:'fixture-chat chat-page'},h(ConnectionNotice),h(Conversation,{onProject:()=>{}}),h(Composer)))))) }
-createRoot(document.getElementById('root')).render(h(App))
-</script></body></html>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Command center</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module">
+      const params = new URLSearchParams(location.search),
+        prefix = 'command-center-refinement:' + (params.get('seed') || 'default') + ':'
+      Object.defineProperty(window, 'localStorage', {
+        value: {
+          getItem: (key) => sessionStorage.getItem(prefix + key),
+          setItem: (key, value) => {
+            if (storageFail) throw new Error('Storage full')
+            sessionStorage.setItem(prefix + key, value)
+          },
+          removeItem: (key) => sessionStorage.removeItem(prefix + key),
+        },
+      })
+      if (params.get('reduced') === '1') {
+        const original = window.matchMedia.bind(window)
+        window.matchMedia = (query) =>
+          query.includes('prefers-reduced-motion')
+            ? {
+                matches: true,
+                media: query,
+                addListener() {},
+                removeListener() {},
+                addEventListener() {},
+                removeEventListener() {},
+              }
+            : original(query)
+      }
+      document.body.dataset.motionReduced = String(
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+      )
+      let storageFail = false,
+        fail = false,
+        modeFail = false,
+        timeout = false,
+        ledger = JSON.parse(sessionStorage.getItem(prefix + 'ledger') || '[]'),
+        raw = JSON.parse(sessionStorage.getItem(prefix + 'raw') || '[]'),
+        mode = JSON.parse(sessionStorage.getItem(prefix + 'mode') || 'null'),
+        prepared,
+        log = []
+      const commands = [
+        {
+          name: 'desktop-bridge',
+          source: 'extension',
+          description: 'Pi Desktop capability transport v1',
+          sourceInfo: { path: '/fixture/desktop-bridge.mjs' },
+        },
+        {
+          name: 'review-loop',
+          source: 'prompt',
+          description: 'Review and fix in bounded rounds',
+          sourceInfo: { path: '/fixture/prompts/review-loop.md' },
+        },
+        {
+          name: 'consume',
+          source: 'extension',
+          description: 'Run a plugin action',
+          sourceInfo: { path: '/fixture/plugin.js' },
+        },
+      ]
+      commands.push({
+        name: 'skill:api-design',
+        source: 'skill',
+        description: 'Design and review API contracts',
+        sourceInfo: { path: '/fixture/.pi/skills/api-design/SKILL.md' },
+      })
+      commands.push({
+        name: 'skill:security-review',
+        source: 'skill',
+        description: 'Security-focused review of changed code',
+        sourceInfo: {
+          path: '/fixture/node_modules/pi-review-tools/skills/security-review/SKILL.md',
+          source: 'npm:pi-review-tools',
+          scope: 'global',
+        },
+      })
+      let liveCommands = commands
+      if (params.get('many') === '1')
+        for (let i = 0; i < 144; i++)
+          commands.push({
+            name: 'workflow-' + i,
+            source: 'prompt',
+            description: [
+              'Review API compatibility and response contracts',
+              'Explain database query performance',
+              'Check accessibility in changed views',
+            ][i % 3],
+            sourceInfo: {
+              path:
+                '/fixture/node_modules/' +
+                ['pi-review-tools', 'pi-database', 'pi-ui-tools'][i % 3] +
+                '/prompts/workflow-' +
+                i +
+                '.md',
+            },
+          })
+      const model = {
+        id: 'grok-4.7',
+        provider: 'xai',
+        name: 'Grok 4.7',
+        reasoning: true,
+        contextWindow: 200000,
+      }
+      const state = () => ({
+        version: 1,
+        mode,
+        plan: mode?.builtin === 'plan',
+        tools: mode?.builtin === 'plan' ? ['read'] : ['read', 'write', 'bash'],
+        receipts: ledger,
+      })
+      const persist = () => {
+        sessionStorage.setItem(prefix + 'ledger', JSON.stringify(ledger))
+        sessionStorage.setItem(prefix + 'raw', JSON.stringify(raw))
+        sessionStorage.setItem(prefix + 'mode', JSON.stringify(mode))
+      }
+      window.__TAURI_INTERNALS__ = {
+        invoke: async (name, args) => {
+          if (name === 'builtin_commands')
+            return [
+              { name: 'model', source: 'builtin', description: 'Choose a model' },
+              { name: 'thinking', source: 'builtin', description: 'Set thinking effort' },
+              { name: 'compact', source: 'builtin', description: 'Compact the conversation' },
+              { name: 'login', source: 'builtin', description: 'Sign in to a provider' },
+            ]
+          if (name !== 'pi_request') throw new Error('Unexpected fixture IPC ' + name)
+          const c = args.command
+          log.push(c)
+          document.body.dataset.requests = JSON.stringify(log)
+          if (c.type === 'desktop_bridge') {
+            const call = c.call
+            if (call.op === 'mode') {
+              await new Promise((r) => setTimeout(r, 120))
+              if (modeFail) throw new Error('Mode could not be changed')
+              mode = call.mode
+              persist()
+              return state()
+            }
+            if (call.op === 'prepare') {
+              if (ledger.some((r) => r.id === call.submission.id))
+                return { ...state(), accepted: true }
+              if (
+                mode?.builtin === 'plan' &&
+                (call.submission.task?.modifies || call.submission.task?.target)
+              )
+                throw new Error('capability.planConflict')
+              prepared = call.submission
+              return state()
+            }
+            if (call.op === 'cancel') {
+              prepared = null
+              return state()
+            }
+            if (call.op === 'finish') return state()
+            return state()
+          }
+          if (c.type === 'prompt') {
+            await new Promise((r) => setTimeout(r, 100))
+            if (fail) throw new Error('Fixture send failure')
+            const timestamp = Date.now()
+            raw.push({
+              role: 'user',
+              timestamp,
+              content: c.message.startsWith('/review-loop') ? 'EXPANDED_PLUGIN_PROMPT' : c.message,
+            })
+            if (prepared) {
+              ledger.push({
+                id: prepared.id,
+                body: prepared.body,
+                timestamp,
+                sourceTimestamp: timestamp,
+                userIndex: raw.filter((m) => m.role === 'user').length - 1,
+                selection: { mode: prepared.mode, task: prepared.task },
+              })
+              prepared = null
+            }
+            raw.push({
+              role: 'assistant',
+              timestamp: timestamp + 2,
+              content: 'The requested check is complete.',
+            })
+            persist()
+            if (timeout) throw new Error('Request timeout')
+            setTimeout(() => {
+              handleEvent({ runId: 'fixture-run', event: { type: 'agent_settled' } })
+            }, 80)
+            return { disposition: 'started' }
+          }
+          if (c.type === 'get_commands') return { commands: liveCommands }
+          if (c.type === 'get_messages') return { messages: raw }
+          if (c.type === 'get_state')
+            return {
+              model,
+              thinkingLevel: 'medium',
+              sessionFile: '/fixture/session.jsonl',
+              isStreaming: false,
+            }
+          if (c.type === 'get_session_stats') return { tokens: {}, cost: 0 }
+          if (c.type === 'get_available_thinking_levels')
+            return { levels: ['low', 'medium', 'high', 'xhigh'] }
+          return undefined
+        },
+      }
+      const { useWorkspace } = await import('/src/store/workspace.ts'),
+        { createPreviewSessions, previewProjects } = await import('/src/lib/fixtures.ts'),
+        { runtimeState } = await import('/src/lib/desktop/runtimeState.ts'),
+        { handleEvent } = await import('/src/lib/desktop/events.ts')
+      const installedPackages = [
+        { source: 'npm:pi-review-tools', scope: 'global', version: '1.0.0', enabled: true },
+      ]
+      const packageChecks = [],
+        packageActions = []
+      const session = useWorkspace.getState().sessions[0] || createPreviewSessions()[0]
+      session.modelKey = 'xai/grok-4.7'
+      session.messages = []
+      session.capabilities = { ...session.capabilities, mode: mode || undefined }
+      useWorkspace.setState({
+        projects: previewProjects,
+        sessions: [session],
+        activeSessionId: session.id,
+        models: [model],
+        commands,
+        capabilityBridge: state(),
+        capabilityBridgeError: '',
+        connection: 'connected',
+        runningSessionId: null,
+        onboardingOpen: false,
+        settingsSection: params.get('section') || 'general',
+        language: params.get('lang') || 'en',
+        theme: params.get('theme') || 'dark',
+        palette: 'nord',
+      })
+      if (params.get('custom') === '1' && !sessionStorage.getItem(prefix + 'customSeeded')) {
+        useWorkspace.setState({ piExecutable: '/fixture/bin/pi', lastCustomPiExecutable: '' })
+        sessionStorage.setItem(prefix + 'customSeeded', '1')
+      }
+      useWorkspace.setState({ packages: installedPackages })
+      runtimeState.currentRun = {
+        id: 'fixture-run',
+        sessionId: session.id,
+        bindingVersion: 0,
+        path: '/fixture',
+        executable: 'pi',
+        packages: [],
+      }
+      const { syncSession } = await import('/src/lib/desktop/requests.ts')
+      await syncSession(session.id)
+      if (params.get('nosession') === '1')
+        useWorkspace.setState({ activeSessionId: null, connection: 'disconnected' })
+      document.addEventListener('keydown', (e) => {
+        document.body.dataset.lastKey = e.key
+        if (e.key === 'F9') {
+          e.preventDefault()
+          fail = true
+        }
+        if (e.key === 'F10') {
+          e.preventDefault()
+          fail = false
+          modeFail = false
+          timeout = false
+          storageFail = false
+          liveCommands = commands
+          useWorkspace.setState({ commands, connection: 'connected' })
+        }
+        if (e.key === 'F8') {
+          e.preventDefault()
+          storageFail = true
+        }
+        if (e.key === 'F7') {
+          e.preventDefault()
+          modeFail = true
+        }
+        if (e.key === 'F6') {
+          e.preventDefault()
+          timeout = true
+        }
+        if (e.key === 'F5') {
+          e.preventDefault()
+          liveCommands = commands.filter((c) => c.name !== 'review-loop')
+          useWorkspace.setState({ commands: liveCommands })
+        }
+        if (e.key === 'F3') {
+          e.preventDefault()
+          liveCommands = [
+            ...commands,
+            {
+              name: 'review-loop',
+              source: 'extension',
+              description: 'A different review command',
+              sourceInfo: { path: '/fixture/node_modules/other-plugin/index.js' },
+            },
+          ]
+          useWorkspace.setState({ commands: liveCommands })
+          document.body.dataset.conflict = 'added'
+        }
+        if (e.key === 'F2') {
+          e.preventDefault()
+          useWorkspace.setState({ connection: 'disconnected' })
+        }
+        if (e.key === 'F4') {
+          e.preventDefault()
+          useWorkspace.setState({ commands: commands.filter((c) => c.name !== 'desktop-bridge') })
+          void syncSession(session.id)
+        }
+      })
+      await import('/src/styles/vendor.css')
+      await import('/src/styles/index.scss')
+      const { createRoot } = await import('react-dom/client'),
+        { createElement: h, useState, useEffect } = await import('react'),
+        { Composer } = await import('/src/components/Composer.tsx'),
+        { Conversation } = await import('/src/components/Conversation.tsx'),
+        { SettingsPage } = await import('/src/pages/SettingsPage.tsx'),
+        { CommandsPage } = await import('/src/pages/CommandsPage.tsx'),
+        { SidebarWidthProvider } = await import('/src/layouts/SidebarLayout.tsx'),
+        { ConnectionNotice } = await import('/src/components/ConnectionNotice.tsx'),
+        { Button } = await import('@heroui/react')
+      document.documentElement.dataset.theme = params.get('theme') || 'dark'
+      document.documentElement.dataset.palette = 'nord'
+      const style = document.createElement('style')
+      style.textContent =
+        'body{margin:0;background:var(--sidebar);color:var(--ink);font-family:var(--font-sans,system-ui)}.fixture-nav{display:flex;gap:8px;padding:12px 28px}.fixture-main{width:min(1180px,calc(100% - 40px));height:calc(100dvh - 76px);margin:0 20px;background:var(--paper);border-radius:18px;padding:24px;min-height:0}.fixture-chat{height:100%;display:flex;flex-direction:column}.fixture-chat .conversation-scroll{flex:1}.fixture-chat .composer{width:100%;margin:16px auto}.fixture-main:has(.settings-workspace){padding:0}.settings-workspace,.commands-view{height:100%}.fixture-main:has(.commands-view){padding:0}.fixture-main:has(.packages-view){padding:0}.packages-view{height:100%}'
+      document.head.append(style)
+      if (params.get('zoom') === '2') style.textContent += ':root{zoom:2}'
+      if (params.has('width'))
+        style.textContent += `.fixture-main{width:${Number(params.get('width'))}px;padding:16px}`
+      const { ExtensionsPage } = await import('/src/pages/ExtensionsPage.tsx'),
+        { PackageServices } = await import('/src/components/extension-packages/services.ts')
+      const packageMetadata = [
+        {
+          name: 'pi-review-tools',
+          version: '2.0.0',
+          description: 'Review tasks and security skills',
+          author: 'Maintainers',
+          license: 'MIT',
+          resources: ['skills'],
+          newerThan: ['1.0.0'],
+        },
+      ]
+      const packageServices = {
+        discoverPackages: async () => packageMetadata,
+        browsePackages: async () => ({ items: packageMetadata, hasNext: false }),
+        packageInfo: async (name) => {
+          packageChecks.push(name)
+          document.body.dataset.packageChecks = JSON.stringify(packageChecks)
+          return packageMetadata.find((item) => item.name === name)
+        },
+        packageMetadata: async () => packageMetadata,
+        managePackage: async (action, item) => {
+          packageActions.push({ action, source: item.source, scope: item.scope })
+          document.body.dataset.packageActions = JSON.stringify(packageActions)
+          if (action === 'update') installedPackages[0].version = '2.0.0'
+        },
+        refreshExtensionPackages: async () => {
+          useWorkspace.setState({ packages: installedPackages.map((item) => ({ ...item })) })
+          return installedPackages
+        },
+        connectSession: async () => {},
+      }
+      const { router } = await import('/src/router/index.ts')
+      function App() {
+        const [view, setView] = useState(params.get('view') || 'chat')
+        useEffect(
+          () =>
+            router.history.subscribe(() =>
+              setView(
+                router.history.location.pathname === '/settings'
+                  ? 'settings'
+                  : router.history.location.pathname === '/commands'
+                    ? 'commands'
+                    : router.history.location.pathname === '/extensions'
+                      ? 'extensions'
+                      : 'chat',
+              ),
+            ),
+          [],
+        )
+        return h(
+          PackageServices.Provider,
+          { value: packageServices },
+          h(
+            SidebarWidthProvider,
+            null,
+            h(
+              'main',
+              null,
+              h(
+                'nav',
+                { className: 'fixture-nav' },
+                ...['chat', 'settings', 'commands'].map((next) =>
+                  h(Button, { key: next, variant: 'ghost', onPress: () => setView(next) }, next),
+                ),
+              ),
+              h(
+                'section',
+                { className: 'fixture-main main' },
+                view === 'settings'
+                  ? h(SettingsPage)
+                  : view === 'commands'
+                    ? h(CommandsPage)
+                    : view === 'extensions'
+                      ? h(ExtensionsPage)
+                      : h(
+                          'div',
+                          { className: 'fixture-chat chat-page' },
+                          h(ConnectionNotice),
+                          h(Conversation, { onProject: () => {} }),
+                          h(Composer),
+                        ),
+              ),
+            ),
+          ),
+        )
+      }
+      createRoot(document.getElementById('root')).render(h(App))
+    </script>
+  </body>
+</html>

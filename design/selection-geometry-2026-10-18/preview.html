@@ -1,28 +1,146 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Text selection</title><style>body{background:var(--paper)!important}main{max-width:790px;margin:auto;padding:32px 28px;height:100dvh;overflow:auto}.reply-text{width:100%}textarea{display:block;width:100%;padding:12px;background:var(--composer-fill);border:1px solid var(--line);border-radius:12px}</style></head><body><main id="root"></main><script type="module">
-const params=new URLSearchParams(location.search)
-const memory=new Map()
-Object.defineProperty(window,'localStorage',{value:{getItem:k=>memory.get(k)??null,setItem:(k,v)=>memory.set(k,v),removeItem:k=>memory.delete(k)}})
-const {createRoot}=await import('react-dom/client')
-const {createElement:h}=await import('react')
-const {ReplyContent}=await import('/src/components/conversation/ReplyContent.tsx')
-const {applyAppearance}=await import('/src/lib/appearance.ts')
-await import('/src/styles/vendor.css')
-await import('/src/styles/index.scss')
-applyAppearance(document.documentElement,params.get('theme')||'dark',params.get('palette')||'catppuccin',params.get('accent')||undefined)
-document.documentElement.style.zoom=params.get('zoom')||'1'
-const variant=params.get('variant')||'baseline'; const style=document.createElement('style'); style.textContent=({'inherit':'.reply-text :not(pre)>code{line-height:inherit}', 'pingfang':'.reply-text{font-family:"PingFang SC",-apple-system,sans-serif}', 'compact':'.reply-text p{line-height:1.5}.reply-text :not(pre)>code{line-height:inherit}', 'inline':'.reply-text :not(pre)>code{display:inline-block;line-height:1.4;vertical-align:baseline;padding:0 4px}', 'wrapped':'.reply-markdown p>span{line-height:normal}'}[variant]||''); document.head.append(style);
-const code=['from typing import Literal','','Role = Literal["tutor", "reviewer"]','','# 保留代码的语法层级','class Intro:','    def __init__(self) -> None:','        self.name = "pi"','        self.roles: tuple[Role, ...] = ("tutor", "reviewer")','        self.main_language = "go"','','    def describe(self) -> str:','        roles = " + ".join(self.roles)','        return f"{self.name}: {roles} ({self.main_language})"','','if __name__ == "__main__":','    print(Intro().describe())'].join('\n')
-const text='SQL，还不要把 PostgreSQL 接到这些路由上。工作区里已经有一段未提交的数据库 `ping`，但路由仍然不使用。\n\n## 仓库里的编程助手\n\n先读学习进度和仓库现状，再告诉你现在停在哪一步。可以先查看 `LEARNING.md`，再开始下一步。\n\n```python\n'+code+'\n```\n\n选择代码片段后，可以复制到编辑器中继续修改。'
-createRoot(document.getElementById('root')).render(h('section',{className:'reply-text'},h(ReplyContent,{text,streaming:params.get('streaming')==='true'}),h('textarea',{'aria-label':'输入消息',defaultValue:'先查看代码和项目现状，再给出下一步建议。'})))
-const controls=document.createElement('nav');controls.style.cssText='position:fixed;bottom:8px;right:8px;z-index:9;display:flex;gap:8px'; for(const [label,key] of [['选择正文','F9'],['选择代码','F10']]){const button=document.createElement('button');button.textContent=label;button.onclick=()=>document.dispatchEvent(new KeyboardEvent('keydown',{key}));controls.append(button)} document.body.append(controls);
-document.addEventListener('keydown',event=>{
- if(!['F9','F10','F11'].includes(event.key))return
- event.preventDefault()
- if(event.key==='F11'){const input=document.querySelector('textarea');input.focus();input.select();return}
- const element=document.querySelector(event.key==='F9'?'.reply-markdown p':'.markdown-code pre')
- if(!element)return; if(variant==='wrapped'&&!element.querySelector('[data-test-wrap]')){for(const node of [...element.childNodes]){if(node.nodeType===Node.TEXT_NODE){const span=document.createElement('span');span.dataset.testWrap='true';span.textContent=node.textContent;node.replaceWith(span)}}}
- const range=document.createRange();range.selectNodeContents(element)
- const selection=window.getSelection();selection.removeAllRanges();selection.addRange(range)
- element.scrollIntoView({block:'nearest'})
-})
-</script></body></html>
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Text selection</title>
+    <style>
+      body {
+        background: var(--paper) !important;
+      }
+      main {
+        max-width: 790px;
+        margin: auto;
+        padding: 32px 28px;
+        height: 100dvh;
+        overflow: auto;
+      }
+      .reply-text {
+        width: 100%;
+      }
+      textarea {
+        display: block;
+        width: 100%;
+        padding: 12px;
+        background: var(--composer-fill);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <main id="root"></main>
+    <script type="module">
+      const params = new URLSearchParams(location.search)
+      const memory = new Map()
+      Object.defineProperty(window, 'localStorage', {
+        value: {
+          getItem: (k) => memory.get(k) ?? null,
+          setItem: (k, v) => memory.set(k, v),
+          removeItem: (k) => memory.delete(k),
+        },
+      })
+      const { createRoot } = await import('react-dom/client')
+      const { createElement: h } = await import('react')
+      const { ReplyContent } = await import('/src/components/conversation/ReplyContent.tsx')
+      const { applyAppearance } = await import('/src/lib/appearance.ts')
+      await import('/src/styles/vendor.css')
+      await import('/src/styles/index.scss')
+      applyAppearance(
+        document.documentElement,
+        params.get('theme') || 'dark',
+        params.get('palette') || 'catppuccin',
+        params.get('accent') || undefined,
+      )
+      document.documentElement.style.zoom = params.get('zoom') || '1'
+      const variant = params.get('variant') || 'baseline'
+      const style = document.createElement('style')
+      style.textContent =
+        {
+          inherit: '.reply-text :not(pre)>code{line-height:inherit}',
+          pingfang: '.reply-text{font-family:"PingFang SC",-apple-system,sans-serif}',
+          compact: '.reply-text p{line-height:1.5}.reply-text :not(pre)>code{line-height:inherit}',
+          inline:
+            '.reply-text :not(pre)>code{display:inline-block;line-height:1.4;vertical-align:baseline;padding:0 4px}',
+          wrapped: '.reply-markdown p>span{line-height:normal}',
+        }[variant] || ''
+      document.head.append(style)
+      const code = [
+        'from typing import Literal',
+        '',
+        'Role = Literal["tutor", "reviewer"]',
+        '',
+        '# 保留代码的语法层级',
+        'class Intro:',
+        '    def __init__(self) -> None:',
+        '        self.name = "pi"',
+        '        self.roles: tuple[Role, ...] = ("tutor", "reviewer")',
+        '        self.main_language = "go"',
+        '',
+        '    def describe(self) -> str:',
+        '        roles = " + ".join(self.roles)',
+        '        return f"{self.name}: {roles} ({self.main_language})"',
+        '',
+        'if __name__ == "__main__":',
+        '    print(Intro().describe())',
+      ].join('\n')
+      const text =
+        'SQL，还不要把 PostgreSQL 接到这些路由上。工作区里已经有一段未提交的数据库 `ping`，但路由仍然不使用。\n\n## 仓库里的编程助手\n\n先读学习进度和仓库现状，再告诉你现在停在哪一步。可以先查看 `LEARNING.md`，再开始下一步。\n\n```python\n' +
+        code +
+        '\n```\n\n选择代码片段后，可以复制到编辑器中继续修改。'
+      createRoot(document.getElementById('root')).render(
+        h(
+          'section',
+          { className: 'reply-text' },
+          h(ReplyContent, { text, streaming: params.get('streaming') === 'true' }),
+          h('textarea', {
+            'aria-label': '输入消息',
+            defaultValue: '先查看代码和项目现状，再给出下一步建议。',
+          }),
+        ),
+      )
+      const controls = document.createElement('nav')
+      controls.style.cssText = 'position:fixed;bottom:8px;right:8px;z-index:9;display:flex;gap:8px'
+      for (const [label, key] of [
+        ['选择正文', 'F9'],
+        ['选择代码', 'F10'],
+      ]) {
+        const button = document.createElement('button')
+        button.textContent = label
+        button.onclick = () => document.dispatchEvent(new KeyboardEvent('keydown', { key }))
+        controls.append(button)
+      }
+      document.body.append(controls)
+      document.addEventListener('keydown', (event) => {
+        if (!['F9', 'F10', 'F11'].includes(event.key)) return
+        event.preventDefault()
+        if (event.key === 'F11') {
+          const input = document.querySelector('textarea')
+          input.focus()
+          input.select()
+          return
+        }
+        const element = document.querySelector(
+          event.key === 'F9' ? '.reply-markdown p' : '.markdown-code pre',
+        )
+        if (!element) return
+        if (variant === 'wrapped' && !element.querySelector('[data-test-wrap]')) {
+          for (const node of [...element.childNodes]) {
+            if (node.nodeType === Node.TEXT_NODE) {
+              const span = document.createElement('span')
+              span.dataset.testWrap = 'true'
+              span.textContent = node.textContent
+              node.replaceWith(span)
+            }
+          }
+        }
+        const range = document.createRange()
+        range.selectNodeContents(element)
+        const selection = window.getSelection()
+        selection.removeAllRanges()
+        selection.addRange(range)
+        element.scrollIntoView({ block: 'nearest' })
+      })
+    </script>
+  </body>
+</html>

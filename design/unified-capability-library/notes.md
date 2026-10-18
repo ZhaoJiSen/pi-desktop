@@ -9,6 +9,7 @@
 基线：用户本轮两张截图与 before.png。验证使用隔离 Pi 夹具，接入真实生产组件；不会调用真实模型或更改用户插件配置。
 
 研究依据（上一轮已读取）：
+
 - https://cursor.com/docs/customize-cursor
 - https://code.claude.com/docs/en/skills
 - https://manual.raycast.com/settings

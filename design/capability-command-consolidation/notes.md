@@ -12,12 +12,13 @@
 ## 参考与证据边界
 
 查阅官方资料：
+
 - [Cursor 桌面发布记录](https://prod.cursor.com/docs/release-notes/ide)：设置侧栏固定、末尾项目可访问；用于确认固定导航/独立滚动方向。
 - [Cursor 设置说明](https://prod.cursor.com/help/security-and-privacy/privacy)：从侧栏 General 分类访问设置。
 - [Claude 外观设置](https://support.claude.com/en/articles/8887527-customizing-your-appearance-settings)：按设置分类组织偏好。
 - [Claude 桌面安装及扩展](https://support.claude.com/en/articles/10065433-install-claude-desktop)：设置提供 Extensions 统一入口。
 - [Codex 设置](https://learn.chatgpt.com/docs/reference/settings)：分类组织应用偏好。
-以上文档不能证明当前各产品的像素间距，未登录或操作用户的其他桌面产品。具体 180px 导航、36px 行高、24px 栏间距来自本项目的布局判断。
+  以上文档不能证明当前各产品的像素间距，未登录或操作用户的其他桌面产品。具体 180px 导航、36px 行高、24px 栏间距来自本项目的布局判断。
 
 ## 本轮改动
 
@@ -45,6 +46,7 @@
 独立评审一轮（存量润色，不打分）。采纳“快捷页纵向间隔过大”的必修意见，缩小预览、分组及固定行的间距。1280×720 下第二条固定项 bottom=602.28，保存栏 top=614.28，间隔12px，没有遮挡。采纳范围文案去重，将详情中的“本次发送生效，发送成功后自动移除”精简为“发送成功后自动移除”；单次范围仍在字段中明确显示。
 
 证据：
+
 - `app-settings.png`：真实应用设置，1280×720。
 - `before.png`：修改前快捷页，1280×720。
 - `shortcuts-wide-dark.png`：最终拖拽列表与密度，1280×720。

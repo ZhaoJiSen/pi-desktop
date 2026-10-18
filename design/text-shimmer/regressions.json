@@ -3,10 +3,7 @@
     {
       "arrowInset": 12,
       "border": "1px",
-      "gaps": [
-        12,
-        12
-      ],
+      "gaps": [12, 12],
       "height": 38,
       "nextUserGap": 32,
       "overflow": 0,
@@ -20,10 +17,7 @@
     {
       "arrowInset": 12,
       "border": "1px",
-      "gaps": [
-        12,
-        12
-      ],
+      "gaps": [12, 12],
       "height": 38,
       "nextUserGap": 32,
       "overflow": 0,
@@ -37,10 +31,7 @@
     {
       "arrowInset": 12,
       "border": "1px",
-      "gaps": [
-        12,
-        12
-      ],
+      "gaps": [12, 12],
       "height": 38,
       "nextUserGap": 32.0054931640625,
       "overflow": 0,
@@ -57,12 +48,7 @@
       "metrics": {
         "animations": 0,
         "gap": 8,
-        "headings": [
-          "20px",
-          "18px",
-          "16px",
-          "15px"
-        ],
+        "headings": ["20px", "18px", "16px", "15px"],
         "overflow": 0,
         "tableAlign": "right",
         "tableHeader": "rgb(248, 248, 249)",
@@ -93,12 +79,7 @@
       "metrics": {
         "animations": 0,
         "gap": 8,
-        "headings": [
-          "20px",
-          "18px",
-          "16px",
-          "15px"
-        ],
+        "headings": ["20px", "18px", "16px", "15px"],
         "overflow": 0,
         "tableAlign": "right",
         "tableHeader": "rgb(248, 248, 249)",
@@ -129,12 +110,7 @@
       "metrics": {
         "animations": 0,
         "gap": 8,
-        "headings": [
-          "20px",
-          "18px",
-          "16px",
-          "15px"
-        ],
+        "headings": ["20px", "18px", "16px", "15px"],
         "overflow": 0,
         "tableAlign": "right",
         "tableHeader": "rgb(248, 248, 249)",

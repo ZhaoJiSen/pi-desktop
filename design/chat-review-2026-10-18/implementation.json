@@ -18,8 +18,24 @@
     "lint": "passed",
     "diff_check": "passed",
     "interactive_runs": ["passed", "passed", "passed"],
-    "coverage": ["Wrapped JSX and diff layout", "Prism/HeroUI CSS isolation", "Keyboard disclosure and focus retention", "Thinking toggle", "Copy feedback and preserved code text", "Short-draft overflow", "Unwrapped code scroll containment", "User expansion choice across stream delta and tool completion", "Interrupted/running/done icons"],
-    "visual": ["Nord dark at 1280x720", "Ink light code at 1280x720", "390x844 code wrapping", "CSS zoom 2 at 1280x1100, respecting the original 480px minimum app height", "810x366 focused preview using the production Conversation component"]
+    "coverage": [
+      "Wrapped JSX and diff layout",
+      "Prism/HeroUI CSS isolation",
+      "Keyboard disclosure and focus retention",
+      "Thinking toggle",
+      "Copy feedback and preserved code text",
+      "Short-draft overflow",
+      "Unwrapped code scroll containment",
+      "User expansion choice across stream delta and tool completion",
+      "Interrupted/running/done icons"
+    ],
+    "visual": [
+      "Nord dark at 1280x720",
+      "Ink light code at 1280x720",
+      "390x844 code wrapping",
+      "CSS zoom 2 at 1280x1100, respecting the original 480px minimum app height",
+      "810x366 focused preview using the production Conversation component"
+    ]
   },
   "independent_review": {
     "rounds": 1,
@@ -27,7 +43,17 @@
     "result": "No visible blocking issues or required refinements in reviewed desktop, narrow-window, expanded-Thinking and 200% screenshots.",
     "preserve": "Continuous conversation without avatars, aligned lightweight tool rows, primary filenames, contained code wrapping and separate composer metadata."
   },
-  "evidence": ["after-tools-dark.png", "after-tools-detail.png", "after-thinking-dark.png", "after-code-light.png", "after-code-390.png", "after-tools-200.png", "verification-results.json", "verify.mjs", "preview.html"],
+  "evidence": [
+    "after-tools-dark.png",
+    "after-tools-detail.png",
+    "after-thinking-dark.png",
+    "after-code-light.png",
+    "after-code-390.png",
+    "after-tools-200.png",
+    "verification-results.json",
+    "verify.mjs",
+    "preview.html"
+  ],
   "limitations": [
     "Browser preview uses fixture data and the real stream reducer; no live model-provider session was started.",
     "Copy feedback and original code text were verified; the host clipboard readback channel returned empty text, so system clipboard contents were not verified.",

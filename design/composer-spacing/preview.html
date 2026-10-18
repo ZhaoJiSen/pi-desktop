@@ -1,30 +1,67 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Composer spacing verification</title></head><body><div id="root"></div><script type="module">
-const params = new URLSearchParams(location.search)
-const prefix = 'composer-spacing:'
-Object.defineProperty(window, 'localStorage', {value:{
-  getItem: key => sessionStorage.getItem(prefix+key),
-  setItem: (key,value) => sessionStorage.setItem(prefix+key,value),
-  removeItem: key => sessionStorage.removeItem(prefix+key),
-}})
-const {useWorkspace} = await import('/src/store/workspace.ts')
-const {createPreviewSessions} = await import('/src/lib/fixtures.ts')
-if (!sessionStorage.getItem(prefix+'initialized')) {
-  const session = createPreviewSessions()[0]
-  session.draftNodes = [{type:'command',id:'spacing-chip',name:'skill:commit',source:'skill',origin:'~/.pi/agent/skills/commit/SKILL.md',arguments:''},{type:'text',text:' '}]
-  useWorkspace.setState({sessions:[session], activeSessionId:session.id})
-  sessionStorage.setItem(prefix+'initialized','1')
-}
-useWorkspace.setState({language:'en',languageSource:'user',theme:params.get('theme') || 'light',palette:params.get('palette') || 'ink',runningSessionId:null,connection:'disconnected',onboardingOpen:false})
-await import('/src/styles/vendor.css')
-await import('/src/styles/index.scss')
-const {createRoot} = await import('react-dom/client')
-const {createElement:h} = await import('react')
-const {Composer} = await import('/src/components/Composer.tsx')
-document.documentElement.dataset.theme = useWorkspace.getState().theme
-document.documentElement.dataset.palette = useWorkspace.getState().palette
-document.documentElement.style.zoom = params.get('zoom') || '1'
-const style = document.createElement('style')
-style.textContent = `.preview-frame { margin:18px; width:min(calc(100% - 36px),${Number(params.get('width')) || 820}px); padding:12px 8px 0; background:var(--paper); border-radius:20px; } .preview-frame .composer { width:calc(100% - 48px); margin-top:20px; } .preview-frame .metadata { top:-8px; }`
-document.head.append(style)
-createRoot(document.getElementById('root')).render(h('section',{className:'main preview-frame'},h('div',{className:'chat-page'},h(Composer))))
-</script></body></html>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Composer spacing verification</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module">
+      const params = new URLSearchParams(location.search)
+      const prefix = 'composer-spacing:'
+      Object.defineProperty(window, 'localStorage', {
+        value: {
+          getItem: (key) => sessionStorage.getItem(prefix + key),
+          setItem: (key, value) => sessionStorage.setItem(prefix + key, value),
+          removeItem: (key) => sessionStorage.removeItem(prefix + key),
+        },
+      })
+      const { useWorkspace } = await import('/src/store/workspace.ts')
+      const { createPreviewSessions } = await import('/src/lib/fixtures.ts')
+      if (!sessionStorage.getItem(prefix + 'initialized')) {
+        const session = createPreviewSessions()[0]
+        session.draftNodes = [
+          {
+            type: 'command',
+            id: 'spacing-chip',
+            name: 'skill:commit',
+            source: 'skill',
+            origin: '~/.pi/agent/skills/commit/SKILL.md',
+            arguments: '',
+          },
+          { type: 'text', text: ' ' },
+        ]
+        useWorkspace.setState({ sessions: [session], activeSessionId: session.id })
+        sessionStorage.setItem(prefix + 'initialized', '1')
+      }
+      useWorkspace.setState({
+        language: 'en',
+        languageSource: 'user',
+        theme: params.get('theme') || 'light',
+        palette: params.get('palette') || 'ink',
+        runningSessionId: null,
+        connection: 'disconnected',
+        onboardingOpen: false,
+      })
+      await import('/src/styles/vendor.css')
+      await import('/src/styles/index.scss')
+      const { createRoot } = await import('react-dom/client')
+      const { createElement: h } = await import('react')
+      const { Composer } = await import('/src/components/Composer.tsx')
+      document.documentElement.dataset.theme = useWorkspace.getState().theme
+      document.documentElement.dataset.palette = useWorkspace.getState().palette
+      document.documentElement.style.zoom = params.get('zoom') || '1'
+      const style = document.createElement('style')
+      style.textContent = `.preview-frame { margin:18px; width:min(calc(100% - 36px),${Number(params.get('width')) || 820}px); padding:12px 8px 0; background:var(--paper); border-radius:20px; } .preview-frame .composer { width:calc(100% - 48px); margin-top:20px; } .preview-frame .metadata { top:-8px; }`
+      document.head.append(style)
+      createRoot(document.getElementById('root')).render(
+        h(
+          'section',
+          { className: 'main preview-frame' },
+          h('div', { className: 'chat-page' }, h(Composer)),
+        ),
+      )
+    </script>
+  </body>
+</html>

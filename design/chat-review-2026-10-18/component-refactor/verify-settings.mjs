@@ -1,38 +1,96 @@
 export async function verifySettings(tab) {
-  const assert = (value, message) => { if (!value) throw new Error(message) }
-  const snapshot = () => tab.getAXState({emit:false})
-  const path = tab.playwright.getByPlaceholder('pi', {exact:true})
-  await tab.playwright.getByRole('heading',{name:'Appearance',exact:true}).waitFor({state:'visible'})
+  const assert = (value, message) => {
+    if (!value) throw new Error(message)
+  }
+  const snapshot = () => tab.getAXState({ emit: false })
+  const path = tab.playwright.getByPlaceholder('pi', { exact: true })
+  await tab.playwright
+    .getByRole('heading', { name: 'Appearance', exact: true })
+    .waitFor({ state: 'visible' })
   const headings = await tab.playwright.locator('h2').allTextContents()
-  assert(headings.join('|') === 'Appearance|General|Extensions|Pi connection', 'Settings section structure should be unchanged')
-  await tab.playwright.getByRole('radio',{name:'Dark',exact:true}).check(); await snapshot()
-  assert(await tab.playwright.evaluate(() => document.documentElement.dataset.theme) === 'dark', 'Theme selector should update the page')
-  await tab.playwright.getByRole('radio',{name:'Light',exact:true}).check(); await snapshot()
+  assert(
+    headings.join('|') === 'Appearance|General|Extensions|Pi connection',
+    'Settings section structure should be unchanged',
+  )
+  await tab.playwright.getByRole('radio', { name: 'Dark', exact: true }).check()
+  await snapshot()
+  assert(
+    (await tab.playwright.evaluate(() => document.documentElement.dataset.theme)) === 'dark',
+    'Theme selector should update the page',
+  )
+  await tab.playwright.getByRole('radio', { name: 'Light', exact: true }).check()
+  await snapshot()
   const palette = tab.playwright.locator('.settings-palette-select button')
-  await palette.click(); await snapshot()
-  const option = tab.playwright.getByRole('option',{name:'Gruvbox',exact:true})
-  await option.press('ArrowDown'); await snapshot()
-  await tab.playwright.getByRole('option',{name:'Catppuccin',exact:true}).click(); await snapshot()
-  assert(await tab.playwright.evaluate(() => document.documentElement.dataset.palette) === 'catppuccin', 'Palette selection should persist a valid choice')
-  await tab.playwright.getByRole('switch', {name:'Automatically reload Pi after updating extensions',exact:true}).setChecked(false); await snapshot()
-  const wrap = tab.playwright.getByRole('switch',{name:'Wrap text and code',exact:true})
-  await wrap.setChecked(true); await snapshot()
-  await path.fill('/review/bin/pi'); await snapshot()
-  await tab.playwright.getByRole('button',{name:'Save and reconnect',exact:true}).click(); await snapshot()
-  assert((await tab.playwright.locator('.settings-saved').textContent()).includes('Path saved'), 'Successful save should show feedback')
-  await tab.reload(); await snapshot()
-  await path.waitFor({state:'visible'})
-  assert(await path.evaluate(e => e.value) === '/review/bin/pi', 'Saved executable should survive reload')
-  assert(await wrap.evaluate(e => e.checked), 'Wrap setting should survive reload')
-  await path.fill('/review/unsaved/pi'); await snapshot()
-  await tab.pressKey(null,'F6'); await snapshot()
-  await tab.playwright.getByRole('button',{name:'Save and reconnect',exact:true}).click(); await snapshot()
-  assert(await tab.playwright.getByRole('alert').count() === 1, 'Storage failure should be visible')
-  assert(await path.evaluate(e => e.value) === '/review/unsaved/pi', 'Storage failure must retain the draft')
-  await tab.pressKey(null,'F5'); await snapshot()
-  await tab.playwright.getByRole('button',{name:'Restore to pi',exact:true}).click(); await snapshot()
-  assert(await path.evaluate(e => e.value) === 'pi', 'Restore executable should update draft')
-  await tab.pressKey(null,'F4'); await snapshot()
-  assert(!(await tab.playwright.getByRole('button',{name:'Save and reconnect',exact:true}).isEnabled()), 'Connecting should disable save')
-  return {sectionOrder:true,theme:true,palette:true,save:true,reload:true,storageFailureRetainsDraft:true,restore:true,busy:true}
+  await palette.click()
+  await snapshot()
+  const option = tab.playwright.getByRole('option', { name: 'Gruvbox', exact: true })
+  await option.press('ArrowDown')
+  await snapshot()
+  await tab.playwright.getByRole('option', { name: 'Catppuccin', exact: true }).click()
+  await snapshot()
+  assert(
+    (await tab.playwright.evaluate(() => document.documentElement.dataset.palette)) ===
+      'catppuccin',
+    'Palette selection should persist a valid choice',
+  )
+  await tab.playwright
+    .getByRole('switch', { name: 'Automatically reload Pi after updating extensions', exact: true })
+    .setChecked(false)
+  await snapshot()
+  const wrap = tab.playwright.getByRole('switch', { name: 'Wrap text and code', exact: true })
+  await wrap.setChecked(true)
+  await snapshot()
+  await path.fill('/review/bin/pi')
+  await snapshot()
+  await tab.playwright.getByRole('button', { name: 'Save and reconnect', exact: true }).click()
+  await snapshot()
+  assert(
+    (await tab.playwright.locator('.settings-saved').textContent()).includes('Path saved'),
+    'Successful save should show feedback',
+  )
+  await tab.reload()
+  await snapshot()
+  await path.waitFor({ state: 'visible' })
+  assert(
+    (await path.evaluate((e) => e.value)) === '/review/bin/pi',
+    'Saved executable should survive reload',
+  )
+  assert(await wrap.evaluate((e) => e.checked), 'Wrap setting should survive reload')
+  await path.fill('/review/unsaved/pi')
+  await snapshot()
+  await tab.pressKey(null, 'F6')
+  await snapshot()
+  await tab.playwright.getByRole('button', { name: 'Save and reconnect', exact: true }).click()
+  await snapshot()
+  assert(
+    (await tab.playwright.getByRole('alert').count()) === 1,
+    'Storage failure should be visible',
+  )
+  assert(
+    (await path.evaluate((e) => e.value)) === '/review/unsaved/pi',
+    'Storage failure must retain the draft',
+  )
+  await tab.pressKey(null, 'F5')
+  await snapshot()
+  await tab.playwright.getByRole('button', { name: 'Restore to pi', exact: true }).click()
+  await snapshot()
+  assert((await path.evaluate((e) => e.value)) === 'pi', 'Restore executable should update draft')
+  await tab.pressKey(null, 'F4')
+  await snapshot()
+  assert(
+    !(await tab.playwright
+      .getByRole('button', { name: 'Save and reconnect', exact: true })
+      .isEnabled()),
+    'Connecting should disable save',
+  )
+  return {
+    sectionOrder: true,
+    theme: true,
+    palette: true,
+    save: true,
+    reload: true,
+    storageFailureRetainsDraft: true,
+    restore: true,
+    busy: true,
+  }
 }

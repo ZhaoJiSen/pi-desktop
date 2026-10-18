@@ -9,7 +9,13 @@
     <div id="root"></div>
     <script type="module">
       const auditStorage = new Map()
-      Object.defineProperty(window, 'localStorage', { value: {getItem: key => auditStorage.get(key) ?? null, setItem: (key,value) => auditStorage.set(key,value), removeItem: key => auditStorage.delete(key)} })
+      Object.defineProperty(window, 'localStorage', {
+        value: {
+          getItem: (key) => auditStorage.get(key) ?? null,
+          setItem: (key, value) => auditStorage.set(key, value),
+          removeItem: (key) => auditStorage.delete(key),
+        },
+      })
       const { useWorkspace } = await import('/src/store/workspace.ts')
       import { createPreviewSessions } from '/src/lib/fixtures.ts'
       const params = new URLSearchParams(location.search)
@@ -59,7 +65,22 @@
       if (state === 'highlight') {
         const source = tool('source-go', 'read', 'valid.go')
         source.args = { path: 'go/utils/valid.go' }
-        source.output = ['package utils', '', 'func ValidPriority(priority string) bool {', '    switch priority {', '    case "low", "medium", "high":', '        return true', '    default:', '        return false', '    }', '}', '', 'func ValidStatus(status string) bool {', '    return status == "todo" || status == "doing" || status == "done"', '}'].join('\n')
+        source.output = [
+          'package utils',
+          '',
+          'func ValidPriority(priority string) bool {',
+          '    switch priority {',
+          '    case "low", "medium", "high":',
+          '        return true',
+          '    default:',
+          '        return false',
+          '    }',
+          '}',
+          '',
+          'func ValidStatus(status string) bool {',
+          '    return status == "todo" || status == "doing" || status == "done"',
+          '}',
+        ].join('\n')
         const config = tool('source-config', 'read', 'Cargo.toml')
         config.args = { file_path: 'rust/Cargo.toml' }
         config.output = '[package]\nname = "tasklab"\nversion = "0.1.0"'
@@ -67,11 +88,21 @@
         unknown.output = '<plain text> & unchanged'
         const shell = tool('source-shell', 'bash', 'printf status')
         shell.output = 'package utils\nreturn true'
-        session.messages = [{ id: 'highlight-message', role: 'assistant', timestamp: Date.now(), blocks: [
-          { type: 'thinking', text: '先核对输入参数，再查看校验函数。' },
-          { type: 'text', text: '再对一下工作区，看上次看完之后有没有变化。' },
-          source, config, unknown, shell,
-        ] }]
+        session.messages = [
+          {
+            id: 'highlight-message',
+            role: 'assistant',
+            timestamp: Date.now(),
+            blocks: [
+              { type: 'thinking', text: '先核对输入参数，再查看校验函数。' },
+              { type: 'text', text: '再对一下工作区，看上次看完之后有没有变化。' },
+              source,
+              config,
+              unknown,
+              shell,
+            ],
+          },
+        ]
       } else if (state === 'tool-cards') {
         const read = tool('cards-read', 'read', 'LEARNING.md')
         read.args = { path: 'LEARNING.md' }
@@ -211,16 +242,34 @@
       } else session.messages = [toolsMessage]
       if (state === 'audit' || state === 'audit-code') {
         session.messages = [
-          {id: 'audit-user', role: 'user', timestamp: Date.now(), blocks: [{type:'text',text:'查看当前项目'}]},
-          {id: 'audit-answer', role:'assistant', timestamp: Date.now(), blocks: [
-            {type:'thinking',text:'先读学习进度和仓库现状，再核对工作区中的实际实现。'},
-            {type:'text',text:'先读学习进度和仓库现状，再告诉你现在停在哪一步。'},
-            tool('audit-read','read','LEARNING.md'),tool('audit-bash','bash','git status --short'),
-            {type:'text',text:'TaskLab 现在的主线仍是 Go，停在「Gin + 内存 CRUD 已经能用，数据库还没接上」这一步。`LEARNING.md` 写的是 Phase 2 已完成、Phase 3（PostgreSQL）未开始。\n\n## 仓库里有什么\n\n| 路径 | 实际状态 |\n| --- | --- |\n| `go/` | 主线。模块名 `goTask`，路由全在 `go/main.go` |\n| `go/utils/` | `ValidPriority` / `ValidStatus`、`RandomString` |\n| `python/` | 空目录 |\n| `rust/` | 未跟踪。`actix-web` 的 Hello world，不是任务 API |\n\n已提交的 API 是这六条，数据还在包级切片 `[]*Task` 里：'},
-            {type:'text',text:'```go\n// Validate task status\nfunc ValidStatus(status string) bool {\n    return status == "todo" || status == "done"\n}\n```\n\n详细进度见 [学习文档](https://example.com/learning)。'},
-          ]},
+          {
+            id: 'audit-user',
+            role: 'user',
+            timestamp: Date.now(),
+            blocks: [{ type: 'text', text: '查看当前项目' }],
+          },
+          {
+            id: 'audit-answer',
+            role: 'assistant',
+            timestamp: Date.now(),
+            blocks: [
+              { type: 'thinking', text: '先读学习进度和仓库现状，再核对工作区中的实际实现。' },
+              { type: 'text', text: '先读学习进度和仓库现状，再告诉你现在停在哪一步。' },
+              tool('audit-read', 'read', 'LEARNING.md'),
+              tool('audit-bash', 'bash', 'git status --short'),
+              {
+                type: 'text',
+                text: 'TaskLab 现在的主线仍是 Go，停在「Gin + 内存 CRUD 已经能用，数据库还没接上」这一步。`LEARNING.md` 写的是 Phase 2 已完成、Phase 3（PostgreSQL）未开始。\n\n## 仓库里有什么\n\n| 路径 | 实际状态 |\n| --- | --- |\n| `go/` | 主线。模块名 `goTask`，路由全在 `go/main.go` |\n| `go/utils/` | `ValidPriority` / `ValidStatus`、`RandomString` |\n| `python/` | 空目录 |\n| `rust/` | 未跟踪。`actix-web` 的 Hello world，不是任务 API |\n\n已提交的 API 是这六条，数据还在包级切片 `[]*Task` 里：',
+              },
+              {
+                type: 'text',
+                text: '```go\n// Validate task status\nfunc ValidStatus(status string) bool {\n    return status == "todo" || status == "done"\n}\n```\n\n详细进度见 [学习文档](https://example.com/learning)。',
+              },
+            ],
+          },
         ]
-        if (state === 'audit-code') session.messages[1].blocks = session.messages[1].blocks.slice(-1)
+        if (state === 'audit-code')
+          session.messages[1].blocks = session.messages[1].blocks.slice(-1)
       }
       session.title = '核对当前工作区改动'
       session.draftNodes = []
@@ -231,7 +280,10 @@
         language: 'zh',
         theme: params.get('theme') || 'dark',
         palette: params.get('palette') || 'nord',
-        palettesByMode: { light: params.get('palette') || 'nord', dark: params.get('palette') || 'nord' },
+        palettesByMode: {
+          light: params.get('palette') || 'nord',
+          dark: params.get('palette') || 'nord',
+        },
         accentOverrides: {},
         wrapLines: params.get('wrap') === '1',
         sidebarOpen: !params.has('hide-sidebar'),

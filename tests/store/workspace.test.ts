@@ -542,11 +542,9 @@ describe('appearance preferences', () => {
     store.getState().setPreference({ theme: 'light', palette: 'rose-pine' })
     store.getState().setPreference({ accentOverrides: { 'light:rose-pine': 'teal' } })
     store.getState().setPreference({ theme: 'dark', palette: 'tokyo-night' })
-    store
-      .getState()
-      .setPreference({
-        accentOverrides: { ...store.getState().accentOverrides, 'dark:tokyo-night': 'orange' },
-      })
+    store.getState().setPreference({
+      accentOverrides: { ...store.getState().accentOverrides, 'dark:tokyo-night': 'orange' },
+    })
     store.getState().setPreference({ theme: 'light' })
     expect(store.getState().palette).toBe('rose-pine')
     const restored = createWorkspaceStore(storage)

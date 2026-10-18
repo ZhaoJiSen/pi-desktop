@@ -13,8 +13,21 @@
     "lint": "passed",
     "scroll_boundary_runs": ["passed", "passed", "passed"],
     "chat_regression_runs": ["passed", "passed", "passed"],
-    "verified": ["Conversation uses HeroUI ScrollShadow and still scrolls", "Tool top fades bottom content only", "Tool middle fades both content edges", "Tool bottom fades top content only", "Outer surface has no mask and preserves background and radius at every position", "Existing keyboard, wrap, copy-feedback and streaming-choice checks"]
+    "verified": [
+      "Conversation uses HeroUI ScrollShadow and still scrolls",
+      "Tool top fades bottom content only",
+      "Tool middle fades both content edges",
+      "Tool bottom fades top content only",
+      "Outer surface has no mask and preserves background and radius at every position",
+      "Existing keyboard, wrap, copy-feedback and streaming-choice checks"
+    ]
   },
-  "evidence": ["tool-top.png", "tool-middle.png", "tool-bottom.png", "conversation-middle.png", "verification-results.json"],
+  "evidence": [
+    "tool-top.png",
+    "tool-middle.png",
+    "tool-bottom.png",
+    "conversation-middle.png",
+    "verification-results.json"
+  ],
   "limitations": "Screenshots and interactive checks use local fixture content. No live model-provider session, production build or full test suite was run."
 }

@@ -1,42 +1,121 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Loading alignment verification</title></head><body><div id="root"></div><script type="module">
-const params=new URLSearchParams(location.search)
-const {useWorkspace}=await import('/src/store/workspace.ts')
-const {createPreviewSessions}=await import('/src/lib/fixtures.ts')
-const {applyStreamEvent}=await import('/src/lib/rpc.ts')
-const session=createPreviewSessions()[0]
-session.messages=[
- {id:'history',role:'assistant',timestamp:Date.now(),blocks:[{type:'thinking',text:'已核对项目入口。'},{type:'text',text:'先保留当前接口，再检查边界与错误处理。'}]},
- {id:'active',role:'assistant',timestamp:Date.now(),blocks:[{type:'thinking',text:'正在对照参数校验函数和测试结果。'}]},
-]
-useWorkspace.setState({sessions:[session],activeSessionId:session.id,runningSessionId:session.id,language:params.get('lang')||'en',theme:params.get('theme')||'light',palette:params.get('palette')||'ink'})
-document.addEventListener('keydown',event=>{
- if(!['F1','F2','F3'].includes(event.key))return
- event.preventDefault()
- const current=useWorkspace.getState().sessions[0]
- let messages=current.messages
- if(event.key==='F1'){
-  for(const [id,path] of [['check-main','go/main.go'],['check-valid','go/utils/valid.go']])
-   messages=applyStreamEvent(messages,{type:'tool_execution_start',toolCallId:id,toolName:'read',args:{path}})
- }else if(event.key==='F2'){
-  for(const id of ['check-main','check-valid'])
-   messages=applyStreamEvent(messages,{type:'tool_execution_end',toolCallId:id,result:{content:[{type:'text',text:'package main\n\nfunc main() {}'}]},isError:false})
- }else{
-  messages=messages.map(message=>({...message,blocks:message.blocks.map(block=>block.type==='tool'?{...block,status:block.id==='check-main'?'error':'interrupted',output:'操作已结束。'}:block)}))
- }
- useWorkspace.getState().updateSession(current.id,{messages})
- if(event.key!=='F1')useWorkspace.setState({runningSessionId:null})
-})
-await import('/src/styles/vendor.css');await import('/src/styles/index.scss')
-const {createRoot}=await import('react-dom/client');const {createElement:h}=await import('react')
-const {Conversation}=await import('/src/components/Conversation.tsx')
-const {Composer}=await import('/src/components/Composer.tsx')
-document.addEventListener('keydown',e=>{if(e.key==='F4'){e.preventDefault();useWorkspace.setState({runningSessionId:null,connection:'connecting'})}if(e.key==='F5'){e.preventDefault();useWorkspace.setState({connection:'disconnected'})}})
-document.documentElement.dataset.theme=useWorkspace.getState().theme
-document.documentElement.dataset.palette=useWorkspace.getState().palette
-document.documentElement.style.zoom=params.get('zoom')||'1'
-const style=document.createElement('style')
-style.textContent=`#root{padding:18px}.shimmer-preview{display:flex;height:100%;max-width:${Number(params.get('width'))||820}px;background:var(--paper);border-radius:20px}.shimmer-preview .conversation{padding-top:14px}`
-if(params.has('onlyrun'))style.textContent += '.shimmer-preview{width:300px;height:110px}.shimmer-preview .conversation{padding:20px 30px}.conversation-content,.composer-area{display:none}'
-document.head.append(style)
-createRoot(document.getElementById('root')).render(h('section',{className:'shimmer-preview'},h('div',{className:'chat-page'},h(Conversation,{onProject(){}}),h('div',{className:'composer-area'},h(Composer)))))
-</script></body></html>
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Loading alignment verification</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module">
+      const params = new URLSearchParams(location.search)
+      const { useWorkspace } = await import('/src/store/workspace.ts')
+      const { createPreviewSessions } = await import('/src/lib/fixtures.ts')
+      const { applyStreamEvent } = await import('/src/lib/rpc.ts')
+      const session = createPreviewSessions()[0]
+      session.messages = [
+        {
+          id: 'history',
+          role: 'assistant',
+          timestamp: Date.now(),
+          blocks: [
+            { type: 'thinking', text: '已核对项目入口。' },
+            { type: 'text', text: '先保留当前接口，再检查边界与错误处理。' },
+          ],
+        },
+        {
+          id: 'active',
+          role: 'assistant',
+          timestamp: Date.now(),
+          blocks: [{ type: 'thinking', text: '正在对照参数校验函数和测试结果。' }],
+        },
+      ]
+      useWorkspace.setState({
+        sessions: [session],
+        activeSessionId: session.id,
+        runningSessionId: session.id,
+        language: params.get('lang') || 'en',
+        theme: params.get('theme') || 'light',
+        palette: params.get('palette') || 'ink',
+      })
+      document.addEventListener('keydown', (event) => {
+        if (!['F1', 'F2', 'F3'].includes(event.key)) return
+        event.preventDefault()
+        const current = useWorkspace.getState().sessions[0]
+        let messages = current.messages
+        if (event.key === 'F1') {
+          for (const [id, path] of [
+            ['check-main', 'go/main.go'],
+            ['check-valid', 'go/utils/valid.go'],
+          ])
+            messages = applyStreamEvent(messages, {
+              type: 'tool_execution_start',
+              toolCallId: id,
+              toolName: 'read',
+              args: { path },
+            })
+        } else if (event.key === 'F2') {
+          for (const id of ['check-main', 'check-valid'])
+            messages = applyStreamEvent(messages, {
+              type: 'tool_execution_end',
+              toolCallId: id,
+              result: { content: [{ type: 'text', text: 'package main\n\nfunc main() {}' }] },
+              isError: false,
+            })
+        } else {
+          messages = messages.map((message) => ({
+            ...message,
+            blocks: message.blocks.map((block) =>
+              block.type === 'tool'
+                ? {
+                    ...block,
+                    status: block.id === 'check-main' ? 'error' : 'interrupted',
+                    output: '操作已结束。',
+                  }
+                : block,
+            ),
+          }))
+        }
+        useWorkspace.getState().updateSession(current.id, { messages })
+        if (event.key !== 'F1') useWorkspace.setState({ runningSessionId: null })
+      })
+      await import('/src/styles/vendor.css')
+      await import('/src/styles/index.scss')
+      const { createRoot } = await import('react-dom/client')
+      const { createElement: h } = await import('react')
+      const { Conversation } = await import('/src/components/Conversation.tsx')
+      const { Composer } = await import('/src/components/Composer.tsx')
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'F4') {
+          e.preventDefault()
+          useWorkspace.setState({ runningSessionId: null, connection: 'connecting' })
+        }
+        if (e.key === 'F5') {
+          e.preventDefault()
+          useWorkspace.setState({ connection: 'disconnected' })
+        }
+      })
+      document.documentElement.dataset.theme = useWorkspace.getState().theme
+      document.documentElement.dataset.palette = useWorkspace.getState().palette
+      document.documentElement.style.zoom = params.get('zoom') || '1'
+      const style = document.createElement('style')
+      style.textContent = `#root{padding:18px}.shimmer-preview{display:flex;height:100%;max-width:${Number(params.get('width')) || 820}px;background:var(--paper);border-radius:20px}.shimmer-preview .conversation{padding-top:14px}`
+      if (params.has('onlyrun'))
+        style.textContent +=
+          '.shimmer-preview{width:300px;height:110px}.shimmer-preview .conversation{padding:20px 30px}.conversation-content,.composer-area{display:none}'
+      document.head.append(style)
+      createRoot(document.getElementById('root')).render(
+        h(
+          'section',
+          { className: 'shimmer-preview' },
+          h(
+            'div',
+            { className: 'chat-page' },
+            h(Conversation, { onProject() {} }),
+            h('div', { className: 'composer-area' }, h(Composer)),
+          ),
+        ),
+      )
+    </script>
+  </body>
+</html>

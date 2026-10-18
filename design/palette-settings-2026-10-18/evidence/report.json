@@ -91,10 +91,7 @@
             "size": 0,
             "opacity": 0.95,
             "loop": false,
-            "sources": [
-              "js:style",
-              "waapi"
-            ]
+            "sources": ["js:style", "waapi"]
           }
         ]
       },
@@ -111,10 +108,7 @@
             "size": 0.111,
             "opacity": 1,
             "loop": false,
-            "sources": [
-              "js:style",
-              "css:enter"
-            ]
+            "sources": ["js:style", "css:enter"]
           },
           {
             "el": "button#react-aria40352794-_r_a_.button.button--md",
@@ -122,10 +116,7 @@
             "size": 0.03,
             "opacity": 0,
             "loop": false,
-            "sources": [
-              "js:style",
-              "transition:transform"
-            ]
+            "sources": ["js:style", "transition:transform"]
           }
         ]
       },

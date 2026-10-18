@@ -3,12 +3,7 @@
     "metrics": {
       "animations": 0,
       "gap": 8,
-      "headings": [
-        "20px",
-        "18px",
-        "16px",
-        "15px"
-      ],
+      "headings": ["20px", "18px", "16px", "15px"],
       "overflow": 0,
       "tableAlign": "right",
       "tableHeader": "rgb(248, 248, 249)",
@@ -39,12 +34,7 @@
     "metrics": {
       "animations": 0,
       "gap": 8,
-      "headings": [
-        "20px",
-        "18px",
-        "16px",
-        "15px"
-      ],
+      "headings": ["20px", "18px", "16px", "15px"],
       "overflow": 0,
       "tableAlign": "right",
       "tableHeader": "rgb(248, 248, 249)",
@@ -75,12 +65,7 @@
     "metrics": {
       "animations": 0,
       "gap": 8,
-      "headings": [
-        "20px",
-        "18px",
-        "16px",
-        "15px"
-      ],
+      "headings": ["20px", "18px", "16px", "15px"],
       "overflow": 0,
       "tableAlign": "right",
       "tableHeader": "rgb(248, 248, 249)",

@@ -14,12 +14,7 @@
         "xhigh": "xhigh",
         "max": null
       },
-      "levels": [
-        "low",
-        "medium",
-        "high",
-        "xhigh"
-      ]
+      "levels": ["low", "medium", "high", "xhigh"]
     },
     {
       "provider": "openai-codex",
@@ -29,14 +24,7 @@
         "xhigh": "xhigh",
         "minimal": "low"
       },
-      "levels": [
-        "off",
-        "minimal",
-        "low",
-        "medium",
-        "high",
-        "xhigh"
-      ]
+      "levels": ["off", "minimal", "low", "medium", "high", "xhigh"]
     },
     {
       "provider": "openai-codex",
@@ -47,15 +35,7 @@
         "max": "max",
         "minimal": "low"
       },
-      "levels": [
-        "off",
-        "minimal",
-        "low",
-        "medium",
-        "high",
-        "xhigh",
-        "max"
-      ]
+      "levels": ["off", "minimal", "low", "medium", "high", "xhigh", "max"]
     },
     {
       "provider": "anthropic",
@@ -64,14 +44,7 @@
       "thinkingLevelMap": {
         "max": "max"
       },
-      "levels": [
-        "off",
-        "minimal",
-        "low",
-        "medium",
-        "high",
-        "max"
-      ]
+      "levels": ["off", "minimal", "low", "medium", "high", "max"]
     }
   ]
 }

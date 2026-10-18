@@ -1,66 +1,220 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Thinking slider visual refinement</title></head><body><div id="root"></div><script type="module">
-const params = new URLSearchParams(location.search)
-const prefix = 'thinking-slider-codex:' + (params.get('state') || 'command') + ':' + (params.get('seed') || 'default') + ':'
-let failStorage = false
-Object.defineProperty(window, 'localStorage', {value:{
-  getItem: key => sessionStorage.getItem(prefix+key),
-  setItem: (key,value) => { if(failStorage) throw new Error('Storage unavailable'); sessionStorage.setItem(prefix+key,value) },
-  removeItem: key => sessionStorage.removeItem(prefix+key),
-}})
-const {useWorkspace} = await import('/src/store/workspace.ts')
-const {createPreviewSessions} = await import('/src/lib/fixtures.ts')
-if (!sessionStorage.getItem(prefix+'initialized')) {
-  const session = createPreviewSessions()[0]
-  session.draftNodes = [{type:'command',id:'spacing-chip',name:'skill:commit',source:'skill',origin:'~/.pi/agent/skills/commit/SKILL.md',arguments:''},{type:'text',text:' '}]
-  const state = params.get('state') || 'command'
-  if (state === 'empty') session.draftNodes = []
-  if (state === 'text' || state === 'attachments' || state === 'running') session.draftNodes = [{type:'text',text:'请检查当前工作区，重点看组件复用和输入体验。'}]
-  if (state === 'multiline') session.draftNodes = [{type:'text',text:'请检查当前工作区的改动。\n重点看看组件复用和输入体验。\n保留已有的主题与交互方式。'}]
-  if (state === 'attachments') session.attachments = [
-    {id:'review-readme',name:'LEARNING.md',kind:'text',mimeType:'text/markdown',data:'Project notes'},
-    {id:'review-source',name:'workspace-review.tsx',kind:'text',mimeType:'text/plain',data:'export {}'},
-  ]
-  if (['off','minimal','low','medium','high','xhigh','max'].includes(params.get('effort'))) session.thinking=params.get('effort')
-  session.draft = session.draftNodes.map(n=>n.type==='text'?n.text:`/${n.name} `).join('')
-  useWorkspace.setState({sessions:[session], activeSessionId:session.id})
-  sessionStorage.setItem(prefix+'initialized','1')
-}
-useWorkspace.setState({language:params.get('lang')||'en',languageSource:'user',theme:params.get('theme') || 'light',palette:params.get('palette') || 'ink',runningSessionId:params.get('state')==='running'?useWorkspace.getState().activeSessionId:null,connection:'disconnected',onboardingOpen:false})
-useWorkspace.setState({models:[...useWorkspace.getState().models.filter(m=>m.id!=='fast-model'),{id:'fast-model',name:'Fast Model',provider:'local',reasoning:false,contextWindow:32000}]})
-const allowed=['off','minimal','low','medium','high','xhigh','max']
-const levels=(params.has('levels')?params.get('levels'):'low,medium,high,xhigh').split(',').filter(x=>allowed.includes(x))
-useWorkspace.setState({thinkingLevels:levels,models:useWorkspace.getState().models.map(model=>model.reasoning?{...model,thinkingLevelMap:Object.fromEntries(allowed.map(level=>[level,levels.includes(level)?level:null]))}:model)})
-let failThinking=false, thinkingAttempts=0
-const updateSession=useWorkspace.getState().updateSession
-useWorkspace.setState({updateSession:(id,patch)=>{
- if('thinking' in patch){document.body.dataset.thinkingAttempts=String(++thinkingAttempts);if(failThinking)throw new Error('Unable to save thinking effort.')}
- return updateSession(id,patch)
-}})
-document.body.dataset.thinkingAttempts='0'
-let dragging=false, dragSamples=[]
-document.addEventListener('pointerdown',event=>{if(event.target.closest?.('.model-thinking-slider')){dragging=true;dragSamples=[];document.body.dataset.dragSamples='[]'}},true)
-document.addEventListener('pointermove',()=>{if(dragging){dragSamples.push({level:document.querySelector('.model-thinking-control')?.dataset.level,attempts:thinkingAttempts});document.body.dataset.dragSamples=JSON.stringify(dragSamples)}},true)
-document.addEventListener('pointerup',()=>dragging=false,true)
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Thinking slider visual refinement</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module">
+      const params = new URLSearchParams(location.search)
+      const prefix =
+        'thinking-slider-codex:' +
+        (params.get('state') || 'command') +
+        ':' +
+        (params.get('seed') || 'default') +
+        ':'
+      let failStorage = false
+      Object.defineProperty(window, 'localStorage', {
+        value: {
+          getItem: (key) => sessionStorage.getItem(prefix + key),
+          setItem: (key, value) => {
+            if (failStorage) throw new Error('Storage unavailable')
+            sessionStorage.setItem(prefix + key, value)
+          },
+          removeItem: (key) => sessionStorage.removeItem(prefix + key),
+        },
+      })
+      const { useWorkspace } = await import('/src/store/workspace.ts')
+      const { createPreviewSessions } = await import('/src/lib/fixtures.ts')
+      if (!sessionStorage.getItem(prefix + 'initialized')) {
+        const session = createPreviewSessions()[0]
+        session.draftNodes = [
+          {
+            type: 'command',
+            id: 'spacing-chip',
+            name: 'skill:commit',
+            source: 'skill',
+            origin: '~/.pi/agent/skills/commit/SKILL.md',
+            arguments: '',
+          },
+          { type: 'text', text: ' ' },
+        ]
+        const state = params.get('state') || 'command'
+        if (state === 'empty') session.draftNodes = []
+        if (state === 'text' || state === 'attachments' || state === 'running')
+          session.draftNodes = [
+            { type: 'text', text: '请检查当前工作区，重点看组件复用和输入体验。' },
+          ]
+        if (state === 'multiline')
+          session.draftNodes = [
+            {
+              type: 'text',
+              text: '请检查当前工作区的改动。\n重点看看组件复用和输入体验。\n保留已有的主题与交互方式。',
+            },
+          ]
+        if (state === 'attachments')
+          session.attachments = [
+            {
+              id: 'review-readme',
+              name: 'LEARNING.md',
+              kind: 'text',
+              mimeType: 'text/markdown',
+              data: 'Project notes',
+            },
+            {
+              id: 'review-source',
+              name: 'workspace-review.tsx',
+              kind: 'text',
+              mimeType: 'text/plain',
+              data: 'export {}',
+            },
+          ]
+        if (
+          ['off', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max'].includes(params.get('effort'))
+        )
+          session.thinking = params.get('effort')
+        session.draft = session.draftNodes
+          .map((n) => (n.type === 'text' ? n.text : `/${n.name} `))
+          .join('')
+        useWorkspace.setState({ sessions: [session], activeSessionId: session.id })
+        sessionStorage.setItem(prefix + 'initialized', '1')
+      }
+      useWorkspace.setState({
+        language: params.get('lang') || 'en',
+        languageSource: 'user',
+        theme: params.get('theme') || 'light',
+        palette: params.get('palette') || 'ink',
+        runningSessionId:
+          params.get('state') === 'running' ? useWorkspace.getState().activeSessionId : null,
+        connection: 'disconnected',
+        onboardingOpen: false,
+      })
+      useWorkspace.setState({
+        models: [
+          ...useWorkspace.getState().models.filter((m) => m.id !== 'fast-model'),
+          {
+            id: 'fast-model',
+            name: 'Fast Model',
+            provider: 'local',
+            reasoning: false,
+            contextWindow: 32000,
+          },
+        ],
+      })
+      const allowed = ['off', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max']
+      const levels = (params.has('levels') ? params.get('levels') : 'low,medium,high,xhigh')
+        .split(',')
+        .filter((x) => allowed.includes(x))
+      useWorkspace.setState({
+        thinkingLevels: levels,
+        models: useWorkspace.getState().models.map((model) =>
+          model.reasoning
+            ? {
+                ...model,
+                thinkingLevelMap: Object.fromEntries(
+                  allowed.map((level) => [level, levels.includes(level) ? level : null]),
+                ),
+              }
+            : model,
+        ),
+      })
+      let failThinking = false,
+        thinkingAttempts = 0
+      const updateSession = useWorkspace.getState().updateSession
+      useWorkspace.setState({
+        updateSession: (id, patch) => {
+          if ('thinking' in patch) {
+            document.body.dataset.thinkingAttempts = String(++thinkingAttempts)
+            if (failThinking) throw new Error('Unable to save thinking effort.')
+          }
+          return updateSession(id, patch)
+        },
+      })
+      document.body.dataset.thinkingAttempts = '0'
+      let dragging = false,
+        dragSamples = []
+      document.addEventListener(
+        'pointerdown',
+        (event) => {
+          if (event.target.closest?.('.model-thinking-slider')) {
+            dragging = true
+            dragSamples = []
+            document.body.dataset.dragSamples = '[]'
+          }
+        },
+        true,
+      )
+      document.addEventListener(
+        'pointermove',
+        () => {
+          if (dragging) {
+            dragSamples.push({
+              level: document.querySelector('.model-thinking-control')?.dataset.level,
+              attempts: thinkingAttempts,
+            })
+            document.body.dataset.dragSamples = JSON.stringify(dragSamples)
+          }
+        },
+        true,
+      )
+      document.addEventListener('pointerup', () => (dragging = false), true)
 
-document.addEventListener('keydown',event=>{if(event.key==='F9'){event.preventDefault();failThinking=true}if(event.key==='F10'){event.preventDefault();failThinking=false}})
-document.addEventListener('keydown',event=>{
-  if(event.key==='F4'){event.preventDefault();useWorkspace.setState({connection:'connecting'})}
-  if(event.key==='F5'){event.preventDefault();useWorkspace.setState({connection:'disconnected'})}
-  if(event.key==='F6'){event.preventDefault();useWorkspace.setState({runningSessionId:null})}
-  if(event.key==='F7'){event.preventDefault();failStorage=true}
-  if(event.key==='F8'){event.preventDefault();failStorage=false;useWorkspace.setState({storageError:null})}
-})
-useWorkspace.subscribe(state=>document.body.dataset.storageError=String(Boolean(state.storageError)))
-await import('/src/styles/vendor.css')
-await import('/src/styles/index.scss')
-const {createRoot} = await import('react-dom/client')
-const {createElement:h} = await import('react')
-const {Composer} = await import('/src/components/Composer.tsx')
-document.documentElement.dataset.theme = useWorkspace.getState().theme
-document.documentElement.dataset.palette = useWorkspace.getState().palette
-document.documentElement.style.zoom = params.get('zoom') || '1'
-const style = document.createElement('style')
-style.textContent = `#root { position:relative; } .preview-frame { margin:18px; width:min(calc(100% - 36px),${Number(params.get('width')) || 820}px); padding:12px 8px 0; background:var(--paper); border-radius:20px; } .preview-frame.main { height:660px; display:flex; flex-direction:column; } .preview-frame.main .chat-page { justify-content:flex-end; } .preview-frame .composer { width:calc(100% - 48px); margin:20px auto; }`
-document.head.append(style)
-createRoot(document.getElementById('root')).render(h('section',{className:'preview-frame'+(params.has('stage')?' main':'')},h('div',{className:'chat-page'},h(Composer))))
-</script></body></html>
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'F9') {
+          event.preventDefault()
+          failThinking = true
+        }
+        if (event.key === 'F10') {
+          event.preventDefault()
+          failThinking = false
+        }
+      })
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'F4') {
+          event.preventDefault()
+          useWorkspace.setState({ connection: 'connecting' })
+        }
+        if (event.key === 'F5') {
+          event.preventDefault()
+          useWorkspace.setState({ connection: 'disconnected' })
+        }
+        if (event.key === 'F6') {
+          event.preventDefault()
+          useWorkspace.setState({ runningSessionId: null })
+        }
+        if (event.key === 'F7') {
+          event.preventDefault()
+          failStorage = true
+        }
+        if (event.key === 'F8') {
+          event.preventDefault()
+          failStorage = false
+          useWorkspace.setState({ storageError: null })
+        }
+      })
+      useWorkspace.subscribe(
+        (state) => (document.body.dataset.storageError = String(Boolean(state.storageError))),
+      )
+      await import('/src/styles/vendor.css')
+      await import('/src/styles/index.scss')
+      const { createRoot } = await import('react-dom/client')
+      const { createElement: h } = await import('react')
+      const { Composer } = await import('/src/components/Composer.tsx')
+      document.documentElement.dataset.theme = useWorkspace.getState().theme
+      document.documentElement.dataset.palette = useWorkspace.getState().palette
+      document.documentElement.style.zoom = params.get('zoom') || '1'
+      const style = document.createElement('style')
+      style.textContent = `#root { position:relative; } .preview-frame { margin:18px; width:min(calc(100% - 36px),${Number(params.get('width')) || 820}px); padding:12px 8px 0; background:var(--paper); border-radius:20px; } .preview-frame.main { height:660px; display:flex; flex-direction:column; } .preview-frame.main .chat-page { justify-content:flex-end; } .preview-frame .composer { width:calc(100% - 48px); margin:20px auto; }`
+      document.head.append(style)
+      createRoot(document.getElementById('root')).render(
+        h(
+          'section',
+          { className: 'preview-frame' + (params.has('stage') ? ' main' : '') },
+          h('div', { className: 'chat-page' }, h(Composer)),
+        ),
+      )
+    </script>
+  </body>
+</html>

@@ -57,7 +57,22 @@
       if (state === 'highlight') {
         const source = tool('source-go', 'read', 'valid.go')
         source.args = { path: 'go/utils/valid.go' }
-        source.output = ['package utils', '', 'func ValidPriority(priority string) bool {', '    switch priority {', '    case "low", "medium", "high":', '        return true', '    default:', '        return false', '    }', '}', '', 'func ValidStatus(status string) bool {', '    return status == "todo" || status == "doing" || status == "done"', '}'].join('\n')
+        source.output = [
+          'package utils',
+          '',
+          'func ValidPriority(priority string) bool {',
+          '    switch priority {',
+          '    case "low", "medium", "high":',
+          '        return true',
+          '    default:',
+          '        return false',
+          '    }',
+          '}',
+          '',
+          'func ValidStatus(status string) bool {',
+          '    return status == "todo" || status == "doing" || status == "done"',
+          '}',
+        ].join('\n')
         const config = tool('source-config', 'read', 'Cargo.toml')
         config.args = { file_path: 'rust/Cargo.toml' }
         config.output = '[package]\nname = "tasklab"\nversion = "0.1.0"'
@@ -65,11 +80,21 @@
         unknown.output = '<plain text> & unchanged'
         const shell = tool('source-shell', 'bash', 'printf status')
         shell.output = 'package utils\nreturn true'
-        session.messages = [{ id: 'highlight-message', role: 'assistant', timestamp: Date.now(), blocks: [
-          { type: 'thinking', text: '先核对输入参数，再查看校验函数。' },
-          { type: 'text', text: '再对一下工作区，看上次看完之后有没有变化。' },
-          source, config, unknown, shell,
-        ] }]
+        session.messages = [
+          {
+            id: 'highlight-message',
+            role: 'assistant',
+            timestamp: Date.now(),
+            blocks: [
+              { type: 'thinking', text: '先核对输入参数，再查看校验函数。' },
+              { type: 'text', text: '再对一下工作区，看上次看完之后有没有变化。' },
+              source,
+              config,
+              unknown,
+              shell,
+            ],
+          },
+        ]
       } else if (state === 'tool-cards') {
         const read = tool('cards-read', 'read', 'LEARNING.md')
         read.args = { path: 'LEARNING.md' }

@@ -1,18 +1,49 @@
 {
   "direction": "Keep the existing lightweight, secondary thinking disclosure. Use one shared answer boundary and normal paragraph rhythm instead of stacked block margins and raw empty lines.",
   "references": [
-    {"product":"Claude", "url":"https://support.claude.com/en/articles/8664678-change-the-model-effort-and-thinking-settings", "observation":"Official documentation describes an expandable Thinking section above the final response."},
-    {"product":"Gemini", "url":"https://blog.google/products-and-platforms/products/gemini/tips-how-to-use-deep-research/", "observation":"Official Deep Research guidance exposes process detail through a Show thinking control."},
-    {"product":"Vercel AI Elements", "url":"https://elements.ai-sdk.dev/components/reasoning", "observation":"Implementation reference separates the reasoning trigger/content from the final message response."}
+    {
+      "product": "Claude",
+      "url": "https://support.claude.com/en/articles/8664678-change-the-model-effort-and-thinking-settings",
+      "observation": "Official documentation describes an expandable Thinking section above the final response."
+    },
+    {
+      "product": "Gemini",
+      "url": "https://blog.google/products-and-platforms/products/gemini/tips-how-to-use-deep-research/",
+      "observation": "Official Deep Research guidance exposes process detail through a Show thinking control."
+    },
+    {
+      "product": "Vercel AI Elements",
+      "url": "https://elements.ai-sdk.dev/components/reasoning",
+      "observation": "Implementation reference separates the reasoning trigger/content from the final message response."
+    }
   ],
   "reference_limits": "References inform disclosure hierarchy. No exact current product pixel measurements are claimed; the 16px and 8px values were chosen and verified against this project's typography and screenshots.",
   "cause": "The existing 16px reply boundary plus a first code block's 14px top margin created a 30px gap. Raw pre-wrap thinking text preserved double newlines as whole blank lines.",
-  "changes": ["Reset first and last Markdown child margins so code, text, headings and lists share a 16px answer boundary", "Render thinking content through the existing Markdown renderer, retaining its secondary 14px/1.7 typography", "Use 8px paragraph gaps inside thinking with 4px top and 8px bottom content padding"],
+  "changes": [
+    "Reset first and last Markdown child margins so code, text, headings and lists share a 16px answer boundary",
+    "Render thinking content through the existing Markdown renderer, retaining its secondary 14px/1.7 typography",
+    "Use 8px paragraph gaps inside thinking with 4px top and 8px bottom content padding"
+  ],
   "motion": "Existing HeroUI Disclosure transitions retained; no additional motion.",
   "removed_text": "No content removed. Empty-line presentation replaced by paragraph spacing.",
   "review": "Local refinement: main-agent visual inspection; no independent reviewer.",
-  "checks": {"typecheck":"passed", "lint":"passed", "spacing_runs":["passed","passed","passed"], "chat_regression_runs":["passed","passed","passed"], "types_checked":["code","plain text","heading","subheading","list"], "states_checked":["collapsed","expanded","keyboard collapse"]},
-  "evidence": ["before-code.png", "before-expanded.png", "after-code.png", "after-expanded.png", "after-390.png", "after-200.png", "verification-results.json"],
+  "checks": {
+    "typecheck": "passed",
+    "lint": "passed",
+    "spacing_runs": ["passed", "passed", "passed"],
+    "chat_regression_runs": ["passed", "passed", "passed"],
+    "types_checked": ["code", "plain text", "heading", "subheading", "list"],
+    "states_checked": ["collapsed", "expanded", "keyboard collapse"]
+  },
+  "evidence": [
+    "before-code.png",
+    "before-expanded.png",
+    "after-code.png",
+    "after-expanded.png",
+    "after-390.png",
+    "after-200.png",
+    "verification-results.json"
+  ],
   "visual_checks": "Desktop, 390px narrow preview and 200% CSS zoom of the actual Conversation component. Paragraphs remain readable, with no horizontal overflow.",
   "limitations": "Local fixture data and actual production components were used. No live provider request or production build was run."
 }

@@ -3,11 +3,7 @@
     {
       "boundary": 1.2543848020872057,
       "boundaryMatches": true,
-      "ground": [
-        27,
-        28,
-        29
-      ],
+      "ground": [27, 28, 29],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -25,18 +21,10 @@
       ],
       "overflow": 0,
       "palette": "ink",
-      "paper": [
-        32,
-        33,
-        34
-      ],
+      "paper": [32, 33, 34],
       "readingLighter": true,
       "readingStep": 1.058199158938468,
-      "sidebar": [
-        27,
-        28,
-        29
-      ],
+      "sidebar": [27, 28, 29],
       "theme": "dark",
       "samples": 61,
       "minText": 5.926617926869808,
@@ -47,11 +35,7 @@
     {
       "boundary": 1.253788228893131,
       "boundaryMatches": true,
-      "ground": [
-        34,
-        34,
-        34
-      ],
+      "ground": [34, 34, 34],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -69,18 +53,10 @@
       ],
       "overflow": 0,
       "palette": "gruvbox",
-      "paper": [
-        40,
-        40,
-        40
-      ],
+      "paper": [40, 40, 40],
       "readingLighter": true,
       "readingStep": 1.0791365203128722,
-      "sidebar": [
-        34,
-        34,
-        34
-      ],
+      "sidebar": [34, 34, 34],
       "theme": "dark",
       "samples": 61,
       "minText": 5.511878048352569,
@@ -91,11 +67,7 @@
     {
       "boundary": 1.225819094429277,
       "boundaryMatches": true,
-      "ground": [
-        24,
-        24,
-        37
-      ],
+      "ground": [24, 24, 37],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -113,18 +85,10 @@
       ],
       "overflow": 0,
       "palette": "catppuccin",
-      "paper": [
-        30,
-        30,
-        46
-      ],
+      "paper": [30, 30, 46],
       "readingLighter": true,
       "readingStep": 1.0703546134828297,
-      "sidebar": [
-        24,
-        24,
-        37
-      ],
+      "sidebar": [24, 24, 37],
       "theme": "dark",
       "samples": 61,
       "minText": 5.647381649710362,
@@ -135,11 +99,7 @@
     {
       "boundary": 1.2172656466484848,
       "boundaryMatches": true,
-      "ground": [
-        11,
-        12,
-        13
-      ],
+      "ground": [11, 12, 13],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -157,18 +117,10 @@
       ],
       "overflow": 0,
       "palette": "linear",
-      "paper": [
-        15,
-        16,
-        17
-      ],
+      "paper": [15, 16, 17],
       "readingLighter": true,
       "readingStep": 1.0278682179106542,
-      "sidebar": [
-        11,
-        12,
-        13
-      ],
+      "sidebar": [11, 12, 13],
       "theme": "dark",
       "samples": 61,
       "minText": 5.392930066826481,
@@ -179,11 +131,7 @@
     {
       "boundary": 1.265169436868595,
       "boundaryMatches": true,
-      "ground": [
-        39,
-        45,
-        56
-      ],
+      "ground": [39, 45, 56],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -201,18 +149,10 @@
       ],
       "overflow": 0,
       "palette": "nord",
-      "paper": [
-        46,
-        52,
-        64
-      ],
+      "paper": [46, 52, 64],
       "readingLighter": true,
       "readingStep": 1.107110785939314,
-      "sidebar": [
-        39,
-        45,
-        56
-      ],
+      "sidebar": [39, 45, 56],
       "theme": "dark",
       "samples": 61,
       "minText": 4.639988084132422,
@@ -223,11 +163,7 @@
     {
       "boundary": 1.1611149910891492,
       "boundaryMatches": true,
-      "ground": [
-        13,
-        16,
-        23
-      ],
+      "ground": [13, 16, 23],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -245,18 +181,10 @@
       ],
       "overflow": 0,
       "palette": "ayu",
-      "paper": [
-        16,
-        20,
-        28
-      ],
+      "paper": [16, 20, 28],
       "readingLighter": true,
       "readingStep": 1.031950247447304,
-      "sidebar": [
-        13,
-        16,
-        23
-      ],
+      "sidebar": [13, 16, 23],
       "theme": "dark",
       "samples": 61,
       "minText": 5.112205765920098,
@@ -267,11 +195,7 @@
     {
       "boundary": 1.217811957187093,
       "boundaryMatches": true,
-      "ground": [
-        33,
-        37,
-        43
-      ],
+      "ground": [33, 37, 43],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -289,18 +213,10 @@
       ],
       "overflow": 0,
       "palette": "one-dark",
-      "paper": [
-        40,
-        44,
-        52
-      ],
+      "paper": [40, 44, 52],
       "readingLighter": true,
       "readingStep": 1.0996244202713126,
-      "sidebar": [
-        33,
-        37,
-        43
-      ],
+      "sidebar": [33, 37, 43],
       "theme": "dark",
       "samples": 61,
       "minText": 4.616402045969276,
@@ -311,11 +227,7 @@
     {
       "boundary": 1.2431614867725984,
       "boundaryMatches": true,
-      "ground": [
-        26,
-        26,
-        26
-      ],
+      "ground": [26, 26, 26],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -333,18 +245,10 @@
       ],
       "overflow": 0,
       "palette": "min-dark",
-      "paper": [
-        31,
-        31,
-        31
-      ],
+      "paper": [31, 31, 31],
       "readingLighter": true,
       "readingStep": 1.0558970646409271,
-      "sidebar": [
-        26,
-        26,
-        26
-      ],
+      "sidebar": [26, 26, 26],
       "theme": "dark",
       "samples": 61,
       "minText": 5.181056796718022,
@@ -355,11 +259,7 @@
     {
       "boundary": 1.1939873232239353,
       "boundaryMatches": true,
-      "ground": [
-        0,
-        37,
-        47
-      ],
+      "ground": [0, 37, 47],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -377,18 +277,10 @@
       ],
       "overflow": 0,
       "palette": "solarized",
-      "paper": [
-        0,
-        43,
-        54
-      ],
+      "paper": [0, 43, 54],
       "readingLighter": true,
       "readingStep": 1.071338455242644,
-      "sidebar": [
-        0,
-        37,
-        47
-      ],
+      "sidebar": [0, 37, 47],
       "theme": "dark",
       "samples": 61,
       "minText": 5.278333336967014,
@@ -399,11 +291,7 @@
     {
       "boundary": 1.2241105958699885,
       "boundaryMatches": true,
-      "ground": [
-        21,
-        19,
-        30
-      ],
+      "ground": [21, 19, 30],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -421,18 +309,10 @@
       ],
       "overflow": 0,
       "palette": "rose-pine",
-      "paper": [
-        25,
-        23,
-        36
-      ],
+      "paper": [25, 23, 36],
       "readingLighter": true,
       "readingStep": 1.039855255968709,
-      "sidebar": [
-        21,
-        19,
-        30
-      ],
+      "sidebar": [21, 19, 30],
       "theme": "dark",
       "samples": 61,
       "minText": 5.994538290140544,
@@ -443,11 +323,7 @@
     {
       "boundary": 1.2028945925090622,
       "boundaryMatches": true,
-      "ground": [
-        22,
-        22,
-        30
-      ],
+      "ground": [22, 22, 30],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -465,18 +341,10 @@
       ],
       "overflow": 0,
       "palette": "tokyo-night",
-      "paper": [
-        26,
-        27,
-        38
-      ],
+      "paper": [26, 27, 38],
       "readingLighter": true,
       "readingStep": 1.0522923098577228,
-      "sidebar": [
-        22,
-        22,
-        30
-      ],
+      "sidebar": [22, 22, 30],
       "theme": "dark",
       "samples": 61,
       "minText": 5.86322589212689,
@@ -487,11 +355,7 @@
     {
       "boundary": 1.1819358073249864,
       "boundaryMatches": true,
-      "ground": [
-        247,
-        247,
-        246
-      ],
+      "ground": [247, 247, 246],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -509,18 +373,10 @@
       ],
       "overflow": 0,
       "palette": "ink",
-      "paper": [
-        255,
-        255,
-        255
-      ],
+      "paper": [255, 255, 255],
       "readingLighter": true,
       "readingStep": 1.0719808992784732,
-      "sidebar": [
-        247,
-        247,
-        246
-      ],
+      "sidebar": [247, 247, 246],
       "theme": "light",
       "samples": 61,
       "minText": 5.047811998016977,
@@ -531,11 +387,7 @@
     {
       "boundary": 1.1596518146559422,
       "boundaryMatches": true,
-      "ground": [
-        242,
-        229,
-        188
-      ],
+      "ground": [242, 229, 188],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -553,18 +405,10 @@
       ],
       "overflow": 0,
       "palette": "gruvbox",
-      "paper": [
-        251,
-        241,
-        199
-      ],
+      "paper": [251, 241, 199],
       "readingLighter": true,
       "readingStep": 1.1076839089893578,
-      "sidebar": [
-        242,
-        229,
-        188
-      ],
+      "sidebar": [242, 229, 188],
       "theme": "light",
       "samples": 61,
       "minText": 5.263313353185144,
@@ -575,11 +419,7 @@
     {
       "boundary": 1.1374669117178682,
       "boundaryMatches": true,
-      "ground": [
-        230,
-        233,
-        239
-      ],
+      "ground": [230, 233, 239],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -597,18 +437,10 @@
       ],
       "overflow": 0,
       "palette": "catppuccin",
-      "paper": [
-        239,
-        241,
-        245
-      ],
+      "paper": [239, 241, 245],
       "readingLighter": true,
       "readingStep": 1.0755341086234016,
-      "sidebar": [
-        230,
-        233,
-        239
-      ],
+      "sidebar": [230, 233, 239],
       "theme": "light",
       "samples": 61,
       "minText": 5.003132516224718,
@@ -619,11 +451,7 @@
     {
       "boundary": 1.193076356186724,
       "boundaryMatches": true,
-      "ground": [
-        240,
-        241,
-        242
-      ],
+      "ground": [240, 241, 242],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -641,18 +469,10 @@
       ],
       "overflow": 0,
       "palette": "linear",
-      "paper": [
-        247,
-        248,
-        248
-      ],
+      "paper": [247, 248, 248],
       "readingLighter": true,
       "readingStep": 1.062895177758865,
-      "sidebar": [
-        240,
-        241,
-        242
-      ],
+      "sidebar": [240, 241, 242],
       "theme": "light",
       "samples": 61,
       "minText": 5.172920136339325,
@@ -663,11 +483,7 @@
     {
       "boundary": 1.166133037077279,
       "boundaryMatches": true,
-      "ground": [
-        229,
-        233,
-        240
-      ],
+      "ground": [229, 233, 240],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -685,18 +501,10 @@
       ],
       "overflow": 0,
       "palette": "nord",
-      "paper": [
-        236,
-        239,
-        244
-      ],
+      "paper": [236, 239, 244],
       "readingLighter": true,
       "readingStep": 1.0564835540833024,
-      "sidebar": [
-        229,
-        233,
-        240
-      ],
+      "sidebar": [229, 233, 240],
       "theme": "light",
       "samples": 61,
       "minText": 5.161558283820831,
@@ -707,11 +515,7 @@
     {
       "boundary": 1.1296011692067995,
       "boundaryMatches": true,
-      "ground": [
-        248,
-        249,
-        250
-      ],
+      "ground": [248, 249, 250],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -729,18 +533,10 @@
       ],
       "overflow": 0,
       "palette": "ayu",
-      "paper": [
-        252,
-        252,
-        252
-      ],
+      "paper": [252, 252, 252],
       "readingLighter": true,
       "readingStep": 1.0274528733657324,
-      "sidebar": [
-        248,
-        249,
-        250
-      ],
+      "sidebar": [248, 249, 250],
       "theme": "light",
       "samples": 61,
       "minText": 5.620894248199874,
@@ -751,11 +547,7 @@
     {
       "boundary": 1.1623811876587014,
       "boundaryMatches": true,
-      "ground": [
-        240,
-        240,
-        240
-      ],
+      "ground": [240, 240, 240],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -773,18 +565,10 @@
       ],
       "overflow": 0,
       "palette": "one-dark",
-      "paper": [
-        250,
-        250,
-        250
-      ],
+      "paper": [250, 250, 250],
       "readingLighter": true,
       "readingStep": 1.091826843271834,
-      "sidebar": [
-        240,
-        240,
-        240
-      ],
+      "sidebar": [240, 240, 240],
       "theme": "light",
       "samples": 61,
       "minText": 4.9689084374400245,
@@ -795,11 +579,7 @@
     {
       "boundary": 1.1894240602017052,
       "boundaryMatches": true,
-      "ground": [
-        246,
-        246,
-        246
-      ],
+      "ground": [246, 246, 246],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -817,18 +597,10 @@
       ],
       "overflow": 0,
       "palette": "min-dark",
-      "paper": [
-        255,
-        255,
-        255
-      ],
+      "paper": [255, 255, 255],
       "readingLighter": true,
       "readingStep": 1.080711823935424,
-      "sidebar": [
-        246,
-        246,
-        246
-      ],
+      "sidebar": [246, 246, 246],
       "theme": "light",
       "samples": 61,
       "minText": 4.874449117080598,
@@ -839,11 +611,7 @@
     {
       "boundary": 1.1197883750828197,
       "boundaryMatches": true,
-      "ground": [
-        238,
-        232,
-        213
-      ],
+      "ground": [238, 232, 213],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -861,18 +629,10 @@
       ],
       "overflow": 0,
       "palette": "solarized",
-      "paper": [
-        253,
-        246,
-        227
-      ],
+      "paper": [253, 246, 227],
       "readingLighter": true,
       "readingStep": 1.13589871628495,
-      "sidebar": [
-        238,
-        232,
-        213
-      ],
+      "sidebar": [238, 232, 213],
       "theme": "light",
       "samples": 61,
       "minText": 4.899153804194328,
@@ -883,11 +643,7 @@
     {
       "boundary": 1.1328618261022472,
       "boundaryMatches": true,
-      "ground": [
-        242,
-        233,
-        225
-      ],
+      "ground": [242, 233, 225],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -905,18 +661,10 @@
       ],
       "overflow": 0,
       "palette": "rose-pine",
-      "paper": [
-        250,
-        244,
-        237
-      ],
+      "paper": [250, 244, 237],
       "readingLighter": true,
       "readingStep": 1.0975949529306095,
-      "sidebar": [
-        242,
-        233,
-        225
-      ],
+      "sidebar": [242, 233, 225],
       "theme": "light",
       "samples": 61,
       "minText": 5.442741112519081,
@@ -927,11 +675,7 @@
     {
       "boundary": 1.1498917972519695,
       "boundaryMatches": true,
-      "ground": [
-        213,
-        214,
-        219
-      ],
+      "ground": [213, 214, 219],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -949,18 +693,10 @@
       ],
       "overflow": 0,
       "palette": "tokyo-night",
-      "paper": [
-        225,
-        226,
-        231
-      ],
+      "paper": [225, 226, 231],
       "readingLighter": true,
       "readingStep": 1.1218464171878302,
-      "sidebar": [
-        213,
-        214,
-        219
-      ],
+      "sidebar": [213, 214, 219],
       "theme": "light",
       "samples": 61,
       "minText": 4.674296179173031,
@@ -973,11 +709,7 @@
     {
       "boundary": 1.2543848020872057,
       "boundaryMatches": true,
-      "ground": [
-        27,
-        28,
-        29
-      ],
+      "ground": [27, 28, 29],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -995,18 +727,10 @@
       ],
       "overflow": 0,
       "palette": "ink",
-      "paper": [
-        32,
-        33,
-        34
-      ],
+      "paper": [32, 33, 34],
       "readingLighter": true,
       "readingStep": 1.058199158938468,
-      "sidebar": [
-        27,
-        28,
-        29
-      ],
+      "sidebar": [27, 28, 29],
       "theme": "dark",
       "samples": 61,
       "minText": 5.926617926869808,
@@ -1017,11 +741,7 @@
     {
       "boundary": 1.253788228893131,
       "boundaryMatches": true,
-      "ground": [
-        34,
-        34,
-        34
-      ],
+      "ground": [34, 34, 34],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -1039,18 +759,10 @@
       ],
       "overflow": 0,
       "palette": "gruvbox",
-      "paper": [
-        40,
-        40,
-        40
-      ],
+      "paper": [40, 40, 40],
       "readingLighter": true,
       "readingStep": 1.0791365203128722,
-      "sidebar": [
-        34,
-        34,
-        34
-      ],
+      "sidebar": [34, 34, 34],
       "theme": "dark",
       "samples": 61,
       "minText": 5.511878048352569,
@@ -1061,11 +773,7 @@
     {
       "boundary": 1.225819094429277,
       "boundaryMatches": true,
-      "ground": [
-        24,
-        24,
-        37
-      ],
+      "ground": [24, 24, 37],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -1083,18 +791,10 @@
       ],
       "overflow": 0,
       "palette": "catppuccin",
-      "paper": [
-        30,
-        30,
-        46
-      ],
+      "paper": [30, 30, 46],
       "readingLighter": true,
       "readingStep": 1.0703546134828297,
-      "sidebar": [
-        24,
-        24,
-        37
-      ],
+      "sidebar": [24, 24, 37],
       "theme": "dark",
       "samples": 61,
       "minText": 5.647381649710362,
@@ -1105,11 +805,7 @@
     {
       "boundary": 1.2172656466484848,
       "boundaryMatches": true,
-      "ground": [
-        11,
-        12,
-        13
-      ],
+      "ground": [11, 12, 13],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -1127,18 +823,10 @@
       ],
       "overflow": 0,
       "palette": "linear",
-      "paper": [
-        15,
-        16,
-        17
-      ],
+      "paper": [15, 16, 17],
       "readingLighter": true,
       "readingStep": 1.0278682179106542,
-      "sidebar": [
-        11,
-        12,
-        13
-      ],
+      "sidebar": [11, 12, 13],
       "theme": "dark",
       "samples": 61,
       "minText": 5.392930066826481,
@@ -1149,11 +837,7 @@
     {
       "boundary": 1.265169436868595,
       "boundaryMatches": true,
-      "ground": [
-        39,
-        45,
-        56
-      ],
+      "ground": [39, 45, 56],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -1171,18 +855,10 @@
       ],
       "overflow": 0,
       "palette": "nord",
-      "paper": [
-        46,
-        52,
-        64
-      ],
+      "paper": [46, 52, 64],
       "readingLighter": true,
       "readingStep": 1.107110785939314,
-      "sidebar": [
-        39,
-        45,
-        56
-      ],
+      "sidebar": [39, 45, 56],
       "theme": "dark",
       "samples": 61,
       "minText": 4.639988084132422,
@@ -1193,11 +869,7 @@
     {
       "boundary": 1.1611149910891492,
       "boundaryMatches": true,
-      "ground": [
-        13,
-        16,
-        23
-      ],
+      "ground": [13, 16, 23],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -1215,18 +887,10 @@
       ],
       "overflow": 0,
       "palette": "ayu",
-      "paper": [
-        16,
-        20,
-        28
-      ],
+      "paper": [16, 20, 28],
       "readingLighter": true,
       "readingStep": 1.031950247447304,
-      "sidebar": [
-        13,
-        16,
-        23
-      ],
+      "sidebar": [13, 16, 23],
       "theme": "dark",
       "samples": 61,
       "minText": 5.112205765920098,
@@ -1237,11 +901,7 @@
     {
       "boundary": 1.217811957187093,
       "boundaryMatches": true,
-      "ground": [
-        33,
-        37,
-        43
-      ],
+      "ground": [33, 37, 43],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -1259,18 +919,10 @@
       ],
       "overflow": 0,
       "palette": "one-dark",
-      "paper": [
-        40,
-        44,
-        52
-      ],
+      "paper": [40, 44, 52],
       "readingLighter": true,
       "readingStep": 1.0996244202713126,
-      "sidebar": [
-        33,
-        37,
-        43
-      ],
+      "sidebar": [33, 37, 43],
       "theme": "dark",
       "samples": 61,
       "minText": 4.616402045969276,
@@ -1281,11 +933,7 @@
     {
       "boundary": 1.2431614867725984,
       "boundaryMatches": true,
-      "ground": [
-        26,
-        26,
-        26
-      ],
+      "ground": [26, 26, 26],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -1303,18 +951,10 @@
       ],
       "overflow": 0,
       "palette": "min-dark",
-      "paper": [
-        31,
-        31,
-        31
-      ],
+      "paper": [31, 31, 31],
       "readingLighter": true,
       "readingStep": 1.0558970646409271,
-      "sidebar": [
-        26,
-        26,
-        26
-      ],
+      "sidebar": [26, 26, 26],
       "theme": "dark",
       "samples": 61,
       "minText": 5.181056796718022,
@@ -1325,11 +965,7 @@
     {
       "boundary": 1.1939873232239353,
       "boundaryMatches": true,
-      "ground": [
-        0,
-        37,
-        47
-      ],
+      "ground": [0, 37, 47],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -1347,18 +983,10 @@
       ],
       "overflow": 0,
       "palette": "solarized",
-      "paper": [
-        0,
-        43,
-        54
-      ],
+      "paper": [0, 43, 54],
       "readingLighter": true,
       "readingStep": 1.071338455242644,
-      "sidebar": [
-        0,
-        37,
-        47
-      ],
+      "sidebar": [0, 37, 47],
       "theme": "dark",
       "samples": 61,
       "minText": 5.278333336967014,
@@ -1369,11 +997,7 @@
     {
       "boundary": 1.2241105958699885,
       "boundaryMatches": true,
-      "ground": [
-        21,
-        19,
-        30
-      ],
+      "ground": [21, 19, 30],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -1391,18 +1015,10 @@
       ],
       "overflow": 0,
       "palette": "rose-pine",
-      "paper": [
-        25,
-        23,
-        36
-      ],
+      "paper": [25, 23, 36],
       "readingLighter": true,
       "readingStep": 1.039855255968709,
-      "sidebar": [
-        21,
-        19,
-        30
-      ],
+      "sidebar": [21, 19, 30],
       "theme": "dark",
       "samples": 61,
       "minText": 5.994538290140544,
@@ -1413,11 +1029,7 @@
     {
       "boundary": 1.2028945925090622,
       "boundaryMatches": true,
-      "ground": [
-        22,
-        22,
-        30
-      ],
+      "ground": [22, 22, 30],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -1435,18 +1047,10 @@
       ],
       "overflow": 0,
       "palette": "tokyo-night",
-      "paper": [
-        26,
-        27,
-        38
-      ],
+      "paper": [26, 27, 38],
       "readingLighter": true,
       "readingStep": 1.0522923098577228,
-      "sidebar": [
-        22,
-        22,
-        30
-      ],
+      "sidebar": [22, 22, 30],
       "theme": "dark",
       "samples": 61,
       "minText": 5.86322589212689,
@@ -1457,11 +1061,7 @@
     {
       "boundary": 1.1819358073249864,
       "boundaryMatches": true,
-      "ground": [
-        247,
-        247,
-        246
-      ],
+      "ground": [247, 247, 246],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -1479,18 +1079,10 @@
       ],
       "overflow": 0,
       "palette": "ink",
-      "paper": [
-        255,
-        255,
-        255
-      ],
+      "paper": [255, 255, 255],
       "readingLighter": true,
       "readingStep": 1.0719808992784732,
-      "sidebar": [
-        247,
-        247,
-        246
-      ],
+      "sidebar": [247, 247, 246],
       "theme": "light",
       "samples": 61,
       "minText": 5.047811998016977,
@@ -1501,11 +1093,7 @@
     {
       "boundary": 1.1596518146559422,
       "boundaryMatches": true,
-      "ground": [
-        242,
-        229,
-        188
-      ],
+      "ground": [242, 229, 188],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -1523,18 +1111,10 @@
       ],
       "overflow": 0,
       "palette": "gruvbox",
-      "paper": [
-        251,
-        241,
-        199
-      ],
+      "paper": [251, 241, 199],
       "readingLighter": true,
       "readingStep": 1.1076839089893578,
-      "sidebar": [
-        242,
-        229,
-        188
-      ],
+      "sidebar": [242, 229, 188],
       "theme": "light",
       "samples": 61,
       "minText": 5.263313353185144,
@@ -1545,11 +1125,7 @@
     {
       "boundary": 1.1374669117178682,
       "boundaryMatches": true,
-      "ground": [
-        230,
-        233,
-        239
-      ],
+      "ground": [230, 233, 239],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -1567,18 +1143,10 @@
       ],
       "overflow": 0,
       "palette": "catppuccin",
-      "paper": [
-        239,
-        241,
-        245
-      ],
+      "paper": [239, 241, 245],
       "readingLighter": true,
       "readingStep": 1.0755341086234016,
-      "sidebar": [
-        230,
-        233,
-        239
-      ],
+      "sidebar": [230, 233, 239],
       "theme": "light",
       "samples": 61,
       "minText": 5.003132516224718,
@@ -1589,11 +1157,7 @@
     {
       "boundary": 1.193076356186724,
       "boundaryMatches": true,
-      "ground": [
-        240,
-        241,
-        242
-      ],
+      "ground": [240, 241, 242],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -1611,18 +1175,10 @@
       ],
       "overflow": 0,
       "palette": "linear",
-      "paper": [
-        247,
-        248,
-        248
-      ],
+      "paper": [247, 248, 248],
       "readingLighter": true,
       "readingStep": 1.062895177758865,
-      "sidebar": [
-        240,
-        241,
-        242
-      ],
+      "sidebar": [240, 241, 242],
       "theme": "light",
       "samples": 61,
       "minText": 5.172920136339325,
@@ -1633,11 +1189,7 @@
     {
       "boundary": 1.166133037077279,
       "boundaryMatches": true,
-      "ground": [
-        229,
-        233,
-        240
-      ],
+      "ground": [229, 233, 240],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -1655,18 +1207,10 @@
       ],
       "overflow": 0,
       "palette": "nord",
-      "paper": [
-        236,
-        239,
-        244
-      ],
+      "paper": [236, 239, 244],
       "readingLighter": true,
       "readingStep": 1.0564835540833024,
-      "sidebar": [
-        229,
-        233,
-        240
-      ],
+      "sidebar": [229, 233, 240],
       "theme": "light",
       "samples": 61,
       "minText": 5.161558283820831,
@@ -1677,11 +1221,7 @@
     {
       "boundary": 1.1296011692067995,
       "boundaryMatches": true,
-      "ground": [
-        248,
-        249,
-        250
-      ],
+      "ground": [248, 249, 250],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -1699,18 +1239,10 @@
       ],
       "overflow": 0,
       "palette": "ayu",
-      "paper": [
-        252,
-        252,
-        252
-      ],
+      "paper": [252, 252, 252],
       "readingLighter": true,
       "readingStep": 1.0274528733657324,
-      "sidebar": [
-        248,
-        249,
-        250
-      ],
+      "sidebar": [248, 249, 250],
       "theme": "light",
       "samples": 61,
       "minText": 5.620894248199874,
@@ -1721,11 +1253,7 @@
     {
       "boundary": 1.1623811876587014,
       "boundaryMatches": true,
-      "ground": [
-        240,
-        240,
-        240
-      ],
+      "ground": [240, 240, 240],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -1743,18 +1271,10 @@
       ],
       "overflow": 0,
       "palette": "one-dark",
-      "paper": [
-        250,
-        250,
-        250
-      ],
+      "paper": [250, 250, 250],
       "readingLighter": true,
       "readingStep": 1.091826843271834,
-      "sidebar": [
-        240,
-        240,
-        240
-      ],
+      "sidebar": [240, 240, 240],
       "theme": "light",
       "samples": 61,
       "minText": 4.9689084374400245,
@@ -1765,11 +1285,7 @@
     {
       "boundary": 1.1894240602017052,
       "boundaryMatches": true,
-      "ground": [
-        246,
-        246,
-        246
-      ],
+      "ground": [246, 246, 246],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -1787,18 +1303,10 @@
       ],
       "overflow": 0,
       "palette": "min-dark",
-      "paper": [
-        255,
-        255,
-        255
-      ],
+      "paper": [255, 255, 255],
       "readingLighter": true,
       "readingStep": 1.080711823935424,
-      "sidebar": [
-        246,
-        246,
-        246
-      ],
+      "sidebar": [246, 246, 246],
       "theme": "light",
       "samples": 61,
       "minText": 4.874449117080598,
@@ -1809,11 +1317,7 @@
     {
       "boundary": 1.1197883750828197,
       "boundaryMatches": true,
-      "ground": [
-        238,
-        232,
-        213
-      ],
+      "ground": [238, 232, 213],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -1831,18 +1335,10 @@
       ],
       "overflow": 0,
       "palette": "solarized",
-      "paper": [
-        253,
-        246,
-        227
-      ],
+      "paper": [253, 246, 227],
       "readingLighter": true,
       "readingStep": 1.13589871628495,
-      "sidebar": [
-        238,
-        232,
-        213
-      ],
+      "sidebar": [238, 232, 213],
       "theme": "light",
       "samples": 61,
       "minText": 4.899153804194328,
@@ -1853,11 +1349,7 @@
     {
       "boundary": 1.1328618261022472,
       "boundaryMatches": true,
-      "ground": [
-        242,
-        233,
-        225
-      ],
+      "ground": [242, 233, 225],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -1875,18 +1367,10 @@
       ],
       "overflow": 0,
       "palette": "rose-pine",
-      "paper": [
-        250,
-        244,
-        237
-      ],
+      "paper": [250, 244, 237],
       "readingLighter": true,
       "readingStep": 1.0975949529306095,
-      "sidebar": [
-        242,
-        233,
-        225
-      ],
+      "sidebar": [242, 233, 225],
       "theme": "light",
       "samples": 61,
       "minText": 5.442741112519081,
@@ -1897,11 +1381,7 @@
     {
       "boundary": 1.1498917972519695,
       "boundaryMatches": true,
-      "ground": [
-        213,
-        214,
-        219
-      ],
+      "ground": [213, 214, 219],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -1919,18 +1399,10 @@
       ],
       "overflow": 0,
       "palette": "tokyo-night",
-      "paper": [
-        225,
-        226,
-        231
-      ],
+      "paper": [225, 226, 231],
       "readingLighter": true,
       "readingStep": 1.1218464171878302,
-      "sidebar": [
-        213,
-        214,
-        219
-      ],
+      "sidebar": [213, 214, 219],
       "theme": "light",
       "samples": 61,
       "minText": 4.674296179173031,
@@ -1943,11 +1415,7 @@
     {
       "boundary": 1.2543848020872057,
       "boundaryMatches": true,
-      "ground": [
-        27,
-        28,
-        29
-      ],
+      "ground": [27, 28, 29],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -1965,18 +1433,10 @@
       ],
       "overflow": 0,
       "palette": "ink",
-      "paper": [
-        32,
-        33,
-        34
-      ],
+      "paper": [32, 33, 34],
       "readingLighter": true,
       "readingStep": 1.058199158938468,
-      "sidebar": [
-        27,
-        28,
-        29
-      ],
+      "sidebar": [27, 28, 29],
       "theme": "dark",
       "samples": 61,
       "minText": 5.926617926869808,
@@ -1987,11 +1447,7 @@
     {
       "boundary": 1.253788228893131,
       "boundaryMatches": true,
-      "ground": [
-        34,
-        34,
-        34
-      ],
+      "ground": [34, 34, 34],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -2009,18 +1465,10 @@
       ],
       "overflow": 0,
       "palette": "gruvbox",
-      "paper": [
-        40,
-        40,
-        40
-      ],
+      "paper": [40, 40, 40],
       "readingLighter": true,
       "readingStep": 1.0791365203128722,
-      "sidebar": [
-        34,
-        34,
-        34
-      ],
+      "sidebar": [34, 34, 34],
       "theme": "dark",
       "samples": 61,
       "minText": 5.511878048352569,
@@ -2031,11 +1479,7 @@
     {
       "boundary": 1.225819094429277,
       "boundaryMatches": true,
-      "ground": [
-        24,
-        24,
-        37
-      ],
+      "ground": [24, 24, 37],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -2053,18 +1497,10 @@
       ],
       "overflow": 0,
       "palette": "catppuccin",
-      "paper": [
-        30,
-        30,
-        46
-      ],
+      "paper": [30, 30, 46],
       "readingLighter": true,
       "readingStep": 1.0703546134828297,
-      "sidebar": [
-        24,
-        24,
-        37
-      ],
+      "sidebar": [24, 24, 37],
       "theme": "dark",
       "samples": 61,
       "minText": 5.647381649710362,
@@ -2075,11 +1511,7 @@
     {
       "boundary": 1.2172656466484848,
       "boundaryMatches": true,
-      "ground": [
-        11,
-        12,
-        13
-      ],
+      "ground": [11, 12, 13],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -2097,18 +1529,10 @@
       ],
       "overflow": 0,
       "palette": "linear",
-      "paper": [
-        15,
-        16,
-        17
-      ],
+      "paper": [15, 16, 17],
       "readingLighter": true,
       "readingStep": 1.0278682179106542,
-      "sidebar": [
-        11,
-        12,
-        13
-      ],
+      "sidebar": [11, 12, 13],
       "theme": "dark",
       "samples": 61,
       "minText": 5.392930066826481,
@@ -2119,11 +1543,7 @@
     {
       "boundary": 1.265169436868595,
       "boundaryMatches": true,
-      "ground": [
-        39,
-        45,
-        56
-      ],
+      "ground": [39, 45, 56],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -2141,18 +1561,10 @@
       ],
       "overflow": 0,
       "palette": "nord",
-      "paper": [
-        46,
-        52,
-        64
-      ],
+      "paper": [46, 52, 64],
       "readingLighter": true,
       "readingStep": 1.107110785939314,
-      "sidebar": [
-        39,
-        45,
-        56
-      ],
+      "sidebar": [39, 45, 56],
       "theme": "dark",
       "samples": 61,
       "minText": 4.639988084132422,
@@ -2163,11 +1575,7 @@
     {
       "boundary": 1.1611149910891492,
       "boundaryMatches": true,
-      "ground": [
-        13,
-        16,
-        23
-      ],
+      "ground": [13, 16, 23],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -2185,18 +1593,10 @@
       ],
       "overflow": 0,
       "palette": "ayu",
-      "paper": [
-        16,
-        20,
-        28
-      ],
+      "paper": [16, 20, 28],
       "readingLighter": true,
       "readingStep": 1.031950247447304,
-      "sidebar": [
-        13,
-        16,
-        23
-      ],
+      "sidebar": [13, 16, 23],
       "theme": "dark",
       "samples": 61,
       "minText": 5.112205765920098,
@@ -2207,11 +1607,7 @@
     {
       "boundary": 1.217811957187093,
       "boundaryMatches": true,
-      "ground": [
-        33,
-        37,
-        43
-      ],
+      "ground": [33, 37, 43],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -2229,18 +1625,10 @@
       ],
       "overflow": 0,
       "palette": "one-dark",
-      "paper": [
-        40,
-        44,
-        52
-      ],
+      "paper": [40, 44, 52],
       "readingLighter": true,
       "readingStep": 1.0996244202713126,
-      "sidebar": [
-        33,
-        37,
-        43
-      ],
+      "sidebar": [33, 37, 43],
       "theme": "dark",
       "samples": 61,
       "minText": 4.616402045969276,
@@ -2251,11 +1639,7 @@
     {
       "boundary": 1.2431614867725984,
       "boundaryMatches": true,
-      "ground": [
-        26,
-        26,
-        26
-      ],
+      "ground": [26, 26, 26],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -2273,18 +1657,10 @@
       ],
       "overflow": 0,
       "palette": "min-dark",
-      "paper": [
-        31,
-        31,
-        31
-      ],
+      "paper": [31, 31, 31],
       "readingLighter": true,
       "readingStep": 1.0558970646409271,
-      "sidebar": [
-        26,
-        26,
-        26
-      ],
+      "sidebar": [26, 26, 26],
       "theme": "dark",
       "samples": 61,
       "minText": 5.181056796718022,
@@ -2295,11 +1671,7 @@
     {
       "boundary": 1.1939873232239353,
       "boundaryMatches": true,
-      "ground": [
-        0,
-        37,
-        47
-      ],
+      "ground": [0, 37, 47],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -2317,18 +1689,10 @@
       ],
       "overflow": 0,
       "palette": "solarized",
-      "paper": [
-        0,
-        43,
-        54
-      ],
+      "paper": [0, 43, 54],
       "readingLighter": true,
       "readingStep": 1.071338455242644,
-      "sidebar": [
-        0,
-        37,
-        47
-      ],
+      "sidebar": [0, 37, 47],
       "theme": "dark",
       "samples": 61,
       "minText": 5.278333336967014,
@@ -2339,11 +1703,7 @@
     {
       "boundary": 1.2241105958699885,
       "boundaryMatches": true,
-      "ground": [
-        21,
-        19,
-        30
-      ],
+      "ground": [21, 19, 30],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -2361,18 +1721,10 @@
       ],
       "overflow": 0,
       "palette": "rose-pine",
-      "paper": [
-        25,
-        23,
-        36
-      ],
+      "paper": [25, 23, 36],
       "readingLighter": true,
       "readingStep": 1.039855255968709,
-      "sidebar": [
-        21,
-        19,
-        30
-      ],
+      "sidebar": [21, 19, 30],
       "theme": "dark",
       "samples": 61,
       "minText": 5.994538290140544,
@@ -2383,11 +1735,7 @@
     {
       "boundary": 1.2028945925090622,
       "boundaryMatches": true,
-      "ground": [
-        22,
-        22,
-        30
-      ],
+      "ground": [22, 22, 30],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -2405,18 +1753,10 @@
       ],
       "overflow": 0,
       "palette": "tokyo-night",
-      "paper": [
-        26,
-        27,
-        38
-      ],
+      "paper": [26, 27, 38],
       "readingLighter": true,
       "readingStep": 1.0522923098577228,
-      "sidebar": [
-        22,
-        22,
-        30
-      ],
+      "sidebar": [22, 22, 30],
       "theme": "dark",
       "samples": 61,
       "minText": 5.86322589212689,
@@ -2427,11 +1767,7 @@
     {
       "boundary": 1.1819358073249864,
       "boundaryMatches": true,
-      "ground": [
-        247,
-        247,
-        246
-      ],
+      "ground": [247, 247, 246],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -2449,18 +1785,10 @@
       ],
       "overflow": 0,
       "palette": "ink",
-      "paper": [
-        255,
-        255,
-        255
-      ],
+      "paper": [255, 255, 255],
       "readingLighter": true,
       "readingStep": 1.0719808992784732,
-      "sidebar": [
-        247,
-        247,
-        246
-      ],
+      "sidebar": [247, 247, 246],
       "theme": "light",
       "samples": 61,
       "minText": 5.047811998016977,
@@ -2471,11 +1799,7 @@
     {
       "boundary": 1.1596518146559422,
       "boundaryMatches": true,
-      "ground": [
-        242,
-        229,
-        188
-      ],
+      "ground": [242, 229, 188],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -2493,18 +1817,10 @@
       ],
       "overflow": 0,
       "palette": "gruvbox",
-      "paper": [
-        251,
-        241,
-        199
-      ],
+      "paper": [251, 241, 199],
       "readingLighter": true,
       "readingStep": 1.1076839089893578,
-      "sidebar": [
-        242,
-        229,
-        188
-      ],
+      "sidebar": [242, 229, 188],
       "theme": "light",
       "samples": 61,
       "minText": 5.263313353185144,
@@ -2515,11 +1831,7 @@
     {
       "boundary": 1.1374669117178682,
       "boundaryMatches": true,
-      "ground": [
-        230,
-        233,
-        239
-      ],
+      "ground": [230, 233, 239],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -2537,18 +1849,10 @@
       ],
       "overflow": 0,
       "palette": "catppuccin",
-      "paper": [
-        239,
-        241,
-        245
-      ],
+      "paper": [239, 241, 245],
       "readingLighter": true,
       "readingStep": 1.0755341086234016,
-      "sidebar": [
-        230,
-        233,
-        239
-      ],
+      "sidebar": [230, 233, 239],
       "theme": "light",
       "samples": 61,
       "minText": 5.003132516224718,
@@ -2559,11 +1863,7 @@
     {
       "boundary": 1.193076356186724,
       "boundaryMatches": true,
-      "ground": [
-        240,
-        241,
-        242
-      ],
+      "ground": [240, 241, 242],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -2581,18 +1881,10 @@
       ],
       "overflow": 0,
       "palette": "linear",
-      "paper": [
-        247,
-        248,
-        248
-      ],
+      "paper": [247, 248, 248],
       "readingLighter": true,
       "readingStep": 1.062895177758865,
-      "sidebar": [
-        240,
-        241,
-        242
-      ],
+      "sidebar": [240, 241, 242],
       "theme": "light",
       "samples": 61,
       "minText": 5.172920136339325,
@@ -2603,11 +1895,7 @@
     {
       "boundary": 1.166133037077279,
       "boundaryMatches": true,
-      "ground": [
-        229,
-        233,
-        240
-      ],
+      "ground": [229, 233, 240],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -2625,18 +1913,10 @@
       ],
       "overflow": 0,
       "palette": "nord",
-      "paper": [
-        236,
-        239,
-        244
-      ],
+      "paper": [236, 239, 244],
       "readingLighter": true,
       "readingStep": 1.0564835540833024,
-      "sidebar": [
-        229,
-        233,
-        240
-      ],
+      "sidebar": [229, 233, 240],
       "theme": "light",
       "samples": 61,
       "minText": 5.161558283820831,
@@ -2647,11 +1927,7 @@
     {
       "boundary": 1.1296011692067995,
       "boundaryMatches": true,
-      "ground": [
-        248,
-        249,
-        250
-      ],
+      "ground": [248, 249, 250],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -2669,18 +1945,10 @@
       ],
       "overflow": 0,
       "palette": "ayu",
-      "paper": [
-        252,
-        252,
-        252
-      ],
+      "paper": [252, 252, 252],
       "readingLighter": true,
       "readingStep": 1.0274528733657324,
-      "sidebar": [
-        248,
-        249,
-        250
-      ],
+      "sidebar": [248, 249, 250],
       "theme": "light",
       "samples": 61,
       "minText": 5.620894248199874,
@@ -2691,11 +1959,7 @@
     {
       "boundary": 1.1623811876587014,
       "boundaryMatches": true,
-      "ground": [
-        240,
-        240,
-        240
-      ],
+      "ground": [240, 240, 240],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -2713,18 +1977,10 @@
       ],
       "overflow": 0,
       "palette": "one-dark",
-      "paper": [
-        250,
-        250,
-        250
-      ],
+      "paper": [250, 250, 250],
       "readingLighter": true,
       "readingStep": 1.091826843271834,
-      "sidebar": [
-        240,
-        240,
-        240
-      ],
+      "sidebar": [240, 240, 240],
       "theme": "light",
       "samples": 61,
       "minText": 4.9689084374400245,
@@ -2735,11 +1991,7 @@
     {
       "boundary": 1.1894240602017052,
       "boundaryMatches": true,
-      "ground": [
-        246,
-        246,
-        246
-      ],
+      "ground": [246, 246, 246],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -2757,18 +2009,10 @@
       ],
       "overflow": 0,
       "palette": "min-dark",
-      "paper": [
-        255,
-        255,
-        255
-      ],
+      "paper": [255, 255, 255],
       "readingLighter": true,
       "readingStep": 1.080711823935424,
-      "sidebar": [
-        246,
-        246,
-        246
-      ],
+      "sidebar": [246, 246, 246],
       "theme": "light",
       "samples": 61,
       "minText": 4.874449117080598,
@@ -2779,11 +2023,7 @@
     {
       "boundary": 1.1197883750828197,
       "boundaryMatches": true,
-      "ground": [
-        238,
-        232,
-        213
-      ],
+      "ground": [238, 232, 213],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -2801,18 +2041,10 @@
       ],
       "overflow": 0,
       "palette": "solarized",
-      "paper": [
-        253,
-        246,
-        227
-      ],
+      "paper": [253, 246, 227],
       "readingLighter": true,
       "readingStep": 1.13589871628495,
-      "sidebar": [
-        238,
-        232,
-        213
-      ],
+      "sidebar": [238, 232, 213],
       "theme": "light",
       "samples": 61,
       "minText": 4.899153804194328,
@@ -2823,11 +2055,7 @@
     {
       "boundary": 1.1328618261022472,
       "boundaryMatches": true,
-      "ground": [
-        242,
-        233,
-        225
-      ],
+      "ground": [242, 233, 225],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -2845,18 +2073,10 @@
       ],
       "overflow": 0,
       "palette": "rose-pine",
-      "paper": [
-        250,
-        244,
-        237
-      ],
+      "paper": [250, 244, 237],
       "readingLighter": true,
       "readingStep": 1.0975949529306095,
-      "sidebar": [
-        242,
-        233,
-        225
-      ],
+      "sidebar": [242, 233, 225],
       "theme": "light",
       "samples": 61,
       "minText": 5.442741112519081,
@@ -2867,11 +2087,7 @@
     {
       "boundary": 1.1498917972519695,
       "boundaryMatches": true,
-      "ground": [
-        213,
-        214,
-        219
-      ],
+      "ground": [213, 214, 219],
       "groundMatchesSidebar": true,
       "navigation": [
         {
@@ -2889,18 +2105,10 @@
       ],
       "overflow": 0,
       "palette": "tokyo-night",
-      "paper": [
-        225,
-        226,
-        231
-      ],
+      "paper": [225, 226, 231],
       "readingLighter": true,
       "readingStep": 1.1218464171878302,
-      "sidebar": [
-        213,
-        214,
-        219
-      ],
+      "sidebar": [213, 214, 219],
       "theme": "light",
       "samples": 61,
       "minText": 4.674296179173031,

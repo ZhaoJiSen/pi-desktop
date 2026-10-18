@@ -252,10 +252,7 @@
     {
       "arrowInset": 12,
       "border": "1px",
-      "gaps": [
-        12,
-        12
-      ],
+      "gaps": [12, 12],
       "height": 38,
       "nextUserGap": 32,
       "overflow": 0,
@@ -269,10 +266,7 @@
     {
       "arrowInset": 12,
       "border": "1px",
-      "gaps": [
-        12,
-        12
-      ],
+      "gaps": [12, 12],
       "height": 38,
       "nextUserGap": 32,
       "overflow": 0,
@@ -286,10 +280,7 @@
     {
       "arrowInset": 12,
       "border": "1px",
-      "gaps": [
-        12,
-        12
-      ],
+      "gaps": [12, 12],
       "height": 38,
       "nextUserGap": 32,
       "overflow": 0,

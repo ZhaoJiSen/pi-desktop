@@ -42,8 +42,19 @@
     }
   ],
   "heroui": {
-    "used": ["Button", "Popover in existing composer", "ScrollShadow added for code and tool output", "Switch added for wrapping preference"],
-    "custom": ["Native details/summary for Thinking", "Button plus conditional motion div for tool disclosure", "CSS border spinner", "SplitPane", "Contenteditable command editor"],
+    "used": [
+      "Button",
+      "Popover in existing composer",
+      "ScrollShadow added for code and tool output",
+      "Switch added for wrapping preference"
+    ],
+    "custom": [
+      "Native details/summary for Thinking",
+      "Button plus conditional motion div for tool disclosure",
+      "CSS border spinner",
+      "SplitPane",
+      "Contenteditable command editor"
+    ],
     "recommendation": "Prefer installed HeroUI Disclosure for compatible disclosure interactions and Spinner for loading. Retain semantic HTML and CSS Grid/Flex for layout and the specialized editor where library components do not fit."
   },
   "unchanged": "No text removed, no motion added, no application source modified"

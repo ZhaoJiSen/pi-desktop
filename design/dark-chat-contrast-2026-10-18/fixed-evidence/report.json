@@ -11,9 +11,7 @@
         "rule": "longMeasure",
         "label": "正文行太长",
         "count": 1,
-        "examples": [
-          "p「TaskLab 现在的主线仍是 Go，停在「Gi」（每行约 49 字）"
-        ]
+        "examples": ["p「TaskLab 现在的主线仍是 Go，停在「Gi」（每行约 49 字）"]
       }
     ]
   },
@@ -29,9 +27,7 @@
         "rule": "longMeasure",
         "label": "正文行太长",
         "count": 1,
-        "examples": [
-          "p「TaskLab 现在的主线仍是 Go，停在「Gi」（每行约 49 字）"
-        ]
+        "examples": ["p「TaskLab 现在的主线仍是 Go，停在「Gi」（每行约 49 字）"]
       }
     ]
   },
@@ -47,9 +43,7 @@
         "rule": "longMeasure",
         "label": "正文行太长",
         "count": 1,
-        "examples": [
-          "p「TaskLab 现在的主线仍是 Go，停在「Gi」（每行约 49 字）"
-        ]
+        "examples": ["p「TaskLab 现在的主线仍是 Go，停在「Gi」（每行约 49 字）"]
       }
     ]
   },
@@ -65,9 +59,7 @@
         "rule": "longMeasure",
         "label": "正文行太长",
         "count": 1,
-        "examples": [
-          "p「TaskLab 现在的主线仍是 Go，停在「Gi」（每行约 49 字）"
-        ]
+        "examples": ["p「TaskLab 现在的主线仍是 Go，停在「Gi」（每行约 49 字）"]
       }
     ]
   },
@@ -83,9 +75,7 @@
         "rule": "longMeasure",
         "label": "正文行太长",
         "count": 1,
-        "examples": [
-          "p「TaskLab 现在的主线仍是 Go，停在「Gi」（每行约 49 字）"
-        ]
+        "examples": ["p「TaskLab 现在的主线仍是 Go，停在「Gi」（每行约 49 字）"]
       }
     ]
   },
@@ -109,11 +99,7 @@
             "size": 0,
             "opacity": 1,
             "loop": false,
-            "sources": [
-              "transition:box-shadow",
-              "transition:background-color",
-              "waapi"
-            ]
+            "sources": ["transition:box-shadow", "transition:background-color", "waapi"]
           },
           {
             "el": "div.user-message",
@@ -121,10 +107,7 @@
             "size": 0,
             "opacity": 0.92,
             "loop": false,
-            "sources": [
-              "js:style",
-              "waapi"
-            ]
+            "sources": ["js:style", "waapi"]
           },
           {
             "el": "div.scroll-shadow.scroll-shadow--vertical",
@@ -144,10 +127,7 @@
             "size": 0,
             "opacity": 0.92,
             "loop": false,
-            "sources": [
-              "js:style",
-              "waapi"
-            ]
+            "sources": ["js:style", "waapi"]
           },
           {
             "el": "nav.activity-rail",
@@ -155,10 +135,7 @@
             "size": 0,
             "opacity": 0.93,
             "loop": false,
-            "sources": [
-              "waapi",
-              "js:style"
-            ]
+            "sources": ["waapi", "js:style"]
           },
           {
             "el": "button#react-aria520435432-_r_33_.button.button--icon-only",
@@ -166,9 +143,7 @@
             "size": 0,
             "opacity": 0,
             "loop": false,
-            "sources": [
-              "transition:background-color"
-            ]
+            "sources": ["transition:background-color"]
           },
           {
             "el": "button#react-aria520435432-_r_36_.button.button--md",
@@ -176,10 +151,7 @@
             "size": 0,
             "opacity": 0,
             "loop": false,
-            "sources": [
-              "transition:background-color",
-              "transition:color"
-            ]
+            "sources": ["transition:background-color", "transition:color"]
           },
           {
             "el": "button#react-aria520435432-_r_3d_.button.button--icon-only",
@@ -187,9 +159,7 @@
             "size": 0,
             "opacity": 0,
             "loop": false,
-            "sources": [
-              "transition:background-color"
-            ]
+            "sources": ["transition:background-color"]
           }
         ]
       },
@@ -206,11 +176,7 @@
             "size": 96,
             "opacity": 1,
             "loop": false,
-            "sources": [
-              "js:style",
-              "transition:opacity",
-              "transition:height"
-            ]
+            "sources": ["js:style", "transition:opacity", "transition:height"]
           },
           {
             "el": "div#react-aria520435432-_r_2a_.disclosure__content",
@@ -218,11 +184,7 @@
             "size": 35.984,
             "opacity": 1,
             "loop": false,
-            "sources": [
-              "js:style",
-              "transition:opacity",
-              "transition:height"
-            ]
+            "sources": ["js:style", "transition:opacity", "transition:height"]
           },
           {
             "el": "svg",
@@ -230,9 +192,7 @@
             "size": 0.411,
             "opacity": 0,
             "loop": false,
-            "sources": [
-              "transition:rotate"
-            ]
+            "sources": ["transition:rotate"]
           },
           {
             "el": "svg",
@@ -240,9 +200,7 @@
             "size": 0.412,
             "opacity": 0,
             "loop": false,
-            "sources": [
-              "transition:transform"
-            ]
+            "sources": ["transition:transform"]
           },
           {
             "el": "div.scroll-shadow.scroll-shadow--horizontal",

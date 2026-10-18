@@ -18,12 +18,12 @@
 
 `installed-catalog.json` 保存读取结果：
 
-| 模型/提供方 | 等级 |
-| --- | --- |
-| Grok 4.7 / xai | low, medium, high, xhigh |
-| GPT-5.3 Codex Spark / openai-codex | off, minimal, low, medium, high, xhigh |
-| GPT-5.6 Sol / openai-codex | off, minimal, low, medium, high, xhigh, max |
-| Claude Sonnet 4.6 / anthropic | off, minimal, low, medium, high, max |
+| 模型/提供方                        | 等级                                        |
+| ---------------------------------- | ------------------------------------------- |
+| Grok 4.7 / xai                     | low, medium, high, xhigh                    |
+| GPT-5.3 Codex Spark / openai-codex | off, minimal, low, medium, high, xhigh      |
+| GPT-5.6 Sol / openai-codex         | off, minimal, low, medium, high, xhigh, max |
+| Claude Sonnet 4.6 / anthropic      | off, minimal, low, medium, high, max        |
 
 这些是本机当前目录，不硬编码进产品。用户自定义提供方及后续 Pi 版本以其 RPC 返回为准。
 

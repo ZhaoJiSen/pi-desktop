@@ -20,8 +20,9 @@ async function prepare(page, { theme, language, sidebar = true }) {
   await page.evaluate(
     async ({ theme, language, sidebar }) => {
       const src = (path) =>
-        performance.getEntriesByType('resource').find((entry) => new URL(entry.name).pathname === path)
-          ?.name
+        performance
+          .getEntriesByType('resource')
+          .find((entry) => new URL(entry.name).pathname === path)?.name
       const workspace = await import(src('/src/store/workspace.ts'))
       const notices = await import(src('/src/lib/notices.ts'))
       const store = workspace.useWorkspace.getState()
@@ -30,7 +31,9 @@ async function prepare(page, { theme, language, sidebar = true }) {
       const projectId = store.projects[0]?.id || store.addProject('/Users/zhaojisen/pi-desktop')
       const empty = workspace.useWorkspace
         .getState()
-        .sessions.find((session) => session.projectId === projectId && session.messages.length === 0)
+        .sessions.find(
+          (session) => session.projectId === projectId && session.messages.length === 0,
+        )
       if (empty) store.selectSession(empty.id)
       else store.createSession(projectId)
       store.setState?.({ connectionError: null, storageError: null, connection: 'disconnected' })
@@ -71,10 +74,7 @@ async function prepare(page, { theme, language, sidebar = true }) {
   ) {
     throw new Error(`empty composer not ready: ${JSON.stringify(ready)}`)
   }
-  await page.waitForFunction(
-    (theme) => document.documentElement.dataset.theme === theme,
-    theme,
-  )
+  await page.waitForFunction((theme) => document.documentElement.dataset.theme === theme, theme)
 }
 
 function overlaps(a, b) {
@@ -98,7 +98,14 @@ async function measure(page) {
       const el = document.querySelector(selector)
       if (!el) return null
       const r = el.getBoundingClientRect()
-      return { top: r.top, right: r.right, bottom: r.bottom, left: r.left, width: r.width, height: r.height }
+      return {
+        top: r.top,
+        right: r.right,
+        bottom: r.bottom,
+        left: r.left,
+        width: r.width,
+        height: r.height,
+      }
     }
     const toast = document.querySelector('.runtime-notice.is-warning')
     const title = toast?.querySelector('.runtime-notice-title')
@@ -131,7 +138,15 @@ try {
     { name: 'dark-en', theme: 'dark', language: 'en', width: 1280, height: 800, scale: 1 },
     { name: 'dark-en-2x', theme: 'dark', language: 'en', width: 1280, height: 800, scale: 2 },
     { name: 'light-zh', theme: 'light', language: 'zh', width: 1280, height: 800, scale: 1 },
-    { name: 'dark-zh-390', theme: 'dark', language: 'zh', width: 390, height: 844, scale: 1, sidebar: false },
+    {
+      name: 'dark-zh-390',
+      theme: 'dark',
+      language: 'zh',
+      width: 390,
+      height: 844,
+      scale: 1,
+      sidebar: false,
+    },
   ]
   for (const shot of shots) {
     const context = await browser.newContext({
@@ -151,20 +166,35 @@ try {
     const metric = await measure(page)
     await page.screenshot({ path: `${out}${shot.name}.png` })
     assert(metric.toast, 'toast missing')
-    assert(!metric.banner, 'connection banner should stay hidden for a finished open-folder failure')
-    assert(!overlaps(metric.toast, metric.composer), `toast overlaps composer ${JSON.stringify(metric)}`)
+    assert(
+      !metric.banner,
+      'connection banner should stay hidden for a finished open-folder failure',
+    )
+    assert(
+      !overlaps(metric.toast, metric.composer),
+      `toast overlaps composer ${JSON.stringify(metric)}`,
+    )
     assert(!overlaps(metric.toast, metric.send), `toast overlaps send ${JSON.stringify(metric)}`)
-    assert(!overlaps(metric.toast, metric.header), `toast overlaps header ${JSON.stringify(metric)}`)
-    assert(!metric.rail || !overlaps(metric.toast, metric.rail), `toast overlaps rail ${JSON.stringify(metric)}`)
+    assert(
+      !overlaps(metric.toast, metric.header),
+      `toast overlaps header ${JSON.stringify(metric)}`,
+    )
+    assert(
+      !metric.rail || !overlaps(metric.toast, metric.rail),
+      `toast overlaps rail ${JSON.stringify(metric)}`,
+    )
     assert(!overlaps(metric.toast, metric.logo), `toast overlaps logo ${JSON.stringify(metric)}`)
     assert(metric.toast.right <= shot.width - 8, `toast clipped ${JSON.stringify(metric.toast)}`)
     assert(metric.toast.left >= 8, `toast off-screen ${JSON.stringify(metric.toast)}`)
     assert(metric.titleSize === '13px', metric.titleSize)
     assert(Number.parseFloat(metric.detailSize) >= 12, metric.detailSize)
-    const title = shot.language === 'zh' ? '无法打开项目目录' : 'Could not open the project directory'
+    const title =
+      shot.language === 'zh' ? '无法打开项目目录' : 'Could not open the project directory'
     assert.equal(metric.title, title)
     assert.equal(metric.detail, 'No such file or directory (os error 2)')
-    const close = page.locator('.runtime-notice.is-warning [aria-label="Close"], .runtime-notice.is-warning [aria-label="关闭"]')
+    const close = page.locator(
+      '.runtime-notice.is-warning [aria-label="Close"], .runtime-notice.is-warning [aria-label="关闭"]',
+    )
     await close.click()
     await page.waitForFunction(() => !document.querySelector('.runtime-notice.is-warning'))
     assert.equal(errors.length, 0, errors.join('\n'))
@@ -180,9 +210,14 @@ try {
   await prepare(page, { theme: 'dark', language: 'en' })
   await page.evaluate(() => {
     const src = (path) =>
-      performance.getEntriesByType('resource').find((entry) => new URL(entry.name).pathname === path)?.name
+      performance
+        .getEntriesByType('resource')
+        .find((entry) => new URL(entry.name).pathname === path)?.name
     return import(src('/src/store/workspace.ts')).then(({ useWorkspace }) => {
-      useWorkspace.setState({ connection: 'error', connectionError: 'The pi process has exited. Please reconnect' })
+      useWorkspace.setState({
+        connection: 'error',
+        connectionError: 'The pi process has exited. Please reconnect',
+      })
     })
   })
   await page.waitForSelector('.connection-notice')
@@ -196,7 +231,13 @@ try {
   await mkdir(out, { recursive: true })
   const { writeFile } = await import('node:fs/promises')
   await writeFile(`${out}results.json`, JSON.stringify(results, null, 2))
-  console.log(JSON.stringify(results.map(({ name, metric }) => ({ name, metric })), null, 2))
+  console.log(
+    JSON.stringify(
+      results.map(({ name, metric }) => ({ name, metric })),
+      null,
+      2,
+    ),
+  )
 } finally {
   await browser.close()
 }

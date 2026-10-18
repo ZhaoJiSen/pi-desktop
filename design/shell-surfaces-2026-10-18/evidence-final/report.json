@@ -11,9 +11,7 @@
         "rule": "longMeasure",
         "label": "正文行太长",
         "count": 1,
-        "examples": [
-          "p「TaskLab 现在的主线仍是 Go，停在「Gi」（每行约 49 字）"
-        ]
+        "examples": ["p「TaskLab 现在的主线仍是 Go，停在「Gi」（每行约 49 字）"]
       }
     ]
   },
@@ -29,9 +27,7 @@
         "rule": "longMeasure",
         "label": "正文行太长",
         "count": 1,
-        "examples": [
-          "p「TaskLab 现在的主线仍是 Go，停在「Gi」（每行约 49 字）"
-        ]
+        "examples": ["p「TaskLab 现在的主线仍是 Go，停在「Gi」（每行约 49 字）"]
       }
     ]
   },
@@ -47,9 +43,7 @@
         "rule": "longMeasure",
         "label": "正文行太长",
         "count": 1,
-        "examples": [
-          "p「TaskLab 现在的主线仍是 Go，停在「Gi」（每行约 49 字）"
-        ]
+        "examples": ["p「TaskLab 现在的主线仍是 Go，停在「Gi」（每行约 49 字）"]
       }
     ]
   },
@@ -65,9 +59,7 @@
         "rule": "longMeasure",
         "label": "正文行太长",
         "count": 1,
-        "examples": [
-          "p「TaskLab 现在的主线仍是 Go，停在「Gi」（每行约 49 字）"
-        ]
+        "examples": ["p「TaskLab 现在的主线仍是 Go，停在「Gi」（每行约 49 字）"]
       }
     ]
   },
@@ -83,9 +75,7 @@
         "rule": "longMeasure",
         "label": "正文行太长",
         "count": 1,
-        "examples": [
-          "p「TaskLab 现在的主线仍是 Go，停在「Gi」（每行约 49 字）"
-        ]
+        "examples": ["p「TaskLab 现在的主线仍是 Go，停在「Gi」（每行约 49 字）"]
       }
     ]
   },
@@ -121,10 +111,7 @@
             "size": 0,
             "opacity": 0.86,
             "loop": false,
-            "sources": [
-              "js:style",
-              "waapi"
-            ]
+            "sources": ["js:style", "waapi"]
           },
           {
             "el": "div.user-message",
@@ -132,10 +119,7 @@
             "size": 0,
             "opacity": 0.85,
             "loop": false,
-            "sources": [
-              "js:style",
-              "waapi"
-            ]
+            "sources": ["js:style", "waapi"]
           },
           {
             "el": "article.assistant",
@@ -143,10 +127,7 @@
             "size": 0,
             "opacity": 0.85,
             "loop": false,
-            "sources": [
-              "js:style",
-              "waapi"
-            ]
+            "sources": ["js:style", "waapi"]
           },
           {
             "el": "nav.activity-rail",
@@ -154,10 +135,7 @@
             "size": 0,
             "opacity": 0.86,
             "loop": false,
-            "sources": [
-              "waapi",
-              "js:style"
-            ]
+            "sources": ["waapi", "js:style"]
           },
           {
             "el": "div.composer-input-measure",
@@ -165,9 +143,7 @@
             "size": 0,
             "opacity": 0,
             "loop": false,
-            "sources": [
-              "js:style"
-            ]
+            "sources": ["js:style"]
           },
           {
             "el": "textarea.textarea.textarea--primary",
@@ -175,9 +151,7 @@
             "size": 0,
             "opacity": 0,
             "loop": false,
-            "sources": [
-              "js:style"
-            ]
+            "sources": ["js:style"]
           },
           {
             "el": "div.composer-shell",
@@ -206,9 +180,7 @@
             "size": 0.863,
             "opacity": 0,
             "loop": false,
-            "sources": [
-              "transition:border-right-color"
-            ]
+            "sources": ["transition:border-right-color"]
           },
           {
             "el": "div.scroll-shadow.scroll-shadow--vertical",

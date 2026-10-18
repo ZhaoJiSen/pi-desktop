@@ -1,41 +1,130 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Markdown verification</title></head><body><div id="root"></div><script type="module">
-const params=new URLSearchParams(location.search)
-const {useWorkspace}=await import('/src/store/workspace.ts')
-const {createPreviewSessions}=await import('/src/lib/fixtures.ts')
-const session=createPreviewSessions()[0]
-const fence='```'
-const base='# 工作区审阅\n\n已核对当前代码和依赖，先保留现有结构。'
-const code='package main\n\nfunc Valid(status string) bool {\n    return status == "todo"\n}'
-const complete=base+'\n\n## 检查结果\n\n保留 **明确的状态**，使用 `go test ./...` 验证改动。\n\n- 已核对接口\n- 接下来检查边界\n  - 空输入\n  - 错误状态\n\n> 输入校验应保留原始错误，便于定位问题。\n\n### 校验函数\n\n'+fence+'go\n'+code+'\n'+fence+'\n\n| 检查项 | 当前状态 | 下一步 |\n| :--- | :---: | ---: |\n| 参数校验 | 已完成 | 补充边界 |\n| 错误处理 | 待完善 | 保留原因 |\n\n- [x] 保留当前接口\n- [ ] 完善错误说明\n\n---\n\n#### 参考资料\n\n查看 [HeroUI Markdown](https://heroui.pro/docs/react/components/markdown)。'
-const live=params.has('stream')
-session.messages=[{id:'markdown-response',role:'assistant',timestamp:Date.now(),blocks:[{type:'thinking',text:'先核对当前实现。\n\n保留已有的组件和配色，再处理阅读层级。'},{type:'text',text:live?base+'\n\n正在整理**关键问题':complete}]}]
-useWorkspace.setState({sessions:[session],activeSessionId:session.id,runningSessionId:live?session.id:null,language:'zh',theme:params.get('theme')||'light',palette:params.get('palette')||'ink',wrapLines:params.get('wrap')==='1'})
-document.addEventListener('keydown',async event=>{
- if(!['F1','F2','F3','F4'].includes(event.key))return
- event.preventDefault()
- const {applyStreamEvent}=await import('/src/lib/rpc.ts')
- const current=useWorkspace.getState().sessions[0]
- if(event.key==='F1'){
-  useWorkspace.getState().updateSession(current.id,{messages:applyStreamEvent(current.messages,{type:'message_update',assistantMessageEvent:{type:'text_delta',contentIndex:1,delta:'**，随后检查代码。\n\n'+fence+'go\n'+code}})})
- } else if(event.key==='F2'){
-  useWorkspace.getState().updateSession(current.id,{messages:applyStreamEvent(current.messages,{type:'message_update',assistantMessageEvent:{type:'text_delta',contentIndex:1,delta:'\n'+fence+'\n\n检查完成。'}})})
-  useWorkspace.setState({runningSessionId:null})
- } else if(event.key==='F3'){
-  useWorkspace.getState().updateSession(current.id,{messages:[{...current.messages[0],blocks:[{type:'text',text:base+'\n\n参考 [HeroUI](https://heroui.pro/docs/react/components/mark'}]}]})
-  useWorkspace.setState({runningSessionId:current.id})
- } else {
-  useWorkspace.getState().updateSession(current.id,{messages:[{...current.messages[0],blocks:[{type:'text',text:base+'\n\n参考 [HeroUI](https://heroui.pro/docs/react/components/markdown)。'}]}]})
-  useWorkspace.setState({runningSessionId:null})
- }
-})
-await import('/src/styles/vendor.css');await import('/src/styles/index.scss')
-const {createRoot}=await import('react-dom/client');const {createElement:h}=await import('react')
-const {Conversation}=await import('/src/components/Conversation.tsx')
-document.documentElement.dataset.theme=useWorkspace.getState().theme
-document.documentElement.dataset.palette=useWorkspace.getState().palette
-document.documentElement.style.zoom=params.get('zoom')||'1'
-const style=document.createElement('style')
-style.textContent=`#root { padding:18px; } .markdown-preview { display:flex; height:100%; border-radius:20px; background:var(--paper); max-width:${Number(params.get('width'))||1244}px; }`
-document.head.append(style)
-createRoot(document.getElementById('root')).render(h('section',{className:'markdown-preview'},h(Conversation,{onProject(){}})))
-</script></body></html>
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Markdown verification</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module">
+      const params = new URLSearchParams(location.search)
+      const { useWorkspace } = await import('/src/store/workspace.ts')
+      const { createPreviewSessions } = await import('/src/lib/fixtures.ts')
+      const session = createPreviewSessions()[0]
+      const fence = '```'
+      const base = '# 工作区审阅\n\n已核对当前代码和依赖，先保留现有结构。'
+      const code =
+        'package main\n\nfunc Valid(status string) bool {\n    return status == "todo"\n}'
+      const complete =
+        base +
+        '\n\n## 检查结果\n\n保留 **明确的状态**，使用 `go test ./...` 验证改动。\n\n- 已核对接口\n- 接下来检查边界\n  - 空输入\n  - 错误状态\n\n> 输入校验应保留原始错误，便于定位问题。\n\n### 校验函数\n\n' +
+        fence +
+        'go\n' +
+        code +
+        '\n' +
+        fence +
+        '\n\n| 检查项 | 当前状态 | 下一步 |\n| :--- | :---: | ---: |\n| 参数校验 | 已完成 | 补充边界 |\n| 错误处理 | 待完善 | 保留原因 |\n\n- [x] 保留当前接口\n- [ ] 完善错误说明\n\n---\n\n#### 参考资料\n\n查看 [HeroUI Markdown](https://heroui.pro/docs/react/components/markdown)。'
+      const live = params.has('stream')
+      session.messages = [
+        {
+          id: 'markdown-response',
+          role: 'assistant',
+          timestamp: Date.now(),
+          blocks: [
+            {
+              type: 'thinking',
+              text: '先核对当前实现。\n\n保留已有的组件和配色，再处理阅读层级。',
+            },
+            { type: 'text', text: live ? base + '\n\n正在整理**关键问题' : complete },
+          ],
+        },
+      ]
+      useWorkspace.setState({
+        sessions: [session],
+        activeSessionId: session.id,
+        runningSessionId: live ? session.id : null,
+        language: 'zh',
+        theme: params.get('theme') || 'light',
+        palette: params.get('palette') || 'ink',
+        wrapLines: params.get('wrap') === '1',
+      })
+      document.addEventListener('keydown', async (event) => {
+        if (!['F1', 'F2', 'F3', 'F4'].includes(event.key)) return
+        event.preventDefault()
+        const { applyStreamEvent } = await import('/src/lib/rpc.ts')
+        const current = useWorkspace.getState().sessions[0]
+        if (event.key === 'F1') {
+          useWorkspace.getState().updateSession(current.id, {
+            messages: applyStreamEvent(current.messages, {
+              type: 'message_update',
+              assistantMessageEvent: {
+                type: 'text_delta',
+                contentIndex: 1,
+                delta: '**，随后检查代码。\n\n' + fence + 'go\n' + code,
+              },
+            }),
+          })
+        } else if (event.key === 'F2') {
+          useWorkspace.getState().updateSession(current.id, {
+            messages: applyStreamEvent(current.messages, {
+              type: 'message_update',
+              assistantMessageEvent: {
+                type: 'text_delta',
+                contentIndex: 1,
+                delta: '\n' + fence + '\n\n检查完成。',
+              },
+            }),
+          })
+          useWorkspace.setState({ runningSessionId: null })
+        } else if (event.key === 'F3') {
+          useWorkspace.getState().updateSession(current.id, {
+            messages: [
+              {
+                ...current.messages[0],
+                blocks: [
+                  {
+                    type: 'text',
+                    text: base + '\n\n参考 [HeroUI](https://heroui.pro/docs/react/components/mark',
+                  },
+                ],
+              },
+            ],
+          })
+          useWorkspace.setState({ runningSessionId: current.id })
+        } else {
+          useWorkspace.getState().updateSession(current.id, {
+            messages: [
+              {
+                ...current.messages[0],
+                blocks: [
+                  {
+                    type: 'text',
+                    text:
+                      base +
+                      '\n\n参考 [HeroUI](https://heroui.pro/docs/react/components/markdown)。',
+                  },
+                ],
+              },
+            ],
+          })
+          useWorkspace.setState({ runningSessionId: null })
+        }
+      })
+      await import('/src/styles/vendor.css')
+      await import('/src/styles/index.scss')
+      const { createRoot } = await import('react-dom/client')
+      const { createElement: h } = await import('react')
+      const { Conversation } = await import('/src/components/Conversation.tsx')
+      document.documentElement.dataset.theme = useWorkspace.getState().theme
+      document.documentElement.dataset.palette = useWorkspace.getState().palette
+      document.documentElement.style.zoom = params.get('zoom') || '1'
+      const style = document.createElement('style')
+      style.textContent = `#root { padding:18px; } .markdown-preview { display:flex; height:100%; border-radius:20px; background:var(--paper); max-width:${Number(params.get('width')) || 1244}px; }`
+      document.head.append(style)
+      createRoot(document.getElementById('root')).render(
+        h('section', { className: 'markdown-preview' }, h(Conversation, { onProject() {} })),
+      )
+    </script>
+  </body>
+</html>

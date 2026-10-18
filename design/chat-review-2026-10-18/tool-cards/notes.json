@@ -20,26 +20,10 @@
   "review": "局部主 Agent 自检 1 轮，未独立评审。检查深浅主题、390px 内容容器、200% CSS 缩放。浏览器 viewport 覆盖未生效，未宣称完成实际 390px 浏览器视口验证。",
   "contentRemoved": [],
   "validation": {
-    "toolCards": [
-      "pass",
-      "pass",
-      "pass"
-    ],
-    "chat": [
-      "pass",
-      "pass",
-      "pass"
-    ],
-    "thinkingSpacing": [
-      "pass",
-      "pass",
-      "pass"
-    ],
-    "scrollShadow": [
-      "pass",
-      "pass",
-      "pass"
-    ],
+    "toolCards": ["pass", "pass", "pass"],
+    "chat": ["pass", "pass", "pass"],
+    "thinkingSpacing": ["pass", "pass", "pass"],
+    "scrollShadow": ["pass", "pass", "pass"],
     "typecheck": "pass",
     "lint": "pass",
     "diffCheck": "pass"

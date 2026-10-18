@@ -2,11 +2,7 @@
   {
     "round": 1,
     "empty": {
-      "edges": [
-        null,
-        null,
-        null
-      ],
+      "edges": [null, null, null],
       "height": 64,
       "logo": {
         "bottom": 170,
@@ -23,22 +19,14 @@
       "scrollHeight": 64
     },
     "messages": {
-      "edges": [
-        "true",
-        "false",
-        null
-      ],
+      "edges": ["true", "false", null],
       "height": 308,
       "mask": "linear-gradient(rgba(0, 0, 0, 0) 0px, rgb(0, 0, 0) 24px, rgb(0, 0, 0) 100%, rgba(0, 0, 0, 0) 100%), linear-gradient(rgb(0, 0, 0), rgb(0, 0, 0))",
       "mode": "auto",
       "scrollHeight": 2788
     },
     "restored": {
-      "edges": [
-        null,
-        null,
-        null
-      ],
+      "edges": [null, null, null],
       "height": 64,
       "logo": {
         "bottom": 170,
@@ -55,22 +43,14 @@
       "scrollHeight": 64
     },
     "resumed": {
-      "edges": [
-        "true",
-        "false",
-        null
-      ],
+      "edges": ["true", "false", null],
       "height": 308,
       "mask": "linear-gradient(rgba(0, 0, 0, 0) 0px, rgb(0, 0, 0) 24px, rgb(0, 0, 0) 100%, rgba(0, 0, 0, 0) 100%), linear-gradient(rgb(0, 0, 0), rgb(0, 0, 0))",
       "mode": "auto",
       "scrollHeight": 2788
     },
     "final": {
-      "edges": [
-        null,
-        null,
-        null
-      ],
+      "edges": [null, null, null],
       "height": 64,
       "logo": {
         "bottom": 170,
@@ -90,11 +70,7 @@
   {
     "round": 2,
     "empty": {
-      "edges": [
-        null,
-        null,
-        null
-      ],
+      "edges": [null, null, null],
       "height": 64,
       "logo": {
         "bottom": 170,
@@ -111,22 +87,14 @@
       "scrollHeight": 64
     },
     "messages": {
-      "edges": [
-        "true",
-        "false",
-        null
-      ],
+      "edges": ["true", "false", null],
       "height": 308,
       "mask": "linear-gradient(rgba(0, 0, 0, 0) 0px, rgb(0, 0, 0) 24px, rgb(0, 0, 0) 100%, rgba(0, 0, 0, 0) 100%), linear-gradient(rgb(0, 0, 0), rgb(0, 0, 0))",
       "mode": "auto",
       "scrollHeight": 2788
     },
     "restored": {
-      "edges": [
-        null,
-        null,
-        null
-      ],
+      "edges": [null, null, null],
       "height": 64,
       "logo": {
         "bottom": 170,
@@ -143,22 +111,14 @@
       "scrollHeight": 64
     },
     "resumed": {
-      "edges": [
-        "true",
-        "false",
-        null
-      ],
+      "edges": ["true", "false", null],
       "height": 308,
       "mask": "linear-gradient(rgba(0, 0, 0, 0) 0px, rgb(0, 0, 0) 24px, rgb(0, 0, 0) 100%, rgba(0, 0, 0, 0) 100%), linear-gradient(rgb(0, 0, 0), rgb(0, 0, 0))",
       "mode": "auto",
       "scrollHeight": 2788
     },
     "final": {
-      "edges": [
-        null,
-        null,
-        null
-      ],
+      "edges": [null, null, null],
       "height": 64,
       "logo": {
         "bottom": 170,
@@ -178,11 +138,7 @@
   {
     "round": 3,
     "empty": {
-      "edges": [
-        null,
-        null,
-        null
-      ],
+      "edges": [null, null, null],
       "height": 64,
       "logo": {
         "bottom": 170,
@@ -199,22 +155,14 @@
       "scrollHeight": 64
     },
     "messages": {
-      "edges": [
-        "true",
-        "false",
-        null
-      ],
+      "edges": ["true", "false", null],
       "height": 308,
       "mask": "linear-gradient(rgba(0, 0, 0, 0) 0px, rgb(0, 0, 0) 24px, rgb(0, 0, 0) 100%, rgba(0, 0, 0, 0) 100%), linear-gradient(rgb(0, 0, 0), rgb(0, 0, 0))",
       "mode": "auto",
       "scrollHeight": 2788
     },
     "restored": {
-      "edges": [
-        null,
-        null,
-        null
-      ],
+      "edges": [null, null, null],
       "height": 64,
       "logo": {
         "bottom": 170,
@@ -231,22 +179,14 @@
       "scrollHeight": 64
     },
     "resumed": {
-      "edges": [
-        "true",
-        "false",
-        null
-      ],
+      "edges": ["true", "false", null],
       "height": 308,
       "mask": "linear-gradient(rgba(0, 0, 0, 0) 0px, rgb(0, 0, 0) 24px, rgb(0, 0, 0) 100%, rgba(0, 0, 0, 0) 100%), linear-gradient(rgb(0, 0, 0), rgb(0, 0, 0))",
       "mode": "auto",
       "scrollHeight": 2788
     },
     "final": {
-      "edges": [
-        null,
-        null,
-        null
-      ],
+      "edges": [null, null, null],
       "height": 64,
       "logo": {
         "bottom": 170,
