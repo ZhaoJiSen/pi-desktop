@@ -1,0 +1,56 @@
+{
+  "direction": "参考 HeroUI Pro Chat Tool 的细边框、整行触发器、左状态与右箭头，融入现有书页式聊天与主题变量。",
+  "reference": "https://heroui.pro/docs/react/components/chat-tool",
+  "implementation": "使用项目已有 @heroui/react Disclosure / Spinner / ScrollShadow；未引入 @heroui-pro/react，也未复制 Pro 包源码。",
+  "states": [
+    "完成与独立工具",
+    "运行中加载与真实流式输出更新",
+    "错误默认展开并保留详情",
+    "中断独立图标",
+    "连续工具分组、子项独立展开",
+    "参数、输出、diff 组合布局"
+  ],
+  "spacing": {
+    "consecutiveAssistant": 12,
+    "assistantToUser": 32,
+    "thinkingToAnswer": 16,
+    "thinkingParagraphs": 8
+  },
+  "motion": "保留 HeroUI 折叠、箭头旋转、Spinner 与既有消息接入动效；清除箭头双重旋转，遵从现有减少动态效果规则。",
+  "review": "局部主 Agent 自检 1 轮，未独立评审。检查深浅主题、390px 内容容器、200% CSS 缩放。浏览器 viewport 覆盖未生效，未宣称完成实际 390px 浏览器视口验证。",
+  "contentRemoved": [],
+  "validation": {
+    "toolCards": [
+      "pass",
+      "pass",
+      "pass"
+    ],
+    "chat": [
+      "pass",
+      "pass",
+      "pass"
+    ],
+    "thinkingSpacing": [
+      "pass",
+      "pass",
+      "pass"
+    ],
+    "scrollShadow": [
+      "pass",
+      "pass",
+      "pass"
+    ],
+    "typecheck": "pass",
+    "lint": "pass",
+    "diffCheck": "pass"
+  },
+  "limits": "截图为本地验证数据；流式事件通过真实 reducer 注入，未向模型提供商发出请求。未增加数据层尚未提供的工具参数逐字生成状态。",
+  "evidence": [
+    "after-dark.png",
+    "after-light-error.png",
+    "narrow-390.png",
+    "after-200.png",
+    "verification-results.json",
+    "verify.mjs"
+  ]
+}

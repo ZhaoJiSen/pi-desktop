@@ -1,0 +1,714 @@
+[
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/000.png",
+    "time": 36
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/001.png",
+    "time": 56
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/002.png",
+    "time": 75
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/003.png",
+    "time": 91
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/004.png",
+    "time": 108
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/005.png",
+    "time": 128
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/006.png",
+    "time": 141
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/007.png",
+    "time": 158
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/008.png",
+    "time": 177
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/009.png",
+    "time": 223
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/010.png",
+    "time": 260
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/011.png",
+    "time": 293
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/012.png",
+    "time": 307
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/013.png",
+    "time": 328
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/014.png",
+    "time": 340
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/015.png",
+    "time": 358
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/016.png",
+    "time": 375
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/017.png",
+    "time": 391
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/018.png",
+    "time": 409
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/019.png",
+    "time": 424
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/020.png",
+    "time": 444
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/021.png",
+    "time": 458
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/022.png",
+    "time": 474
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/023.png",
+    "time": 490
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/024.png",
+    "time": 508
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/025.png",
+    "time": 530
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/026.png",
+    "time": 541
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/027.png",
+    "time": 558
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/028.png",
+    "time": 574
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/029.png",
+    "time": 591
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/030.png",
+    "time": 609
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/031.png",
+    "time": 623
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/032.png",
+    "time": 641
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/033.png",
+    "time": 658
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/034.png",
+    "time": 674
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/035.png",
+    "time": 691
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/036.png",
+    "time": 707
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/037.png",
+    "time": 726
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/038.png",
+    "time": 741
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/039.png",
+    "time": 758
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/040.png",
+    "time": 775
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/041.png",
+    "time": 791
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/042.png",
+    "time": 809
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/043.png",
+    "time": 824
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/044.png",
+    "time": 841
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/045.png",
+    "time": 857
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/046.png",
+    "time": 874
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/047.png",
+    "time": 893
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/048.png",
+    "time": 908
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/049.png",
+    "time": 928
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/050.png",
+    "time": 941
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/051.png",
+    "time": 958
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/052.png",
+    "time": 975
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/053.png",
+    "time": 991
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/054.png",
+    "time": 1009
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/055.png",
+    "time": 1025
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/056.png",
+    "time": 1041
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/057.png",
+    "time": 1058
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/058.png",
+    "time": 1075
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/059.png",
+    "time": 1091
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/060.png",
+    "time": 1108
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/061.png",
+    "time": 1129
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/062.png",
+    "time": 1143
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/063.png",
+    "time": 1158
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/064.png",
+    "time": 1175
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/065.png",
+    "time": 1191
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/066.png",
+    "time": 1211
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/067.png",
+    "time": 1225
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/068.png",
+    "time": 1244
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/069.png",
+    "time": 1258
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/070.png",
+    "time": 1275
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/071.png",
+    "time": 1293
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/072.png",
+    "time": 1308
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/073.png",
+    "time": 1326
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/074.png",
+    "time": 1341
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/075.png",
+    "time": 1359
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/076.png",
+    "time": 1375
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/077.png",
+    "time": 1391
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/078.png",
+    "time": 1409
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/079.png",
+    "time": 1425
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/080.png",
+    "time": 1441
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/081.png",
+    "time": 1458
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/082.png",
+    "time": 1475
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/083.png",
+    "time": 1492
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/084.png",
+    "time": 1508
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/085.png",
+    "time": 1530
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/086.png",
+    "time": 1541
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/087.png",
+    "time": 1558
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/088.png",
+    "time": 1575
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/089.png",
+    "time": 1592
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/090.png",
+    "time": 1609
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/091.png",
+    "time": 1625
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/092.png",
+    "time": 1642
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/093.png",
+    "time": 1658
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/094.png",
+    "time": 1678
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/095.png",
+    "time": 1692
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/096.png",
+    "time": 1709
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/097.png",
+    "time": 1727
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/098.png",
+    "time": 1741
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/099.png",
+    "time": 1759
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/100.png",
+    "time": 1775
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/101.png",
+    "time": 1792
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/102.png",
+    "time": 1810
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/103.png",
+    "time": 1825
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/104.png",
+    "time": 1841
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/105.png",
+    "time": 1858
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/106.png",
+    "time": 1874
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/107.png",
+    "time": 1893
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/108.png",
+    "time": 1908
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/109.png",
+    "time": 1928
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/110.png",
+    "time": 1941
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/111.png",
+    "time": 1957
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/112.png",
+    "time": 1975
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/113.png",
+    "time": 1992
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/114.png",
+    "time": 2009
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/115.png",
+    "time": 2025
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/116.png",
+    "time": 2043
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/117.png",
+    "time": 2058
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/118.png",
+    "time": 2075
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/119.png",
+    "time": 2092
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/120.png",
+    "time": 2108
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/121.png",
+    "time": 2127
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/122.png",
+    "time": 2142
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/123.png",
+    "time": 2159
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/124.png",
+    "time": 2175
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/125.png",
+    "time": 2192
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/126.png",
+    "time": 2210
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/127.png",
+    "time": 2226
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/128.png",
+    "time": 2245
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/129.png",
+    "time": 2258
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/130.png",
+    "time": 2275
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/131.png",
+    "time": 2293
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/132.png",
+    "time": 2308
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/133.png",
+    "time": 2329
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/134.png",
+    "time": 2342
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/135.png",
+    "time": 2358
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/136.png",
+    "time": 2386
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/137.png",
+    "time": 2426
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/138.png",
+    "time": 2458
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/139.png",
+    "time": 2475
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/140.png",
+    "time": 2492
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/141.png",
+    "time": 2508
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/142.png",
+    "time": 2529
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/143.png",
+    "time": 2542
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/144.png",
+    "time": 2559
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/145.png",
+    "time": 2575
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/146.png",
+    "time": 2592
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/147.png",
+    "time": 2610
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/148.png",
+    "time": 2625
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/149.png",
+    "time": 2643
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/150.png",
+    "time": 2659
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/151.png",
+    "time": 2675
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/152.png",
+    "time": 2693
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/153.png",
+    "time": 2709
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/154.png",
+    "time": 2726
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/155.png",
+    "time": 2742
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/156.png",
+    "time": 2759
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/157.png",
+    "time": 2774
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/158.png",
+    "time": 2792
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/159.png",
+    "time": 2810
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/160.png",
+    "time": 2825
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/161.png",
+    "time": 2842
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/162.png",
+    "time": 2858
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/163.png",
+    "time": 2875
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/164.png",
+    "time": 2892
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/165.png",
+    "time": 2908
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/166.png",
+    "time": 2927
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/167.png",
+    "time": 2942
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/168.png",
+    "time": 2961
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/169.png",
+    "time": 2975
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/170.png",
+    "time": 2992
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/171.png",
+    "time": 3009
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/172.png",
+    "time": 3025
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/173.png",
+    "time": 3042
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/174.png",
+    "time": 3059
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/175.png",
+    "time": 3077
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/176.png",
+    "time": 3093
+  },
+  {
+    "path": "/Users/zhaojisen/pi-desktop/design/shimmer-clarity/frames/177.png",
+    "time": 3109
+  }
+]

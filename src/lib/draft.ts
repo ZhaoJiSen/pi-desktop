@@ -40,6 +40,33 @@ export function draftText(nodes: DraftNode[]) {
 export function sessionDraft(session: Pick<Session, 'draft' | 'draftNodes'>): DraftNode[] {
   return session.draftNodes ?? (session.draft ? [{ type: 'text', text: session.draft }] : [])
 }
+// Textarea editing keeps command identity for dispatch, without inline DOM atoms.
+// Preserve a selected command's origin even if its catalog entry disappears.
+export function draftFromText(
+  text: string,
+  commands: DiscoverableCommand[],
+  previous: DraftNode[] = [],
+): DraftNode[] {
+  const match = /^(\s*)\/([\w:.-]+)(?=\s|$)/.exec(text)
+  if (!match) return text ? [{ type: 'text', text }] : []
+  const name = match[2]!
+  const existing = previous.find(
+    (node): node is CommandTag => node.type === 'command' && node.name === name,
+  )
+  const candidates = commands.filter((command) => command.name === name)
+  const command =
+    candidates.find((c) => c.source === 'extension') ||
+    (name.startsWith('skill:') && candidates.find((c) => c.source === 'skill')) ||
+    candidates.find((c) => c.source === 'prompt') ||
+    candidates.find((c) => c.source === 'builtin')
+  if (!existing && !command) return [{ type: 'text', text }]
+  const tag = existing || createCommandTag(command!)
+  return normalizeDraft([
+    { type: 'text', text: match[1]! },
+    { ...tag, arguments: '' },
+    { type: 'text', text: text.slice(match[0].length) },
+  ])
+}
 export function draftLength(nodes: DraftNode[]) {
   return nodes.reduce((sum, node) => sum + (node.type === 'text' ? node.text.length : 1), 0)
 }

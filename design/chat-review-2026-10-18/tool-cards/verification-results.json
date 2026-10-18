@@ -1,0 +1,214 @@
+{
+  "toolRuns": [
+    {
+      "arrowInset": 12,
+      "border": "1px",
+      "gaps": [
+        12,
+        12
+      ],
+      "height": 38,
+      "nextUserGap": 32,
+      "overflow": 0,
+      "grouping": true,
+      "keyboard": true,
+      "preservedChildChoice": true,
+      "realArguments": true,
+      "error": true,
+      "streamingCompletion": true
+    },
+    {
+      "arrowInset": 12,
+      "border": "1px",
+      "gaps": [
+        12,
+        12
+      ],
+      "height": 38,
+      "nextUserGap": 32,
+      "overflow": 0,
+      "grouping": true,
+      "keyboard": true,
+      "preservedChildChoice": true,
+      "realArguments": true,
+      "error": true,
+      "streamingCompletion": true
+    },
+    {
+      "arrowInset": 12,
+      "border": "1px",
+      "gaps": [
+        12,
+        12
+      ],
+      "height": 38,
+      "nextUserGap": 32,
+      "overflow": 0,
+      "grouping": true,
+      "keyboard": true,
+      "preservedChildChoice": true,
+      "realArguments": true,
+      "error": true,
+      "streamingCompletion": true
+    }
+  ],
+  "chatRuns": [
+    {
+      "wrappedCode": true,
+      "isolatedTokens": true,
+      "keyboardDisclosure": true,
+      "thinking": true,
+      "copyFeedback": true,
+      "preservedCodeText": true,
+      "shortDraft": true,
+      "unwrappedScroll": true,
+      "streamingChoice": true,
+      "statusIcons": true
+    },
+    {
+      "wrappedCode": true,
+      "isolatedTokens": true,
+      "keyboardDisclosure": true,
+      "thinking": true,
+      "copyFeedback": true,
+      "preservedCodeText": true,
+      "shortDraft": true,
+      "unwrappedScroll": true,
+      "streamingChoice": true,
+      "statusIcons": true
+    },
+    {
+      "wrappedCode": true,
+      "isolatedTokens": true,
+      "keyboardDisclosure": true,
+      "thinking": true,
+      "copyFeedback": true,
+      "preservedCodeText": true,
+      "shortDraft": true,
+      "unwrappedScroll": true,
+      "streamingChoice": true,
+      "statusIcons": true
+    }
+  ],
+  "spacingRuns": [
+    [
+      {
+        "kind": "code",
+        "collapsedGap": 16,
+        "expandedGap": 16,
+        "paragraphGap": 8
+      },
+      {
+        "kind": "text",
+        "collapsedGap": 16,
+        "expandedGap": 16,
+        "paragraphGap": 8
+      },
+      {
+        "kind": "heading",
+        "collapsedGap": 16,
+        "expandedGap": 16,
+        "paragraphGap": 8
+      },
+      {
+        "kind": "subheading",
+        "collapsedGap": 16,
+        "expandedGap": 16,
+        "paragraphGap": 8
+      },
+      {
+        "kind": "list",
+        "collapsedGap": 16,
+        "expandedGap": 16,
+        "paragraphGap": 8
+      }
+    ],
+    [
+      {
+        "kind": "code",
+        "collapsedGap": 16,
+        "expandedGap": 16,
+        "paragraphGap": 8
+      },
+      {
+        "kind": "text",
+        "collapsedGap": 16,
+        "expandedGap": 16,
+        "paragraphGap": 8
+      },
+      {
+        "kind": "heading",
+        "collapsedGap": 16,
+        "expandedGap": 16,
+        "paragraphGap": 8
+      },
+      {
+        "kind": "subheading",
+        "collapsedGap": 16,
+        "expandedGap": 16,
+        "paragraphGap": 8
+      },
+      {
+        "kind": "list",
+        "collapsedGap": 16,
+        "expandedGap": 16,
+        "paragraphGap": 8
+      }
+    ],
+    [
+      {
+        "kind": "code",
+        "collapsedGap": 16,
+        "expandedGap": 16,
+        "paragraphGap": 8
+      },
+      {
+        "kind": "text",
+        "collapsedGap": 16,
+        "expandedGap": 16,
+        "paragraphGap": 8
+      },
+      {
+        "kind": "heading",
+        "collapsedGap": 16,
+        "expandedGap": 16,
+        "paragraphGap": 8
+      },
+      {
+        "kind": "subheading",
+        "collapsedGap": 16,
+        "expandedGap": 16,
+        "paragraphGap": 8
+      },
+      {
+        "kind": "list",
+        "collapsedGap": 16,
+        "expandedGap": 16,
+        "paragraphGap": 8
+      }
+    ]
+  ],
+  "shadowRuns": [
+    {
+      "conversationScroll": true,
+      "toolTop": true,
+      "toolMiddle": true,
+      "toolBottom": true,
+      "fixedSurface": true
+    },
+    {
+      "conversationScroll": true,
+      "toolTop": true,
+      "toolMiddle": true,
+      "toolBottom": true,
+      "fixedSurface": true
+    },
+    {
+      "conversationScroll": true,
+      "toolTop": true,
+      "toolMiddle": true,
+      "toolBottom": true,
+      "fixedSurface": true
+    }
+  ]
+}

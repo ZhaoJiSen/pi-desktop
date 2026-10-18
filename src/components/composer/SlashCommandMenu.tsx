@@ -72,7 +72,11 @@ export function SlashCommandMenu({
               <strong>/{command.name}</strong>
               <span>{command.description || t('commands.noDescription')}</span>
             </span>
-            <span className="slash-option-source">{t(`commands.source.${command.source}`)}</span>
+            <span className="slash-option-source">
+              {command.capabilityId && command.source === 'builtin'
+                ? command.sourceInfo?.source
+                : t(`commands.source.${command.source}`)}
+            </span>
           </div>
         ))}
         {!rows.length && (

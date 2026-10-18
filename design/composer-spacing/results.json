@@ -1,0 +1,164 @@
+[
+  {
+    "empty": {
+      "editorHeight": 22,
+      "fieldBottom": 88,
+      "fieldHeight": 30,
+      "gap": 12,
+      "height": 94,
+      "overflow": 0,
+      "toolbarTop": 98,
+      "top": 14
+    },
+    "single": {
+      "editorHeight": 22,
+      "fieldBottom": 88,
+      "fieldHeight": 30,
+      "gap": 12,
+      "height": 94,
+      "overflow": 0,
+      "toolbarTop": 98,
+      "top": 14
+    },
+    "two": {
+      "editorHeight": 44,
+      "fieldBottom": 110,
+      "fieldHeight": 52,
+      "gap": 12,
+      "height": 116,
+      "overflow": 0,
+      "toolbarTop": 120,
+      "top": 14
+    },
+    "long": {
+      "editorHeight": 528,
+      "fieldBottom": 234,
+      "fieldHeight": 176,
+      "gap": -348,
+      "height": 240,
+      "overflow": 360,
+      "toolbarTop": 244,
+      "top": 14
+    },
+    "chip": {
+      "editorHeight": 23,
+      "fieldBottom": 89,
+      "fieldHeight": 31,
+      "gap": 12,
+      "height": 95,
+      "overflow": 0,
+      "toolbarTop": 99,
+      "top": 14
+    },
+    "chipRemovalSafe": true,
+    "persistedDraft": true
+  },
+  {
+    "empty": {
+      "editorHeight": 22,
+      "fieldBottom": 88.54341125488281,
+      "fieldHeight": 30,
+      "gap": 12,
+      "height": 94,
+      "overflow": 0,
+      "toolbarTop": 98.5434112548828,
+      "top": 14
+    },
+    "single": {
+      "editorHeight": 22,
+      "fieldBottom": 88,
+      "fieldHeight": 30,
+      "gap": 12,
+      "height": 94,
+      "overflow": 0,
+      "toolbarTop": 98,
+      "top": 14
+    },
+    "two": {
+      "editorHeight": 44,
+      "fieldBottom": 110,
+      "fieldHeight": 52,
+      "gap": 12,
+      "height": 116,
+      "overflow": 0,
+      "toolbarTop": 120,
+      "top": 14
+    },
+    "long": {
+      "editorHeight": 528,
+      "fieldBottom": 234,
+      "fieldHeight": 176,
+      "gap": -348,
+      "height": 240,
+      "overflow": 360,
+      "toolbarTop": 244,
+      "top": 14
+    },
+    "chip": {
+      "editorHeight": 23,
+      "fieldBottom": 89,
+      "fieldHeight": 31,
+      "gap": 12,
+      "height": 95,
+      "overflow": 0,
+      "toolbarTop": 99,
+      "top": 14
+    },
+    "chipRemovalSafe": true,
+    "persistedDraft": true
+  },
+  {
+    "empty": {
+      "editorHeight": 22,
+      "fieldBottom": 88,
+      "fieldHeight": 30,
+      "gap": 12,
+      "height": 94,
+      "overflow": 0,
+      "toolbarTop": 98,
+      "top": 14
+    },
+    "single": {
+      "editorHeight": 22,
+      "fieldBottom": 88,
+      "fieldHeight": 30,
+      "gap": 12,
+      "height": 94,
+      "overflow": 0,
+      "toolbarTop": 98,
+      "top": 14
+    },
+    "two": {
+      "editorHeight": 44,
+      "fieldBottom": 110,
+      "fieldHeight": 52,
+      "gap": 12,
+      "height": 116,
+      "overflow": 0,
+      "toolbarTop": 120,
+      "top": 14
+    },
+    "long": {
+      "editorHeight": 528,
+      "fieldBottom": 234,
+      "fieldHeight": 176,
+      "gap": -348,
+      "height": 240,
+      "overflow": 360,
+      "toolbarTop": 244,
+      "top": 14
+    },
+    "chip": {
+      "editorHeight": 23,
+      "fieldBottom": 89,
+      "fieldHeight": 31,
+      "gap": 12,
+      "height": 95,
+      "overflow": 0,
+      "toolbarTop": 99,
+      "top": 14
+    },
+    "chipRemovalSafe": true,
+    "persistedDraft": true
+  }
+]

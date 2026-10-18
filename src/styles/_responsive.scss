@@ -118,9 +118,6 @@
   .conversation {
     padding-top: 16px;
   }
-  .tool-block + .reply-text {
-    margin-top: 16px;
-  }
 }
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -129,7 +126,9 @@
     animation-duration: 0.001ms !important;
     transition-duration: 0.001ms !important;
   }
-  .spinner {
-    animation: none;
+  .spinner,
+  .reply-text.is-streaming::after,
+  .reply-text.is-streaming *::after {
+    animation: none !important;
   }
 }

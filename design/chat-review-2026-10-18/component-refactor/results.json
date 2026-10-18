@@ -1,0 +1,365 @@
+{
+  "highlightRuns": [
+    [
+      {
+        "name": "已读取 valid.go",
+        "inputTokens": 5,
+        "keyword": "package",
+        "keywordColor": "rgb(175, 55, 103)",
+        "output": "package utils\n\nfunc ValidPriority(priority string) bool {\n    switch priority {\n    case \"low\", \"medium\", \"high\":\n        return true\n    default:\n        return false\n    }\n}\n\nfunc ValidStatus(status string) bool {\n    return status == \"todo\" || status == \"doing\" || status == \"done\"\n}",
+        "surfaceMask": "none",
+        "textColor": "rgb(37, 41, 50)",
+        "tokens": 42
+      },
+      {
+        "name": "已读取 Cargo.toml",
+        "inputTokens": 5,
+        "keywordColor": "",
+        "output": "[package]\nname = \"tasklab\"\nversion = \"0.1.0\"",
+        "surfaceMask": "none",
+        "textColor": "rgb(37, 41, 50)",
+        "tokens": 9
+      },
+      {
+        "name": "已读取 notes.unknown",
+        "inputTokens": 0,
+        "keywordColor": "",
+        "output": "<plain text> & unchanged",
+        "surfaceMask": "none",
+        "textColor": "rgb(37, 41, 50)",
+        "tokens": 0
+      },
+      {
+        "name": "已执行 printf status",
+        "inputTokens": 0,
+        "keywordColor": "",
+        "output": "package utils\nreturn true",
+        "surfaceMask": "none",
+        "textColor": "rgb(37, 41, 50)",
+        "tokens": 0
+      }
+    ],
+    [
+      {
+        "name": "已读取 valid.go",
+        "inputTokens": 5,
+        "keyword": "package",
+        "keywordColor": "rgb(175, 55, 103)",
+        "output": "package utils\n\nfunc ValidPriority(priority string) bool {\n    switch priority {\n    case \"low\", \"medium\", \"high\":\n        return true\n    default:\n        return false\n    }\n}\n\nfunc ValidStatus(status string) bool {\n    return status == \"todo\" || status == \"doing\" || status == \"done\"\n}",
+        "surfaceMask": "none",
+        "textColor": "rgb(37, 41, 50)",
+        "tokens": 42
+      },
+      {
+        "name": "已读取 Cargo.toml",
+        "inputTokens": 5,
+        "keywordColor": "",
+        "output": "[package]\nname = \"tasklab\"\nversion = \"0.1.0\"",
+        "surfaceMask": "none",
+        "textColor": "rgb(37, 41, 50)",
+        "tokens": 9
+      },
+      {
+        "name": "已读取 notes.unknown",
+        "inputTokens": 0,
+        "keywordColor": "",
+        "output": "<plain text> & unchanged",
+        "surfaceMask": "none",
+        "textColor": "rgb(37, 41, 50)",
+        "tokens": 0
+      },
+      {
+        "name": "已执行 printf status",
+        "inputTokens": 0,
+        "keywordColor": "",
+        "output": "package utils\nreturn true",
+        "surfaceMask": "none",
+        "textColor": "rgb(37, 41, 50)",
+        "tokens": 0
+      }
+    ],
+    [
+      {
+        "name": "已读取 valid.go",
+        "inputTokens": 5,
+        "keyword": "package",
+        "keywordColor": "rgb(175, 55, 103)",
+        "output": "package utils\n\nfunc ValidPriority(priority string) bool {\n    switch priority {\n    case \"low\", \"medium\", \"high\":\n        return true\n    default:\n        return false\n    }\n}\n\nfunc ValidStatus(status string) bool {\n    return status == \"todo\" || status == \"doing\" || status == \"done\"\n}",
+        "surfaceMask": "none",
+        "textColor": "rgb(37, 41, 50)",
+        "tokens": 42
+      },
+      {
+        "name": "已读取 Cargo.toml",
+        "inputTokens": 5,
+        "keywordColor": "",
+        "output": "[package]\nname = \"tasklab\"\nversion = \"0.1.0\"",
+        "surfaceMask": "none",
+        "textColor": "rgb(37, 41, 50)",
+        "tokens": 9
+      },
+      {
+        "name": "已读取 notes.unknown",
+        "inputTokens": 0,
+        "keywordColor": "",
+        "output": "<plain text> & unchanged",
+        "surfaceMask": "none",
+        "textColor": "rgb(37, 41, 50)",
+        "tokens": 0
+      },
+      {
+        "name": "已执行 printf status",
+        "inputTokens": 0,
+        "keywordColor": "",
+        "output": "package utils\nreturn true",
+        "surfaceMask": "none",
+        "textColor": "rgb(37, 41, 50)",
+        "tokens": 0
+      }
+    ]
+  ],
+  "settingsRuns": [
+    {
+      "sectionOrder": true,
+      "theme": true,
+      "palette": true,
+      "save": true,
+      "reload": true,
+      "storageFailureRetainsDraft": true,
+      "restore": true,
+      "busy": true
+    },
+    {
+      "sectionOrder": true,
+      "theme": true,
+      "palette": true,
+      "save": true,
+      "reload": true,
+      "storageFailureRetainsDraft": true,
+      "restore": true,
+      "busy": true
+    },
+    {
+      "sectionOrder": true,
+      "theme": true,
+      "palette": true,
+      "save": true,
+      "reload": true,
+      "storageFailureRetainsDraft": true,
+      "restore": true,
+      "busy": true
+    }
+  ],
+  "spacingRuns": [
+    [
+      {
+        "kind": "code",
+        "collapsedGap": 8,
+        "expandedGap": 8,
+        "paragraphGap": 8
+      },
+      {
+        "kind": "text",
+        "collapsedGap": 8,
+        "expandedGap": 8,
+        "paragraphGap": 8
+      },
+      {
+        "kind": "heading",
+        "collapsedGap": 8,
+        "expandedGap": 8,
+        "paragraphGap": 8
+      },
+      {
+        "kind": "subheading",
+        "collapsedGap": 8,
+        "expandedGap": 8,
+        "paragraphGap": 8
+      },
+      {
+        "kind": "list",
+        "collapsedGap": 8,
+        "expandedGap": 8,
+        "paragraphGap": 8
+      }
+    ],
+    [
+      {
+        "kind": "code",
+        "collapsedGap": 8,
+        "expandedGap": 8,
+        "paragraphGap": 8
+      },
+      {
+        "kind": "text",
+        "collapsedGap": 8,
+        "expandedGap": 8,
+        "paragraphGap": 8
+      },
+      {
+        "kind": "heading",
+        "collapsedGap": 8,
+        "expandedGap": 8,
+        "paragraphGap": 8
+      },
+      {
+        "kind": "subheading",
+        "collapsedGap": 8,
+        "expandedGap": 8,
+        "paragraphGap": 8
+      },
+      {
+        "kind": "list",
+        "collapsedGap": 8,
+        "expandedGap": 8,
+        "paragraphGap": 8
+      }
+    ],
+    [
+      {
+        "kind": "code",
+        "collapsedGap": 8,
+        "expandedGap": 8,
+        "paragraphGap": 8
+      },
+      {
+        "kind": "text",
+        "collapsedGap": 8,
+        "expandedGap": 8,
+        "paragraphGap": 8
+      },
+      {
+        "kind": "heading",
+        "collapsedGap": 8,
+        "expandedGap": 8,
+        "paragraphGap": 8
+      },
+      {
+        "kind": "subheading",
+        "collapsedGap": 8,
+        "expandedGap": 8,
+        "paragraphGap": 8
+      },
+      {
+        "kind": "list",
+        "collapsedGap": 8,
+        "expandedGap": 8,
+        "paragraphGap": 8
+      }
+    ]
+  ],
+  "toolCardsRuns": [
+    {
+      "arrowInset": 12,
+      "border": "1px",
+      "gaps": [
+        12,
+        12
+      ],
+      "height": 38,
+      "nextUserGap": 32,
+      "overflow": 0,
+      "grouping": true,
+      "keyboard": true,
+      "preservedChildChoice": true,
+      "realArguments": true,
+      "error": true,
+      "streamingCompletion": true
+    },
+    {
+      "arrowInset": 12,
+      "border": "1px",
+      "gaps": [
+        12,
+        12
+      ],
+      "height": 38,
+      "nextUserGap": 32,
+      "overflow": 0,
+      "grouping": true,
+      "keyboard": true,
+      "preservedChildChoice": true,
+      "realArguments": true,
+      "error": true,
+      "streamingCompletion": true
+    },
+    {
+      "arrowInset": 12,
+      "border": "1px",
+      "gaps": [
+        12,
+        12
+      ],
+      "height": 38,
+      "nextUserGap": 32,
+      "overflow": 0,
+      "grouping": true,
+      "keyboard": true,
+      "preservedChildChoice": true,
+      "realArguments": true,
+      "error": true,
+      "streamingCompletion": true
+    }
+  ],
+  "chatRuns": [
+    {
+      "wrappedCode": true,
+      "isolatedTokens": true,
+      "keyboardDisclosure": true,
+      "thinking": true,
+      "copyFeedback": true,
+      "preservedCodeText": true,
+      "shortDraft": true,
+      "unwrappedScroll": true,
+      "streamingChoice": true,
+      "statusIcons": true
+    },
+    {
+      "wrappedCode": true,
+      "isolatedTokens": true,
+      "keyboardDisclosure": true,
+      "thinking": true,
+      "copyFeedback": true,
+      "preservedCodeText": true,
+      "shortDraft": true,
+      "unwrappedScroll": true,
+      "streamingChoice": true,
+      "statusIcons": true
+    },
+    {
+      "wrappedCode": true,
+      "isolatedTokens": true,
+      "keyboardDisclosure": true,
+      "thinking": true,
+      "copyFeedback": true,
+      "preservedCodeText": true,
+      "shortDraft": true,
+      "unwrappedScroll": true,
+      "streamingChoice": true,
+      "statusIcons": true
+    }
+  ],
+  "scrollRuns": [
+    {
+      "conversationScroll": true,
+      "toolTop": true,
+      "toolMiddle": true,
+      "toolBottom": true,
+      "fixedSurface": true
+    },
+    {
+      "conversationScroll": true,
+      "toolTop": true,
+      "toolMiddle": true,
+      "toolBottom": true,
+      "fixedSurface": true
+    },
+    {
+      "conversationScroll": true,
+      "toolTop": true,
+      "toolMiddle": true,
+      "toolBottom": true,
+      "fixedSurface": true
+    }
+  ]
+}

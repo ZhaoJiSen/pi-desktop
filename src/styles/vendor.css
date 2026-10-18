@@ -1,2 +1,4 @@
 @import 'tailwindcss';
 @import '@heroui/styles';
+@import 'streamdown/styles.css';
+@source '../../node_modules/streamdown/dist/*.js';

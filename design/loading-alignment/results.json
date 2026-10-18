@@ -1,0 +1,656 @@
+[
+  {
+    "round": 21,
+    "frames": [
+      [
+        {
+          "animation": "spin",
+          "centerX": 0,
+          "centerY": 0,
+          "class": "spinner spinner--current spinner--sm run-spinner",
+          "duration": "0.75s",
+          "h": 14,
+          "svgH": 14,
+          "svgW": 14,
+          "transform": "matrix(-0.3693, 0.92931, -0.92931, -0.3693, 0, 0)",
+          "w": 14
+        }
+      ],
+      [
+        {
+          "animation": "spin",
+          "centerX": 0,
+          "centerY": 0,
+          "class": "spinner spinner--current spinner--sm run-spinner",
+          "duration": "0.75s",
+          "h": 14,
+          "svgH": 14,
+          "svgW": 14,
+          "transform": "matrix(-0.883405, 0.468611, -0.468611, -0.883405, 0, 0)",
+          "w": 14
+        }
+      ],
+      [
+        {
+          "animation": "spin",
+          "centerX": 0,
+          "centerY": 0,
+          "class": "spinner spinner--current spinner--sm run-spinner",
+          "duration": "0.75s",
+          "h": 14,
+          "svgH": 14,
+          "svgW": 14,
+          "transform": "matrix(-0.977947, -0.208854, 0.208854, -0.977947, 0, 0)",
+          "w": 14
+        }
+      ],
+      [
+        {
+          "animation": "spin",
+          "centerX": 0,
+          "centerY": 0,
+          "class": "spinner spinner--current spinner--sm run-spinner",
+          "duration": "0.75s",
+          "h": 14,
+          "svgH": 14,
+          "svgW": 14,
+          "transform": "matrix(-0.88209, -0.471081, 0.471081, -0.88209, 0, 0)",
+          "w": 14
+        }
+      ],
+      [
+        {
+          "animation": "spin",
+          "centerX": 0,
+          "centerY": 0,
+          "class": "spinner spinner--current spinner--sm run-spinner",
+          "duration": "0.75s",
+          "h": 14,
+          "svgH": 14,
+          "svgW": 14,
+          "transform": "matrix(-0.372941, -0.927855, 0.927855, -0.372941, 0, 0)",
+          "w": 14
+        }
+      ],
+      [
+        {
+          "animation": "spin",
+          "centerX": 0,
+          "centerY": 0,
+          "class": "spinner spinner--current spinner--sm run-spinner",
+          "duration": "0.75s",
+          "h": 14,
+          "svgH": 14,
+          "svgW": 14,
+          "transform": "matrix(-0.109934, -0.993939, 0.993939, -0.109934, 0, 0)",
+          "w": 14
+        }
+      ],
+      [
+        {
+          "animation": "spin",
+          "centerX": 0,
+          "centerY": 0,
+          "class": "spinner spinner--current spinner--sm run-spinner",
+          "duration": "0.75s",
+          "h": 14,
+          "svgH": 14,
+          "svgW": 14,
+          "transform": "matrix(0.16828, -0.985739, 0.985739, 0.16828, 0, 0)",
+          "w": 14
+        }
+      ],
+      [
+        {
+          "animation": "spin",
+          "centerX": 0,
+          "centerY": 0,
+          "class": "spinner spinner--current spinner--sm run-spinner",
+          "duration": "0.75s",
+          "h": 14,
+          "svgH": 14,
+          "svgW": 14,
+          "transform": "matrix(0.440511, -0.897747, 0.897747, 0.440511, 0, 0)",
+          "w": 14
+        }
+      ]
+    ],
+    "tools": [
+      {
+        "animation": "spin",
+        "centerX": 0,
+        "centerY": 0,
+        "class": "spinner spinner--current spinner--sm tool-spinner",
+        "duration": "0.75s",
+        "h": 14,
+        "svgH": 14,
+        "svgW": 14,
+        "transform": "matrix(-0.883628, 0.468189, -0.468189, -0.883628, 0, 0)",
+        "w": 14
+      },
+      {
+        "animation": "spin",
+        "centerX": 0,
+        "centerY": 0,
+        "class": "spinner spinner--current spinner--sm tool-spinner",
+        "duration": "0.75s",
+        "h": 14,
+        "svgH": 14,
+        "svgW": 14,
+        "transform": "matrix(-0.883628, 0.468189, -0.468189, -0.883628, 0, 0)",
+        "w": 14
+      },
+      {
+        "animation": "spin",
+        "centerX": 0,
+        "centerY": 0,
+        "class": "spinner spinner--current spinner--sm tool-spinner",
+        "duration": "0.75s",
+        "h": 14,
+        "svgH": 14,
+        "svgW": 14,
+        "transform": "matrix(-0.883628, 0.468189, -0.468189, -0.883628, 0, 0)",
+        "w": 14
+      },
+      {
+        "animation": "spin",
+        "centerX": 0,
+        "centerY": 0,
+        "class": "spinner spinner--current spinner--sm run-spinner",
+        "duration": "0.75s",
+        "h": 14,
+        "svgH": 14,
+        "svgW": 14,
+        "transform": "matrix(-0.811555, 0.584276, -0.584276, -0.811555, 0, 0)",
+        "w": 14
+      }
+    ],
+    "sending": [
+      {
+        "animation": "spin",
+        "centerX": 0,
+        "centerY": 0,
+        "class": "spinner spinner--current spinner--sm tool-spinner",
+        "duration": "0.75s",
+        "h": 14,
+        "svgH": 14,
+        "svgW": 14,
+        "transform": "matrix(0.440428, -0.897788, 0.897788, 0.440428, 0, 0)",
+        "w": 14
+      },
+      {
+        "animation": "spin",
+        "centerX": 0,
+        "centerY": 0,
+        "class": "spinner spinner--current spinner--sm tool-spinner",
+        "duration": "0.75s",
+        "h": 14,
+        "svgH": 14,
+        "svgW": 14,
+        "transform": "matrix(0.440428, -0.897788, 0.897788, 0.440428, 0, 0)",
+        "w": 14
+      },
+      {
+        "animation": "spin",
+        "centerX": 0,
+        "centerY": 0,
+        "class": "spinner spinner--current spinner--sm tool-spinner",
+        "duration": "0.75s",
+        "h": 14,
+        "svgH": 14,
+        "svgW": 14,
+        "transform": "matrix(0.440428, -0.897788, 0.897788, 0.440428, 0, 0)",
+        "w": 14
+      },
+      {
+        "animation": "spin",
+        "centerX": 0,
+        "centerY": 0,
+        "class": "spinner spinner--current spinner--sm send-spinner",
+        "duration": "0.75s",
+        "h": 16,
+        "svgH": 16,
+        "svgW": 16,
+        "transform": "matrix(-0.616337, 0.787483, -0.787483, -0.616337, 0, 0)",
+        "w": 16
+      }
+    ],
+    "completion": true
+  },
+  {
+    "round": 22,
+    "frames": [
+      [
+        {
+          "animation": "spin",
+          "centerX": 0,
+          "centerY": 0,
+          "class": "spinner spinner--current spinner--sm run-spinner",
+          "duration": "0.75s",
+          "h": 14,
+          "svgH": 14,
+          "svgW": 14,
+          "transform": "matrix(-0.0972939, 0.995256, -0.995256, -0.0972939, 0, 0)",
+          "w": 14
+        }
+      ],
+      [
+        {
+          "animation": "spin",
+          "centerX": 0,
+          "centerY": 0,
+          "class": "spinner spinner--current spinner--sm run-spinner",
+          "duration": "0.75s",
+          "h": 14,
+          "svgH": 14,
+          "svgW": 14,
+          "transform": "matrix(-0.720495, 0.69346, -0.69346, -0.720495, 0, 0)",
+          "w": 14
+        }
+      ],
+      [
+        {
+          "animation": "spin",
+          "centerX": 0,
+          "centerY": 0,
+          "class": "spinner spinner--current spinner--sm run-spinner",
+          "duration": "0.75s",
+          "h": 14,
+          "svgH": 14,
+          "svgW": 14,
+          "transform": "matrix(-0.937276, 0.348588, -0.348588, -0.937276, 0, 0)",
+          "w": 14
+        }
+      ],
+      [
+        {
+          "animation": "spin",
+          "centerX": 0,
+          "centerY": 0,
+          "class": "spinner spinner--current spinner--sm run-spinner",
+          "duration": "0.75s",
+          "h": 14,
+          "svgH": 14,
+          "svgW": 14,
+          "transform": "matrix(-0.998029, -0.0627571, 0.0627571, -0.998029, 0, 0)",
+          "w": 14
+        }
+      ],
+      [
+        {
+          "animation": "spin",
+          "centerX": 0,
+          "centerY": 0,
+          "class": "spinner spinner--current spinner--sm run-spinner",
+          "duration": "0.75s",
+          "h": 14,
+          "svgH": 14,
+          "svgW": 14,
+          "transform": "matrix(-0.613688, -0.789549, 0.789549, -0.613688, 0, 0)",
+          "w": 14
+        }
+      ],
+      [
+        {
+          "animation": "spin",
+          "centerX": 0,
+          "centerY": 0,
+          "class": "spinner spinner--current spinner--sm run-spinner",
+          "duration": "0.75s",
+          "h": 14,
+          "svgH": 14,
+          "svgW": 14,
+          "transform": "matrix(-0.23951, -0.970894, 0.970894, -0.23951, 0, 0)",
+          "w": 14
+        }
+      ],
+      [
+        {
+          "animation": "spin",
+          "centerX": 0,
+          "centerY": 0,
+          "class": "spinner spinner--current spinner--sm run-spinner",
+          "duration": "0.75s",
+          "h": 14,
+          "svgH": 14,
+          "svgW": 14,
+          "transform": "matrix(0.311359, -0.950293, 0.950293, 0.311359, 0, 0)",
+          "w": 14
+        }
+      ],
+      [
+        {
+          "animation": "spin",
+          "centerX": 0,
+          "centerY": 0,
+          "class": "spinner spinner--current spinner--sm run-spinner",
+          "duration": "0.75s",
+          "h": 14,
+          "svgH": 14,
+          "svgW": 14,
+          "transform": "matrix(0.561224, -0.827664, 0.827664, 0.561224, 0, 0)",
+          "w": 14
+        }
+      ]
+    ],
+    "tools": [
+      {
+        "animation": "spin",
+        "centerX": 0,
+        "centerY": 0,
+        "class": "spinner spinner--current spinner--sm tool-spinner",
+        "duration": "0.75s",
+        "h": 14,
+        "svgH": 14,
+        "svgW": 14,
+        "transform": "matrix(-0.88322, 0.468959, -0.468959, -0.88322, 0, 0)",
+        "w": 14
+      },
+      {
+        "animation": "spin",
+        "centerX": 0,
+        "centerY": 0,
+        "class": "spinner spinner--current spinner--sm tool-spinner",
+        "duration": "0.75s",
+        "h": 14,
+        "svgH": 14,
+        "svgW": 14,
+        "transform": "matrix(-0.88322, 0.468959, -0.468959, -0.88322, 0, 0)",
+        "w": 14
+      },
+      {
+        "animation": "spin",
+        "centerX": 0,
+        "centerY": 0,
+        "class": "spinner spinner--current spinner--sm tool-spinner",
+        "duration": "0.75s",
+        "h": 14,
+        "svgH": 14,
+        "svgW": 14,
+        "transform": "matrix(-0.88322, 0.468959, -0.468959, -0.88322, 0, 0)",
+        "w": 14
+      },
+      {
+        "animation": "spin",
+        "centerX": 0,
+        "centerY": 0,
+        "class": "spinner spinner--current spinner--sm run-spinner",
+        "duration": "0.75s",
+        "h": 14,
+        "svgH": 14,
+        "svgW": 14,
+        "transform": "matrix(-0.618242, 0.785988, -0.785988, -0.618242, 0, 0)",
+        "w": 14
+      }
+    ],
+    "sending": [
+      {
+        "animation": "spin",
+        "centerX": 0,
+        "centerY": 0,
+        "class": "spinner spinner--current spinner--sm tool-spinner",
+        "duration": "0.75s",
+        "h": 14,
+        "svgH": 14,
+        "svgW": 14,
+        "transform": "matrix(-0.239949, -0.970786, 0.970786, -0.239949, 0, 0)",
+        "w": 14
+      },
+      {
+        "animation": "spin",
+        "centerX": 0,
+        "centerY": 0,
+        "class": "spinner spinner--current spinner--sm tool-spinner",
+        "duration": "0.75s",
+        "h": 14,
+        "svgH": 14,
+        "svgW": 14,
+        "transform": "matrix(-0.239949, -0.970786, 0.970786, -0.239949, 0, 0)",
+        "w": 14
+      },
+      {
+        "animation": "spin",
+        "centerX": 0,
+        "centerY": 0,
+        "class": "spinner spinner--current spinner--sm tool-spinner",
+        "duration": "0.75s",
+        "h": 14,
+        "svgH": 14,
+        "svgW": 14,
+        "transform": "matrix(-0.239949, -0.970786, 0.970786, -0.239949, 0, 0)",
+        "w": 14
+      },
+      {
+        "animation": "spin",
+        "centerX": 0,
+        "centerY": 0,
+        "class": "spinner spinner--current spinner--sm send-spinner",
+        "duration": "0.75s",
+        "h": 16,
+        "svgH": 16,
+        "svgW": 16,
+        "transform": "matrix(-0.113331, 0.993557, -0.993557, -0.113331, 0, 0)",
+        "w": 16
+      }
+    ],
+    "completion": true
+  },
+  {
+    "round": 23,
+    "frames": [
+      [
+        {
+          "animation": "spin",
+          "centerX": 0,
+          "centerY": 0,
+          "class": "spinner spinner--current spinner--sm run-spinner",
+          "duration": "0.75s",
+          "h": 14,
+          "svgH": 14,
+          "svgW": 14,
+          "transform": "matrix(0.0387031, 0.999251, -0.999251, 0.0387031, 0, 0)",
+          "w": 14
+        }
+      ],
+      [
+        {
+          "animation": "spin",
+          "centerX": 0,
+          "centerY": 0,
+          "class": "spinner spinner--current spinner--sm run-spinner",
+          "duration": "0.75s",
+          "h": 14,
+          "svgH": 14,
+          "svgW": 14,
+          "transform": "matrix(-0.37263, 0.92798, -0.92798, -0.37263, 0, 0)",
+          "w": 14
+        }
+      ],
+      [
+        {
+          "animation": "spin",
+          "centerX": 0,
+          "centerY": 0,
+          "class": "spinner spinner--current spinner--sm run-spinner",
+          "duration": "0.75s",
+          "h": 14,
+          "svgH": 14,
+          "svgW": 14,
+          "transform": "matrix(-0.940104, 0.340889, -0.340889, -0.940104, 0, 0)",
+          "w": 14
+        }
+      ],
+      [
+        {
+          "animation": "spin",
+          "centerX": 0,
+          "centerY": 0,
+          "class": "spinner spinner--current spinner--sm run-spinner",
+          "duration": "0.75s",
+          "h": 14,
+          "svgH": 14,
+          "svgW": 14,
+          "transform": "matrix(-0.978361, -0.206904, 0.206904, -0.978361, 0, 0)",
+          "w": 14
+        }
+      ],
+      [
+        {
+          "animation": "spin",
+          "centerX": 0,
+          "centerY": 0,
+          "class": "spinner spinner--current spinner--sm run-spinner",
+          "duration": "0.75s",
+          "h": 14,
+          "svgH": 14,
+          "svgW": 14,
+          "transform": "matrix(-0.614488, -0.788926, 0.788926, -0.614488, 0, 0)",
+          "w": 14
+        }
+      ],
+      [
+        {
+          "animation": "spin",
+          "centerX": 0,
+          "centerY": 0,
+          "class": "spinner spinner--current spinner--sm run-spinner",
+          "duration": "0.75s",
+          "h": 14,
+          "svgH": 14,
+          "svgW": 14,
+          "transform": "matrix(0.440466, -0.897769, 0.897769, 0.440466, 0, 0)",
+          "w": 14
+        }
+      ],
+      [
+        {
+          "animation": "spin",
+          "centerX": 0,
+          "centerY": 0,
+          "class": "spinner spinner--current spinner--sm run-spinner",
+          "duration": "0.75s",
+          "h": 14,
+          "svgH": 14,
+          "svgW": 14,
+          "transform": "matrix(0.76753, -0.641012, 0.641012, 0.76753, 0, 0)",
+          "w": 14
+        }
+      ],
+      [
+        {
+          "animation": "spin",
+          "centerX": 0,
+          "centerY": 0,
+          "class": "spinner spinner--current spinner--sm run-spinner",
+          "duration": "0.75s",
+          "h": 14,
+          "svgH": 14,
+          "svgW": 14,
+          "transform": "matrix(0.962053, -0.272863, 0.272863, 0.962053, 0, 0)",
+          "w": 14
+        }
+      ]
+    ],
+    "tools": [
+      {
+        "animation": "spin",
+        "centerX": 0,
+        "centerY": 0,
+        "class": "spinner spinner--current spinner--sm tool-spinner",
+        "duration": "0.75s",
+        "h": 14,
+        "svgH": 14,
+        "svgW": 14,
+        "transform": "matrix(-0.105345, 0.994436, -0.994436, -0.105345, 0, 0)",
+        "w": 14
+      },
+      {
+        "animation": "spin",
+        "centerX": 0,
+        "centerY": 0,
+        "class": "spinner spinner--current spinner--sm tool-spinner",
+        "duration": "0.75s",
+        "h": 14,
+        "svgH": 14,
+        "svgW": 14,
+        "transform": "matrix(-0.105345, 0.994436, -0.994436, -0.105345, 0, 0)",
+        "w": 14
+      },
+      {
+        "animation": "spin",
+        "centerX": 0,
+        "centerY": 0,
+        "class": "spinner spinner--current spinner--sm tool-spinner",
+        "duration": "0.75s",
+        "h": 14,
+        "svgH": 14,
+        "svgW": 14,
+        "transform": "matrix(-0.105345, 0.994436, -0.994436, -0.105345, 0, 0)",
+        "w": 14
+      },
+      {
+        "animation": "spin",
+        "centerX": 0,
+        "centerY": 0,
+        "class": "spinner spinner--current spinner--sm run-spinner",
+        "duration": "0.75s",
+        "h": 14,
+        "svgH": 14,
+        "svgW": 14,
+        "transform": "matrix(-0.108235, 0.994125, -0.994125, -0.108235, 0, 0)",
+        "w": 14
+      }
+    ],
+    "sending": [
+      {
+        "animation": "spin",
+        "centerX": 0,
+        "centerY": 0,
+        "class": "spinner spinner--current spinner--sm tool-spinner",
+        "duration": "0.75s",
+        "h": 14,
+        "svgH": 14,
+        "svgW": 14,
+        "transform": "matrix(-0.717992, -0.696051, 0.696051, -0.717992, 0, 0)",
+        "w": 14
+      },
+      {
+        "animation": "spin",
+        "centerX": 0,
+        "centerY": 0,
+        "class": "spinner spinner--current spinner--sm tool-spinner",
+        "duration": "0.75s",
+        "h": 14,
+        "svgH": 14,
+        "svgW": 14,
+        "transform": "matrix(-0.717992, -0.696051, 0.696051, -0.717992, 0, 0)",
+        "w": 14
+      },
+      {
+        "animation": "spin",
+        "centerX": 0,
+        "centerY": 0,
+        "class": "spinner spinner--current spinner--sm tool-spinner",
+        "duration": "0.75s",
+        "h": 14,
+        "svgH": 14,
+        "svgW": 14,
+        "transform": "matrix(-0.717992, -0.696051, 0.696051, -0.717992, 0, 0)",
+        "w": 14
+      },
+      {
+        "animation": "spin",
+        "centerX": 0,
+        "centerY": 0,
+        "class": "spinner spinner--current spinner--sm send-spinner",
+        "duration": "0.75s",
+        "h": 16,
+        "svgH": 16,
+        "svgW": 16,
+        "transform": "matrix(-0.50095, 0.865476, -0.865476, -0.50095, 0, 0)",
+        "w": 16
+      }
+    ],
+    "completion": true
+  }
+]

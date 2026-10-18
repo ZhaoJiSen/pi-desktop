@@ -1,0 +1,149 @@
+[
+  {
+    "metrics": {
+      "height": 95,
+      "metadata": "main·Context 18%·12.8k tokens·Est. $0.06",
+      "modelFill": "rgb(238, 239, 239)",
+      "modelRadius": "999px",
+      "tagRadius": "999px",
+      "toolbarHeight": 34
+    },
+    "narrow": {
+      "buttons": [
+        {
+          "height": 34,
+          "left": 66,
+          "right": 100
+        },
+        {
+          "height": 34,
+          "left": 104,
+          "right": 173.875
+        },
+        {
+          "height": 34,
+          "left": 177.875,
+          "right": 248
+        },
+        {
+          "height": 34,
+          "left": 256,
+          "right": 290
+        }
+      ],
+      "effort": "Medium",
+      "effortOverflow": 0,
+      "left": 66,
+      "overflow": 0,
+      "right": 290,
+      "tokens": "none"
+    },
+    "modelSearchAndSelection": true,
+    "thinkingSelection": true,
+    "errorPreservesDraft": true,
+    "busySpinner": true,
+    "storageFailureRetainsDraft": true,
+    "reload": true,
+    "attachmentRemoval": true,
+    "runState": true,
+    "emptyState": true
+  },
+  {
+    "metrics": {
+      "height": 95,
+      "metadata": "main·Context 18%·12.8k tokens·Est. $0.06",
+      "modelFill": "rgb(238, 239, 239)",
+      "modelRadius": "999px",
+      "tagRadius": "999px",
+      "toolbarHeight": 34
+    },
+    "narrow": {
+      "buttons": [
+        {
+          "height": 34,
+          "left": 66,
+          "right": 100
+        },
+        {
+          "height": 34,
+          "left": 104,
+          "right": 173.875
+        },
+        {
+          "height": 34,
+          "left": 177.875,
+          "right": 248
+        },
+        {
+          "height": 34,
+          "left": 256,
+          "right": 290
+        }
+      ],
+      "effort": "Medium",
+      "effortOverflow": 0,
+      "left": 66,
+      "overflow": 0,
+      "right": 290,
+      "tokens": "none"
+    },
+    "modelSearchAndSelection": true,
+    "thinkingSelection": true,
+    "errorPreservesDraft": true,
+    "busySpinner": true,
+    "storageFailureRetainsDraft": true,
+    "reload": true,
+    "attachmentRemoval": true,
+    "runState": true,
+    "emptyState": true
+  },
+  {
+    "metrics": {
+      "height": 95,
+      "metadata": "main·Context 18%·12.8k tokens·Est. $0.06",
+      "modelFill": "rgb(238, 239, 239)",
+      "modelRadius": "999px",
+      "tagRadius": "999px",
+      "toolbarHeight": 34
+    },
+    "narrow": {
+      "buttons": [
+        {
+          "height": 34,
+          "left": 66,
+          "right": 100
+        },
+        {
+          "height": 34,
+          "left": 104,
+          "right": 173.875
+        },
+        {
+          "height": 34,
+          "left": 177.875,
+          "right": 248
+        },
+        {
+          "height": 34,
+          "left": 256,
+          "right": 290
+        }
+      ],
+      "effort": "Medium",
+      "effortOverflow": 0,
+      "left": 66,
+      "overflow": 0,
+      "right": 290,
+      "tokens": "none"
+    },
+    "modelSearchAndSelection": true,
+    "thinkingSelection": true,
+    "errorPreservesDraft": true,
+    "busySpinner": true,
+    "storageFailureRetainsDraft": true,
+    "reload": true,
+    "attachmentRemoval": true,
+    "runState": true,
+    "emptyState": true
+  }
+]

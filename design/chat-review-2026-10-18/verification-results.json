@@ -1,0 +1,44 @@
+{
+  "runs": [
+    {
+      "wrappedCode": true,
+      "isolatedTokens": true,
+      "keyboardDisclosure": true,
+      "thinking": true,
+      "copyFeedback": true,
+      "preservedCodeText": true,
+      "shortDraft": true,
+      "unwrappedScroll": true,
+      "streamingChoice": true,
+      "statusIcons": true
+    },
+    {
+      "wrappedCode": true,
+      "isolatedTokens": true,
+      "keyboardDisclosure": true,
+      "thinking": true,
+      "copyFeedback": true,
+      "preservedCodeText": true,
+      "shortDraft": true,
+      "unwrappedScroll": true,
+      "streamingChoice": true,
+      "statusIcons": true
+    },
+    {
+      "wrappedCode": true,
+      "isolatedTokens": true,
+      "keyboardDisclosure": true,
+      "thinking": true,
+      "copyFeedback": true,
+      "preservedCodeText": true,
+      "shortDraft": true,
+      "unwrappedScroll": true,
+      "streamingChoice": true,
+      "statusIcons": true
+    }
+  ],
+  "notes": [
+    "Real components and stream reducer, using local fixture data; no model-provider requests.",
+    "Copy feedback and displayed code text verified; host clipboard readback returned no text, so system clipboard contents are unverified."
+  ]
+}

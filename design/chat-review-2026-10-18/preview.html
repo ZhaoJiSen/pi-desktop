@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat visual verification</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module">
+      import { useWorkspace } from '/src/store/workspace.ts'
+      import { createPreviewSessions } from '/src/lib/fixtures.ts'
+      const params = new URLSearchParams(location.search)
+      document.documentElement.style.zoom = params.get('zoom') || '1'
+      if (Number(params.get('zoom')) > 1) {
+        const zoomStyle = document.createElement('style')
+        zoomStyle.textContent = `.app-shell.browser { height: calc(100dvh / ${Number(params.get('zoom'))} - 56px); }`
+        document.head.append(zoomStyle)
+      }
+      const state = params.get('state') || 'tools'
+      const session = createPreviewSessions()[0]
+      const tool = (id, name, label, status = 'done') => ({
+        type: 'tool',
+        id,
+        name,
+        label,
+        status,
+        args: {},
+        output:
+          name === 'read'
+            ? `// ${label}\nexport const workspace = { ready: true }`
+            : 'Checked project files successfully.',
+      })
+      const jsx =
+        '<SearchInput value={query} onChange={setQuery} placeholder="搜索模型、提供商或模型 ID" aria-label="选择当前对话使用的模型" />'
+      const toolsMessage = {
+        id: 'review-tools',
+        role: 'assistant',
+        timestamp: Date.now(),
+        blocks: [
+          {
+            type: 'text',
+            text: '进度文档说停在 Phase 3 之前，但工作区有未提交改动。我对照实际代码看一下。',
+          },
+          tool('review-utils', 'bash', 'utils'),
+          tool('review-go', 'read', 'main.go'),
+          tool('review-rust', 'read', 'main.rs'),
+          tool('review-cargo', 'read', 'Cargo.toml'),
+          {
+            type: 'thinking',
+            text: '先核对当前实现与进度文档，再查看依赖和输入区的交互，避免覆盖已有改动。',
+          },
+          tool('review-mod', 'read', 'go.mod'),
+          tool('review-valid', 'read', 'valid.go', state === 'running' ? 'running' : 'done'),
+        ],
+      }
+      if (state === 'highlight') {
+        const source = tool('source-go', 'read', 'valid.go')
+        source.args = { path: 'go/utils/valid.go' }
+        source.output = ['package utils', '', 'func ValidPriority(priority string) bool {', '    switch priority {', '    case "low", "medium", "high":', '        return true', '    default:', '        return false', '    }', '}', '', 'func ValidStatus(status string) bool {', '    return status == "todo" || status == "doing" || status == "done"', '}'].join('\n')
+        const config = tool('source-config', 'read', 'Cargo.toml')
+        config.args = { file_path: 'rust/Cargo.toml' }
+        config.output = '[package]\nname = "tasklab"\nversion = "0.1.0"'
+        const unknown = tool('source-unknown', 'read', 'notes.unknown')
+        unknown.output = '<plain text> & unchanged'
+        const shell = tool('source-shell', 'bash', 'printf status')
+        shell.output = 'package utils\nreturn true'
+        session.messages = [{ id: 'highlight-message', role: 'assistant', timestamp: Date.now(), blocks: [
+          { type: 'thinking', text: '先核对输入参数，再查看校验函数。' },
+          { type: 'text', text: '再对一下工作区，看上次看完之后有没有变化。' },
+          source, config, unknown, shell,
+        ] }]
+      } else if (state === 'tool-cards') {
+        const read = tool('cards-read', 'read', 'LEARNING.md')
+        read.args = { path: 'LEARNING.md' }
+        read.output = '# TaskLab 学习进度\n\nPhase 2 已完成，下一步是学习 SQL。'
+        const failed = tool('cards-error', 'bash', 'go test ./...', 'error')
+        failed.args = { command: 'go test ./...', cwd: 'go/' }
+        failed.output = 'FAIL goTask/utils\nvalid_test.go:24: expected status \"todo\", got \"\"'
+        const running = tool('review-valid', 'read', 'valid.go', 'running')
+        running.args = { path: 'go/utils/valid.go' }
+        running.output = ''
+        session.messages = [
+          {
+            id: 'cards-step1',
+            role: 'assistant',
+            timestamp: Date.now(),
+            blocks: [
+              { type: 'thinking', text: '先确认学习进度，再对照仓库的实际实现。' },
+              { type: 'text', text: '先读学习进度和仓库现状，再告诉你现在停在哪一步。' },
+              read,
+            ],
+          },
+          {
+            id: 'cards-step2',
+            role: 'assistant',
+            timestamp: Date.now(),
+            blocks: [
+              { type: 'thinking', text: '检查入口、依赖和参数校验。' },
+              { type: 'text', text: '进度文档停在 Phase 3 之前。我对照实际代码看一下。' },
+              tool('cards-main', 'read', 'main.go'),
+              tool('cards-mod', 'read', 'go.mod'),
+              tool('cards-utils', 'bash', 'utils'),
+            ],
+          },
+          {
+            id: 'cards-step3',
+            role: 'assistant',
+            timestamp: Date.now(),
+            blocks: [
+              { type: 'thinking', text: '测试未通过，需要查看校验函数。' },
+              failed,
+              { type: 'text', text: '状态校验的测试未通过，继续核对函数实现。' },
+              running,
+            ],
+          },
+          {
+            id: 'cards-next-user',
+            role: 'user',
+            timestamp: Date.now(),
+            blocks: [{ type: 'text', text: '保留当前实现，先说明问题。' }],
+          },
+        ]
+      } else if (state.startsWith('spacing-')) {
+        const code = [
+          'type Role = "tutor" | "reviewer";',
+          '',
+          'type Intro = {',
+          '  name: "pi";',
+          '  roles: readonly Role[];',
+          '  mainLanguage: "go";',
+          '  module: "goTask";',
+          '  writesCodeByDefault: false;',
+          '};',
+          '',
+          'const intro: Intro = {',
+          '  name: "pi",',
+          '  roles: ["tutor", "reviewer"],',
+          '  mainLanguage: "go",',
+          '  module: "goTask",',
+          '  writesCodeByDefault: false,',
+          '};',
+        ].join('\n')
+        const answers = {
+          code: '```typescript\n' + code + '\n```',
+          text: '我是跑在 pi 里的编程助手。在这个仓库里，角色是 TaskLab 的编程导师和代码 Reviewer，不是替你交作业的人。\n\n当前主线是 Go（go/，模块名 goTask）。Python、Rust 是以后的对照实现，现在不带你开。',
+          heading:
+            '## 我是谁\n\n我是跑在 pi 里的编程助手，负责读代码、核对项目和指出下一步。\n\n## 我能做什么\n\n- 读代码、搜项目，对照学习文档说明你停在哪一步\n- 按 Review 格式指出问题',
+          subheading: '### 我是谁\n\n我是跑在 pi 里的编程助手，负责读代码、核对项目和指出下一步。',
+          list: '- 读代码、核对项目\n- 指出问题、确认下一步',
+        }
+        session.messages = [
+          {
+            id: 'review-spacing',
+            role: 'assistant',
+            timestamp: Date.now(),
+            blocks: [
+              {
+                type: 'thinking',
+                text: '用户要求生成一段 TypeScript 代码。\n\n请求较为笼统，缺少具体场景。正在考虑是将自我介绍转为 TypeScript 类型对象，还是生成其他类型的代码。\n\n已明确用户是在对话中生成 TypeScript，而非修改项目文件。但具体代码内容仍待确定。',
+              },
+              { type: 'text', text: answers[state.slice('spacing-'.length)] || answers.text },
+            ],
+          },
+        ]
+      } else if (state === 'scroll') {
+        const output = tool('review-scroll', 'bash', 'git status --short && git diff --stat')
+        output.output = [
+          '## main...origin/main',
+          ...Array.from(
+            { length: 65 },
+            (_, i) => ` M src/workspace/module-${String(i + 1).padStart(2, '0')}.ts`,
+          ),
+          '65 files changed, 412 insertions(+), 78 deletions(-)',
+        ].join('\n')
+        session.messages = [
+          {
+            id: 'review-scroll-message',
+            role: 'assistant',
+            timestamp: Date.now(),
+            blocks: [
+              {
+                type: 'text',
+                text: Array.from(
+                  { length: 16 },
+                  (_, i) =>
+                    `### ${i + 1}. 核对工作区\n\n仓库包含 Go 服务、Rust 项目和工具函数。先核对实际代码与文档，再确认接口和依赖的状态。\n\n| 路径 | 当前状态 |\n| --- | --- |\n| go/main.go | 服务入口 |\n| go/utils/ | 参数校验 |\n\n已提交的接口保持原有行为，未提交的数据库接入需要单独核对。`,
+                ).join('\n\n'),
+              },
+              output,
+            ],
+          },
+        ]
+      } else if (state === 'code') {
+        session.messages[1].blocks.push(
+          { type: 'thinking', text: '保留文件名和变更行号，长代码只在代码区内换行。' },
+          {
+            type: 'text',
+            text:
+              '模型选择器保留原有输入方式，搜索框如下：\n\n```tsx\n' +
+              jsx +
+              '\n```\n\n```unknown\nUnrecognized languages remain readable as plain text.\n```',
+          },
+          tool('review-failed', 'read', 'missing-config.json', 'error'),
+          tool('review-paused', 'bash', 'pnpm check', 'interrupted'),
+        )
+        session.messages[1].blocks.find((b) => b.id === 'review-failed').output =
+          'ENOENT: no such file or directory, missing-config.json'
+      } else session.messages = [toolsMessage]
+      session.title = '核对当前工作区改动'
+      session.draftNodes = [
+        {
+          type: 'command',
+          id: 'review-command',
+          name: 'skill:commit',
+          source: 'skill',
+          origin: '~/.pi/agent/skills/commit/SKILL.md',
+          arguments: '',
+        },
+        { type: 'text', text: ' ' },
+      ]
+      useWorkspace.setState({
+        sessions: [session],
+        activeSessionId: session.id,
+        language: 'zh',
+        theme: params.get('theme') || 'dark',
+        palette: params.get('palette') || 'nord',
+        wrapLines: params.get('wrap') === '1',
+        sidebarOpen: false,
+        onboardingOpen: false,
+        onboardingCompleted: true,
+        runningSessionId: state === 'running' ? session.id : null,
+      })
+      // Exercise the real stream reducer without connecting to a model provider.
+      document.addEventListener('keydown', async (event) => {
+        if (!['F7', 'F8', 'F9'].includes(event.key)) return
+        event.preventDefault()
+        const { applyStreamEvent } = await import('/src/lib/rpc.ts')
+        const current = useWorkspace.getState().sessions[0]
+        const streamEvent =
+          event.key === 'F7'
+            ? {
+                type: 'tool_execution_update',
+                toolCallId: 'review-valid',
+                partialResult: { content: [{ type: 'text', text: 'Reading go/utils/valid.go…' }] },
+              }
+            : event.key === 'F8'
+              ? {
+                  type: 'message_update',
+                  assistantMessageEvent: {
+                    type: 'text_delta',
+                    contentIndex: 0,
+                    delta: ' 当前正在核对依赖。',
+                  },
+                }
+              : {
+                  type: 'tool_execution_end',
+                  toolCallId: 'review-valid',
+                  result: { content: [{ type: 'text', text: 'export const valid = true' }] },
+                  isError: false,
+                }
+        useWorkspace
+          .getState()
+          .updateSession(current.id, { messages: applyStreamEvent(current.messages, streamEvent) })
+      })
+      if (params.has('detail')) {
+        await import('/src/styles/vendor.css')
+        await import('/src/styles/index.scss')
+        const { createRoot } = await import('react-dom/client')
+        const { createElement } = await import('react')
+        const { Conversation } = await import('/src/components/Conversation.tsx')
+        document.documentElement.dataset.theme = useWorkspace.getState().theme
+        document.documentElement.dataset.palette = useWorkspace.getState().palette
+        const root = document.getElementById('root')
+        root.style.padding = '18px'
+        if (params.has('width')) root.style.width = `min(100%, ${Number(params.get('width'))}px)`
+        const detailStyle = document.createElement('style')
+        detailStyle.textContent =
+          '.detail-preview { height: 100%; display: flex; padding: 0 28px; border-radius: 20px; background: var(--paper); } .detail-preview .assistant:last-child { margin-bottom: 0; }'
+        document.head.append(detailStyle)
+        createRoot(root).render(
+          createElement(
+            'section',
+            { className: 'detail-preview' },
+            createElement(Conversation, { onProject() {} }),
+          ),
+        )
+      } else await import('/src/main.tsx')
+    </script>
+  </body>
+</html>

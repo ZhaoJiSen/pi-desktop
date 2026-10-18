@@ -1,0 +1,20 @@
+{
+  "direction": "Fade scrollable content while keeping the surrounding conversation surface and tool-output background and corners intact.",
+  "changes": [
+    "Replace the conversation scrolling motion.div with a motion-wrapped HeroUI ScrollShadow, keeping the same ref, scroll handler, entry transition and layout class.",
+    "Disable the conversation fade when there are no messages.",
+    "Move tool-output background, radius, clipping and margins to tool-output-surface; keep the inner ScrollShadow transparent and responsible only for scrolling and fading."
+  ],
+  "motion": "Retain the existing conversation entry transition. HeroUI derives the content fade from actual scroll position.",
+  "removed_text": "None",
+  "review": "Local, low-risk change: main-agent visual self-check using the provided references and actual preview; no independent review.",
+  "checks": {
+    "typecheck": "passed",
+    "lint": "passed",
+    "scroll_boundary_runs": ["passed", "passed", "passed"],
+    "chat_regression_runs": ["passed", "passed", "passed"],
+    "verified": ["Conversation uses HeroUI ScrollShadow and still scrolls", "Tool top fades bottom content only", "Tool middle fades both content edges", "Tool bottom fades top content only", "Outer surface has no mask and preserves background and radius at every position", "Existing keyboard, wrap, copy-feedback and streaming-choice checks"]
+  },
+  "evidence": ["tool-top.png", "tool-middle.png", "tool-bottom.png", "conversation-middle.png", "verification-results.json"],
+  "limitations": "Screenshots and interactive checks use local fixture content. No live model-provider session, production build or full test suite was run."
+}

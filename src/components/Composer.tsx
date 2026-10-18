@@ -1,30 +1,23 @@
-import { Button, Popover } from '@heroui/react'
-import { ArrowUp, Brain, Check, ChevronDown, GitBranch, Paperclip, Square, X } from 'lucide-react'
-import { motion } from 'motion/react'
+import { Button } from '@heroui/react'
+import { Plus } from 'lucide-react'
+import { motion, useReducedMotion } from 'motion/react'
 import { useCallback, useRef, useState } from 'react'
 import { isDesktop, useWorkspace } from '../store/workspace'
-import { abortPrompt, changeThinking, readAttachments, sendPrompt } from '../lib/desktop'
+import { readAttachments, sendPrompt } from '../lib/desktop'
 import { useT } from '../lib/i18n'
-import { cost, errorText, tokens } from '../lib/utils'
-import type { MessageKey } from '../lib/locale'
-import type { ThinkingLevel } from '../types'
-import { ModelSelector } from './ModelSelector'
-import { DraftEditor } from './composer/DraftEditor'
+import { errorText } from '../lib/utils'
+import { ComposerInput } from './composer/ComposerInput'
+import { ComposerToolbar } from './composer/ComposerToolbar'
+import { ComposerPrompts } from './composer/ComposerPrompts'
+import { ComposerStatus } from './composer/ComposerStatus'
+import { ComposerAttachments } from './composer/ComposerAttachments'
 import { useComposerCommands } from './composer/useComposerCommands'
-import { planDraft, sessionDraft } from '../lib/draft'
+import { draftFromText, planDraft, sessionDraft } from '../lib/draft'
+import { desktopCommandEnabled } from '../lib/commands'
 import { draftProblemMessage } from '../lib/draftMessages'
-import { isRecentProject } from '../lib/recentProject'
 import { navigateToPage } from '../router/navigation'
-
-const thinkingLabel = {
-  off: 'thinking.off',
-  minimal: 'thinking.minimal',
-  low: 'thinking.low',
-  medium: 'thinking.medium',
-  high: 'thinking.high',
-  xhigh: 'thinking.xhigh',
-  max: 'thinking.max',
-} as const satisfies Record<ThinkingLevel, MessageKey>
+import { useComposerCapabilities } from './composer/useComposerCapabilities'
+import { CapabilityTags } from './capabilities/CapabilityTags'
 
 export function Composer() {
   const active = useWorkspace((state) => state.activeSessionId)
@@ -45,15 +38,17 @@ function SessionComposer() {
   const model = useWorkspace((state) =>
     state.models.find((model) => `${model.provider}/${model.id}` === session?.modelKey),
   )
-  const levels = useWorkspace((state) => state.thinkingLevels)
   const attachments = session?.attachments || []
-  const [thinkingOpen, setThinkingOpen] = useState(false)
+  const [selector, setSelector] = useState<'model' | 'thinking' | null>(null)
   const [sending, setSending] = useState(false)
   const [reading, setReading] = useState(false)
-  const [modelOpen, setModelOpen] = useState(false)
   const [commandError, setCommandError] = useState('')
   const catalog = useComposerCommands()
+  const capability = useComposerCapabilities(catalog.commands)
   const fileInput = useRef<HTMLInputElement>(null)
+  const input = useRef<HTMLTextAreaElement>(null)
+  const [focusVersion, setFocusVersion] = useState(0)
+  const reducedMotion = useReducedMotion()
   const composer = useRef<HTMLFormElement>(null)
   const [menuBoundary, setMenuBoundary] = useState<HTMLElement | undefined>()
   const setComposer = useCallback((element: HTMLFormElement | null) => {
@@ -62,11 +57,36 @@ function SessionComposer() {
   }, [])
   const t = useT()
   if (!session) return null
+  const preparing = !running && (sending || reading || connecting || capability.pending)
   const menuPlacement = session.messages.length === 0 ? 'bottom start' : 'top start'
   const navigationOnly =
     planDraft(sessionDraft(session), catalog.commands, attachments.length).kind === 'navigate'
   async function submit() {
-    if (sending || reading || running || connecting) return
+    if (sending || reading || running || connecting || capability.pending) return
+    const leading = /^\s*\/([\w:.-]+)(?:\s+([\s\S]*))?$/.exec(session!.draft)
+    if (leading) {
+      const matching = capability.capabilities.filter((c) => c.alias === leading[1])
+      const native = catalog.commands.find((c) => c.source === 'builtin' && c.name === leading[1])
+      if (
+        (matching.length && matching.every((c) => !c.enabled)) ||
+        (native && !desktopCommandEnabled(native))
+      ) {
+        setCommandError(t('library.disabledError'))
+        return
+      }
+      if (matching.length && matching.every(capability.unavailable)) {
+        setCommandError(capability.unavailableReason(matching[0]!))
+        return
+      }
+      const matches = matching.filter((c) => c.enabled && !capability.unavailable(c))
+      if (matches.length === 1) {
+        if (await capability.select(matches[0]!)) {
+          update(session!.id, { draftNodes: draftFromText(leading[2] || '', catalog.commands) })
+          setFocusVersion((version) => version + 1)
+        }
+        return
+      }
+    }
     const plan = planDraft(sessionDraft(session!), catalog.commands, attachments.length)
     if (plan.kind === 'error') {
       setCommandError(draftProblemMessage(plan, t))
@@ -74,9 +94,9 @@ function SessionComposer() {
     }
     setCommandError('')
     if (plan.kind === 'navigate') {
-      if (plan.name === 'model') setModelOpen(true)
-      else if (plan.name === 'thinking') setThinkingOpen(true)
-      else await navigateToPage(plan.name === 'settings' ? 'settings' : 'usage')
+      if (plan.name === 'model' || plan.name === 'thinking') {
+        setSelector(plan.name)
+      } else await navigateToPage(plan.name === 'settings' ? 'settings' : 'usage')
       update(session!.id, { draftNodes: [] })
       return
     }
@@ -100,21 +120,13 @@ function SessionComposer() {
       if (fileInput.current) fileInput.current.value = ''
     }
   }
-  async function selectThinking(level: ThinkingLevel) {
-    try {
-      await changeThinking(level)
-      setThinkingOpen(false)
-    } catch (error) {
-      useWorkspace.setState({ connectionError: errorText(error) })
-    }
-  }
   return (
     <motion.form
       ref={setComposer}
       className="composer"
-      initial={{ opacity: 0, y: 5 }}
+      initial={reducedMotion ? false : { opacity: 0, y: 5 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25, delay: 0.05 }}
+      transition={{ duration: 0.2 }}
       onSubmit={(event) => {
         event.preventDefault()
         void submit()
@@ -122,87 +134,24 @@ function SessionComposer() {
       onDragOver={(event) => event.preventDefault()}
       onDrop={(event) => {
         event.preventDefault()
-        if (!running) void attach(event.dataTransfer.files)
+        if (!running && !reading && !sending) void attach(event.dataTransfer.files)
       }}
     >
-      <div className="metadata" aria-label={t('composer.status')}>
-        {project?.branch && !isRecentProject(project) && (
-          <>
-            <GitBranch />
-            <span className="value">{project.branch}</span>
-            <span className="dot">·</span>
-          </>
-        )}
-        <span>
-          {t('usage.context')}{' '}
-          <span className="value">
-            {session.usage.contextPercent === null
-              ? '—'
-              : `${Math.round(session.usage.contextPercent)}%`}
-          </span>
-        </span>
-        <span className="dot optional-token">·</span>
-        <span className="optional-token">
-          <span className="value">{tokens(session.usage.total)}</span> {t('usage.tokenUnit')}
-        </span>
-        <span className="dot">·</span>
-        <span>
-          {t('usage.estimate')} <span className="value">{cost(session.usage.cost)}</span>
-        </span>
-      </div>
-      {attachments.length > 0 && (
-        <div className="attachments">
-          {attachments.map((file) => (
-            <div key={file.id} className="attachment">
-              <Paperclip />
-              <span title={file.name}>{file.name}</span>
-              <Button
-                isIconOnly
-                variant="ghost"
-                aria-label={t('attachments.remove', { file: file.name })}
-                className="attachment-remove"
-                isDisabled={running || sending}
-                onPress={() =>
-                  update(session.id, {
-                    attachments: attachments.filter((item) => item.id !== file.id),
-                  })
-                }
-              >
-                <X />
-              </Button>
-            </div>
-          ))}
-        </div>
-      )}
-      <DraftEditor
-        key={session.id}
-        menuAnchorRef={composer}
-        menuPlacement={menuPlacement}
-        menuBoundary={menuBoundary}
-        value={sessionDraft(session)}
-        {...catalog}
-        onChange={(draftNodes) => {
-          update(session.id, { draftNodes })
-          setCommandError('')
-        }}
-        onSubmit={() => void submit()}
+      <ComposerPrompts
+        disabled={running || preparing}
+        capabilities={capability.capabilities}
+        selection={capability.selection}
+        unavailable={capability.unavailable}
+        unavailableReason={capability.unavailableReason}
+        onSelect={capability.select}
       />
-      {commandError && (
-        <p className="composer-command-error" role="alert">
-          {commandError}
-        </p>
-      )}
-      <div className="composer-toolbar">
-        <input
-          ref={fileInput}
-          type="file"
-          className="sr-only"
-          multiple
-          accept="image/png,image/jpeg,image/webp,image/gif,text/*,.md,.json,.csv,.log,.ts,.tsx,.js,.jsx,.rs,.py,.go,.toml,.yaml,.yml,.css,.html,.sh"
-          onChange={(event) => {
-            if (event.target.files) void attach(event.target.files)
-          }}
-          tabIndex={-1}
+      <div className="composer-shell">
+        <ComposerAttachments
+          files={attachments}
+          disabled={running || sending}
+          onRemove={(id) =>
+            update(session.id, { attachments: attachments.filter((file) => file.id !== id) })
+          }
         />
         <Button
           isIconOnly
@@ -212,71 +161,68 @@ function SessionComposer() {
           isDisabled={running || reading || sending}
           onPress={() => fileInput.current?.click()}
         >
-          <Paperclip />
+          <Plus />
         </Button>
-        <ModelSelector
-          isOpen={modelOpen}
-          onOpenChange={setModelOpen}
+        <ComposerInput
+          value={sessionDraft(session)}
+          {...catalog}
+          commands={capability.slashCommands}
+          onSelectCapability={async (id) => {
+            if (running || preparing) return false
+            const item = capability.capabilities.find((c) => c.id === id)
+            return item ? capability.select(item) : false
+          }}
+          inputRef={input}
+          anchorRef={composer}
+          placement={menuPlacement}
+          boundaryElement={menuBoundary}
+          focusVersion={focusVersion}
+          onChange={(draftNodes) => {
+            update(session.id, { draftNodes })
+            setCommandError('')
+          }}
+          onSubmit={() => void submit()}
+        />
+        <CapabilityTags
+          selection={capability.selection}
+          disabled={running || preparing}
+          onRemove={(item) => {
+            void capability.select(item, true)
+          }}
+          onArguments={capability.argumentsChanged}
+        />
+        <ComposerToolbar
+          running={running}
+          preparing={preparing}
+          sendDisabled={
+            !running &&
+            (preparing ||
+              (!session.draft.trim() && !attachments.length && !capability.selection.task) ||
+              (isDesktop && !model && !navigationOnly))
+          }
+          selector={selector}
+          setSelector={setSelector}
           placement={menuPlacement}
           boundaryElement={menuBoundary}
         />
-        <Popover isOpen={thinkingOpen} onOpenChange={setThinkingOpen}>
-          <Button
-            variant="ghost"
-            className="composer-select reasoning"
-            aria-label={t('thinking.effort')}
-            isDisabled={running || connecting || !model?.reasoning}
-          >
-            <Brain />
-            <span>{t(thinkingLabel[session.thinking])}</span>
-            <ChevronDown className="chevron" />
-          </Button>
-          <Popover.Content
-            placement={menuPlacement}
-            shouldFlip
-            containerPadding={24}
-            boundaryElement={menuBoundary}
-            className="thinking-popover"
-            offset={12}
-          >
-            <Popover.Dialog aria-label={t('thinking.effort')}>
-              {levels.map((level) => (
-                <Button
-                  key={level}
-                  variant="ghost"
-                  className="menu-row"
-                  onPress={() => void selectThinking(level)}
-                  aria-pressed={level === session.thinking}
-                >
-                  <span>{t(thinkingLabel[level])}</span>
-                  {level === session.thinking && <Check />}
-                </Button>
-              ))}
-            </Popover.Dialog>
-          </Popover.Content>
-        </Popover>
-        <div className="send-area">
-          <motion.div whileTap={{ scale: 0.97 }} transition={{ duration: 0.08 }}>
-            <Button
-              type={running ? 'button' : 'submit'}
-              isIconOnly
-              className="send"
-              aria-label={t(running ? 'composer.stop' : 'composer.send')}
-              isDisabled={
-                !running &&
-                (sending ||
-                  reading ||
-                  connecting ||
-                  (!session.draft.trim() && !attachments.length) ||
-                  (isDesktop && !model && !navigationOnly))
-              }
-              onPress={running ? () => void abortPrompt() : undefined}
-            >
-              {running ? <Square className="stop-icon" /> : <ArrowUp />}
-            </Button>
-          </motion.div>
-        </div>
       </div>
+      {(commandError || capability.error) && (
+        <p className="composer-command-error" role="alert">
+          {commandError || capability.error}
+        </p>
+      )}
+      <ComposerStatus project={project} usage={session.usage} />
+      <input
+        ref={fileInput}
+        type="file"
+        className="sr-only"
+        multiple
+        tabIndex={-1}
+        accept="image/png,image/jpeg,image/webp,image/gif,text/*,.md,.json,.csv,.log,.ts,.tsx,.js,.jsx,.rs,.py,.go,.toml,.yaml,.yml,.css,.html,.sh"
+        onChange={(event) => {
+          if (event.target.files) void attach(event.target.files)
+        }}
+      />
     </motion.form>
   )
 }

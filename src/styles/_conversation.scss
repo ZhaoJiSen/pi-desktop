@@ -1,5 +1,6 @@
 .conversation {
   flex: 1;
+  min-width: 0;
   min-height: 0;
   padding: 20px var(--body-inset) 8px;
   overflow-y: auto;
@@ -9,6 +10,7 @@
 .conversation > .run-status {
   width: 100%;
   max-width: var(--chat-width);
+  min-width: 0;
   margin-inline: auto;
 }
 .user-message {
@@ -37,34 +39,60 @@
 .assistant {
   margin: 0 0 32px;
   padding-left: 0;
+  min-width: 0;
+}
+.assistant:has(+ .assistant) {
+  margin-bottom: 12px;
 }
 .reply-text {
   font-size: 15px;
-  line-height: 1.8;
-  overflow-wrap: anywhere;
+  line-height: 1.7;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
 }
 .reply-text p {
-  margin: 0 0 20px;
+  margin: 0 0 14px;
 }
-.reply-text:last-child p:last-child {
+.reply-text > :first-child,
+.reply-markdown > :first-child {
+  margin-top: 0;
+}
+.reply-text > :last-child,
+.reply-markdown > :last-child {
   margin-bottom: 0;
 }
-.tool-block + .reply-text {
-  margin-top: 23px;
-  font-size: 14px;
-  color: var(--muted);
+.chat-disclosure + .reply-text {
+  margin-top: 16px;
 }
-.reply-text h2,
+.thinking-block + .reply-text {
+  margin-top: 8px;
+}
+.reply-text :is(h1, h2, h3, h4, h5, h6) {
+  font-weight: 600;
+  line-height: 1.4;
+  margin: 20px 0 8px;
+}
+.reply-text h1 {
+  font-size: 20px;
+}
+.reply-text h2 {
+  font-size: 18px;
+}
 .reply-text h3 {
   font-size: 16px;
-  font-weight: 600;
-  margin: 24px 0 12px;
+}
+.reply-text :is(h4, h5, h6) {
+  font-size: 15px;
 }
 .reply-text ul,
 .reply-text ol {
-  padding-left: 22px;
-  margin: 0 0 16px;
+  padding-left: 1.3em;
+  margin: 0 0 14px;
   list-style: revert;
+}
+.reply-text li + li {
+  margin-top: 6px;
 }
 .reply-text a {
   color: var(--link);
@@ -74,7 +102,7 @@
 .reply-text :not(pre) > code {
   padding: 2px 4px;
   border-radius: var(--radius-xs, calc(var(--radius) * 0.25));
-  background: var(--code-head);
+  background: var(--chat-inline);
   font:
     12.5px ui-monospace,
     SFMono-Regular,
@@ -82,61 +110,245 @@
     monospace;
 }
 .reply-text blockquote {
-  margin: 16px 0;
-  padding-left: 15px;
-  border-left: 1px solid var(--frame);
+  margin: 0 0 14px;
+  padding-left: 12px;
+  border-left: 2px solid var(--line);
   color: var(--muted);
 }
-.reply-text table {
-  display: block;
+.markdown-table {
+  margin: 14px 0;
+  border: 1px solid var(--chat-line);
+  border-radius: var(--radius-lg, var(--radius));
+  overflow: hidden;
+  max-width: 100%;
+}
+.markdown-table-scroll {
   max-width: 100%;
   overflow-x: auto;
+}
+.reply-text table {
+  width: 100%;
   font-size: 13px;
+  line-height: 1.6;
   border-collapse: collapse;
 }
 .reply-text th,
 .reply-text td {
   padding: 8px 12px;
-  border-bottom: 1px solid var(--line);
-  text-align: left;
+  border-bottom: 1px solid var(--chat-line);
+  text-align: start;
+  min-width: 100px;
 }
-.button.tool {
-  height: 34px;
-  min-height: 34px;
+.reply-text thead {
+  background: var(--chat-table-head);
+}
+.reply-text th {
+  font-weight: 600;
+}
+.reply-text tbody tr:last-child td {
+  border-bottom: 0;
+}
+.reply-text hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 20px 0;
+}
+.reply-text img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-lg, var(--radius));
+  margin: 14px 0;
+}
+.reply-text .contains-task-list {
+  list-style: none;
+  padding-left: 0;
+}
+.reply-text .task-list-item {
+  display: list-item;
+}
+.reply-text input[type='checkbox'] {
+  margin-right: 6px;
+  accent-color: var(--accent);
+  vertical-align: middle;
+}
+.reply-text li > :last-child {
+  margin-bottom: 0;
+}
+.reply-text li > :is(ul, ol) {
+  margin-top: 6px;
+}
+.reply-markdown {
+  min-width: 0;
+  max-width: 100%;
+}
+.chat-disclosure {
+  min-width: 0;
+  max-width: 100%;
+}
+.chat-disclosure-heading {
+  margin: 0;
+  font: inherit;
+}
+.chat-disclosure-trigger {
+  min-height: 32px;
   display: flex;
   align-items: center;
   justify-content: flex-start;
   gap: 8px;
   font-size: 13px;
   font-weight: 400;
-  width: 100%;
+  width: fit-content;
+  max-width: calc(100% + 6px);
   min-width: 0;
   text-align: left;
-  padding: 0;
+  margin-left: -6px;
+  padding: 4px 6px;
+  line-height: 20px;
+  color: var(--muted);
+  border: 0;
+  border-radius: var(--radius-md, calc(var(--radius) * 0.75));
   background: transparent;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
 }
-.button.tool:hover {
-  background: var(--code-head);
+.chat-disclosure-trigger:is(:hover, [data-hovered='true']) {
+  background: var(--hover);
 }
-.tool .chevron {
+.chat-disclosure-trigger:is(:active, [data-pressed='true']) {
+  transform: none;
+  background: var(--hover);
+}
+.chat-disclosure-trigger:is(:focus-visible, [data-focus-visible='true']) {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.chat-disclosure-trigger svg {
+  margin: 0;
+}
+.chat-disclosure-trigger .chevron {
   width: 12px;
   height: 12px;
   color: var(--muted);
+  flex: none;
+  rotate: none;
+  transform: rotate(0deg);
+  transition: transform 160ms ease;
+}
+.chat-disclosure-trigger .chevron[data-expanded='true'] {
+  transform: rotate(90deg);
+}
+.tool-block,
+.tool-group {
+  border: 1px solid var(--chat-line);
+  border-radius: var(--radius-lg, var(--radius));
+  margin: 8px 0;
+  // Keep the focus ring visible; Disclosure owns content clipping.
+  background: var(--chat-tool-fill);
+}
+.chat-disclosure-trigger.tool {
+  min-height: 38px;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: inherit;
+}
+.tool-block > .chat-disclosure-heading,
+.tool-group > .chat-disclosure-heading {
+  border-radius: inherit;
+}
+.chat-disclosure-trigger .tool-chevron {
+  display: flex;
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin-left: auto;
+  color: var(--muted);
+}
+.tool-chevron svg {
+  width: 14px;
+  height: 14px;
+}
+.tool-output {
+  padding: 0 12px 12px;
+  min-width: 0;
+}
+.tool-section + .tool-section {
+  margin-top: 12px;
+}
+.tool-section-label {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 20px;
+  margin: 4px 0 6px;
+}
+.tool-output :is(.tool-output-surface, .diff) {
+  margin: 0;
+}
+.tool-block.error {
+  border-color: color-mix(in srgb, var(--danger) 35%, var(--chat-line));
+}
+.tool-block.error .tool-section-label,
+.tool.error .verb {
+  color: color-mix(in srgb, var(--danger) 60%, var(--ink));
+}
+.tool-group-items {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0 10px 10px;
+  min-width: 0;
+}
+.tool-group-items > .tool-block {
+  margin: 0;
+}
+.tool-group-state {
+  color: var(--muted);
+  font-size: 12px;
+  margin-left: auto;
+  white-space: nowrap;
+}
+.chat-disclosure-trigger.tool-group-trigger .tool-chevron {
+  margin-left: 0;
+}
+.tool-group.running .tool-group-state {
+  color: var(--status);
+}
+.tool-group.error .tool-group-state {
+  color: color-mix(in srgb, var(--danger) 60%, var(--ink));
+}
+.tool > svg {
+  flex-shrink: 0;
 }
 .tool .check {
   color: var(--mint);
   width: 14px;
   height: 14px;
 }
-.tool .spinner {
-  width: 13px;
-  height: 13px;
+.tool .tool-spinner,
+.run-status .run-spinner {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  flex: none;
+  align-self: center;
+}
+.tool .tool-spinner {
   color: var(--status);
 }
 .tool-error-icon {
   color: var(--danger);
   width: 14px;
   height: 14px;
+}
+.tool-interrupted-icon,
+.thinking-icon {
+  color: var(--muted);
+  width: 14px;
+  height: 14px;
+  flex: none;
 }
 .tool .verb {
   color: var(--muted);
@@ -145,22 +357,19 @@
 .tool.running .verb {
   color: var(--ink);
 }
+.tool.running .verb.text-shimmer {
+  color: var(--muted);
+}
 .filename {
   font:
-    12px/1.4 ui-monospace,
+    12.5px/1.4 ui-monospace,
     SFMono-Regular,
     Menlo,
     monospace;
-  color: var(--muted);
+  color: var(--ink);
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.status-label {
-  color: var(--status);
-  font-size: 11px;
-  margin-left: 5px;
   white-space: nowrap;
 }
 .diff {
@@ -168,6 +377,8 @@
   border-radius: var(--radius-lg, var(--radius));
   overflow: hidden;
   margin: 10px 0 15px;
+  min-width: 0;
+  max-width: 100%;
 }
 .diff-header {
   display: flex;
@@ -212,6 +423,8 @@
 }
 .code {
   overflow-x: auto;
+  min-width: 0;
+  max-width: 100%;
   padding: 6px 0;
   font:
     12.5px/28px ui-monospace,
@@ -234,12 +447,17 @@
   border-right: 1px solid var(--line);
 }
 .source {
-  padding-right: 16px;
+  position: relative;
+  padding: 0 16px 0 25px;
+  min-width: 0;
   flex: 1;
   font: inherit;
   color: var(--ink);
 }
 .change {
+  position: absolute;
+  left: 0;
+  top: 0;
   display: inline-block;
   width: 25px;
   text-align: center;
@@ -254,32 +472,48 @@
 .code-line.remove .change {
   color: var(--danger);
 }
-.token.keyword {
+.syntax-keyword {
   color: var(--syntax-keyword);
 }
-.token.string,
-.token.attr-value {
+.syntax-string,
+.syntax-attr-value {
   color: var(--syntax-string);
 }
-.token.function,
-.token.class-name {
+.syntax-function,
+.syntax-class-name {
   color: var(--syntax-function);
 }
-.token.comment {
+.syntax-comment {
   color: var(--muted);
 }
+.tool-output-surface {
+  margin: 10px 0 15px;
+  border-radius: var(--radius-lg, var(--radius));
+  background: var(--code-head);
+  overflow: hidden;
+  min-width: 0;
+  max-width: 100%;
+}
+.tool-scroll {
+  max-height: 300px;
+  background: transparent;
+  min-width: 0;
+  max-width: 100%;
+  overflow: auto;
+}
 .tool-text {
+  margin: 0;
+  padding: 12px 14px;
+  width: max-content;
+  min-width: 100%;
+  overflow: visible;
+  background: transparent;
+  white-space: pre;
   font:
     12.5px/1.7 ui-monospace,
     SFMono-Regular,
     Menlo,
     monospace;
-  background: var(--code-head);
-  padding: 12px;
-  margin: 10px 0 15px;
-  border-radius: var(--radius-lg, var(--radius));
-  max-height: 300px;
-  overflow: auto;
 }
 .tool-pending {
   color: var(--muted);
@@ -288,47 +522,129 @@
 }
 .thinking-block {
   color: var(--muted);
-  font-size: 12px;
-  margin: 0 0 16px;
+  margin: 4px 0;
 }
-.thinking-block summary {
-  cursor: pointer;
+.thinking-text {
+  margin: 0;
+  padding: 4px 0 8px;
+  font-size: 14px;
+  line-height: 1.7;
 }
-.thinking-block div {
-  margin-top: 10px;
-  white-space: pre-wrap;
-  line-height: 1.8;
+.thinking-text p,
+.thinking-text ul,
+.thinking-text ol,
+.thinking-text blockquote {
+  margin-bottom: 8px;
+}
+.thinking-text :is(h1, h2, h3, h4, h5, h6) {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+  margin: 12px 0 6px;
+}
+.thinking-text > :first-child,
+.thinking-text .reply-markdown > :first-child {
+  margin-top: 0;
+}
+.thinking-text > :last-child,
+.thinking-text .reply-markdown > :last-child {
+  margin-bottom: 0;
 }
 .markdown-code {
-  position: relative;
+  margin: 14px 0;
+  border-radius: var(--radius-xl);
+  background: var(--code-head);
+  overflow: hidden;
+  min-width: 0;
+  max-width: 100%;
+}
+.markdown-code-scroll {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+.markdown-code-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 32px;
+  padding: 4px 6px 0 12px;
+}
+.markdown-code-lang {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 16px;
 }
 .markdown-code pre {
-  padding: 14px;
-  margin: 14px 0;
-  overflow-x: auto;
-  border-radius: var(--radius-lg, var(--radius));
-  background: var(--code-head);
+  margin: 0;
+  padding: 8px 14px 14px;
+  width: max-content;
+  min-width: 100%;
+  overflow: visible;
+  background: transparent;
+  white-space: pre;
   font:
     12.5px/1.75 ui-monospace,
     SFMono-Regular,
     Menlo,
     monospace;
 }
+.conversation.is-wrap .reply-text {
+  overflow-wrap: anywhere;
+}
+.conversation.is-wrap .markdown-code pre,
+.conversation.is-wrap .tool-text,
+.conversation.is-wrap .code-line {
+  width: auto;
+  min-width: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.tool-scroll,
+.markdown-code-scroll,
+.code {
+  scrollbar-width: thin;
+  scrollbar-color: #949ba64d transparent;
+}
+.tool-scroll::-webkit-scrollbar,
+.markdown-code-scroll::-webkit-scrollbar,
+.code::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.tool-scroll::-webkit-scrollbar-thumb,
+.markdown-code-scroll::-webkit-scrollbar-thumb,
+.code::-webkit-scrollbar-thumb {
+  background: #949ba680;
+  border-radius: 999px;
+}
 .markdown-code .copy-button {
-  position: absolute;
-  top: 5px;
-  right: 5px;
   min-width: 24px;
   width: 24px;
   height: 24px;
   min-height: 24px;
   padding: 0;
-  opacity: 0;
-  background: var(--code-head);
+  color: var(--muted);
+  background: transparent;
 }
-.markdown-code:hover .copy-button,
-.copy-button:focus-visible {
-  opacity: 1;
+.markdown-code .copy-button:is(:hover, [data-hovered='true'], :focus-visible) {
+  color: var(--ink);
+  background: var(--hover);
+}
+// Streamdown owns the active caret. Completed replies have no extra marker.
+.reply-markdown > :last-child::after {
+  color: var(--ink);
+  font-size: 0.85em;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reply-markdown [data-sd-animate],
+  .reply-markdown [data-sd-animate-marker]::marker {
+    animation: none;
+  }
 }
 .copy-button svg {
   width: 13px;
@@ -346,6 +662,7 @@
 }
 .chat-page {
   flex: 1;
+  min-width: 0;
   min-height: 0;
   display: flex;
   flex-direction: column;
@@ -394,11 +711,14 @@
   font-size: 12px;
   margin: 0 0 16px;
 }
-.spinner {
-  animation: spin 1.2s linear infinite;
+
+.user-capability-request {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+.user-capability-request svg {
+  width: 16px;
+  height: 16px;
+  color: var(--muted);
 }

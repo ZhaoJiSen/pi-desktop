@@ -1,0 +1,554 @@
+[
+  {
+    "run": 11,
+    "zoom": 1,
+    "boundaries": [
+      {
+        "caret": {
+          "bottom": 216,
+          "height": 18,
+          "top": 198
+        },
+        "focused": true,
+        "max": 0,
+        "pageScroll": 0,
+        "scroll": 0,
+        "text": "\n\n\n\n\n\n",
+        "view": {
+          "bottom": 220,
+          "top": 58
+        }
+      },
+      {
+        "caret": {
+          "bottom": 232,
+          "height": 18,
+          "top": 214
+        },
+        "focused": true,
+        "max": 8,
+        "pageScroll": 0,
+        "scroll": 6,
+        "text": "\n\n\n\n\n\n\n",
+        "view": {
+          "bottom": 234,
+          "top": 58
+        }
+      },
+      {
+        "caret": {
+          "bottom": 232,
+          "height": 18,
+          "top": 214
+        },
+        "focused": true,
+        "max": 30,
+        "pageScroll": 0,
+        "scroll": 28,
+        "text": "\n\n\n\n\n\n\n\n",
+        "view": {
+          "bottom": 234,
+          "top": 58
+        }
+      },
+      {
+        "caret": {
+          "bottom": 232,
+          "height": 18,
+          "top": 214
+        },
+        "focused": true,
+        "max": 206,
+        "pageScroll": 0,
+        "scroll": 204,
+        "text": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+        "view": {
+          "bottom": 234,
+          "top": 58
+        }
+      },
+      {
+        "caret": {
+          "bottom": 232,
+          "height": 18,
+          "top": 214
+        },
+        "focused": true,
+        "max": 382,
+        "pageScroll": 0,
+        "scroll": 380,
+        "text": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+        "view": {
+          "bottom": 234,
+          "top": 58
+        }
+      },
+      {
+        "caret": {
+          "bottom": 232,
+          "height": 18,
+          "top": 214
+        },
+        "focused": true,
+        "max": 734,
+        "pageScroll": 0,
+        "scroll": 732,
+        "text": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+        "view": {
+          "bottom": 234,
+          "top": 58
+        }
+      }
+    ],
+    "typing": {
+      "caret": {
+        "bottom": 232,
+        "height": 18,
+        "top": 214
+      },
+      "focused": true,
+      "max": 734,
+      "pageScroll": 0,
+      "scroll": 732,
+      "text": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nx",
+      "view": {
+        "bottom": 234,
+        "top": 58
+      }
+    },
+    "undo": {
+      "caret": {
+        "bottom": 232,
+        "height": 18,
+        "top": 214
+      },
+      "focused": true,
+      "max": 734,
+      "pageScroll": 0,
+      "scroll": 732,
+      "text": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+      "view": {
+        "bottom": 234,
+        "top": 58
+      }
+    },
+    "redo": {
+      "caret": {
+        "bottom": 232,
+        "height": 18,
+        "top": 214
+      },
+      "focused": true,
+      "max": 734,
+      "pageScroll": 0,
+      "scroll": 732,
+      "text": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nx",
+      "view": {
+        "bottom": 234,
+        "top": 58
+      }
+    },
+    "start": {
+      "caret": {
+        "bottom": 84,
+        "height": 18,
+        "top": 66
+      },
+      "focused": true,
+      "max": 734,
+      "pageScroll": 0,
+      "scroll": 0,
+      "text": "a\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nx",
+      "view": {
+        "bottom": 234,
+        "top": 58
+      }
+    },
+    "restored": {
+      "caret": {
+        "bottom": 232.4873809814453,
+        "height": 18,
+        "top": 214.4873809814453
+      },
+      "focused": true,
+      "max": 734,
+      "pageScroll": 0,
+      "scroll": 732,
+      "text": "a\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nx",
+      "view": {
+        "bottom": 234.4873809814453,
+        "top": 58.48738098144531
+      }
+    },
+    "saveFailureRetained": true,
+    "recoveryPersisted": true
+  },
+  {
+    "run": 12,
+    "zoom": 1,
+    "boundaries": [
+      {
+        "caret": {
+          "bottom": 216,
+          "height": 18,
+          "top": 198
+        },
+        "focused": true,
+        "max": 0,
+        "pageScroll": 0,
+        "scroll": 0,
+        "text": "\n\n\n\n\n\n",
+        "view": {
+          "bottom": 220,
+          "top": 58
+        }
+      },
+      {
+        "caret": {
+          "bottom": 232,
+          "height": 18,
+          "top": 214
+        },
+        "focused": true,
+        "max": 8,
+        "pageScroll": 0,
+        "scroll": 6,
+        "text": "\n\n\n\n\n\n\n",
+        "view": {
+          "bottom": 234,
+          "top": 58
+        }
+      },
+      {
+        "caret": {
+          "bottom": 232,
+          "height": 18,
+          "top": 214
+        },
+        "focused": true,
+        "max": 30,
+        "pageScroll": 0,
+        "scroll": 28,
+        "text": "\n\n\n\n\n\n\n\n",
+        "view": {
+          "bottom": 234,
+          "top": 58
+        }
+      },
+      {
+        "caret": {
+          "bottom": 232,
+          "height": 18,
+          "top": 214
+        },
+        "focused": true,
+        "max": 206,
+        "pageScroll": 0,
+        "scroll": 204,
+        "text": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+        "view": {
+          "bottom": 234,
+          "top": 58
+        }
+      },
+      {
+        "caret": {
+          "bottom": 232,
+          "height": 18,
+          "top": 214
+        },
+        "focused": true,
+        "max": 382,
+        "pageScroll": 0,
+        "scroll": 380,
+        "text": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+        "view": {
+          "bottom": 234,
+          "top": 58
+        }
+      },
+      {
+        "caret": {
+          "bottom": 232,
+          "height": 18,
+          "top": 214
+        },
+        "focused": true,
+        "max": 734,
+        "pageScroll": 0,
+        "scroll": 732,
+        "text": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+        "view": {
+          "bottom": 234,
+          "top": 58
+        }
+      }
+    ],
+    "typing": {
+      "caret": {
+        "bottom": 232,
+        "height": 18,
+        "top": 214
+      },
+      "focused": true,
+      "max": 734,
+      "pageScroll": 0,
+      "scroll": 732,
+      "text": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nx",
+      "view": {
+        "bottom": 234,
+        "top": 58
+      }
+    },
+    "undo": {
+      "caret": {
+        "bottom": 232,
+        "height": 18,
+        "top": 214
+      },
+      "focused": true,
+      "max": 734,
+      "pageScroll": 0,
+      "scroll": 732,
+      "text": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+      "view": {
+        "bottom": 234,
+        "top": 58
+      }
+    },
+    "redo": {
+      "caret": {
+        "bottom": 232,
+        "height": 18,
+        "top": 214
+      },
+      "focused": true,
+      "max": 734,
+      "pageScroll": 0,
+      "scroll": 732,
+      "text": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nx",
+      "view": {
+        "bottom": 234,
+        "top": 58
+      }
+    },
+    "start": {
+      "caret": {
+        "bottom": 84,
+        "height": 18,
+        "top": 66
+      },
+      "focused": true,
+      "max": 734,
+      "pageScroll": 0,
+      "scroll": 0,
+      "text": "a\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nx",
+      "view": {
+        "bottom": 234,
+        "top": 58
+      }
+    },
+    "restored": {
+      "caret": {
+        "bottom": 232.39547729492188,
+        "height": 18,
+        "top": 214.39547729492188
+      },
+      "focused": true,
+      "max": 734,
+      "pageScroll": 0,
+      "scroll": 732,
+      "text": "a\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nx",
+      "view": {
+        "bottom": 234.3954734802246,
+        "top": 58.39547348022461
+      }
+    },
+    "saveFailureRetained": true,
+    "recoveryPersisted": true
+  },
+  {
+    "run": 13,
+    "zoom": 1,
+    "boundaries": [
+      {
+        "caret": {
+          "bottom": 216,
+          "height": 18,
+          "top": 198
+        },
+        "focused": true,
+        "max": 0,
+        "pageScroll": 0,
+        "scroll": 0,
+        "text": "\n\n\n\n\n\n",
+        "view": {
+          "bottom": 220,
+          "top": 58
+        }
+      },
+      {
+        "caret": {
+          "bottom": 232,
+          "height": 18,
+          "top": 214
+        },
+        "focused": true,
+        "max": 8,
+        "pageScroll": 0,
+        "scroll": 6,
+        "text": "\n\n\n\n\n\n\n",
+        "view": {
+          "bottom": 234,
+          "top": 58
+        }
+      },
+      {
+        "caret": {
+          "bottom": 232,
+          "height": 18,
+          "top": 214
+        },
+        "focused": true,
+        "max": 30,
+        "pageScroll": 0,
+        "scroll": 28,
+        "text": "\n\n\n\n\n\n\n\n",
+        "view": {
+          "bottom": 234,
+          "top": 58
+        }
+      },
+      {
+        "caret": {
+          "bottom": 232,
+          "height": 18,
+          "top": 214
+        },
+        "focused": true,
+        "max": 206,
+        "pageScroll": 0,
+        "scroll": 204,
+        "text": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+        "view": {
+          "bottom": 234,
+          "top": 58
+        }
+      },
+      {
+        "caret": {
+          "bottom": 232,
+          "height": 18,
+          "top": 214
+        },
+        "focused": true,
+        "max": 382,
+        "pageScroll": 0,
+        "scroll": 380,
+        "text": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+        "view": {
+          "bottom": 234,
+          "top": 58
+        }
+      },
+      {
+        "caret": {
+          "bottom": 232,
+          "height": 18,
+          "top": 214
+        },
+        "focused": true,
+        "max": 734,
+        "pageScroll": 0,
+        "scroll": 732,
+        "text": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+        "view": {
+          "bottom": 234,
+          "top": 58
+        }
+      }
+    ],
+    "typing": {
+      "caret": {
+        "bottom": 232,
+        "height": 18,
+        "top": 214
+      },
+      "focused": true,
+      "max": 734,
+      "pageScroll": 0,
+      "scroll": 732,
+      "text": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nx",
+      "view": {
+        "bottom": 234,
+        "top": 58
+      }
+    },
+    "undo": {
+      "caret": {
+        "bottom": 232,
+        "height": 18,
+        "top": 214
+      },
+      "focused": true,
+      "max": 734,
+      "pageScroll": 0,
+      "scroll": 732,
+      "text": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+      "view": {
+        "bottom": 234,
+        "top": 58
+      }
+    },
+    "redo": {
+      "caret": {
+        "bottom": 232,
+        "height": 18,
+        "top": 214
+      },
+      "focused": true,
+      "max": 734,
+      "pageScroll": 0,
+      "scroll": 732,
+      "text": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nx",
+      "view": {
+        "bottom": 234,
+        "top": 58
+      }
+    },
+    "start": {
+      "caret": {
+        "bottom": 84,
+        "height": 18,
+        "top": 66
+      },
+      "focused": true,
+      "max": 734,
+      "pageScroll": 0,
+      "scroll": 0,
+      "text": "a\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nx",
+      "view": {
+        "bottom": 234,
+        "top": 58
+      }
+    },
+    "restored": {
+      "caret": {
+        "bottom": 233.07415771484375,
+        "height": 18,
+        "top": 215.07415771484375
+      },
+      "focused": true,
+      "max": 734,
+      "pageScroll": 0,
+      "scroll": 732,
+      "text": "a\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nx",
+      "view": {
+        "bottom": 235.07415771484375,
+        "top": 59.07415771484375
+      }
+    },
+    "saveFailureRetained": true,
+    "recoveryPersisted": true
+  }
+]

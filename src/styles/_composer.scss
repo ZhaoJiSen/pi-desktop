@@ -1,115 +1,122 @@
 .composer-area {
   flex: none;
 }
-// Empty sessions use the conversation column, the same measure as the thread.
-// ChatGPT (~768), Claude (~720) and Gemini (~640–768) do this: the first
-// message does not resize the field. The cluster sits with the mark; the
-// well stays two lines so the column reads as a place to write.
 .chat-page.is-empty .composer {
-  min-height: 0;
-  margin-top: 40px;
+  margin-top: 32px;
   margin-bottom: 0;
 }
-.chat-page.is-empty .composer .draft-editor {
-  min-height: 44px;
-}
 .composer {
+  container-type: inline-size;
   position: relative;
   width: calc(100% - 2 * var(--body-inset));
   max-width: var(--chat-width);
-  // Room above the well for the status line, which sits clear of the surface.
-  margin: 32px auto 22px;
-  min-height: 100px;
+  margin: 20px auto 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   flex: none;
-  border: 0;
+  min-width: 0;
+}
+.composer-shell {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  grid-template-areas: 'attach input toolbar';
+  align-items: end;
+  column-gap: 8px;
+  row-gap: 10px;
+  min-width: 0;
+  padding: 8px 12px;
+  border: 1px solid transparent;
   border-radius: 20px;
   background: var(--composer-fill);
   box-shadow: var(--composer-shadow);
-  padding: 16px 16px 12px;
-  display: flex;
-  flex-direction: column;
   transition:
     background-color 150ms ease,
-    box-shadow 150ms ease;
+    box-shadow 150ms ease,
+    border-color 150ms ease;
 }
-.composer:hover,
-.composer:has(.draft-editor:focus) {
+.composer-shell:hover,
+.composer-shell:has(.composer-input:focus) {
   background: var(--composer-fill-hover);
   box-shadow: var(--composer-shadow-hover);
 }
-.metadata {
+.composer-shell:has(.composer-input:focus-visible) {
+  border-color: var(--line);
+}
+.composer-shell:has(.composer-input[data-expanded='true']) {
+  grid-template-columns: 34px minmax(0, 1fr);
+  grid-template-areas: 'input input' 'attach toolbar';
+}
+.composer .composer-shell:has(.attachments) {
+  grid-template-columns: 34px minmax(0, 1fr);
+  grid-template-areas: 'attachments attachments' 'input input' 'attach toolbar';
+}
+.composer-input-wrap {
+  grid-area: input;
+  min-width: 0;
+  align-self: center;
+}
+.composer-input-measure {
   position: absolute;
-  top: -8px;
-  right: 24px;
-  transform: translateY(-100%);
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 0;
-  background: none;
-  font-size: 12px;
-  line-height: 18px;
-  white-space: nowrap;
-  color: var(--muted);
-  max-width: calc(100% - 48px);
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: inherit;
+  font-size: 15px;
+  line-height: 22px;
 }
-.metadata svg {
-  width: 12px;
-  height: 12px;
-  color: var(--muted);
-}
-.metadata .value {
-  color: var(--muted);
-  font-variant-numeric: tabular-nums;
-}
-.metadata .dot {
-  color: var(--muted);
-}
-.composer .draft-editor {
+.composer-shell .composer-input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 22px;
+  max-height: 176px;
   padding: 0;
   border: 0;
-  background: none;
+  border-radius: 0;
+  background: transparent;
   outline: none;
+  box-shadow: none;
   resize: none;
-  width: 100%;
-  // Grow with the draft; cap scrolling before the toolbar leaves the viewport.
-  min-height: 44px;
-  max-height: 176px;
-  flex: none;
   overflow-y: auto;
   overscroll-behavior: contain;
+  font: inherit;
   font-size: 15px;
   line-height: 22px;
+  color: var(--ink);
+  caret-color: var(--ink);
+  transition: none;
+}
+.composer-shell .composer-input:is(:hover, :focus, :focus-visible, [data-focused], [data-hovered]) {
+  background: transparent;
+  outline: none;
   box-shadow: none;
-
-  &:focus-visible {
-    outline: none;
-  }
+  border: 0;
 }
-.draft-field {
-  position: relative;
-}
-.draft-placeholder {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 22px;
-  max-width: 100%;
+.composer-input::placeholder {
   color: var(--muted);
-  font-size: 15px;
-  line-height: 22px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  pointer-events: none;
+}
+.composer-shell > .attach {
+  grid-area: attach;
 }
 .composer-toolbar {
+  grid-area: toolbar;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  max-width: 100%;
+  justify-self: end;
+  height: 34px;
+}
+.composer-toolbar-start {
   display: flex;
   align-items: center;
   gap: 4px;
-  margin-top: 12px;
-  height: 34px;
-  flex: none;
+  min-width: 0;
 }
 .button.attach {
   width: 34px;
@@ -121,6 +128,7 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
+  flex: none;
   background: var(--composer-control);
   color: var(--ink);
 }
@@ -136,14 +144,20 @@
   flex-direction: row;
   align-items: center;
   gap: 7px;
-  padding: 0 8px;
+  padding: 0 10px;
   font-size: 13px;
   font-weight: 400;
-  background: transparent;
+  border-radius: 999px;
+  background: var(--composer-control);
+  color: var(--ink);
+  flex: 0 1 auto;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
 }
 .button.composer-select:hover,
 .button.composer-select[aria-expanded='true'] {
-  background: var(--hover);
+  background: var(--composer-control-hover);
   color: var(--ink);
 }
 .button.attach:hover:not(:disabled, [data-disabled='true']) {
@@ -153,18 +167,25 @@
 .model-trigger {
   max-width: 260px;
 }
-.model-trigger span {
+.model-trigger span,
+.reasoning > span {
+  min-width: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.composer-select svg {
+  flex: none;
 }
 .composer-select .chevron {
   width: 11px;
   height: 11px;
   color: var(--muted);
 }
-.reasoning {
+.button.reasoning {
   margin-left: 0;
+  max-width: 148px;
+  flex: none;
 }
 .reasoning > svg:not(.chevron) {
   width: 15px;
@@ -172,6 +193,7 @@
   color: var(--muted);
 }
 .send-area {
+  flex: none;
   display: flex;
   align-items: center;
   margin-left: auto;
@@ -194,6 +216,20 @@
   background: var(--accent);
   color: var(--accent-foreground);
 }
+.button.send:is(:disabled, [data-disabled='true']):not([data-loading='true']) {
+  background: var(--composer-control);
+  color: var(--muted);
+  box-shadow: none;
+  opacity: 1;
+}
+.button.send[data-loading='true'] {
+  opacity: 1;
+}
+.send .send-spinner {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
 .send svg {
   width: 16px;
   height: 16px;
@@ -213,15 +249,18 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  max-width: 200px;
-  border-radius: var(--radius-sm, calc(var(--radius) * 0.5));
-  padding: 4px 6px;
-  background: var(--user);
+  max-width: min(240px, 100%);
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg, var(--radius));
+  padding: 6px 8px;
+  background: var(--composer-control);
   font-size: 12px;
 }
 .attachment > svg {
-  width: 13px;
-  height: 13px;
+  width: 14px;
+  height: 14px;
+  flex: none;
   color: var(--muted);
 }
 .attachment span {
@@ -231,8 +270,9 @@
   white-space: nowrap;
 }
 .button.attachment-remove {
-  min-width: 18px;
-  width: 18px;
+  min-width: 20px;
+  width: 20px;
+  flex: none;
   height: 20px;
   min-height: 20px;
   padding: 0;
@@ -243,54 +283,224 @@
   height: 12px;
 }
 
-.draft-editor-wrap {
-  position: static;
+.composer .button.composer-select {
+  background: transparent;
+  padding-inline: 8px;
+}
+.composer .button.composer-select:hover {
+  background: var(--composer-control-hover);
+}
+.composer .model-trigger {
+  max-width: 190px;
+}
+.composer .button.reasoning {
+  max-width: 120px;
+}
+.composer .attachments {
+  grid-area: attachments;
+  padding-bottom: 0;
+}
+.composer-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   min-width: 0;
+  padding-inline: 12px;
+  min-height: 22px;
+  color: var(--muted);
+  font-size: 12px;
 }
-.draft-editor {
-  position: relative;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-.command-tag {
-  display: inline-flex;
-  vertical-align: baseline;
+.composer-branch {
+  display: flex;
   align-items: center;
   gap: 6px;
-  max-width: min(100%, 320px);
-  margin-inline: 2px;
-  padding: 1px 7px;
-  border-radius: var(--radius-sm, calc(var(--radius) * 0.5));
-  background: var(--user);
-  border: 1px solid var(--line);
-  font-size: 12px;
-  line-height: 20px;
-  cursor: default;
-  user-select: all;
-  color: var(--ink);
-  transition:
-    background-color 120ms,
-    border-color 120ms;
+  min-width: 0;
 }
-.command-tag-name {
+.composer-branch span {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  min-width: 0;
 }
-.command-tag-source {
-  color: var(--muted);
-  font-size: 11px;
+.composer-branch svg {
+  width: 13px;
+  height: 13px;
   flex: none;
+}
+.button.composer-usage {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  min-height: 22px;
+  height: auto;
+  padding: 0;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--muted);
+  background: transparent;
   white-space: nowrap;
 }
-.command-tag.selected {
-  border-color: var(--accent);
-  background: var(--hover);
+.composer-usage-popover {
+  padding: 12px;
+  min-width: 210px;
 }
-.command-tag.unavailable {
-  border-style: dashed;
+.composer-usage-popover [role='dialog'] {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+}
+.composer-usage-popover [role='dialog'] > span {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
   color: var(--muted);
+}
+.composer-usage-popover strong {
+  color: var(--ink);
+  font-weight: 500;
+}
+.composer-prompts {
+  min-width: 0;
+}
+.composer-prompt-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.button.composer-prompt-button {
+  min-height: 30px;
+  height: 30px;
+  min-width: 0;
+  padding: 0 10px;
+  gap: 6px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 400;
+  transition:
+    background-color 120ms ease,
+    transform 80ms ease;
+}
+.button.composer-prompt-button:hover {
+  background: var(--composer-control);
+}
+.button.composer-prompt-button[data-pressed='true'] {
+  transform: scale(0.98);
+}
+.composer-prompt-button svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  color: var(--muted);
+}
+.button.composer-prompt-more {
+  width: 30px;
+  padding: 0;
+}
+.composer-prompts-menu {
+  padding: 6px;
+  width: 300px;
+  max-width: calc(100vw - 32px);
+}
+.composer-prompts-options {
+  max-height: 300px;
+}
+.composer-prompts-menu .button.menu-row {
+  width: 100%;
+  justify-content: flex-start;
+  gap: 8px;
+  font-size: 13px;
+}
+.composer-prompts-menu .menu-row svg {
+  width: 15px;
+  height: 15px;
+  flex: none;
+}
+.composer-template-heading {
+  border-top: 1px solid var(--line);
+  margin-top: 6px;
+  padding: 10px 8px 4px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.composer-prompts-menu .button.composer-template {
+  height: auto;
+  flex: none;
+  padding-block: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  white-space: normal;
+}
+.composer-template small {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--muted);
+  text-align: left;
+}
+.composer-prompt-preview {
+  margin-top: 8px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--paper);
+  animation: composer-preview-in 160ms ease-out;
+}
+.composer-prompt-preview-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.composer-prompt-preview-heading strong {
+  font-size: 13px;
+  font-weight: 500;
+}
+.composer-prompt-preview-heading .button {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  min-height: 24px;
+  padding: 0;
+}
+.composer-prompt-preview-heading svg {
+  width: 14px;
+  height: 14px;
+}
+.composer-prompt-description {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 20px;
+  margin: 6px 0;
+}
+.composer-prompt-text {
+  margin-top: 6px;
+  max-height: 120px;
+  font-size: 13px;
+  line-height: 21px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.composer-prompt-preview-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 10px;
+}
+@keyframes composer-preview-in {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 .slash-panel {
   display: flex;
@@ -364,54 +574,88 @@
   padding: 8px;
   margin: 0;
 }
-.command-selection-actions {
-  display: flex;
-  gap: 4px;
-  padding-block: 4px;
-}
-.command-selection-actions .button,
-.command-edit .button {
-  min-height: 28px;
-  height: 28px;
-  padding-inline: 8px;
-  font-size: 12px;
-}
-.command-edit {
-  display: flex;
-  gap: 6px;
-  align-items: flex-end;
-  border-top: 1px solid var(--line);
-  padding: 10px 0;
-}
-.command-edit label {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  flex: 1;
-  min-width: 0;
-}
-.command-edit label > span {
-  font-size: 11px;
-  color: var(--muted);
-}
-.command-edit input {
-  border: 1px solid var(--line);
-  border-radius: var(--field-radius);
-  background: var(--paper);
-  padding: 4px 8px;
-  font-size: 12px;
-  height: 28px;
-  width: 100%;
-}
 .composer-command-error {
-  color: var(--muted);
+  color: var(--danger);
+  background: var(--removed);
+  border-radius: var(--radius-md, calc(var(--radius) * 0.75));
+  padding: 8px 10px;
   font-size: 12px;
   line-height: 18px;
-  margin: 6px 0 10px;
+  margin: 8px 0 0;
+}
+
+@container (max-width: 520px) {
+  .composer .model-trigger {
+    max-width: 150px;
+  }
+  .composer .button.composer-select {
+    padding-inline: 6px;
+    gap: 4px;
+    font-size: 12px;
+  }
+  .reasoning > svg:not(.chevron) {
+    display: none;
+  }
+  .composer-status .optional-token {
+    display: none;
+  }
+}
+@container (max-width: 360px) {
+  .composer .model-trigger {
+    max-width: 105px;
+  }
+  .composer-toolbar {
+    gap: 4px;
+  }
+  .composer-toolbar-start {
+    gap: 0;
+  }
+  .composer-prompt-secondary {
+    display: none;
+  }
+  .button.composer-prompt-button {
+    font-size: 12px;
+    padding-inline: 8px;
+    gap: 4px;
+  }
+  .composer-status {
+    gap: 6px;
+    padding-inline: 4px;
+  }
+  .button.composer-usage {
+    font-size: 11px;
+    gap: 4px;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
-  .composer,
-  .command-tag {
+  .composer-shell,
+  .button.composer-select,
+  .button.composer-prompt-button {
     transition: none;
   }
+  .composer-prompt-preview {
+    animation: none;
+  }
+}
+
+// Reserve the longest effort label so changing levels never moves either entry.
+.composer .thinking-selector-trigger {
+  flex: none;
+  max-width: none;
+}
+.thinking-selector-trigger .thinking-trigger-label,
+.thinking-selector-trigger .thinking-trigger-sizer {
+  display: grid;
+  overflow: visible;
+}
+.thinking-trigger-label > span,
+.thinking-trigger-sizer > span {
+  grid-area: 1 / 1;
+}
+.thinking-selector-trigger .thinking-trigger-sizer {
+  visibility: hidden;
+  pointer-events: none;
+}
+.thinking-selector-trigger[data-saving-thinking='true'] {
+  opacity: 1;
 }

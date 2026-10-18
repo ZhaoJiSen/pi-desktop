@@ -1,0 +1,110 @@
+[
+  {
+    "metrics": {
+      "animations": 0,
+      "gap": 8,
+      "headings": [
+        "20px",
+        "18px",
+        "16px",
+        "15px"
+      ],
+      "overflow": 0,
+      "tableAlign": "right",
+      "tableHeader": "rgb(248, 248, 249)",
+      "tasks": [
+        {
+          "checked": true,
+          "disabled": true
+        },
+        {
+          "checked": false,
+          "disabled": true
+        }
+      ]
+    },
+    "streaming": {
+      "animated": 4,
+      "caret": "\" ▋\"",
+      "duplicate": "none"
+    },
+    "incompleteBold": true,
+    "incompleteFence": true,
+    "streamedHighlight": true,
+    "copyFeedback": true,
+    "finishedCleanup": true,
+    "linkRepair": true
+  },
+  {
+    "metrics": {
+      "animations": 0,
+      "gap": 8,
+      "headings": [
+        "20px",
+        "18px",
+        "16px",
+        "15px"
+      ],
+      "overflow": 0,
+      "tableAlign": "right",
+      "tableHeader": "rgb(248, 248, 249)",
+      "tasks": [
+        {
+          "checked": true,
+          "disabled": true
+        },
+        {
+          "checked": false,
+          "disabled": true
+        }
+      ]
+    },
+    "streaming": {
+      "animated": 4,
+      "caret": "\" ▋\"",
+      "duplicate": "none"
+    },
+    "incompleteBold": true,
+    "incompleteFence": true,
+    "streamedHighlight": true,
+    "copyFeedback": true,
+    "finishedCleanup": true,
+    "linkRepair": true
+  },
+  {
+    "metrics": {
+      "animations": 0,
+      "gap": 8,
+      "headings": [
+        "20px",
+        "18px",
+        "16px",
+        "15px"
+      ],
+      "overflow": 0,
+      "tableAlign": "right",
+      "tableHeader": "rgb(248, 248, 249)",
+      "tasks": [
+        {
+          "checked": true,
+          "disabled": true
+        },
+        {
+          "checked": false,
+          "disabled": true
+        }
+      ]
+    },
+    "streaming": {
+      "animated": 4,
+      "caret": "\" ▋\"",
+      "duplicate": "none"
+    },
+    "incompleteBold": true,
+    "incompleteFence": true,
+    "streamedHighlight": true,
+    "copyFeedback": true,
+    "finishedCleanup": true,
+    "linkRepair": true
+  }
+]

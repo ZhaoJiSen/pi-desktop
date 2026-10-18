@@ -1,0 +1,98 @@
+[
+  {
+    "before": {
+      "animation": "text-shimmer-sweep",
+      "color": "rgb(105, 113, 126)",
+      "duration": "2.4s",
+      "hidden": "true",
+      "highlightColor": "rgb(37, 41, 50)",
+      "inert": true,
+      "offset": 0,
+      "text": "思考过程",
+      "translate": "-80.5461%"
+    },
+    "after": {
+      "animation": "text-shimmer-sweep",
+      "color": "rgb(105, 113, 126)",
+      "duration": "2.4s",
+      "hidden": "true",
+      "highlightColor": "rgb(37, 41, 50)",
+      "inert": true,
+      "offset": 0,
+      "text": "思考过程",
+      "translate": "-76.3711%"
+    },
+    "toolHeight": 38,
+    "activeThinkingOnly": true,
+    "runningTools": true,
+    "groupStatus": true,
+    "unchangedAccessibleNames": true,
+    "completionStops": true,
+    "errorAndInterruptedStatic": true,
+    "keyboard": true
+  },
+  {
+    "before": {
+      "animation": "text-shimmer-sweep",
+      "color": "rgb(105, 113, 126)",
+      "duration": "2.4s",
+      "hidden": "true",
+      "highlightColor": "rgb(37, 41, 50)",
+      "inert": true,
+      "offset": 0,
+      "text": "思考过程",
+      "translate": "-76.4467%"
+    },
+    "after": {
+      "animation": "text-shimmer-sweep",
+      "color": "rgb(105, 113, 126)",
+      "duration": "2.4s",
+      "hidden": "true",
+      "highlightColor": "rgb(37, 41, 50)",
+      "inert": true,
+      "offset": 0,
+      "text": "思考过程",
+      "translate": "-68.0383%"
+    },
+    "toolHeight": 38,
+    "activeThinkingOnly": true,
+    "runningTools": true,
+    "groupStatus": true,
+    "unchangedAccessibleNames": true,
+    "completionStops": true,
+    "errorAndInterruptedStatic": true,
+    "keyboard": true
+  },
+  {
+    "before": {
+      "animation": "text-shimmer-sweep",
+      "color": "rgb(105, 113, 126)",
+      "duration": "2.4s",
+      "hidden": "true",
+      "highlightColor": "rgb(37, 41, 50)",
+      "inert": true,
+      "offset": 0,
+      "text": "思考过程",
+      "translate": "-83.3237%"
+    },
+    "after": {
+      "animation": "text-shimmer-sweep",
+      "color": "rgb(105, 113, 126)",
+      "duration": "2.4s",
+      "hidden": "true",
+      "highlightColor": "rgb(37, 41, 50)",
+      "inert": true,
+      "offset": 0,
+      "text": "思考过程",
+      "translate": "-75.0403%"
+    },
+    "toolHeight": 38,
+    "activeThinkingOnly": true,
+    "runningTools": true,
+    "groupStatus": true,
+    "unchangedAccessibleNames": true,
+    "completionStops": true,
+    "errorAndInterruptedStatic": true,
+    "keyboard": true
+  }
+]

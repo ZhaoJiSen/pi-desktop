@@ -1,0 +1,184 @@
+{
+  "run": 14,
+  "zoom": 2,
+  "boundaries": [
+    {
+      "caret": {
+        "bottom": 431,
+        "height": 35,
+        "top": 396
+      },
+      "focused": true,
+      "max": 0,
+      "pageScroll": 0,
+      "scroll": 0,
+      "text": "\n\n\n\n\n\n",
+      "view": {
+        "bottom": 440,
+        "top": 116
+      }
+    },
+    {
+      "caret": {
+        "bottom": 464,
+        "height": 35,
+        "top": 429
+      },
+      "focused": true,
+      "max": 8,
+      "pageScroll": 0,
+      "scroll": 5.5,
+      "text": "\n\n\n\n\n\n\n",
+      "view": {
+        "bottom": 468,
+        "top": 116
+      }
+    },
+    {
+      "caret": {
+        "bottom": 464,
+        "height": 35,
+        "top": 429
+      },
+      "focused": true,
+      "max": 30,
+      "pageScroll": 0,
+      "scroll": 27.5,
+      "text": "\n\n\n\n\n\n\n\n",
+      "view": {
+        "bottom": 468,
+        "top": 116
+      }
+    },
+    {
+      "caret": {
+        "bottom": 464,
+        "height": 35,
+        "top": 429
+      },
+      "focused": true,
+      "max": 206,
+      "pageScroll": 0,
+      "scroll": 203.5,
+      "text": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+      "view": {
+        "bottom": 468,
+        "top": 116
+      }
+    },
+    {
+      "caret": {
+        "bottom": 464,
+        "height": 35,
+        "top": 429
+      },
+      "focused": true,
+      "max": 382,
+      "pageScroll": 0,
+      "scroll": 379.5,
+      "text": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+      "view": {
+        "bottom": 468,
+        "top": 116
+      }
+    },
+    {
+      "caret": {
+        "bottom": 464,
+        "height": 35,
+        "top": 429
+      },
+      "focused": true,
+      "max": 734,
+      "pageScroll": 0,
+      "scroll": 731.5,
+      "text": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+      "view": {
+        "bottom": 468,
+        "top": 116
+      }
+    }
+  ],
+  "typing": {
+    "caret": {
+      "bottom": 464,
+      "height": 35,
+      "top": 429
+    },
+    "focused": true,
+    "max": 734,
+    "pageScroll": 0,
+    "scroll": 731.5,
+    "text": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nx",
+    "view": {
+      "bottom": 468,
+      "top": 116
+    }
+  },
+  "undo": {
+    "caret": {
+      "bottom": 464,
+      "height": 35,
+      "top": 429
+    },
+    "focused": true,
+    "max": 734,
+    "pageScroll": 0,
+    "scroll": 731.5,
+    "text": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+    "view": {
+      "bottom": 468,
+      "top": 116
+    }
+  },
+  "redo": {
+    "caret": {
+      "bottom": 464,
+      "height": 35,
+      "top": 429
+    },
+    "focused": true,
+    "max": 734,
+    "pageScroll": 0,
+    "scroll": 731.5,
+    "text": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nx",
+    "view": {
+      "bottom": 468,
+      "top": 116
+    }
+  },
+  "start": {
+    "caret": {
+      "bottom": 167,
+      "height": 35,
+      "top": 132
+    },
+    "focused": true,
+    "max": 734,
+    "pageScroll": 0,
+    "scroll": 0,
+    "text": "a\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nx",
+    "view": {
+      "bottom": 468,
+      "top": 116
+    }
+  },
+  "restored": {
+    "caret": {
+      "bottom": 466.0750427246094,
+      "height": 35,
+      "top": 431.0750427246094
+    },
+    "focused": true,
+    "max": 734,
+    "pageScroll": 0,
+    "scroll": 731.5,
+    "text": "a\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nx",
+    "view": {
+      "bottom": 470.0750427246094,
+      "top": 118.07504272460938
+    }
+  },
+  "saveFailureRetained": true,
+  "recoveryPersisted": true
+}

@@ -7,14 +7,17 @@
 @use 'onboarding';
 @use 'sidebar';
 @use 'header';
+@use 'text-shimmer';
 @use 'conversation';
 @use 'composer';
+@use 'capabilities';
 @use 'runtime-notices';
 @use 'popovers';
 @use 'dialogs';
 @use 'clone';
 @use 'pi-updates';
 @use 'utility-views';
+@use 'appearance';
 @use 'responsive';
 @use 'sidebar-option';
 @use 'packages';
@@ -22,5 +25,3 @@
 @use 'commands';
 
 @use 'usage';
-
-@use 'appearance';

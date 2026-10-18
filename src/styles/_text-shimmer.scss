@@ -1,0 +1,43 @@
+.text-shimmer {
+  display: inline-block;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  vertical-align: bottom;
+  white-space: nowrap;
+}
+// Paint one fixed set of glyphs. Translating duplicated text layers can change
+// edge antialiasing and make these small status labels look doubled or heavier.
+@supports ((background-clip: text) or (-webkit-background-clip: text)) {
+  .text-shimmer {
+    background-image: linear-gradient(
+      100deg,
+      currentColor 0%,
+      currentColor 42%,
+      var(--shimmer-highlight, var(--ink)) 50%,
+      currentColor 58%,
+      currentColor 100%
+    );
+    background-size: 300% 100%;
+    background-repeat: no-repeat;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: text-shimmer-sweep 2.4s linear infinite;
+  }
+}
+@keyframes text-shimmer-sweep {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce), (forced-colors: active) {
+  .text-shimmer {
+    background: none;
+    -webkit-text-fill-color: currentColor;
+    animation: none;
+  }
+}

@@ -28,6 +28,8 @@ body {
 .utility-view,
 .model-options,
 .search-results,
+.tool-scroll,
+.markdown-code-scroll,
 .tool-text,
 textarea {
   overscroll-behavior: none;
@@ -71,6 +73,13 @@ svg {
   height: 17px;
   stroke-width: 1.5;
   flex: none;
+}
+// HeroUI rotates the spinner container. Its SVG must share that exact box,
+// rather than inherit the global icon size and orbit around a different center.
+[data-slot='spinner'] > [data-slot='spinner-icon'] {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 .app-shell {
   margin: 28px;

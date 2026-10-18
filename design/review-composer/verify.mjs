@@ -1,0 +1,71 @@
+export async function verifyReviewComposer(tab,run=1) {
+ const assert=(c,m)=>{if(!c)throw new Error(m)}
+ const snap=()=>tab.getAXState({emit:false})
+ const go=async state=>{await tab.goto(`http://localhost:1420/design/review-composer/preview.html?state=${state}&seed=round-${run}&lang=en`);await tab.playwright.locator('.composer-input').waitFor({state:'visible'});for(let i=0;i<15;i++){await snap();if(await tab.playwright.locator('.composer').evaluate(e=>getComputedStyle(e).opacity==='1'))break}}
+ const input=tab.playwright.locator('.composer-input')
+ const button=name=>tab.playwright.getByRole('button',{name,exact:true})
+ const text=()=>input.evaluate(e=>e.value)
+ const measure=()=>tab.playwright.evaluate(()=>{
+   const e=document.querySelector('.composer-input'),s=document.querySelector('.composer-shell'),status=document.querySelector('.composer-status'),actions=document.querySelector('.composer-prompt-actions')
+   return {tag:e.tagName,slot:e.dataset.slot,value:e.value,selection:e.selectionEnd,focused:document.activeElement===e,height:e.clientHeight,scroll:e.scrollTop,max:e.scrollHeight-e.clientHeight,expanded:e.hasAttribute('data-expanded'),shell:s.getBoundingClientRect().toJSON(),status:status.getBoundingClientRect().toJSON(),quick:actions.getBoundingClientRect().toJSON(),pageScroll:document.scrollingElement.scrollTop,editable:document.querySelectorAll('[contenteditable]').length}
+ })
+ await go('empty')
+ const empty=await measure()
+ assert(empty.tag==='TEXTAREA' && empty.slot==='textarea' && empty.editable===0,'Actual HeroUI TextArea must replace contenteditable')
+ assert(Math.abs(empty.shell.height-52)<1 && empty.height===22,'Short composer starts compact')
+ assert(empty.status.top>empty.shell.bottom && empty.quick.bottom<empty.shell.top,'Actions above and status below must stay independent of border')
+ assert(!(await button('Send').isEnabled()),'Empty send disabled')
+ await button('Review changes').click();await snap()
+ const review=await text();assert(review.startsWith('Review the current workspace changes.'),'Quick prompt fills visible text')
+ assert((await measure()).focused && await button('Send').isEnabled(),'Quick prompt returns focus for editing, without sending')
+ await button('Draft commit message').click();await snap()
+ assert(await text()===review && await tab.playwright.getByRole('region',{name:'Prompt preview'}).isVisible(),'Nonempty draft opens preview without overwriting')
+ await button('Append to draft').click();await snap()
+ const appended=await text();assert(appended.startsWith(review+'\n\n') && appended.includes('Draft a concise commit title'),'Append keeps draft and separates prompt')
+ await tab.reload();await input.waitFor({state:'visible'});await snap();assert(await text()===appended,'Prompt draft persists')
+ await button('Review changes').click();await snap();await button('Replace draft').click();await snap();assert(await text()===review,'Explicit replacement uses exact prompt')
+ await button('More prompts').click();await snap();await tab.playwright.locator('.composer-template').filter({hasText:'/plan'}).click();await snap();await button('Replace draft').click();await snap();assert(await text()==='/plan ','Existing prompt templates insert editable commands')
+ await input.fill('/model');await snap();await tab.pressKey(null,'Return');await snap();assert(await text()==='/model ','Slash selection inserts text rather than chip')
+ await tab.pressKey(null,'Return');await snap();assert(await text()==='' && await tab.playwright.getByRole('dialog',{name:'Model and thinking effort',exact:true}).isVisible(),'Builtin command still opens desktop control')
+ await button('Claude Opus, anthropic').click();await snap()
+ assert((await button('Model and thinking effort').innerText()).includes('Claude Opus'),'Model selection preserved');await tab.pressKey(null,'Escape');await snap()
+ await input.fill('/login ');await snap();await button('Send').click();await snap()
+ assert(await tab.playwright.getByRole('alert').isVisible() && await text()==='/login ','Terminal-only command shows error and keeps draft')
+ await input.fill('');await snap();assert(!(await tab.playwright.getByRole('alert').isVisible()),'Editing clears command error')
+ const newline=[]
+ for(let n=1;n<=40;n++) {
+  await tab.pressKey(null,'shift+Return')
+  if([6,7,8,16,24,40].includes(n)){
+   await snap();const m=await measure()
+   assert(m.value==='\n'.repeat(n) && m.selection===n && m.focused,'Native line breaks must keep text, selection and focus')
+   assert(m.height<=176 && m.max-m.scroll<=4 && m.pageScroll===0,'Caret remains at bottom without scrolling page')
+   newline.push(m)
+  }
+ }
+ await tab.pressKey(null,'x');await snap();assert((await measure()).value.endsWith('\nx'),'Typing after blank lines')
+ // A caret move creates a native undo boundary; typing then deleting can coalesce.
+ await tab.pressKey(null,'Left');await tab.pressKey(null,'Right');await snap()
+ await tab.pressKey(null,'BackSpace');await snap();assert(await text()==='\n'.repeat(40),'Native deletion adds no extra newline')
+ await tab.pressKey(null,'super+z');await snap();assert((await text()).endsWith('x'),'Native undo restores text')
+ await tab.pressKey(null,'super+shift+z');await snap();assert(await text()==='\n'.repeat(40),'Native redo restores blank line')
+ for(let i=0;i<40;i++)await tab.pressKey(null,'Left')
+ await tab.pressKey(null,'a');await snap();const start=await measure();assert(start.value.startsWith('a\n') && start.selection===1 && start.scroll<=4,'Editing first line stays at first line')
+ await tab.reload();await input.waitFor({state:'visible'});await snap();assert(await text()===start.value,'Multiline draft persists');const reopened=await measure();assert(reopened.selection===reopened.value.length && reopened.max-reopened.scroll<=4,'Restored long draft must reveal focused final caret')
+ await tab.pressKey(null,'F7');await tab.pressKey(null,'x');await snap()
+ assert(await tab.playwright.locator('body').getAttribute('data-storage-error')==='true' && (await text()).endsWith('x'),'Save failure keeps visible draft')
+ await tab.pressKey(null,'F8');await tab.pressKey(null,'y');await snap();const saved=await text();await tab.reload();await input.waitFor({state:'visible'});await snap();assert(await text()===saved,'Save recovery persists input')
+ await tab.pressKey(null,'F4');await snap();assert(await button('Send').getAttribute('data-pending')==='true' && await tab.playwright.locator('.send-spinner').count()===1,'Loading uses native pending feedback')
+ await tab.pressKey(null,'F5');await snap()
+ await go('command');assert((await text()).startsWith('/skill:commit ') && await tab.playwright.locator('.command-tag').count()===0,'Legacy command chip migrates to text')
+ await go('attachments');assert(await tab.playwright.locator('.attachment').count()===2,'Attachments retained');assert(await tab.playwright.evaluate(()=>document.querySelector('.attachments').getBoundingClientRect().bottom<=document.querySelector('.composer-input').getBoundingClientRect().top),'Attachments must occupy their own row above input')
+ await button('Remove LEARNING.md').click();await snap();assert(await tab.playwright.locator('.attachment').count()===1,'Individual removal')
+ await button('Review changes').click();await snap();await button('Replace draft').click();await snap();assert(await tab.playwright.locator('.attachment').count()===1,'Prompt replacement preserves attachments')
+ await go('running');assert(await button('Stop').isEnabled() && !(await button('Review changes').isEnabled()),'Streaming has stop and locks quick prompts')
+ await tab.pressKey(null,'F6');await snap();assert(await button('Send').isEnabled(),'Run completion restores send')
+ await tab.goto(`http://localhost:1420/design/review-composer/preview.html?state=empty&seed=narrow-${run}&width=320&theme=dark&palette=nord&lang=en`);await input.waitFor({state:'visible'});await snap()
+ const narrow=await tab.playwright.evaluate(()=>{const s=document.querySelector('.composer-shell').getBoundingClientRect();return {s:s.toJSON(),buttons:[...document.querySelectorAll('.composer-shell button')].map(e=>e.getBoundingClientRect().toJSON()),expanded:document.querySelector('.composer-input').hasAttribute('data-expanded')}})
+ assert(narrow.expanded && narrow.buttons.every(b=>b.left>=narrow.s.left && b.right<=narrow.s.right),'Narrow controls fit expanded layout')
+ await button('Session usage details').click();await snap();assert(await tab.playwright.getByRole('dialog',{name:'Session usage details'}).isVisible(),'Narrow usage details remain accessible')
+ await tab.pressKey(null,'Escape');await snap()
+ return {run,empty,review,appended,newline,start,narrow,slashAndModel:true,errorsRetainDraft:true,saveRecovery:true,attachments:true,runStates:true}
+}

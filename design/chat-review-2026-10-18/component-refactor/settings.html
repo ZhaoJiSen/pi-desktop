@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Settings verification</title></head><body><div id="root"></div>
+<script type="module">
+  // Keep all verification preferences separate from real app preferences.
+  let failStorage = false
+  const prefix = 'settings-component-review:'
+  Object.defineProperty(window, 'localStorage', { value: {
+    getItem: (key) => sessionStorage.getItem(prefix + key),
+    setItem(key, value) { if (failStorage) throw new Error('Storage unavailable'); sessionStorage.setItem(prefix + key, value) },
+    removeItem: (key) => sessionStorage.removeItem(prefix + key),
+  } })
+  const { useWorkspace } = await import('/src/store/workspace.ts')
+  const params = new URLSearchParams(location.search)
+  if (!sessionStorage.getItem(prefix + 'initialized')) {
+    useWorkspace.setState({ language: 'en', theme: 'light', palette: 'ink', activeSessionId: null, runningSessionId: null, connection: 'disconnected', piExecutable: 'pi', storageError: null })
+    sessionStorage.setItem(prefix + 'initialized', '1')
+  }
+  useWorkspace.getState().setPreference({ language: 'en' })
+  await import('/src/styles/vendor.css')
+  await import('/src/styles/index.scss')
+  const { createRoot } = await import('react-dom/client')
+  const { createElement } = await import('react')
+  const { SettingsPage } = await import('/src/pages/SettingsPage.tsx')
+  function theme() {
+    const state = useWorkspace.getState()
+    document.documentElement.dataset.theme = state.theme === 'system' ? 'light' : state.theme
+    document.documentElement.dataset.palette = state.palette
+  }
+  theme()
+  useWorkspace.subscribe(theme)
+  document.documentElement.style.zoom = params.get('zoom') || '1'
+  const style = document.createElement('style')
+  style.textContent = '#root { height: 100dvh; display:flex; background:var(--paper); }'
+  document.head.append(style)
+  document.addEventListener('keydown', event => {
+    if (event.key === 'F6') { event.preventDefault(); failStorage = true }
+    if (event.key === 'F5') { event.preventDefault(); failStorage = false; useWorkspace.setState({ storageError: null }) }
+    if (event.key === 'F4') { event.preventDefault(); useWorkspace.setState({ connection: 'connecting' }) }
+  })
+  createRoot(document.getElementById('root')).render(createElement(SettingsPage))
+</script></body></html>
