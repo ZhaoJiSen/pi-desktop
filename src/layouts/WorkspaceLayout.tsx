@@ -158,10 +158,12 @@ export function WorkspaceLayout() {
           <SidebarLayout
             className="workspace-surface"
             collapseAt={600}
+            collapsible
+            open={showSidebar}
             label={t('layout.resizeHome')}
             onWidthChange={setSidebarWidth}
             sidebar={
-              showSidebar && (
+              view === 'chat' ? (
                 <Sidebar
                   onNew={newChat}
                   onSearch={() => setSearchOpen(true)}
@@ -169,7 +171,7 @@ export function WorkspaceLayout() {
                   onRename={setRenameId}
                   onRemove={setRemoveId}
                 />
-              )
+              ) : undefined
             }
           >
             <section className="main" aria-label={t('sessions.current')}>

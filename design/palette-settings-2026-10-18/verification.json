@@ -1,0 +1,44 @@
+[
+  {
+    "run": 1,
+    "passed": true,
+    "result": {
+      "lightNames": 11,
+      "keyboardPreview": true,
+      "accentDefault": true,
+      "accentScope": true,
+      "separateModes": true,
+      "reload": true,
+      "systemChanges": true,
+      "storageFailure": true
+    }
+  },
+  {
+    "run": 2,
+    "passed": true,
+    "result": {
+      "lightNames": 11,
+      "keyboardPreview": true,
+      "accentDefault": true,
+      "accentScope": true,
+      "separateModes": true,
+      "reload": true,
+      "systemChanges": true,
+      "storageFailure": true
+    }
+  },
+  {
+    "run": 3,
+    "passed": true,
+    "result": {
+      "lightNames": 11,
+      "keyboardPreview": true,
+      "accentDefault": true,
+      "accentScope": true,
+      "separateModes": true,
+      "reload": true,
+      "systemChanges": true,
+      "storageFailure": true
+    }
+  }
+]

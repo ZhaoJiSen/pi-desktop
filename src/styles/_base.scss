@@ -38,10 +38,6 @@ textarea {
 .table-scroll {
   overscroll-behavior-x: none;
 }
-::selection {
-  background: #dda31338;
-  color: var(--ink);
-}
 * {
   scrollbar-width: thin;
   scrollbar-color: #949ba64d transparent;
@@ -84,7 +80,7 @@ svg {
   grid-template-columns: 48px minmax(0, 1fr);
   grid-template-rows: var(--header-height) minmax(0, 1fr);
   background: var(--ground);
-  border: 1px solid var(--frame);
+  border: 1px solid var(--shell-frame);
   border-radius: var(--radius-4xl, calc(var(--radius) * 4));
   overflow: hidden;
 }
@@ -99,6 +95,11 @@ svg {
   display: grid;
   grid-template-columns: calc(48px + var(--sidebar-width)) minmax(0, 1fr);
   user-select: none;
+  transition: grid-template-columns 280ms cubic-bezier(0.2, 0, 0, 1);
+}
+.app-shell[data-resizing='true'] .window-chrome,
+.split-pane[data-resizing='true'] {
+  transition: none;
 }
 .window-controls {
   display: flex;
@@ -119,6 +120,6 @@ svg {
   min-width: 0;
   min-height: 0;
   margin: 0 8px 8px 0;
-  border: 1px solid var(--line);
+  border: 1px solid var(--shell-line);
   border-radius: var(--radius-2xl);
 }

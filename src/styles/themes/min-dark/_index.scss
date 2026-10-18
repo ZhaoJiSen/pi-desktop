@@ -1,0 +1,9 @@
+@use 'light';
+@use 'dark';
+
+$palettes: (
+  'min-dark': (
+    light: light.$tokens,
+    dark: dark.$tokens,
+  ),
+);

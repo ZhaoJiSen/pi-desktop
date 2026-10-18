@@ -1,0 +1,48 @@
+[
+  {
+    "file": "ink.png",
+    "state": "ink",
+    "size": "1280x920",
+    "zoom": 1,
+    "animationWaitMs": 0,
+    "issues": [],
+    "lint": [
+      {
+        "rule": "longMeasure",
+        "label": "正文行太长",
+        "count": 1,
+        "examples": [
+          "p「TaskLab 现在的主线仍是 Go，停在「Gi」（每行约 49 字）"
+        ]
+      }
+    ]
+  },
+  {
+    "file": "solarized.png",
+    "state": "solarized",
+    "size": "1280x920",
+    "zoom": 1,
+    "animationWaitMs": 0,
+    "issues": [],
+    "lint": [
+      {
+        "rule": "contrastLow",
+        "label": "文字对比度不达标（正文低于 4.5:1，大字低于 3:1）",
+        "count": 34,
+        "examples": [
+          "h1「核对当前工作区改动」（3.96:1）",
+          "span.sidebar-title「Pi Desktop」（4.39:1）",
+          "button#react-aria8263216834-_r_p_.button.button--md「新聊天」（4.39:1）"
+        ]
+      },
+      {
+        "rule": "longMeasure",
+        "label": "正文行太长",
+        "count": 1,
+        "examples": [
+          "p「TaskLab 现在的主线仍是 Go，停在「Gi」（每行约 49 字）"
+        ]
+      }
+    ]
+  }
+]

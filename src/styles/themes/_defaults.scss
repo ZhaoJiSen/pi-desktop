@@ -1,0 +1,96 @@
+:root {
+  color-scheme: light;
+  --paper: #fff;
+  --sidebar: #f7f7f6;
+  // Navigation and window chrome form one quiet base beneath the reading canvas.
+  --ground: var(--sidebar);
+  --shell-line: color-mix(in srgb, var(--ink) 9%, var(--sidebar));
+  --shell-frame: color-mix(in srgb, var(--ink) 18%, var(--sidebar));
+  --ink: #252932;
+  --muted: #69717e;
+  --line: #eceef1;
+  --frame: #d0d4dd;
+  --amber: #dda313;
+  --mint: #237a43;
+  --hover: #eeefef;
+  --text-selection-bg: #ebeef3;
+  --selection: var(--hover);
+  --user: #f3f4f6;
+  --code-head: #f8f8f9;
+  --added: #eaf7ec;
+  --removed: #fcecef;
+  --danger: #b24c64;
+  --sidebar-width: 238px;
+  --header-height: 40px;
+  --body-inset: 26px;
+  --chat-width: 736px;
+  // HeroUI owns --radius and its scale; keep application surfaces on that scale.
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --surface: var(--paper);
+  --surface-foreground: var(--ink);
+  --default: var(--hover);
+  --accent: #2e3033;
+  --accent-foreground: #fff;
+  --accent-hover: color-mix(in srgb, var(--accent) 86%, var(--paper));
+  --focus: #8195b3;
+  --link: #3d6c99;
+  --syntax-keyword: #af3767;
+  --syntax-string: #9f4c67;
+  --syntax-function: #4772ae;
+  --status: #936b14;
+  --border: var(--line);
+  --chat-inline: var(--code-head);
+  --chat-table-head: var(--code-head);
+  --chat-line: var(--line);
+  --chat-tool-fill: transparent;
+  // Composer is a surface, the same idea as a HeroUI field: no stroke.
+  // Light lifts a white well off the page with shadow. Dark uses a lighter fill.
+  --composer-fill: var(--paper);
+  --composer-fill-hover: var(--paper);
+  --composer-control: var(--hover);
+  --composer-control-hover: color-mix(in srgb, var(--ink) 10%, var(--hover));
+  --composer-shadow:
+    0 0 1px 0 rgb(0 0 0 / 6%), 0 1px 2px 0 rgb(0 0 0 / 4%), 0 6px 18px 0 rgb(0 0 0 / 4%);
+  --composer-shadow-hover:
+    0 0 1px 0 rgb(0 0 0 / 8%), 0 2px 4px 0 rgb(0 0 0 / 5%), 0 8px 20px 0 rgb(0 0 0 / 5%);
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Segoe UI', sans-serif;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --paper: #202122;
+  --sidebar: #1b1c1d;
+  --ground: var(--sidebar);
+  --ink: #e2e4e8;
+  --muted: #a5adb9;
+  --line: #303337;
+  --frame: #494d55;
+  --hover: #303236;
+  --text-selection-bg: #33383f;
+  --selection: var(--hover);
+  --user: #2b2d30;
+  --code-head: #27292c;
+  --added: #203b2b;
+  --removed: #41292f;
+  --mint: #83c79a;
+  --danger: #efa4b2;
+  --accent: #e2e4e8;
+  --accent-foreground: #202122;
+  --link: #9cbae6;
+  --syntax-keyword: #e898bd;
+  --syntax-string: #e9a4b1;
+  --syntax-function: #9cbae6;
+  --status: #e1ba63;
+  // Reading surfaces and interaction boundaries need different contrast steps.
+  --chat-inline: color-mix(in srgb, var(--ink) 12%, var(--paper));
+  --chat-table-head: color-mix(in srgb, var(--ink) 9%, var(--paper));
+  --chat-line: color-mix(in srgb, var(--ink) 18%, var(--paper));
+  --chat-tool-fill: color-mix(in srgb, var(--ink) 3%, var(--paper));
+  --composer-fill: color-mix(in srgb, var(--ink) 9%, var(--paper));
+  --composer-fill-hover: color-mix(in srgb, var(--ink) 12%, var(--paper));
+  --composer-control: color-mix(in srgb, var(--ink) 10%, var(--composer-fill));
+  --composer-control-hover: color-mix(in srgb, var(--ink) 16%, var(--composer-fill));
+  --composer-shadow: 0 0 0 0 transparent;
+  --composer-shadow-hover: 0 0 0 0 transparent;
+}

@@ -1,0 +1,17 @@
+@use 'latte';
+@use 'mocha';
+@use 'frappe';
+@use 'macchiato';
+
+$palettes: (
+  'catppuccin': (
+    light: latte.$tokens,
+    dark: mocha.$tokens,
+  ),
+  'catppuccin-frappe': (
+    dark: frappe.$tokens,
+  ),
+  'catppuccin-macchiato': (
+    dark: macchiato.$tokens,
+  ),
+);

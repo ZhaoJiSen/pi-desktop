@@ -523,3 +523,63 @@ describe('recent chats', () => {
     expect(store.getState().projects.find((project) => project.id === home)?.hidden).toBe(false)
   })
 })
+
+describe('appearance preferences', () => {
+  it('migrates a legacy palette to both modes without dropping it', () => {
+    const storage = memoryStorage()
+    storage.setItem(
+      'pi-desktop-workspace-v1',
+      JSON.stringify({ version: 2, state: { theme: 'light', palette: 'min-dark' } }),
+    )
+    const store = createWorkspaceStore(storage)
+    expect(store.getState().palettesByMode).toEqual({ light: 'min-dark', dark: 'min-dark' })
+    expect(store.getState().accentOverrides).toEqual({})
+  })
+
+  it('restores separate themes and accents after restarting and resetting an accent', () => {
+    const storage = memoryStorage()
+    const store = createWorkspaceStore(storage)
+    store.getState().setPreference({ theme: 'light', palette: 'rose-pine' })
+    store.getState().setPreference({ accentOverrides: { 'light:rose-pine': 'teal' } })
+    store.getState().setPreference({ theme: 'dark', palette: 'tokyo-night' })
+    store
+      .getState()
+      .setPreference({
+        accentOverrides: { ...store.getState().accentOverrides, 'dark:tokyo-night': 'orange' },
+      })
+    store.getState().setPreference({ theme: 'light' })
+    expect(store.getState().palette).toBe('rose-pine')
+    const restored = createWorkspaceStore(storage)
+    expect(restored.getState().palettesByMode).toEqual({ light: 'rose-pine', dark: 'tokyo-night' })
+    expect(restored.getState().accentOverrides).toEqual({
+      'light:rose-pine': 'teal',
+      'dark:tokyo-night': 'orange',
+    })
+    restored.getState().setPreference({ accentOverrides: { 'dark:tokyo-night': 'orange' } })
+    expect(createWorkspaceStore(storage).getState().accentOverrides).toEqual({
+      'dark:tokyo-night': 'orange',
+    })
+  })
+
+  it('rejects unavailable saved themes, accents and unexpected override keys', () => {
+    const storage = memoryStorage()
+    storage.setItem(
+      'pi-desktop-workspace-v1',
+      JSON.stringify({
+        version: 2,
+        state: {
+          palette: 'ink',
+          palettesByMode: { light: 'missing', dark: 'solarized' },
+          accentOverrides: {
+            'dark:solarized': 'blue',
+            'light:ink': 'unknown',
+            'dark:missing': 'blue',
+          },
+        },
+      }),
+    )
+    const restored = createWorkspaceStore(storage)
+    expect(restored.getState().palettesByMode).toEqual({ light: 'ink', dark: 'solarized' })
+    expect(restored.getState().accentOverrides).toEqual({ 'dark:solarized': 'blue' })
+  })
+})

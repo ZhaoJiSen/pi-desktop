@@ -1,0 +1,13 @@
+@use 'light';
+@use 'dark';
+@use 'moon';
+
+$palettes: (
+  'rose-pine': (
+    light: light.$tokens,
+    dark: dark.$tokens,
+  ),
+  'rose-pine-moon': (
+    dark: moon.$tokens,
+  ),
+);

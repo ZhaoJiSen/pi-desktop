@@ -1,0 +1,399 @@
+--- src/styles/_theme.scss (before)
++++ src/styles/_theme.scss (after)
+@@ -4,8 +4,10 @@
+   color-scheme: light;
+   --paper: #fff;
+   --sidebar: #f7f7f6;
+-  // Activity rail and title bar. One step under the sidebar, same ink.
+-  --ground: #ececeb;
++  // Navigation and window chrome form one quiet base beneath the reading canvas.
++  --ground: var(--sidebar);
++  --shell-line: color-mix(in srgb, var(--ink) 9%, var(--sidebar));
++  --shell-frame: color-mix(in srgb, var(--ink) 18%, var(--sidebar));
+   --ink: #252932;
+   --muted: #69717e;
+   --line: #eceef1;
+@@ -60,7 +62,7 @@
+   color-scheme: dark;
+   --paper: #202122;
+   --sidebar: #1b1c1d;
+-  --ground: #121314;
++  --ground: var(--sidebar);
+   --ink: #e2e4e8;
+   --muted: #a5adb9;
+   --line: #303337;
+@@ -94,12 +96,3 @@
+ }
+ 
+ @include palette-tokens.themes;
+-
+-// Named palettes keep their published paper and sidebar.
+-// The shell is one step under that sidebar, so the rail does not fall back to ink.
+-:root[data-palette]:not([data-palette='ink']) {
+-  --ground: rgb(from var(--sidebar) calc(r - 11) calc(g - 11) calc(b - 11));
+-}
+-:root[data-theme='dark'][data-palette]:not([data-palette='ink']) {
+-  --ground: rgb(from var(--sidebar) calc(r - 9) calc(g - 9) calc(b - 9));
+-}
+--- src/styles/_palette-tokens.scss (before)
++++ src/styles/_palette-tokens.scss (after)
+@@ -6,7 +6,7 @@
+       paper: #fff,
+       sidebar: #f7f7f6,
+       ink: #252932,
+-      muted: #69717e,
++      muted: #646b78,
+       line: #eceef1,
+       frame: #d0d4dd,
+       hover: #eeefef,
+@@ -19,13 +19,13 @@
+       link: #3d6c99,
+       amber: #dda313,
+       mint: #237a43,
+-      danger: #b24c64,
++      danger: #ac4a61,
+       added: #eaf7ec,
+       removed: #fcecef,
+-      status: #936b14,
++      status: #8a6413,
+       syntax-keyword: #af3767,
+       syntax-string: #9f4c67,
+-      syntax-function: #4772ae,
++      syntax-function: #436ca4,
+     ),
+     dark: (
+       paper: #202122,
+@@ -58,7 +58,7 @@
+       paper: #fbf1c7,
+       sidebar: #f2e5bc,
+       ink: #3c3836,
+-      muted: #665c54,
++      muted: #655b53,
+       line: #d5c4a1,
+       frame: #bdae93,
+       hover: #ebdbb2,
+@@ -74,14 +74,14 @@
+       danger: #9d0006,
+       added: #e4e8b4,
+       removed: #f3d2be,
+-      status: #b57614,
++      status: #80530e,
+       syntax-keyword: #9d0006,
+-      syntax-string: #79740e,
+-      syntax-function: #076678,
++      syntax-string: #635f0b,
++      syntax-function: #076577,
+     ),
+     dark: (
+       paper: #282828,
+-      sidebar: #1d2021,
++      sidebar: #222222,
+       ink: #ebdbb2,
+       muted: #b9ac9b,
+       line: #3c3836,
+@@ -120,16 +120,16 @@
+       accent: #8839ef,
+       accent-foreground: #ffffff,
+       focus: #8839ef,
+-      link: #1e66f5,
++      link: #1d62ea,
+       amber: #df8e1d,
+-      mint: #40a02b,
+-      danger: #d20f39,
++      mint: #3a9027,
++      danger: #c40e35,
+       added: #d8f0df,
+       removed: #f6dbe3,
+-      status: #df8e1d,
+-      syntax-keyword: #8839ef,
+-      syntax-string: #40a02b,
+-      syntax-function: #1e66f5,
++      status: #895712,
++      syntax-keyword: #7e35de,
++      syntax-string: #2d701e,
++      syntax-function: #1a59d6,
+     ),
+     dark: (
+       paper: #1e1e2e,
+@@ -172,20 +172,20 @@
+       accent: #5e6ad2,
+       accent-foreground: #ffffff,
+       focus: #5e6ad2,
+-      link: #5b67cc,
++      link: #5a66ca,
+       amber: #f0bf00,
+       mint: #1e7e34,
+-      danger: #bc4646,
++      danger: #b04242,
+       added: #e3f3e6,
+       removed: #fbe4e4,
+-      status: #896700,
+-      syntax-keyword: #5965c8,
+-      syntax-string: #1e7e34,
+-      syntax-function: #5965c8,
++      status: #836200,
++      syntax-keyword: #535ebb,
++      syntax-string: #1c7631,
++      syntax-function: #535ebb,
+     ),
+     dark: (
+       paper: #0f1011,
+-      sidebar: #08090a,
++      sidebar: #0b0c0d,
+       ink: #f7f8f8,
+       muted: #a1a6af,
+       line: #23252a,
+@@ -224,20 +224,20 @@
+       accent: #5e81ac,
+       accent-foreground: #eceff4,
+       focus: #5e81ac,
+-      link: #5e81ac,
++      link: #4f6c90,
+       amber: #ebcb8b,
+-      mint: #a3be8c,
+-      danger: #bf616a,
++      mint: #6f815f,
++      danger: #924a51,
+       added: #dce8dc,
+       removed: #f3d9dc,
+-      status: #d08770,
+-      syntax-keyword: #5e81ac,
+-      syntax-string: #a3be8c,
+-      syntax-function: #81a1c1,
++      status: #825446,
++      syntax-keyword: #476282,
++      syntax-string: #56644a,
++      syntax-function: #4f6276,
+     ),
+     dark: (
+       paper: #2e3440,
+-      sidebar: #2e3440,
++      sidebar: #272d38,
+       ink: #d8dee9,
+       muted: #afb9c9,
+       line: #3b4252,
+@@ -266,7 +266,7 @@
+       paper: #fcfcfc,
+       sidebar: #f8f9fa,
+       ink: #5c6166,
+-      muted: #828e9f,
++      muted: #5d6571,
+       line: #ebeef0,
+       frame: #d3d7dc,
+       hover: #e8eaed,
+@@ -276,16 +276,16 @@
+       accent: #f29718,
+       accent-foreground: #1f2430,
+       focus: #f29718,
+-      link: #f29718,
++      link: #a16510,
+       amber: #eba400,
+-      mint: #86b300,
+-      danger: #e65050,
++      mint: #698c00,
++      danger: #b03d3d,
+       added: #e5f0d4,
+       removed: #f8e0dc,
+-      status: #eba400,
+-      syntax-keyword: #fa8532,
+-      syntax-string: #86b300,
+-      syntax-function: #eba400,
++      status: #865d00,
++      syntax-keyword: #99511f,
++      syntax-string: #516d00,
++      syntax-function: #865d00,
+     ),
+     dark: (
+       paper: #10141c,
+@@ -318,7 +318,7 @@
+       paper: #fafafa,
+       sidebar: #f0f0f0,
+       ink: #383a42,
+-      muted: #696c77,
++      muted: #646671,
+       line: #e5e5e6,
+       frame: #c8c9cc,
+       hover: #f0f0f0,
+@@ -328,16 +328,16 @@
+       accent: #4078f2,
+       accent-foreground: #ffffff,
+       focus: #4078f2,
+-      link: #4078f2,
++      link: #396cd9,
+       amber: #c18401,
+-      mint: #50a14f,
+-      danger: #e45649,
++      mint: #499348,
++      danger: #b04238,
+       added: #e3f3e3,
+       removed: #fbe4e2,
+-      status: #986801,
++      status: #8a5f01,
+       syntax-keyword: #a626a4,
+-      syntax-string: #50a14f,
+-      syntax-function: #4078f2,
++      syntax-string: #397338,
++      syntax-function: #3462c6,
+     ),
+     dark: (
+       paper: #282c34,
+@@ -370,7 +370,7 @@
+       paper: #ffffff,
+       sidebar: #f6f6f6,
+       ink: #212121,
+-      muted: #757575,
++      muted: #6a6a6a,
+       line: #e9e9e9,
+       frame: #d0d0d0,
+       hover: #eeeeee,
+@@ -380,15 +380,15 @@
+       accent: #757575,
+       accent-foreground: #ffffff,
+       focus: #d0d0d0,
+-      link: #1976d2,
++      link: #1975d0,
+       amber: #ff9800,
+       mint: #22863a,
+-      danger: #d32f2f,
++      danger: #c82d2d,
+       added: #e8f5e9,
+       removed: #fdecea,
+-      status: #cd9731,
+-      syntax-keyword: #d32f2f,
+-      syntax-string: #22863a,
++      status: #886420,
++      syntax-keyword: #c82d2d,
++      syntax-string: #1f7935,
+       syntax-function: #6f42c1,
+     ),
+     dark: (
+@@ -421,8 +421,8 @@
+     light: (
+       paper: #fdf6e3,
+       sidebar: #eee8d5,
+-      ink: #586e75,
+-      muted: #5e727a,
++      ink: #52666d,
++      muted: #54666d,
+       line: #ded7c4,
+       frame: #b4b4a5,
+       hover: #eee8d5,
+@@ -438,10 +438,10 @@
+       danger: #b32c32,
+       added: #e4ebcf,
+       removed: #f5ded4,
+-      status: #8a6500,
++      status: #805d00,
+       syntax-keyword: #a74507,
+-      syntax-string: #527000,
+-      syntax-function: #176b9a,
++      syntax-string: #4f6c00,
++      syntax-function: #166896,
+     ),
+     dark: (
+       paper: #002b36,
+@@ -474,7 +474,7 @@
+       paper: #faf4ed,
+       sidebar: #f2e9e1,
+       ink: #575279,
+-      muted: #696580,
++      muted: #64617a,
+       line: #dfdad9,
+       frame: #b9b0bc,
+       hover: #f2e9e1,
+@@ -487,13 +487,13 @@
+       link: #286983,
+       amber: #99621d,
+       mint: #286983,
+-      danger: #a0586d,
++      danger: #915063,
+       added: #e2ece5,
+       removed: #f4dfe2,
+-      status: #99621d,
+-      syntax-keyword: #7d6a93,
++      status: #8b591a,
++      syntax-keyword: #6e5d81,
+       syntax-string: #286983,
+-      syntax-function: #a65b70,
++      syntax-function: #925062,
+     ),
+     dark: (
+       paper: #191724,
+@@ -526,7 +526,7 @@
+       paper: #e1e2e7,
+       sidebar: #d5d6db,
+       ink: #343b58,
+-      muted: #565f89,
++      muted: #515981,
+       line: #c4c8da,
+       frame: #9aa5ce,
+       hover: #d5d6db,
+@@ -542,7 +542,7 @@
+       danger: #8c4351,
+       added: #cfdfd3,
+       removed: #e8d1d6,
+-      status: #885914,
++      status: #7e5213,
+       syntax-keyword: #5a4a78,
+       syntax-string: #33635c,
+       syntax-function: #34548a,
+@@ -580,6 +580,9 @@
+     @each $mode, $tokens in $modes {
+       :root[data-theme='#{$mode}'][data-palette='#{$palette}'],
+       .palette-preview[data-theme='#{$mode}'][data-palette='#{$palette}'] {
++        --ground: var(--sidebar);
++        --shell-line: color-mix(in srgb, var(--ink) 9%, var(--sidebar));
++        --shell-frame: color-mix(in srgb, var(--ink) 18%, var(--sidebar));
+         @each $token, $value in $tokens {
+           --#{$token}: #{$value};
+         }
+--- src/styles/_base.scss (before)
++++ src/styles/_base.scss (after)
+@@ -86,7 +86,7 @@
+   grid-template-columns: 48px minmax(0, 1fr);
+   grid-template-rows: var(--header-height) minmax(0, 1fr);
+   background: var(--ground);
+-  border: 1px solid var(--frame);
++  border: 1px solid var(--shell-frame);
+   border-radius: var(--radius-4xl, calc(var(--radius) * 4));
+   overflow: hidden;
+ }
+@@ -126,6 +126,6 @@
+   min-width: 0;
+   min-height: 0;
+   margin: 0 8px 8px 0;
+-  border: 1px solid var(--line);
++  border: 1px solid var(--shell-line);
+   border-radius: var(--radius-2xl);
+ }
+--- src/styles/_sidebar-layout.scss (before)
++++ src/styles/_sidebar-layout.scss (after)
+@@ -14,8 +14,16 @@
+   }
+ 
+   // The session list meets the conversation on this line only.
++  &[data-split-active='true'][data-collapsible='true'] > .split-pane-side {
++    border-right-color: var(--shell-line);
++  }
++
++  &[data-split-active='true'][data-collapsible='true'] > .split-pane-side {
++    border-right-color: var(--shell-line);
++  }
++
+   &[data-split-active='true']:not([data-collapsible='true']) > :first-child {
+-    border-right: 1px solid var(--line);
++    border-right: 1px solid var(--shell-line);
+   }
+ }
+ 
+--- src/styles/_appearance.scss (before)
++++ src/styles/_appearance.scss (after)
+@@ -14,7 +14,7 @@
+   gap: 7px;
+   padding: 13px 7px;
+   background: var(--sidebar);
+-  border-right: 1px solid var(--line);
++  border-right: 1px solid var(--shell-line);
+   i {
+     height: 4px;
+     border-radius: 2px;

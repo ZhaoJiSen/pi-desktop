@@ -1,6 +1,14 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist, type StateStorage } from 'zustand/middleware'
 import { palettes, type Palette } from '../types'
+import {
+  resolveColorMode,
+  systemIsDark,
+  restoreModePalettes,
+  restoreAccentOverrides,
+  type ModePalettes,
+  type AccentOverrides,
+} from '../lib/appearance'
 import type {
   ExtensionPackage,
   Model,
@@ -32,6 +40,8 @@ interface WorkspaceState {
   recentCollapsed: boolean
   theme: Theme
   palette: Palette
+  palettesByMode: ModePalettes
+  accentOverrides: AccentOverrides
   language: Language
   languageSource: 'system' | 'user'
   autoReloadAfterToggle: boolean
@@ -75,6 +85,8 @@ interface WorkspaceState {
         WorkspaceState,
         | 'theme'
         | 'palette'
+        | 'palettesByMode'
+        | 'accentOverrides'
         | 'language'
         | 'piExecutable'
         | 'autoReloadAfterUpdate'
@@ -115,6 +127,8 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
         autoReloadAfterToggle: true,
         theme: 'system',
         palette: 'ink',
+        palettesByMode: { light: 'ink', dark: 'ink' },
+        accentOverrides: {},
         language: browserLanguage(),
         languageSource: 'system',
         piExecutable: 'pi',
@@ -339,11 +353,23 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
             recentModels: [key, ...state.recentModels.filter((item) => item !== key)].slice(0, 8),
           })),
         setPreference: (patch) =>
-          set({ ...patch, ...(patch.language ? { languageSource: 'user' as const } : {}) }),
+          set((state) => {
+            const mode = resolveColorMode(patch.theme ?? state.theme, systemIsDark())
+            const palettesByMode = {
+              ...(patch.palettesByMode ?? state.palettesByMode),
+              ...(patch.palette ? { [mode]: patch.palette } : {}),
+            }
+            return {
+              ...patch,
+              palettesByMode,
+              palette: palettesByMode[mode],
+              ...(patch.language ? { languageSource: 'user' as const } : {}),
+            }
+          }),
       }),
       {
         name: preview ? 'pi-desktop-preview-v1' : 'pi-desktop-workspace-v1',
-        version: 2,
+        version: 3,
         storage: createJSONStorage(() => guardedStorage),
         partialize: (state) => ({
           projects: state.projects,
@@ -354,6 +380,8 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
           recentCollapsed: state.recentCollapsed,
           theme: state.theme,
           palette: state.palette,
+          palettesByMode: state.palettesByMode,
+          accentOverrides: state.accentOverrides,
           language: state.language,
           languageSource: state.languageSource,
           piExecutable: state.piExecutable,
@@ -387,10 +415,14 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
           const palette = palettes.includes(saved?.palette as Palette)
             ? (saved?.palette as Palette)
             : current.palette
+          const palettesByMode = restoreModePalettes(saved?.palettesByMode, palette)
           return {
             ...current,
             ...saved,
-            palette,
+            palette:
+              palettesByMode[resolveColorMode(saved?.theme ?? current.theme, systemIsDark())],
+            palettesByMode,
+            accentOverrides: restoreAccentOverrides(saved?.accentOverrides),
             language:
               languageSource === 'user' && validLanguage ? saved.language! : current.language,
             languageSource,

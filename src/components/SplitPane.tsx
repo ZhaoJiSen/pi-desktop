@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { Children, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { useT } from '../lib/i18n'
 
 interface Props {
@@ -13,6 +13,8 @@ interface Props {
   maxWidth?: number
   collapseAt: number
   enabled?: boolean
+  collapsible?: boolean
+  open?: boolean
   label: string
   onWidthChange?: (width: number) => void
 }
@@ -30,6 +32,8 @@ export function SplitPane({
   maxWidth = 480,
   collapseAt,
   enabled = true,
+  collapsible = false,
+  open = true,
   label,
   onWidthChange,
 }: Props) {
@@ -39,7 +43,8 @@ export function SplitPane({
   const [dragging, setDragging] = useState(false)
   const [availableWidth, setAvailableWidth] = useState<number | null>(null)
   const [narrow, setNarrow] = useState(() => matchMedia(`(max-width: ${collapseAt}px)`).matches)
-  const active = enabled && !narrow
+  const active = enabled && !narrow && open
+  const clip = collapsible && enabled && !narrow
   const maximum = Math.max(
     minWidth,
     Math.min(maxWidth, availableWidth == null ? maxWidth : availableWidth - minContentWidth),
@@ -61,23 +66,62 @@ export function SplitPane({
   useEffect(() => {
     if (active) onWidthChange?.(width)
   }, [active, width, onWidthChange])
+  useEffect(() => {
+    const shell = container.current?.closest('.app-shell')
+    if (!shell) return
+    if (dragging) shell.setAttribute('data-resizing', 'true')
+    else shell.removeAttribute('data-resizing')
+    return () => shell.removeAttribute('data-resizing')
+  }, [dragging])
+  useEffect(() => {
+    if (open || narrow) return
+    const side = container.current?.querySelector('.split-pane-side')
+    if (side?.contains(document.activeElement)) (document.activeElement as HTMLElement).blur()
+  }, [open, narrow])
+
+  const nodes = Children.toArray(children)
+  const hideSide = collapsible && enabled && !open && narrow
+  const side = hideSide ? null : nodes[0]
+  const main = collapsible ? nodes.slice(1) : null
 
   return (
     <div
       ref={container}
       className={`split-pane ${className}`}
       data-split-active={active || undefined}
+      data-collapsible={clip || undefined}
       data-resizing={(active && dragging) || undefined}
       style={
-        active
+        clip
           ? ({
-              '--split-width': `${width}px`,
+              '--split-width': open ? `${width}px` : '0px',
+              '--split-open': `${width}px`,
               gridTemplateColumns: 'var(--split-width) minmax(0, 1fr)',
             } as CSSProperties)
-          : undefined
+          : active
+            ? ({
+                '--split-width': `${width}px`,
+                gridTemplateColumns: 'var(--split-width) minmax(0, 1fr)',
+              } as CSSProperties)
+            : undefined
       }
     >
-      {children}
+      {clip ? (
+        <>
+          <div
+            className="split-pane-side"
+            inert={open ? undefined : true}
+            aria-hidden={open ? undefined : true}
+          >
+            {side}
+          </div>
+          {main}
+        </>
+      ) : hideSide ? (
+        main
+      ) : (
+        children
+      )}
       {active && (
         <div
           className="split-pane-handle"
@@ -96,6 +140,7 @@ export function SplitPane({
             event.currentTarget.focus()
             event.currentTarget.setPointerCapture(event.pointerId)
             drag.current = { pointer: event.pointerId, x: event.clientX, width }
+            container.current?.closest('.app-shell')?.setAttribute('data-resizing', 'true')
             setDragging(true)
           }}
           onPointerMove={(event) => {

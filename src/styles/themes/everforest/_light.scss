@@ -1,0 +1,28 @@
+// everforest / light: upstream colors adapted to Pi reading surfaces.
+// Sources: design/theme-expansion-2026-10-18/notes.md.
+$tokens: (
+  paper: #fdf6e3,
+  sidebar: #f4f0d9,
+  ink: #59676f,
+  muted: #5b685f,
+  line: #e6e2cc,
+  frame: #bdc3af,
+  hover: #efebd4,
+  user: #f0edd8,
+  code-head: #f4f0d9,
+  selection: #e6e2cc,
+  accent: #5f7626,
+  accent-foreground: #ffffff,
+  focus: #5f7626,
+  link: #2a6b8f,
+  amber: #dfa000,
+  mint: #778801,
+  danger: #b23d3b,
+  added: #f0f1d2,
+  removed: #fde3da,
+  status: #835f00,
+  syntax-keyword: #b23d3b,
+  syntax-string: #5f6c01,
+  syntax-function: #2a6b8f,
+  text-selection-bg: #eae9d2,
+);

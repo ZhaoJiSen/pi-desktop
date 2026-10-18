@@ -1,0 +1,34 @@
+@use 'sass:map';
+@use 'ink';
+@use 'gruvbox';
+@use 'everforest';
+@use 'catppuccin';
+@use 'linear';
+@use 'nord';
+@use 'ayu';
+@use 'one-dark';
+@use 'min-dark';
+@use 'solarized';
+@use 'rose-pine';
+@use 'tokyo-night';
+
+// Preserve palette order and generate one shared source for live UI and previews.
+$palettes: ();
+@each $family
+    in (
+      ink.$palettes,
+      gruvbox.$palettes,
+      everforest.$palettes,
+      catppuccin.$palettes,
+      linear.$palettes,
+      nord.$palettes,
+      ayu.$palettes,
+      one-dark.$palettes,
+      min-dark.$palettes,
+      solarized.$palettes,
+      rose-pine.$palettes,
+      tokyo-night.$palettes
+    )
+{
+  $palettes: map.merge($palettes, $family);
+}

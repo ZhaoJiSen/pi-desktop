@@ -1,0 +1,101 @@
+[
+  {
+    "palette": "ink",
+    "body": 12.669,
+    "secondary": 7.126,
+    "placeholder": 5.63,
+    "focused_placeholder": 5.16,
+    "code_surface": 1.202,
+    "syntax_min": 5.609
+  },
+  {
+    "palette": "gruvbox",
+    "body": 10.747,
+    "secondary": 6.625,
+    "placeholder": 5.256,
+    "focused_placeholder": 4.84,
+    "code_surface": 1.202,
+    "syntax_min": 4.632
+  },
+  {
+    "palette": "catppuccin",
+    "body": 11.341,
+    "secondary": 7.367,
+    "placeholder": 5.939,
+    "focused_placeholder": 5.48,
+    "code_surface": 1.305,
+    "syntax_min": 5.544
+  },
+  {
+    "palette": "linear",
+    "body": 17.902,
+    "secondary": 7.79,
+    "placeholder": 6.29,
+    "focused_placeholder": 5.736,
+    "code_surface": 1.167,
+    "syntax_min": 4.682
+  },
+  {
+    "palette": "nord",
+    "body": 9.245,
+    "secondary": 6.308,
+    "placeholder": 4.994,
+    "focused_placeholder": 4.61,
+    "code_surface": 1.241,
+    "syntax_min": 4.64
+  },
+  {
+    "palette": "ayu",
+    "body": 9.808,
+    "secondary": 5.769,
+    "placeholder": 4.915,
+    "focused_placeholder": 4.607,
+    "code_surface": 1.129,
+    "syntax_min": 6.632
+  },
+  {
+    "palette": "one-dark",
+    "body": 8.001,
+    "secondary": 6.006,
+    "placeholder": 4.918,
+    "focused_placeholder": 4.586,
+    "code_surface": 1.173,
+    "syntax_min": 4.616
+  },
+  {
+    "palette": "min-dark",
+    "body": 12.486,
+    "secondary": 6.303,
+    "placeholder": 5.02,
+    "focused_placeholder": 4.61,
+    "code_surface": 1.197,
+    "syntax_min": 4.991
+  },
+  {
+    "palette": "solarized",
+    "body": 8.002,
+    "secondary": 6.039,
+    "placeholder": 5.046,
+    "focused_placeholder": 4.731,
+    "code_surface": 1.144,
+    "syntax_min": 4.778
+  },
+  {
+    "palette": "rose-pine",
+    "body": 13.389,
+    "secondary": 7.05,
+    "placeholder": 5.693,
+    "focused_placeholder": 5.234,
+    "code_surface": 1.176,
+    "syntax_min": 6.147
+  },
+  {
+    "palette": "tokyo-night",
+    "body": 10.587,
+    "secondary": 7.038,
+    "placeholder": 5.787,
+    "focused_placeholder": 5.371,
+    "code_surface": 1.158,
+    "syntax_min": 4.984
+  }
+]

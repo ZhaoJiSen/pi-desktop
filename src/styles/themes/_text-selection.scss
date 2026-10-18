@@ -1,0 +1,22 @@
+// Opaque theme colors keep selections consistent across paper, code and input surfaces.
+::selection {
+  background: var(--text-selection-bg);
+  color: var(--ink);
+  text-shadow: none;
+}
+
+// Retain syntax hues with enough reading contrast against the selection surface.
+.syntax-keyword::selection {
+  color: color-mix(in srgb, var(--syntax-keyword) 55%, var(--ink));
+}
+.syntax-string::selection,
+.syntax-attr-value::selection {
+  color: color-mix(in srgb, var(--syntax-string) 55%, var(--ink));
+}
+.syntax-function::selection,
+.syntax-class-name::selection {
+  color: color-mix(in srgb, var(--syntax-function) 55%, var(--ink));
+}
+.syntax-comment::selection {
+  color: color-mix(in srgb, var(--muted) 55%, var(--ink));
+}

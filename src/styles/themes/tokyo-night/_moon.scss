@@ -1,0 +1,28 @@
+// tokyo-night / moon: upstream colors adapted to Pi reading surfaces.
+// Sources: design/theme-expansion-2026-10-18/notes.md.
+$tokens: (
+  paper: #222436,
+  sidebar: #1e2030,
+  ink: #c8d3f5,
+  muted: #b1bad8,
+  line: #2f334d,
+  frame: #444a73,
+  hover: #2f334d,
+  user: #35394e,
+  code-head: #2f3349,
+  selection: #3e4b73,
+  accent: #82aaff,
+  accent-foreground: #222436,
+  focus: #82aaff,
+  link: #9abaff,
+  amber: #ffc777,
+  mint: #c3e88d,
+  danger: #ffa0a7,
+  added: #2b4036,
+  removed: #49313f,
+  status: #ffc777,
+  syntax-keyword: #ccacff,
+  syntax-string: #c3e88d,
+  syntax-function: #9abaff,
+  text-selection-bg: #353f5e,
+);

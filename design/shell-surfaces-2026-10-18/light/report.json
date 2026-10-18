@@ -1,0 +1,38 @@
+[
+  {
+    "file": "tokyo-night.png",
+    "state": "tokyo-night",
+    "size": "1280x920",
+    "zoom": 1,
+    "animationWaitMs": 0,
+    "issues": [],
+    "lint": [
+      {
+        "rule": "longMeasure",
+        "label": "正文行太长",
+        "count": 1,
+        "examples": [
+          "p「TaskLab 现在的主线仍是 Go，停在「Gi」（每行约 49 字）"
+        ]
+      }
+    ]
+  },
+  {
+    "file": "ink.png",
+    "state": "ink",
+    "size": "1280x920",
+    "zoom": 1,
+    "animationWaitMs": 0,
+    "issues": [],
+    "lint": [
+      {
+        "rule": "longMeasure",
+        "label": "正文行太长",
+        "count": 1,
+        "examples": [
+          "p「TaskLab 现在的主线仍是 Go，停在「Gi」（每行约 49 字）"
+        ]
+      }
+    ]
+  }
+]

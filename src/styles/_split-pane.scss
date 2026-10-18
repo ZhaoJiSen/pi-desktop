@@ -4,6 +4,27 @@
   min-width: 0;
   min-height: 0;
 }
+.split-pane[data-collapsible='true'] {
+  transition: grid-template-columns 280ms cubic-bezier(0.2, 0, 0, 1);
+}
+.split-pane-side {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid transparent;
+  transition: border-color 280ms cubic-bezier(0.2, 0, 0, 1);
+}
+.split-pane[data-collapsible='true'][data-split-active='true'] > .split-pane-side {
+  border-right-color: var(--line);
+}
+.split-pane[data-collapsible='true'] .split-pane-side > :first-child {
+  width: var(--split-open);
+  min-width: var(--split-open);
+  flex: 1;
+  min-height: 0;
+}
 .split-pane-handle {
   position: absolute;
   z-index: 30;

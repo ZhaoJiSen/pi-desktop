@@ -1,0 +1,30 @@
+[
+  {
+    "palette": "catppuccin",
+    "mode": "light",
+    "role": "mint",
+    "before": "#40a02b",
+    "after": "#3a9027"
+  },
+  {
+    "palette": "nord",
+    "mode": "light",
+    "role": "mint",
+    "before": "#a3be8c",
+    "after": "#6f815f"
+  },
+  {
+    "palette": "ayu",
+    "mode": "light",
+    "role": "mint",
+    "before": "#86b300",
+    "after": "#698c00"
+  },
+  {
+    "palette": "one-dark",
+    "mode": "light",
+    "role": "mint",
+    "before": "#50a14f",
+    "after": "#499348"
+  }
+]

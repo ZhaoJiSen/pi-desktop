@@ -14,8 +14,16 @@
   }
 
   // The session list meets the conversation on this line only.
-  &[data-split-active='true'] > :first-child {
-    border-right: 1px solid var(--line);
+  &[data-split-active='true'][data-collapsible='true'] > .split-pane-side {
+    border-right-color: var(--shell-line);
+  }
+
+  &[data-split-active='true'][data-collapsible='true'] > .split-pane-side {
+    border-right-color: var(--shell-line);
+  }
+
+  &[data-split-active='true']:not([data-collapsible='true']) > :first-child {
+    border-right: 1px solid var(--shell-line);
   }
 }
 

@@ -1,0 +1,9 @@
+@use 'light';
+@use 'dark';
+
+$palettes: (
+  'one-dark': (
+    light: light.$tokens,
+    dark: dark.$tokens,
+  ),
+);

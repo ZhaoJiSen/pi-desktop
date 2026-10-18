@@ -1,0 +1,9 @@
+@use 'light';
+@use 'dark';
+
+$palettes: (
+  'solarized': (
+    light: light.$tokens,
+    dark: dark.$tokens,
+  ),
+);

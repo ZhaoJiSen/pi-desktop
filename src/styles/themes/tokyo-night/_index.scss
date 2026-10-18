@@ -1,0 +1,17 @@
+@use 'light';
+@use 'dark';
+@use 'storm';
+@use 'moon';
+
+$palettes: (
+  'tokyo-night': (
+    light: light.$tokens,
+    dark: dark.$tokens,
+  ),
+  'tokyo-night-storm': (
+    dark: storm.$tokens,
+  ),
+  'tokyo-night-moon': (
+    dark: moon.$tokens,
+  ),
+);

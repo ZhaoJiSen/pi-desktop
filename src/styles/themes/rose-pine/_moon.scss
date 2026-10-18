@@ -1,0 +1,28 @@
+// rose-pine / moon: upstream colors adapted to Pi reading surfaces.
+// Sources: design/theme-expansion-2026-10-18/notes.md.
+$tokens: (
+  paper: #232136,
+  sidebar: #1f1d30,
+  ink: #e0def4,
+  muted: #bebacf,
+  line: #393552,
+  frame: #56526e,
+  hover: #393552,
+  user: #3a3651,
+  code-head: #35314b,
+  selection: #44415a,
+  accent: #c4a7e7,
+  accent-foreground: #232136,
+  focus: #c4a7e7,
+  link: #9ccfd8,
+  amber: #f6c177,
+  mint: #9ccfd8,
+  danger: #f3a7bc,
+  added: #2d3e42,
+  removed: #49313f,
+  status: #f6c177,
+  syntax-keyword: #cbb2ea,
+  syntax-string: #f6c177,
+  syntax-function: #eeaca9,
+  text-selection-bg: #433c59,
+);

@@ -1,0 +1,28 @@
+// catppuccin / frappe: semantic colors shared by the workspace and previews.
+$tokens: (
+  paper: #303446,
+  sidebar: #292c3c,
+  ink: #c6d0f5,
+  muted: #b5bfe2,
+  line: #414559,
+  frame: #51576d,
+  hover: #414559,
+  user: #43475b,
+  // Keep official syntax colors legible on Frappé's brighter reading plane.
+  code-head: #393d51,
+  text-selection-bg: #4b4561,
+  selection: #51576d,
+  accent: #ca9ee6,
+  accent-foreground: #303446,
+  focus: #ca9ee6,
+  link: #8caaee,
+  amber: #e5c890,
+  mint: #a6d189,
+  danger: #e78284,
+  added: #35473e,
+  removed: #503a45,
+  status: #e5c890,
+  syntax-keyword: #ca9ee6,
+  syntax-string: #a6d189,
+  syntax-function: #8caaee,
+);

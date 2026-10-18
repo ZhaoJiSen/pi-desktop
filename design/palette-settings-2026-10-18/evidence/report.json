@@ -1,0 +1,230 @@
+[
+  {
+    "file": "light-1280x720.png",
+    "state": "light",
+    "size": "1280x720",
+    "zoom": 1,
+    "animationWaitMs": 576,
+    "issues": [],
+    "lint": []
+  },
+  {
+    "file": "dark-1280x720.png",
+    "state": "dark",
+    "size": "1280x720",
+    "zoom": 1,
+    "animationWaitMs": 0,
+    "issues": [],
+    "lint": []
+  },
+  {
+    "file": "system-1280x720.png",
+    "state": "system",
+    "size": "1280x720",
+    "zoom": 1,
+    "animationWaitMs": 0,
+    "issues": [],
+    "lint": []
+  },
+  {
+    "file": "light-640x860.png",
+    "state": "light",
+    "size": "640x860",
+    "zoom": 1,
+    "animationWaitMs": 0,
+    "issues": [],
+    "lint": []
+  },
+  {
+    "file": "dark-640x860.png",
+    "state": "dark",
+    "size": "640x860",
+    "zoom": 1,
+    "animationWaitMs": 0,
+    "issues": [],
+    "lint": []
+  },
+  {
+    "file": "system-640x860.png",
+    "state": "system",
+    "size": "640x860",
+    "zoom": 1,
+    "animationWaitMs": 0,
+    "issues": [],
+    "lint": []
+  },
+  {
+    "file": "light-1280x720-@2x.png",
+    "state": "light",
+    "size": "1280x720",
+    "zoom": 2,
+    "animationWaitMs": 19,
+    "issues": [],
+    "lint": []
+  },
+  {
+    "file": "light-640x860-@2x.png",
+    "state": "light",
+    "size": "640x860",
+    "zoom": 2,
+    "animationWaitMs": 0,
+    "issues": [],
+    "lint": []
+  },
+  {
+    "file": "motion-probe-picker",
+    "state": "light",
+    "size": "1280x720",
+    "zoom": 1,
+    "group": "picker",
+    "motion": {
+      "load": {
+        "elements": 1,
+        "loops": 0,
+        "maxMove": 5,
+        "maxSize": 0,
+        "maxOpacity": 0.95,
+        "top": [
+          {
+            "el": "div.utility-view.settings-view",
+            "move": 5,
+            "size": 0,
+            "opacity": 0.95,
+            "loop": false,
+            "sources": [
+              "js:style",
+              "waapi"
+            ]
+          }
+        ]
+      },
+      "steps": {
+        "elements": 2,
+        "loops": 0,
+        "maxMove": 54,
+        "maxSize": 0.111,
+        "maxOpacity": 1,
+        "top": [
+          {
+            "el": "div.popover.settings-palette-popover",
+            "move": 54,
+            "size": 0.111,
+            "opacity": 1,
+            "loop": false,
+            "sources": [
+              "js:style",
+              "css:enter"
+            ]
+          },
+          {
+            "el": "button#react-aria40352794-_r_a_.button.button--md",
+            "move": 3,
+            "size": 0.03,
+            "opacity": 0,
+            "loop": false,
+            "sources": [
+              "js:style",
+              "transition:transform"
+            ]
+          }
+        ]
+      },
+      "hero": {
+        "elements": 0,
+        "loops": 0,
+        "maxMove": 0,
+        "maxSize": 0,
+        "maxOpacity": 0,
+        "top": [],
+        "layers": 0
+      },
+      "scroll": {
+        "elements": 0,
+        "loops": 0,
+        "maxMove": 0,
+        "maxSize": 0,
+        "maxOpacity": 0,
+        "top": [],
+        "scrollable": false
+      }
+    },
+    "issues": []
+  },
+  {
+    "file": "motion-entry-end.jpg",
+    "state": "light",
+    "size": "1280x720",
+    "zoom": 1,
+    "group": "entry",
+    "issues": [],
+    "frames": {
+      "start": {
+        "file": "motion-entry-start.jpg",
+        "source": "Page.screencastFrame",
+        "timeMs": 360
+      },
+      "mid": {
+        "file": "motion-entry-mid.jpg",
+        "source": "Page.screencastFrame",
+        "timeMs": 425
+      },
+      "end": {
+        "file": "motion-entry-end.jpg",
+        "source": "Page.captureScreenshot",
+        "timeMs": 1691
+      }
+    },
+    "sampling": {
+      "mode": "entry"
+    },
+    "durationMs": 1691,
+    "consistency": {
+      "status": "matched",
+      "reference": "motion-entry-end.jpg",
+      "different": false,
+      "changedPixels": 0,
+      "maxTilePixels": 0,
+      "pixelRatio": 0
+    }
+  },
+  {
+    "file": "motion-picker-end.jpg",
+    "state": "light",
+    "size": "1280x720",
+    "zoom": 1,
+    "group": "picker",
+    "issues": [],
+    "frames": {
+      "start": {
+        "file": "motion-picker-start.jpg",
+        "source": "Page.captureScreenshot",
+        "timeMs": 558
+      },
+      "mid": {
+        "file": "motion-picker-mid.jpg",
+        "source": "Page.screencastFrame",
+        "timeMs": 705
+      },
+      "end": {
+        "file": "motion-picker-end.jpg",
+        "source": "Page.captureScreenshot",
+        "timeMs": 1920
+      }
+    },
+    "sampling": {
+      "mode": "action",
+      "step": 1,
+      "action": "click",
+      "raw": "click .settings-palette-trigger"
+    },
+    "durationMs": 1920,
+    "consistency": {
+      "status": "matched",
+      "reference": "motion-picker-end.jpg",
+      "different": false,
+      "changedPixels": 0,
+      "maxTilePixels": 0,
+      "pixelRatio": 0
+    }
+  }
+]

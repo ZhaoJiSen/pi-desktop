@@ -3,12 +3,21 @@ export type Theme = 'light' | 'dark' | 'system'
 export const palettes = [
   'ink',
   'gruvbox',
+  'everforest',
+  'catppuccin-frappe',
+  'catppuccin-macchiato',
   'catppuccin',
   'linear',
   'nord',
   'ayu',
   'one-dark',
   'min-dark',
+  'solarized',
+  'rose-pine',
+  'rose-pine-moon',
+  'tokyo-night',
+  'tokyo-night-storm',
+  'tokyo-night-moon',
 ] as const
 export type Palette = (typeof palettes)[number]
 

@@ -1,0 +1,164 @@
+[
+  {
+    "settings": {
+      "existing": {
+        "lightNames": 11,
+        "keyboardPreview": true,
+        "accentDefault": true,
+        "accentScope": true,
+        "separateModes": true,
+        "reload": true,
+        "systemChanges": true,
+        "storageFailure": true
+      },
+      "darkChoices": 13,
+      "lightChoices": 11,
+      "flavors": 3,
+      "independentAccents": true,
+      "defaultMauve": true,
+      "reload": true
+    },
+    "reading": [
+      {
+        "theme": "light",
+        "palette": "catppuccin",
+        "samples": 61,
+        "minText": 5.003132516224718,
+        "minIcon": 3.57232814635952,
+        "readingStep": 1.0755341086234016
+      },
+      {
+        "theme": "dark",
+        "palette": "catppuccin",
+        "samples": 61,
+        "minText": 5.647381649710362,
+        "minIcon": 5.480326691815821,
+        "readingStep": 1.0703546134828297
+      },
+      {
+        "theme": "dark",
+        "palette": "catppuccin-frappe",
+        "samples": 61,
+        "minText": 4.641972515693123,
+        "minIcon": 5.057425319673436,
+        "readingStep": 1.1220593905808731
+      },
+      {
+        "theme": "dark",
+        "palette": "catppuccin-macchiato",
+        "samples": 61,
+        "minText": 4.994409807124946,
+        "minIcon": 4.907143127639517,
+        "readingStep": 1.0933930786500348
+      }
+    ]
+  },
+  {
+    "settings": {
+      "existing": {
+        "lightNames": 11,
+        "keyboardPreview": true,
+        "accentDefault": true,
+        "accentScope": true,
+        "separateModes": true,
+        "reload": true,
+        "systemChanges": true,
+        "storageFailure": true
+      },
+      "darkChoices": 13,
+      "lightChoices": 11,
+      "flavors": 3,
+      "independentAccents": true,
+      "defaultMauve": true,
+      "reload": true
+    },
+    "reading": [
+      {
+        "theme": "light",
+        "palette": "catppuccin",
+        "samples": 61,
+        "minText": 5.003132516224718,
+        "minIcon": 3.57232814635952,
+        "readingStep": 1.0755341086234016
+      },
+      {
+        "theme": "dark",
+        "palette": "catppuccin",
+        "samples": 61,
+        "minText": 5.647381649710362,
+        "minIcon": 5.480326691815821,
+        "readingStep": 1.0703546134828297
+      },
+      {
+        "theme": "dark",
+        "palette": "catppuccin-frappe",
+        "samples": 61,
+        "minText": 4.641972515693123,
+        "minIcon": 5.057425319673436,
+        "readingStep": 1.1220593905808731
+      },
+      {
+        "theme": "dark",
+        "palette": "catppuccin-macchiato",
+        "samples": 61,
+        "minText": 4.994409807124946,
+        "minIcon": 4.907143127639517,
+        "readingStep": 1.0933930786500348
+      }
+    ]
+  },
+  {
+    "settings": {
+      "existing": {
+        "lightNames": 11,
+        "keyboardPreview": true,
+        "accentDefault": true,
+        "accentScope": true,
+        "separateModes": true,
+        "reload": true,
+        "systemChanges": true,
+        "storageFailure": true
+      },
+      "darkChoices": 13,
+      "lightChoices": 11,
+      "flavors": 3,
+      "independentAccents": true,
+      "defaultMauve": true,
+      "reload": true
+    },
+    "reading": [
+      {
+        "theme": "light",
+        "palette": "catppuccin",
+        "samples": 61,
+        "minText": 5.003132516224718,
+        "minIcon": 3.57232814635952,
+        "readingStep": 1.0755341086234016
+      },
+      {
+        "theme": "dark",
+        "palette": "catppuccin",
+        "samples": 61,
+        "minText": 5.647381649710362,
+        "minIcon": 5.480326691815821,
+        "readingStep": 1.0703546134828297
+      },
+      {
+        "theme": "dark",
+        "palette": "catppuccin-frappe",
+        "samples": 61,
+        "minText": 4.641972515693123,
+        "minIcon": 5.87428319032838,
+        "readingStep": 1.1220593905808731
+      },
+      {
+        "theme": "dark",
+        "palette": "catppuccin-macchiato",
+        "samples": 61,
+        "minText": 4.994409807124946,
+        "minIcon": 4.907143127639517,
+        "readingStep": 1.0933930786500348
+      }
+    ]
+  }
+]

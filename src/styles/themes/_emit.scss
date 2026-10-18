@@ -1,0 +1,17 @@
+@use 'palettes';
+
+@mixin themes {
+  @each $palette, $modes in palettes.$palettes {
+    @each $mode, $tokens in $modes {
+      :root[data-theme='#{$mode}'][data-palette='#{$palette}'],
+      .palette-preview[data-theme='#{$mode}'][data-palette='#{$palette}'] {
+        --ground: var(--sidebar);
+        --shell-line: color-mix(in srgb, var(--ink) 9%, var(--sidebar));
+        --shell-frame: color-mix(in srgb, var(--ink) 18%, var(--sidebar));
+        @each $token, $value in $tokens {
+          --#{$token}: #{$value};
+        }
+      }
+    }
+  }
+}

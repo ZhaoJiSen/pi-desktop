@@ -1,0 +1,48 @@
+[
+  {
+    "file": "ink.png",
+    "state": "ink",
+    "size": "1280x920",
+    "zoom": 1,
+    "animationWaitMs": 19,
+    "issues": [],
+    "lint": [
+      {
+        "rule": "longMeasure",
+        "label": "正文行太长",
+        "count": 1,
+        "examples": [
+          "p「TaskLab 现在的主线仍是 Go，停在「Gi」（每行约 49 字）"
+        ]
+      }
+    ]
+  },
+  {
+    "file": "catppuccin.png",
+    "state": "catppuccin",
+    "size": "1280x920",
+    "zoom": 1,
+    "animationWaitMs": 103,
+    "issues": [],
+    "lint": [
+      {
+        "rule": "longMeasure",
+        "label": "正文行太长",
+        "count": 1,
+        "examples": [
+          "p「TaskLab 现在的主线仍是 Go，停在「Gi」（每行约 49 字）"
+        ]
+      },
+      {
+        "rule": "contrastLow",
+        "label": "文字对比度不达标（正文低于 4.5:1，大字低于 3:1）",
+        "count": 6,
+        "examples": [
+          "span.syntax-token.syntax-keyword「func」（4.45:1）",
+          "span.syntax-token.syntax-function「ValidStatus」（4.04:1）",
+          "span.syntax-token.syntax-keyword「return」（4.45:1）"
+        ]
+      }
+    ]
+  }
+]

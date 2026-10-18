@@ -1,0 +1,28 @@
+// tokyo-night / storm: upstream colors adapted to Pi reading surfaces.
+// Sources: design/theme-expansion-2026-10-18/notes.md.
+$tokens: (
+  paper: #24283b,
+  sidebar: #1f2335,
+  ink: #c0caf5,
+  muted: #b3bbda,
+  line: #343950,
+  frame: #565f89,
+  hover: #343950,
+  user: #383c51,
+  code-head: #303449,
+  selection: #394b70,
+  accent: #7aa2f7,
+  accent-foreground: #24283b,
+  focus: #7aa2f7,
+  link: #9fbcf9,
+  amber: #e0af68,
+  mint: #9ece6a,
+  danger: #faa4b4,
+  added: #2d403e,
+  removed: #493343,
+  status: #e2b573,
+  syntax-keyword: #cab0f9,
+  syntax-string: #9ece6a,
+  syntax-function: #9fbcf9,
+  text-selection-bg: #354061,
+);

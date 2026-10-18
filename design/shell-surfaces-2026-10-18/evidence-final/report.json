@@ -1,0 +1,380 @@
+[
+  {
+    "file": "tokyo-night.png",
+    "state": "tokyo-night",
+    "size": "1512x1076",
+    "zoom": 1,
+    "animationWaitMs": 0,
+    "issues": [],
+    "lint": [
+      {
+        "rule": "longMeasure",
+        "label": "正文行太长",
+        "count": 1,
+        "examples": [
+          "p「TaskLab 现在的主线仍是 Go，停在「Gi」（每行约 49 字）"
+        ]
+      }
+    ]
+  },
+  {
+    "file": "nord.png",
+    "state": "nord",
+    "size": "1512x1076",
+    "zoom": 1,
+    "animationWaitMs": 0,
+    "issues": [],
+    "lint": [
+      {
+        "rule": "longMeasure",
+        "label": "正文行太长",
+        "count": 1,
+        "examples": [
+          "p「TaskLab 现在的主线仍是 Go，停在「Gi」（每行约 49 字）"
+        ]
+      }
+    ]
+  },
+  {
+    "file": "linear.png",
+    "state": "linear",
+    "size": "1512x1076",
+    "zoom": 1,
+    "animationWaitMs": 0,
+    "issues": [],
+    "lint": [
+      {
+        "rule": "longMeasure",
+        "label": "正文行太长",
+        "count": 1,
+        "examples": [
+          "p「TaskLab 现在的主线仍是 Go，停在「Gi」（每行约 49 字）"
+        ]
+      }
+    ]
+  },
+  {
+    "file": "ayu.png",
+    "state": "ayu",
+    "size": "1512x1076",
+    "zoom": 1,
+    "animationWaitMs": 0,
+    "issues": [],
+    "lint": [
+      {
+        "rule": "longMeasure",
+        "label": "正文行太长",
+        "count": 1,
+        "examples": [
+          "p「TaskLab 现在的主线仍是 Go，停在「Gi」（每行约 49 字）"
+        ]
+      }
+    ]
+  },
+  {
+    "file": "tokyo-night-@2x.png",
+    "state": "tokyo-night",
+    "size": "1512x1076",
+    "zoom": 2,
+    "animationWaitMs": 0,
+    "issues": [],
+    "lint": [
+      {
+        "rule": "longMeasure",
+        "label": "正文行太长",
+        "count": 1,
+        "examples": [
+          "p「TaskLab 现在的主线仍是 Go，停在「Gi」（每行约 49 字）"
+        ]
+      }
+    ]
+  },
+  {
+    "file": "motion-probe-sidebar",
+    "state": "tokyo-night",
+    "size": "1512x1076",
+    "zoom": 1,
+    "group": "sidebar",
+    "motion": {
+      "load": {
+        "elements": 27,
+        "loops": 0,
+        "maxMove": 5,
+        "maxSize": 0,
+        "maxOpacity": 1,
+        "top": [
+          {
+            "el": "div.scroll-shadow.scroll-shadow--vertical",
+            "move": 0,
+            "size": 0,
+            "opacity": 1,
+            "loop": false,
+            "sources": [
+              "scroll-timeline:scroll-shadow-start-fade",
+              "scroll-timeline:scroll-shadow-end-fade",
+              "waapi"
+            ]
+          },
+          {
+            "el": "form.composer",
+            "move": 4,
+            "size": 0,
+            "opacity": 0.86,
+            "loop": false,
+            "sources": [
+              "js:style",
+              "waapi"
+            ]
+          },
+          {
+            "el": "div.user-message",
+            "move": 4,
+            "size": 0,
+            "opacity": 0.85,
+            "loop": false,
+            "sources": [
+              "js:style",
+              "waapi"
+            ]
+          },
+          {
+            "el": "article.assistant",
+            "move": 3,
+            "size": 0,
+            "opacity": 0.85,
+            "loop": false,
+            "sources": [
+              "js:style",
+              "waapi"
+            ]
+          },
+          {
+            "el": "nav.activity-rail",
+            "move": 0,
+            "size": 0,
+            "opacity": 0.86,
+            "loop": false,
+            "sources": [
+              "waapi",
+              "js:style"
+            ]
+          },
+          {
+            "el": "div.composer-input-measure",
+            "move": 5,
+            "size": 0,
+            "opacity": 0,
+            "loop": false,
+            "sources": [
+              "js:style"
+            ]
+          },
+          {
+            "el": "textarea.textarea.textarea--primary",
+            "move": 5,
+            "size": 0,
+            "opacity": 0,
+            "loop": false,
+            "sources": [
+              "js:style"
+            ]
+          },
+          {
+            "el": "div.composer-shell",
+            "move": 5,
+            "size": 0,
+            "opacity": 0,
+            "loop": false,
+            "sources": [
+              "transition:border-top-color",
+              "transition:border-bottom-color",
+              "transition:box-shadow"
+            ]
+          }
+        ]
+      },
+      "steps": {
+        "elements": 7,
+        "loops": 0,
+        "maxMove": 242,
+        "maxSize": 0.863,
+        "maxOpacity": 0,
+        "top": [
+          {
+            "el": "div.split-pane-side",
+            "move": 0,
+            "size": 0.863,
+            "opacity": 0,
+            "loop": false,
+            "sources": [
+              "transition:border-right-color"
+            ]
+          },
+          {
+            "el": "div.scroll-shadow.scroll-shadow--vertical",
+            "move": 242,
+            "size": 0.216,
+            "opacity": 0,
+            "loop": false,
+            "sources": [
+              "scroll-timeline:scroll-shadow-start-fade",
+              "scroll-timeline:scroll-shadow-end-fade"
+            ]
+          },
+          {
+            "el": "div.composer-shell",
+            "move": 121,
+            "size": 0,
+            "opacity": 0,
+            "loop": false,
+            "sources": [
+              "transition:border-top-color",
+              "transition:background-color",
+              "transition:border-bottom-color"
+            ]
+          },
+          {
+            "el": "div.scroll-shadow.scroll-shadow--vertical",
+            "move": 121,
+            "size": 0,
+            "opacity": 0,
+            "loop": false,
+            "sources": [
+              "scroll-timeline:scroll-shadow-start-fade",
+              "scroll-timeline:scroll-shadow-end-fade"
+            ]
+          },
+          {
+            "el": "div.scroll-shadow.scroll-shadow--vertical",
+            "move": 121,
+            "size": 0,
+            "opacity": 0,
+            "loop": false,
+            "sources": [
+              "scroll-timeline:scroll-shadow-start-fade",
+              "scroll-timeline:scroll-shadow-end-fade"
+            ]
+          },
+          {
+            "el": "div.scroll-shadow.scroll-shadow--horizontal",
+            "move": 121,
+            "size": 0,
+            "opacity": 0,
+            "loop": false,
+            "sources": [
+              "scroll-timeline:scroll-shadow-start-fade",
+              "scroll-timeline:scroll-shadow-end-fade"
+            ]
+          },
+          {
+            "el": "div.scroll-shadow.scroll-shadow--horizontal",
+            "move": 121,
+            "size": 0,
+            "opacity": 0,
+            "loop": false,
+            "sources": [
+              "scroll-timeline:scroll-shadow-start-fade",
+              "scroll-timeline:scroll-shadow-end-fade"
+            ]
+          }
+        ]
+      },
+      "hero": {
+        "elements": 0,
+        "loops": 0,
+        "maxMove": 0,
+        "maxSize": 0,
+        "maxOpacity": 0,
+        "top": [],
+        "layers": 0
+      },
+      "scroll": {
+        "elements": 0,
+        "loops": 0,
+        "maxMove": 0,
+        "maxSize": 0,
+        "maxOpacity": 0,
+        "top": [],
+        "scrollable": false
+      }
+    },
+    "issues": []
+  },
+  {
+    "file": "motion-entry-end.jpg",
+    "state": "tokyo-night",
+    "size": "1512x1076",
+    "zoom": 1,
+    "group": "entry",
+    "issues": [],
+    "frames": {
+      "start": {
+        "file": "motion-entry-start.jpg",
+        "source": "Page.screencastFrame",
+        "timeMs": 618
+      },
+      "mid": {
+        "file": "motion-entry-mid.jpg",
+        "source": "Page.screencastFrame",
+        "timeMs": 1018
+      },
+      "end": {
+        "file": "motion-entry-end.jpg",
+        "source": "Page.captureScreenshot",
+        "timeMs": 4392
+      }
+    },
+    "sampling": {
+      "mode": "entry"
+    },
+    "durationMs": 4392,
+    "consistency": {
+      "status": "matched",
+      "reference": "motion-entry-end.jpg",
+      "different": false,
+      "changedPixels": 0,
+      "maxTilePixels": 0,
+      "pixelRatio": 0
+    }
+  },
+  {
+    "file": "motion-sidebar-end.jpg",
+    "state": "tokyo-night",
+    "size": "1512x1076",
+    "zoom": 1,
+    "group": "sidebar",
+    "issues": [],
+    "frames": {
+      "start": {
+        "file": "motion-sidebar-start.jpg",
+        "source": "Page.captureScreenshot",
+        "timeMs": 1163
+      },
+      "mid": {
+        "file": "motion-sidebar-mid.jpg",
+        "source": "Page.screencastFrame",
+        "timeMs": 1360
+      },
+      "end": {
+        "file": "motion-sidebar-end.jpg",
+        "source": "Page.captureScreenshot",
+        "timeMs": 3423
+      }
+    },
+    "sampling": {
+      "mode": "action",
+      "step": 5,
+      "action": "click",
+      "raw": "click [aria-label=\"展开侧栏\"]"
+    },
+    "durationMs": 3423,
+    "consistency": {
+      "status": "matched",
+      "reference": "motion-sidebar-end.jpg",
+      "different": false,
+      "changedPixels": 0,
+      "maxTilePixels": 0,
+      "pixelRatio": 0
+    }
+  }
+]

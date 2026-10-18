@@ -1,0 +1,175 @@
+[
+  {
+    "family": "rose-pine",
+    "version": "moon",
+    "mode": "dark",
+    "adaptations": {
+      "muted": {
+        "from": "#a6a0bd",
+        "to": "#bebacf"
+      },
+      "danger": {
+        "from": "#eb6f92",
+        "to": "#f3a7bc"
+      },
+      "syntax-keyword": {
+        "from": "#c4a7e7",
+        "to": "#cbb2ea"
+      },
+      "syntax-function": {
+        "from": "#ea9a97",
+        "to": "#eeaca9"
+      }
+    },
+    "textSelection": "#433c59",
+    "minimum": 4.730216479694831
+  },
+  {
+    "family": "tokyo-night",
+    "version": "storm",
+    "mode": "dark",
+    "adaptations": {
+      "muted": {
+        "from": "#9aa5ce",
+        "to": "#b3bbda"
+      },
+      "link": {
+        "from": "#7aa2f7",
+        "to": "#9fbcf9"
+      },
+      "danger": {
+        "from": "#f7768e",
+        "to": "#faa4b4"
+      },
+      "status": {
+        "from": "#e0af68",
+        "to": "#e2b573"
+      },
+      "syntax-keyword": {
+        "from": "#bb9af7",
+        "to": "#cab0f9"
+      },
+      "syntax-function": {
+        "from": "#7aa2f7",
+        "to": "#9fbcf9"
+      }
+    },
+    "textSelection": "#354061",
+    "minimum": 4.726490963423321
+  },
+  {
+    "family": "tokyo-night",
+    "version": "moon",
+    "mode": "dark",
+    "adaptations": {
+      "muted": {
+        "from": "#a5afd2",
+        "to": "#b1bad8"
+      },
+      "link": {
+        "from": "#82aaff",
+        "to": "#9abaff"
+      },
+      "danger": {
+        "from": "#ff757f",
+        "to": "#ffa0a7"
+      },
+      "syntax-keyword": {
+        "from": "#c099ff",
+        "to": "#ccacff"
+      },
+      "syntax-function": {
+        "from": "#82aaff",
+        "to": "#9abaff"
+      }
+    },
+    "textSelection": "#353f5e",
+    "minimum": 4.723621729037991
+  },
+  {
+    "family": "everforest",
+    "version": "dark",
+    "mode": "dark",
+    "adaptations": {
+      "ink": {
+        "from": "#d3c6aa",
+        "to": "#d4c7ab"
+      },
+      "muted": {
+        "from": "#b1b9ad",
+        "to": "#c4cac1"
+      },
+      "link": {
+        "from": "#7fbbb3",
+        "to": "#a7d0cb"
+      },
+      "danger": {
+        "from": "#e67e80",
+        "to": "#f2babb"
+      },
+      "status": {
+        "from": "#dbbc7f",
+        "to": "#e0c590"
+      },
+      "syntax-keyword": {
+        "from": "#e67e80",
+        "to": "#f2babb"
+      },
+      "syntax-string": {
+        "from": "#a7c080",
+        "to": "#bbcf9d"
+      },
+      "syntax-function": {
+        "from": "#dbbc7f",
+        "to": "#e0c590"
+      }
+    },
+    "textSelection": "#455149",
+    "minimum": 4.723820182400095
+  },
+  {
+    "family": "everforest",
+    "version": "light",
+    "mode": "light",
+    "adaptations": {
+      "ink": {
+        "from": "#5c6a72",
+        "to": "#59676f"
+      },
+      "muted": {
+        "from": "#657369",
+        "to": "#5b685f"
+      },
+      "link": {
+        "from": "#3a94c5",
+        "to": "#2a6b8f"
+      },
+      "mint": {
+        "from": "#8da101",
+        "to": "#778801"
+      },
+      "danger": {
+        "from": "#f85552",
+        "to": "#b23d3b"
+      },
+      "status": {
+        "from": "#a87a00",
+        "to": "#835f00"
+      },
+      "syntax-keyword": {
+        "from": "#f85552",
+        "to": "#b23d3b"
+      },
+      "syntax-string": {
+        "from": "#8da101",
+        "to": "#5f6c01"
+      },
+      "syntax-function": {
+        "from": "#3a94c5",
+        "to": "#2a6b8f"
+      }
+    },
+    "textSelection": "#eae9d2",
+    "minimum": 4.729172430697934
+  }
+]

@@ -1,0 +1,84 @@
+[
+  {
+    "file": "tokyo-night.png",
+    "state": "tokyo-night",
+    "size": "1512x1076",
+    "zoom": 1,
+    "animationWaitMs": 53,
+    "issues": [],
+    "lint": [
+      {
+        "rule": "longMeasure",
+        "label": "正文行太长",
+        "count": 1,
+        "examples": [
+          "p「TaskLab 现在的主线仍是 Go，停在「Gi」（每行约 49 字）"
+        ]
+      }
+    ]
+  },
+  {
+    "file": "rose-pine.png",
+    "state": "rose-pine",
+    "size": "1512x1076",
+    "zoom": 1,
+    "animationWaitMs": 52,
+    "issues": [],
+    "lint": [
+      {
+        "rule": "longMeasure",
+        "label": "正文行太长",
+        "count": 1,
+        "examples": [
+          "p「TaskLab 现在的主线仍是 Go，停在「Gi」（每行约 49 字）"
+        ]
+      }
+    ]
+  },
+  {
+    "file": "linear.png",
+    "state": "linear",
+    "size": "1512x1076",
+    "zoom": 1,
+    "animationWaitMs": 102,
+    "issues": [],
+    "lint": [
+      {
+        "rule": "longMeasure",
+        "label": "正文行太长",
+        "count": 1,
+        "examples": [
+          "p「TaskLab 现在的主线仍是 Go，停在「Gi」（每行约 49 字）"
+        ]
+      }
+    ]
+  },
+  {
+    "file": "ayu.png",
+    "state": "ayu",
+    "size": "1512x1076",
+    "zoom": 1,
+    "animationWaitMs": 102,
+    "issues": [],
+    "lint": [
+      {
+        "rule": "contrastLow",
+        "label": "文字对比度不达标（正文低于 4.5:1，大字低于 3:1）",
+        "count": 13,
+        "examples": [
+          "p.session-list-empty「暂无聊天」（3.16:1）",
+          "span「思考过程」（3.07:1）",
+          "span「2 个工具调用」（3.07:1）"
+        ]
+      },
+      {
+        "rule": "longMeasure",
+        "label": "正文行太长",
+        "count": 1,
+        "examples": [
+          "p「TaskLab 现在的主线仍是 Go，停在「Gi」（每行约 49 字）"
+        ]
+      }
+    ]
+  }
+]

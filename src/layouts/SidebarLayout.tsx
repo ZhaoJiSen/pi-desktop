@@ -48,6 +48,8 @@ interface Props {
   className?: string
   collapseAt: number
   label: string
+  collapsible?: boolean
+  open?: boolean
   onWidthChange?: (width: number) => void
 }
 

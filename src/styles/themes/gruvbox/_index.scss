@@ -1,0 +1,9 @@
+@use 'light';
+@use 'dark';
+
+$palettes: (
+  'gruvbox': (
+    light: light.$tokens,
+    dark: dark.$tokens,
+  ),
+);

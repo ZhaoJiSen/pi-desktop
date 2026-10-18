@@ -8,11 +8,17 @@ import {
 import { errorText } from '../lib/utils'
 import { isDesktop, useWorkspace } from '../store/workspace'
 import type { Page } from '../router/paths'
+import { useColorMode } from './useColorMode'
+import { accentKey, applyAppearance } from '../lib/appearance'
 
 export function useDesktopLifecycle(view: Page, enabled = true) {
   const active = useWorkspace((state) => state.activeSessionId)
   const theme = useWorkspace((state) => state.theme)
-  const palette = useWorkspace((state) => state.palette)
+  const palettesByMode = useWorkspace((state) => state.palettesByMode)
+  const accentOverrides = useWorkspace((state) => state.accentOverrides)
+  const mode = useColorMode(theme)
+  const palette = palettesByMode[mode]
+  const accent = accentOverrides[accentKey(mode, palette)]
   const language = useWorkspace((state) => state.language)
   const connection = useWorkspace((state) => state.connection)
   const [startup, setStartup] = useState<'loading' | 'error' | 'ready'>(
@@ -57,18 +63,8 @@ export function useDesktopLifecycle(view: Page, enabled = true) {
       void connectSession(active)
   }, [active, startup, view, enabled, allowConnection])
   useEffect(() => {
-    const preference = matchMedia('(prefers-color-scheme: dark)')
-    const apply = () => {
-      document.documentElement.dataset.theme =
-        theme === 'system' ? (preference.matches ? 'dark' : 'light') : theme
-    }
-    apply()
-    preference.addEventListener('change', apply)
-    return () => preference.removeEventListener('change', apply)
-  }, [theme])
-  useEffect(() => {
-    document.documentElement.dataset.palette = palette
-  }, [palette])
+    applyAppearance(document.documentElement, mode, palette, accent)
+  }, [mode, palette, accent])
   useEffect(() => {
     document.documentElement.lang = language === 'zh' ? 'zh-CN' : 'en'
     document.title = 'pi Desktop'

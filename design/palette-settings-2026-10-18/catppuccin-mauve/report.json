@@ -1,0 +1,20 @@
+[
+  {
+    "file": "light.png",
+    "state": "light",
+    "size": "1280x720",
+    "zoom": 1,
+    "animationWaitMs": 142,
+    "issues": [],
+    "lint": []
+  },
+  {
+    "file": "dark.png",
+    "state": "dark",
+    "size": "1280x720",
+    "zoom": 1,
+    "animationWaitMs": 0,
+    "issues": [],
+    "lint": []
+  }
+]
