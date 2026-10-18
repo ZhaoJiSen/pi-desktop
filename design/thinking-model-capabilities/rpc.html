@@ -1,0 +1,45 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Model capability verification</title></head><body><div id="root"></div><script type="module">
+const params=new URLSearchParams(location.search), prefix='thinking-capability-rpc:'+(params.get('seed')||'default')+':'
+Object.defineProperty(window,'localStorage',{value:{getItem:key=>sessionStorage.getItem(prefix+key),setItem:(key,value)=>sessionStorage.setItem(prefix+key,value),removeItem:key=>sessionStorage.removeItem(prefix+key)}})
+const {models:catalog}=await(await fetch('/design/thinking-model-capabilities/installed-catalog.json')).json()
+const names=['Grok 4.7','GPT-5.3 Codex Spark','GPT-5.6 Sol','Claude Sonnet 4.6']
+const models=catalog.map((model,i)=>({...model,name:names[i],contextWindow:200000}))
+models.push({id:'no-reasoning',name:'Plain model',provider:'local',reasoning:false,contextWindow:32000},{id:'fixed-high',name:'High only',provider:'local',reasoning:true,contextWindow:32000,thinkingLevelMap:{off:null,minimal:null,low:null,medium:null,high:'high'}})
+const saved=JSON.parse(sessionStorage.getItem(prefix+'runtime')||'null')
+let current=models.find(model=>model.id===saved?.id)||models[0], effort=saved?.effort||'low', fail=false, failAvailability=false, clamp=false
+const log=[]
+function save(){sessionStorage.setItem(prefix+'runtime',JSON.stringify({id:current.id,effort}))}
+window.__TAURI_INTERNALS__={invoke:async(name,args)=>{
+ if(name!=='pi_request') throw new Error('Unexpected fixture IPC: '+name)
+ const c=args.command;log.push(c);document.body.dataset.requests=JSON.stringify(log)
+ switch(c.type){
+ case 'set_model':current=models.find(model=>model.id===c.modelId&&model.provider===c.provider);effort=current.reasoning?'high':'off';save();return current
+ case 'get_available_thinking_levels':if(failAvailability)throw new Error('Availability unavailable.');return {levels:modelThinkingLevels(current)}
+ case 'set_thinking_level':if(fail)throw new Error('Unable to save thinking effort.');effort=clamp?'medium':modelThinkingLevels(current).includes(c.level)?c.level:defaultThinkingLevel(modelThinkingLevels(current));save();return undefined
+ case 'get_state':return {model:current,thinkingLevel:effort,sessionFile:'/fixture/session.jsonl',isStreaming:false}
+ case 'get_messages':return {messages:[]}
+ case 'get_session_stats':return {tokens:{total:0},cost:0}
+ default:throw new Error('Unexpected fixture RPC: '+c.type)
+ }
+}}
+const {modelThinkingLevels,defaultThinkingLevel}=await import('/src/lib/thinking.ts')
+const {useWorkspace}=await import('/src/store/workspace.ts')
+const {createPreviewSessions,previewProjects}=await import('/src/lib/fixtures.ts')
+const {runtimeState}=await import('/src/lib/desktop/runtimeState.ts')
+const session=useWorkspace.getState().sessions[0]||createPreviewSessions()[0]
+session.messages=[];session.draftNodes=[];session.thinking=effort;session.modelKey=current.provider+'/'+current.id
+useWorkspace.setState({projects:previewProjects,sessions:[session],activeSessionId:session.id,models,thinkingLevels:modelThinkingLevels(current),connection:'connected',runningSessionId:null,onboardingOpen:false,language:'en',theme:params.get('theme')||'dark',palette:'nord'})
+runtimeState.currentRun={id:'fixture-run',sessionId:session.id,bindingVersion:0,path:'/fixture',executable:'pi',packages:[]}
+document.body.dataset.requests='[]'
+document.addEventListener('keydown',event=>{
+ if(event.key==='F9'){event.preventDefault();fail=true}
+ if(event.key==='F10'){event.preventDefault();fail=false;failAvailability=false;clamp=false}
+ if(event.key==='F8'){event.preventDefault();failAvailability=true}
+ if(event.key==='F7'){event.preventDefault();clamp=true}
+})
+await import('/src/styles/vendor.css');await import('/src/styles/index.scss')
+const {createRoot}=await import('react-dom/client'),{createElement:h}=await import('react'),{Composer}=await import('/src/components/Composer.tsx')
+document.documentElement.dataset.theme=params.get('theme')||'dark';document.documentElement.dataset.palette='nord'
+const style=document.createElement('style');style.textContent='.frame{width:min(820px,calc(100% - 36px));margin:18px;padding:12px 8px;background:var(--paper);border-radius:20px;height:660px;display:flex;flex-direction:column}.frame .chat-page{justify-content:flex-end}.frame .composer{width:calc(100% - 48px);margin:20px auto}';document.head.append(style)
+createRoot(document.getElementById('root')).render(h('section',{className:'frame main'},h('div',{className:'chat-page'},h(Composer))))
+</script></body></html>

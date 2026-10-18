@@ -1,4 +1,9 @@
 export const en = {
+  'thinking.unavailable': 'This model does not support thinking effort.',
+  'thinking.noLevels': 'No thinking levels available.',
+  'thinking.resetTo': 'Reset to {level}',
+  'thinking.deepHint': 'Deeper reasoning',
+  'models.configure': 'Model and thinking effort',
   'composer.prompt.tests.text':
     'Act as a test engineer. Add valuable automated tests for the requested behavior or current changes. First inspect the testing framework, existing coverage and repository conventions. Prioritize observable behavior, important boundaries, error paths and realistic regression risks. Reuse existing tools and fixtures; avoid tests that mirror implementation details. Keep changes focused without unrelated refactoring or unnecessary dependencies. Run targeted checks and report coverage added, commands actually run and results. If checks cannot run, explain why without claiming success. Report implementation defects with evidence; do not change business logic without authorization.',
   'composer.prompt.plan.text':

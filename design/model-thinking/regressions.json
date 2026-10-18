@@ -1,0 +1,1205 @@
+[
+  {
+    "run": 100,
+    "empty": {
+      "editable": 0,
+      "expanded": false,
+      "focused": true,
+      "height": 22,
+      "max": 0,
+      "pageScroll": 0,
+      "quick": {
+        "bottom": 80,
+        "height": 30,
+        "left": 60,
+        "right": 796,
+        "top": 50,
+        "width": 736,
+        "x": 60,
+        "y": 50
+      },
+      "scroll": 0,
+      "selection": 0,
+      "shell": {
+        "bottom": 140,
+        "height": 52,
+        "left": 60,
+        "right": 796,
+        "top": 88,
+        "width": 736,
+        "x": 60,
+        "y": 88
+      },
+      "slot": "textarea",
+      "status": {
+        "bottom": 170,
+        "height": 22,
+        "left": 60,
+        "right": 796,
+        "top": 148,
+        "width": 736,
+        "x": 60,
+        "y": 148
+      },
+      "tag": "TEXTAREA",
+      "value": ""
+    },
+    "review": "Review the current workspace changes. Focus on bugs, edge cases, and regression risks. Report findings with file locations and reasons, ordered by severity. Do not modify code.",
+    "appended": "Review the current workspace changes. Focus on bugs, edge cases, and regression risks. Report findings with file locations and reasons, ordered by severity. Do not modify code.\n\nDraft a concise commit title and description based on the current workspace changes. Summarize the problem, behavior changes, and validation. Only prepare the message; do not create a branch or commit.",
+    "newline": [
+      {
+        "editable": 0,
+        "expanded": true,
+        "focused": true,
+        "height": 154,
+        "max": 0,
+        "pageScroll": 0,
+        "quick": {
+          "bottom": 80,
+          "height": 30,
+          "left": 60,
+          "right": 796,
+          "top": 50,
+          "width": 736,
+          "x": 60,
+          "y": 50
+        },
+        "scroll": 0,
+        "selection": 6,
+        "shell": {
+          "bottom": 304,
+          "height": 216,
+          "left": 60,
+          "right": 796,
+          "top": 88,
+          "width": 736,
+          "x": 60,
+          "y": 88
+        },
+        "slot": "textarea",
+        "status": {
+          "bottom": 334,
+          "height": 22,
+          "left": 60,
+          "right": 796,
+          "top": 312,
+          "width": 736,
+          "x": 60,
+          "y": 312
+        },
+        "tag": "TEXTAREA",
+        "value": "\n\n\n\n\n\n"
+      },
+      {
+        "editable": 0,
+        "expanded": true,
+        "focused": true,
+        "height": 176,
+        "max": 0,
+        "pageScroll": 0,
+        "quick": {
+          "bottom": 80,
+          "height": 30,
+          "left": 60,
+          "right": 796,
+          "top": 50,
+          "width": 736,
+          "x": 60,
+          "y": 50
+        },
+        "scroll": 0,
+        "selection": 7,
+        "shell": {
+          "bottom": 326,
+          "height": 238,
+          "left": 60,
+          "right": 796,
+          "top": 88,
+          "width": 736,
+          "x": 60,
+          "y": 88
+        },
+        "slot": "textarea",
+        "status": {
+          "bottom": 356,
+          "height": 22,
+          "left": 60,
+          "right": 796,
+          "top": 334,
+          "width": 736,
+          "x": 60,
+          "y": 334
+        },
+        "tag": "TEXTAREA",
+        "value": "\n\n\n\n\n\n\n"
+      },
+      {
+        "editable": 0,
+        "expanded": true,
+        "focused": true,
+        "height": 176,
+        "max": 22,
+        "pageScroll": 0,
+        "quick": {
+          "bottom": 80,
+          "height": 30,
+          "left": 60,
+          "right": 796,
+          "top": 50,
+          "width": 736,
+          "x": 60,
+          "y": 50
+        },
+        "scroll": 20,
+        "selection": 8,
+        "shell": {
+          "bottom": 326,
+          "height": 238,
+          "left": 60,
+          "right": 796,
+          "top": 88,
+          "width": 736,
+          "x": 60,
+          "y": 88
+        },
+        "slot": "textarea",
+        "status": {
+          "bottom": 356,
+          "height": 22,
+          "left": 60,
+          "right": 796,
+          "top": 334,
+          "width": 736,
+          "x": 60,
+          "y": 334
+        },
+        "tag": "TEXTAREA",
+        "value": "\n\n\n\n\n\n\n\n"
+      },
+      {
+        "editable": 0,
+        "expanded": true,
+        "focused": true,
+        "height": 176,
+        "max": 198,
+        "pageScroll": 0,
+        "quick": {
+          "bottom": 80,
+          "height": 30,
+          "left": 60,
+          "right": 796,
+          "top": 50,
+          "width": 736,
+          "x": 60,
+          "y": 50
+        },
+        "scroll": 196,
+        "selection": 16,
+        "shell": {
+          "bottom": 326,
+          "height": 238,
+          "left": 60,
+          "right": 796,
+          "top": 88,
+          "width": 736,
+          "x": 60,
+          "y": 88
+        },
+        "slot": "textarea",
+        "status": {
+          "bottom": 356,
+          "height": 22,
+          "left": 60,
+          "right": 796,
+          "top": 334,
+          "width": 736,
+          "x": 60,
+          "y": 334
+        },
+        "tag": "TEXTAREA",
+        "value": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+      },
+      {
+        "editable": 0,
+        "expanded": true,
+        "focused": true,
+        "height": 176,
+        "max": 374,
+        "pageScroll": 0,
+        "quick": {
+          "bottom": 80,
+          "height": 30,
+          "left": 60,
+          "right": 796,
+          "top": 50,
+          "width": 736,
+          "x": 60,
+          "y": 50
+        },
+        "scroll": 372,
+        "selection": 24,
+        "shell": {
+          "bottom": 326,
+          "height": 238,
+          "left": 60,
+          "right": 796,
+          "top": 88,
+          "width": 736,
+          "x": 60,
+          "y": 88
+        },
+        "slot": "textarea",
+        "status": {
+          "bottom": 356,
+          "height": 22,
+          "left": 60,
+          "right": 796,
+          "top": 334,
+          "width": 736,
+          "x": 60,
+          "y": 334
+        },
+        "tag": "TEXTAREA",
+        "value": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+      },
+      {
+        "editable": 0,
+        "expanded": true,
+        "focused": true,
+        "height": 176,
+        "max": 726,
+        "pageScroll": 0,
+        "quick": {
+          "bottom": 80,
+          "height": 30,
+          "left": 60,
+          "right": 796,
+          "top": 50,
+          "width": 736,
+          "x": 60,
+          "y": 50
+        },
+        "scroll": 724,
+        "selection": 40,
+        "shell": {
+          "bottom": 326,
+          "height": 238,
+          "left": 60,
+          "right": 796,
+          "top": 88,
+          "width": 736,
+          "x": 60,
+          "y": 88
+        },
+        "slot": "textarea",
+        "status": {
+          "bottom": 356,
+          "height": 22,
+          "left": 60,
+          "right": 796,
+          "top": 334,
+          "width": 736,
+          "x": 60,
+          "y": 334
+        },
+        "tag": "TEXTAREA",
+        "value": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+      }
+    ],
+    "start": {
+      "editable": 0,
+      "expanded": true,
+      "focused": true,
+      "height": 176,
+      "max": 726,
+      "pageScroll": 0,
+      "quick": {
+        "bottom": 80,
+        "height": 30,
+        "left": 60,
+        "right": 796,
+        "top": 50,
+        "width": 736,
+        "x": 60,
+        "y": 50
+      },
+      "scroll": 0,
+      "selection": 1,
+      "shell": {
+        "bottom": 326,
+        "height": 238,
+        "left": 60,
+        "right": 796,
+        "top": 88,
+        "width": 736,
+        "x": 60,
+        "y": 88
+      },
+      "slot": "textarea",
+      "status": {
+        "bottom": 356,
+        "height": 22,
+        "left": 60,
+        "right": 796,
+        "top": 334,
+        "width": 736,
+        "x": 60,
+        "y": 334
+      },
+      "tag": "TEXTAREA",
+      "value": "a\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+    },
+    "narrow": {
+      "buttons": [
+        {
+          "bottom": 163.5919647216797,
+          "height": 34,
+          "left": 63,
+          "right": 97,
+          "top": 129.5919647216797,
+          "width": 34,
+          "x": 63,
+          "y": 129.5919647216797
+        },
+        {
+          "bottom": 163.5919647216797,
+          "height": 34,
+          "left": 105,
+          "right": 255,
+          "top": 129.5919647216797,
+          "width": 150,
+          "x": 105,
+          "y": 129.5919647216797
+        },
+        {
+          "bottom": 163.5919647216797,
+          "height": 34,
+          "left": 259,
+          "right": 293,
+          "top": 129.5919647216797,
+          "width": 34,
+          "x": 259,
+          "y": 129.5919647216797
+        }
+      ],
+      "expanded": true,
+      "s": {
+        "bottom": 172.5919647216797,
+        "height": 84,
+        "left": 50,
+        "right": 306,
+        "top": 88.59196472167969,
+        "width": 256,
+        "x": 50,
+        "y": 88.59196472167969
+      }
+    },
+    "slashAndModel": true,
+    "errorsRetainDraft": true,
+    "saveRecovery": true,
+    "attachments": true,
+    "runStates": true
+  },
+  {
+    "run": 101,
+    "empty": {
+      "editable": 0,
+      "expanded": false,
+      "focused": true,
+      "height": 22,
+      "max": 0,
+      "pageScroll": 0,
+      "quick": {
+        "bottom": 80,
+        "height": 30,
+        "left": 60,
+        "right": 796,
+        "top": 50,
+        "width": 736,
+        "x": 60,
+        "y": 50
+      },
+      "scroll": 0,
+      "selection": 0,
+      "shell": {
+        "bottom": 140,
+        "height": 52,
+        "left": 60,
+        "right": 796,
+        "top": 88,
+        "width": 736,
+        "x": 60,
+        "y": 88
+      },
+      "slot": "textarea",
+      "status": {
+        "bottom": 170,
+        "height": 22,
+        "left": 60,
+        "right": 796,
+        "top": 148,
+        "width": 736,
+        "x": 60,
+        "y": 148
+      },
+      "tag": "TEXTAREA",
+      "value": ""
+    },
+    "review": "Review the current workspace changes. Focus on bugs, edge cases, and regression risks. Report findings with file locations and reasons, ordered by severity. Do not modify code.",
+    "appended": "Review the current workspace changes. Focus on bugs, edge cases, and regression risks. Report findings with file locations and reasons, ordered by severity. Do not modify code.\n\nDraft a concise commit title and description based on the current workspace changes. Summarize the problem, behavior changes, and validation. Only prepare the message; do not create a branch or commit.",
+    "newline": [
+      {
+        "editable": 0,
+        "expanded": true,
+        "focused": true,
+        "height": 154,
+        "max": 0,
+        "pageScroll": 0,
+        "quick": {
+          "bottom": 80,
+          "height": 30,
+          "left": 60,
+          "right": 796,
+          "top": 50,
+          "width": 736,
+          "x": 60,
+          "y": 50
+        },
+        "scroll": 0,
+        "selection": 6,
+        "shell": {
+          "bottom": 304,
+          "height": 216,
+          "left": 60,
+          "right": 796,
+          "top": 88,
+          "width": 736,
+          "x": 60,
+          "y": 88
+        },
+        "slot": "textarea",
+        "status": {
+          "bottom": 334,
+          "height": 22,
+          "left": 60,
+          "right": 796,
+          "top": 312,
+          "width": 736,
+          "x": 60,
+          "y": 312
+        },
+        "tag": "TEXTAREA",
+        "value": "\n\n\n\n\n\n"
+      },
+      {
+        "editable": 0,
+        "expanded": true,
+        "focused": true,
+        "height": 176,
+        "max": 0,
+        "pageScroll": 0,
+        "quick": {
+          "bottom": 80,
+          "height": 30,
+          "left": 60,
+          "right": 796,
+          "top": 50,
+          "width": 736,
+          "x": 60,
+          "y": 50
+        },
+        "scroll": 0,
+        "selection": 7,
+        "shell": {
+          "bottom": 326,
+          "height": 238,
+          "left": 60,
+          "right": 796,
+          "top": 88,
+          "width": 736,
+          "x": 60,
+          "y": 88
+        },
+        "slot": "textarea",
+        "status": {
+          "bottom": 356,
+          "height": 22,
+          "left": 60,
+          "right": 796,
+          "top": 334,
+          "width": 736,
+          "x": 60,
+          "y": 334
+        },
+        "tag": "TEXTAREA",
+        "value": "\n\n\n\n\n\n\n"
+      },
+      {
+        "editable": 0,
+        "expanded": true,
+        "focused": true,
+        "height": 176,
+        "max": 22,
+        "pageScroll": 0,
+        "quick": {
+          "bottom": 80,
+          "height": 30,
+          "left": 60,
+          "right": 796,
+          "top": 50,
+          "width": 736,
+          "x": 60,
+          "y": 50
+        },
+        "scroll": 20,
+        "selection": 8,
+        "shell": {
+          "bottom": 326,
+          "height": 238,
+          "left": 60,
+          "right": 796,
+          "top": 88,
+          "width": 736,
+          "x": 60,
+          "y": 88
+        },
+        "slot": "textarea",
+        "status": {
+          "bottom": 356,
+          "height": 22,
+          "left": 60,
+          "right": 796,
+          "top": 334,
+          "width": 736,
+          "x": 60,
+          "y": 334
+        },
+        "tag": "TEXTAREA",
+        "value": "\n\n\n\n\n\n\n\n"
+      },
+      {
+        "editable": 0,
+        "expanded": true,
+        "focused": true,
+        "height": 176,
+        "max": 198,
+        "pageScroll": 0,
+        "quick": {
+          "bottom": 80,
+          "height": 30,
+          "left": 60,
+          "right": 796,
+          "top": 50,
+          "width": 736,
+          "x": 60,
+          "y": 50
+        },
+        "scroll": 196,
+        "selection": 16,
+        "shell": {
+          "bottom": 326,
+          "height": 238,
+          "left": 60,
+          "right": 796,
+          "top": 88,
+          "width": 736,
+          "x": 60,
+          "y": 88
+        },
+        "slot": "textarea",
+        "status": {
+          "bottom": 356,
+          "height": 22,
+          "left": 60,
+          "right": 796,
+          "top": 334,
+          "width": 736,
+          "x": 60,
+          "y": 334
+        },
+        "tag": "TEXTAREA",
+        "value": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+      },
+      {
+        "editable": 0,
+        "expanded": true,
+        "focused": true,
+        "height": 176,
+        "max": 374,
+        "pageScroll": 0,
+        "quick": {
+          "bottom": 80,
+          "height": 30,
+          "left": 60,
+          "right": 796,
+          "top": 50,
+          "width": 736,
+          "x": 60,
+          "y": 50
+        },
+        "scroll": 372,
+        "selection": 24,
+        "shell": {
+          "bottom": 326,
+          "height": 238,
+          "left": 60,
+          "right": 796,
+          "top": 88,
+          "width": 736,
+          "x": 60,
+          "y": 88
+        },
+        "slot": "textarea",
+        "status": {
+          "bottom": 356,
+          "height": 22,
+          "left": 60,
+          "right": 796,
+          "top": 334,
+          "width": 736,
+          "x": 60,
+          "y": 334
+        },
+        "tag": "TEXTAREA",
+        "value": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+      },
+      {
+        "editable": 0,
+        "expanded": true,
+        "focused": true,
+        "height": 176,
+        "max": 726,
+        "pageScroll": 0,
+        "quick": {
+          "bottom": 80,
+          "height": 30,
+          "left": 60,
+          "right": 796,
+          "top": 50,
+          "width": 736,
+          "x": 60,
+          "y": 50
+        },
+        "scroll": 724,
+        "selection": 40,
+        "shell": {
+          "bottom": 326,
+          "height": 238,
+          "left": 60,
+          "right": 796,
+          "top": 88,
+          "width": 736,
+          "x": 60,
+          "y": 88
+        },
+        "slot": "textarea",
+        "status": {
+          "bottom": 356,
+          "height": 22,
+          "left": 60,
+          "right": 796,
+          "top": 334,
+          "width": 736,
+          "x": 60,
+          "y": 334
+        },
+        "tag": "TEXTAREA",
+        "value": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+      }
+    ],
+    "start": {
+      "editable": 0,
+      "expanded": true,
+      "focused": true,
+      "height": 176,
+      "max": 726,
+      "pageScroll": 0,
+      "quick": {
+        "bottom": 80,
+        "height": 30,
+        "left": 60,
+        "right": 796,
+        "top": 50,
+        "width": 736,
+        "x": 60,
+        "y": 50
+      },
+      "scroll": 0,
+      "selection": 1,
+      "shell": {
+        "bottom": 326,
+        "height": 238,
+        "left": 60,
+        "right": 796,
+        "top": 88,
+        "width": 736,
+        "x": 60,
+        "y": 88
+      },
+      "slot": "textarea",
+      "status": {
+        "bottom": 356,
+        "height": 22,
+        "left": 60,
+        "right": 796,
+        "top": 334,
+        "width": 736,
+        "x": 60,
+        "y": 334
+      },
+      "tag": "TEXTAREA",
+      "value": "a\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+    },
+    "narrow": {
+      "buttons": [
+        {
+          "bottom": 163.07704162597656,
+          "height": 34.00001525878906,
+          "left": 63,
+          "right": 97,
+          "top": 129.0770263671875,
+          "width": 34,
+          "x": 63,
+          "y": 129.0770263671875
+        },
+        {
+          "bottom": 163.07704162597656,
+          "height": 34.00001525878906,
+          "left": 105,
+          "right": 255,
+          "top": 129.0770263671875,
+          "width": 150,
+          "x": 105,
+          "y": 129.0770263671875
+        },
+        {
+          "bottom": 163.07704162597656,
+          "height": 34.00001525878906,
+          "left": 259,
+          "right": 293,
+          "top": 129.0770263671875,
+          "width": 34,
+          "x": 259,
+          "y": 129.0770263671875
+        }
+      ],
+      "expanded": true,
+      "s": {
+        "bottom": 172.07704162597656,
+        "height": 84.00000762939453,
+        "left": 50,
+        "right": 306,
+        "top": 88.07703399658203,
+        "width": 256,
+        "x": 50,
+        "y": 88.07703399658203
+      }
+    },
+    "slashAndModel": true,
+    "errorsRetainDraft": true,
+    "saveRecovery": true,
+    "attachments": true,
+    "runStates": true
+  },
+  {
+    "run": 102,
+    "empty": {
+      "editable": 0,
+      "expanded": false,
+      "focused": true,
+      "height": 22,
+      "max": 0,
+      "pageScroll": 0,
+      "quick": {
+        "bottom": 80,
+        "height": 30,
+        "left": 60,
+        "right": 796,
+        "top": 50,
+        "width": 736,
+        "x": 60,
+        "y": 50
+      },
+      "scroll": 0,
+      "selection": 0,
+      "shell": {
+        "bottom": 140,
+        "height": 52,
+        "left": 60,
+        "right": 796,
+        "top": 88,
+        "width": 736,
+        "x": 60,
+        "y": 88
+      },
+      "slot": "textarea",
+      "status": {
+        "bottom": 170,
+        "height": 22,
+        "left": 60,
+        "right": 796,
+        "top": 148,
+        "width": 736,
+        "x": 60,
+        "y": 148
+      },
+      "tag": "TEXTAREA",
+      "value": ""
+    },
+    "review": "Review the current workspace changes. Focus on bugs, edge cases, and regression risks. Report findings with file locations and reasons, ordered by severity. Do not modify code.",
+    "appended": "Review the current workspace changes. Focus on bugs, edge cases, and regression risks. Report findings with file locations and reasons, ordered by severity. Do not modify code.\n\nDraft a concise commit title and description based on the current workspace changes. Summarize the problem, behavior changes, and validation. Only prepare the message; do not create a branch or commit.",
+    "newline": [
+      {
+        "editable": 0,
+        "expanded": true,
+        "focused": true,
+        "height": 154,
+        "max": 0,
+        "pageScroll": 0,
+        "quick": {
+          "bottom": 80,
+          "height": 30,
+          "left": 60,
+          "right": 796,
+          "top": 50,
+          "width": 736,
+          "x": 60,
+          "y": 50
+        },
+        "scroll": 0,
+        "selection": 6,
+        "shell": {
+          "bottom": 304,
+          "height": 216,
+          "left": 60,
+          "right": 796,
+          "top": 88,
+          "width": 736,
+          "x": 60,
+          "y": 88
+        },
+        "slot": "textarea",
+        "status": {
+          "bottom": 334,
+          "height": 22,
+          "left": 60,
+          "right": 796,
+          "top": 312,
+          "width": 736,
+          "x": 60,
+          "y": 312
+        },
+        "tag": "TEXTAREA",
+        "value": "\n\n\n\n\n\n"
+      },
+      {
+        "editable": 0,
+        "expanded": true,
+        "focused": true,
+        "height": 176,
+        "max": 0,
+        "pageScroll": 0,
+        "quick": {
+          "bottom": 80,
+          "height": 30,
+          "left": 60,
+          "right": 796,
+          "top": 50,
+          "width": 736,
+          "x": 60,
+          "y": 50
+        },
+        "scroll": 0,
+        "selection": 7,
+        "shell": {
+          "bottom": 326,
+          "height": 238,
+          "left": 60,
+          "right": 796,
+          "top": 88,
+          "width": 736,
+          "x": 60,
+          "y": 88
+        },
+        "slot": "textarea",
+        "status": {
+          "bottom": 356,
+          "height": 22,
+          "left": 60,
+          "right": 796,
+          "top": 334,
+          "width": 736,
+          "x": 60,
+          "y": 334
+        },
+        "tag": "TEXTAREA",
+        "value": "\n\n\n\n\n\n\n"
+      },
+      {
+        "editable": 0,
+        "expanded": true,
+        "focused": true,
+        "height": 176,
+        "max": 22,
+        "pageScroll": 0,
+        "quick": {
+          "bottom": 80,
+          "height": 30,
+          "left": 60,
+          "right": 796,
+          "top": 50,
+          "width": 736,
+          "x": 60,
+          "y": 50
+        },
+        "scroll": 20,
+        "selection": 8,
+        "shell": {
+          "bottom": 326,
+          "height": 238,
+          "left": 60,
+          "right": 796,
+          "top": 88,
+          "width": 736,
+          "x": 60,
+          "y": 88
+        },
+        "slot": "textarea",
+        "status": {
+          "bottom": 356,
+          "height": 22,
+          "left": 60,
+          "right": 796,
+          "top": 334,
+          "width": 736,
+          "x": 60,
+          "y": 334
+        },
+        "tag": "TEXTAREA",
+        "value": "\n\n\n\n\n\n\n\n"
+      },
+      {
+        "editable": 0,
+        "expanded": true,
+        "focused": true,
+        "height": 176,
+        "max": 198,
+        "pageScroll": 0,
+        "quick": {
+          "bottom": 80,
+          "height": 30,
+          "left": 60,
+          "right": 796,
+          "top": 50,
+          "width": 736,
+          "x": 60,
+          "y": 50
+        },
+        "scroll": 196,
+        "selection": 16,
+        "shell": {
+          "bottom": 326,
+          "height": 238,
+          "left": 60,
+          "right": 796,
+          "top": 88,
+          "width": 736,
+          "x": 60,
+          "y": 88
+        },
+        "slot": "textarea",
+        "status": {
+          "bottom": 356,
+          "height": 22,
+          "left": 60,
+          "right": 796,
+          "top": 334,
+          "width": 736,
+          "x": 60,
+          "y": 334
+        },
+        "tag": "TEXTAREA",
+        "value": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+      },
+      {
+        "editable": 0,
+        "expanded": true,
+        "focused": true,
+        "height": 176,
+        "max": 374,
+        "pageScroll": 0,
+        "quick": {
+          "bottom": 80,
+          "height": 30,
+          "left": 60,
+          "right": 796,
+          "top": 50,
+          "width": 736,
+          "x": 60,
+          "y": 50
+        },
+        "scroll": 372,
+        "selection": 24,
+        "shell": {
+          "bottom": 326,
+          "height": 238,
+          "left": 60,
+          "right": 796,
+          "top": 88,
+          "width": 736,
+          "x": 60,
+          "y": 88
+        },
+        "slot": "textarea",
+        "status": {
+          "bottom": 356,
+          "height": 22,
+          "left": 60,
+          "right": 796,
+          "top": 334,
+          "width": 736,
+          "x": 60,
+          "y": 334
+        },
+        "tag": "TEXTAREA",
+        "value": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+      },
+      {
+        "editable": 0,
+        "expanded": true,
+        "focused": true,
+        "height": 176,
+        "max": 726,
+        "pageScroll": 0,
+        "quick": {
+          "bottom": 80,
+          "height": 30,
+          "left": 60,
+          "right": 796,
+          "top": 50,
+          "width": 736,
+          "x": 60,
+          "y": 50
+        },
+        "scroll": 724,
+        "selection": 40,
+        "shell": {
+          "bottom": 326,
+          "height": 238,
+          "left": 60,
+          "right": 796,
+          "top": 88,
+          "width": 736,
+          "x": 60,
+          "y": 88
+        },
+        "slot": "textarea",
+        "status": {
+          "bottom": 356,
+          "height": 22,
+          "left": 60,
+          "right": 796,
+          "top": 334,
+          "width": 736,
+          "x": 60,
+          "y": 334
+        },
+        "tag": "TEXTAREA",
+        "value": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+      }
+    ],
+    "start": {
+      "editable": 0,
+      "expanded": true,
+      "focused": true,
+      "height": 176,
+      "max": 726,
+      "pageScroll": 0,
+      "quick": {
+        "bottom": 80,
+        "height": 30,
+        "left": 60,
+        "right": 796,
+        "top": 50,
+        "width": 736,
+        "x": 60,
+        "y": 50
+      },
+      "scroll": 0,
+      "selection": 1,
+      "shell": {
+        "bottom": 326,
+        "height": 238,
+        "left": 60,
+        "right": 796,
+        "top": 88,
+        "width": 736,
+        "x": 60,
+        "y": 88
+      },
+      "slot": "textarea",
+      "status": {
+        "bottom": 356,
+        "height": 22,
+        "left": 60,
+        "right": 796,
+        "top": 334,
+        "width": 736,
+        "x": 60,
+        "y": 334
+      },
+      "tag": "TEXTAREA",
+      "value": "a\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+    },
+    "narrow": {
+      "buttons": [
+        {
+          "bottom": 163.98336791992188,
+          "height": 34,
+          "left": 63,
+          "right": 97,
+          "top": 129.98336791992188,
+          "width": 34,
+          "x": 63,
+          "y": 129.98336791992188
+        },
+        {
+          "bottom": 163.98336791992188,
+          "height": 34,
+          "left": 105,
+          "right": 255,
+          "top": 129.98336791992188,
+          "width": 150,
+          "x": 105,
+          "y": 129.98336791992188
+        },
+        {
+          "bottom": 163.98336791992188,
+          "height": 34,
+          "left": 259,
+          "right": 293,
+          "top": 129.98336791992188,
+          "width": 34,
+          "x": 259,
+          "y": 129.98336791992188
+        }
+      ],
+      "expanded": true,
+      "s": {
+        "bottom": 172.98336791992188,
+        "height": 84,
+        "left": 50,
+        "right": 306,
+        "top": 88.98336791992188,
+        "width": 256,
+        "x": 50,
+        "y": 88.98336791992188
+      }
+    },
+    "slashAndModel": true,
+    "errorsRetainDraft": true,
+    "saveRecovery": true,
+    "attachments": true,
+    "runStates": true
+  }
+]

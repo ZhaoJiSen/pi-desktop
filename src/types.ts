@@ -26,6 +26,7 @@ export interface Model {
   name: string
   provider: string
   reasoning?: boolean
+  thinkingLevelMap?: Partial<Record<ThinkingLevel, string | null>>
   contextWindow: number
   input?: string[]
 }

@@ -1,7 +1,8 @@
-import type { Model, ThinkingLevel } from '../../types'
+import type { Model, RpcState, ThinkingLevel } from '../../types'
 import { isDesktop, useWorkspace } from '../../store/workspace'
 import { t } from '../i18n'
 import { modelKey } from '../utils'
+import { defaultThinkingLevel, modelThinkingLevels } from '../thinking'
 import { request, syncSession } from './requests'
 import { runtimeState } from './runtimeState'
 
@@ -10,24 +11,46 @@ export async function changeModel(model: Model) {
   if (!store.activeSessionId) return
   if (isDesktop) {
     await request({ type: 'set_model', provider: model.provider, modelId: model.id })
-    const levels = await request<{ levels: ThinkingLevel[] }>({
-      type: 'get_available_thinking_levels',
-    })
-    useWorkspace.setState({ thinkingLevels: levels.levels })
-    await syncSession(store.activeSessionId)
-  } else
+    useWorkspace.setState({ thinkingLevels: [] })
+    try {
+      const { levels } = await request<{ levels: ThinkingLevel[] }>({
+        type: 'get_available_thinking_levels',
+      })
+      useWorkspace.setState({ thinkingLevels: levels })
+      await request({ type: 'set_thinking_level', level: defaultThinkingLevel(levels) })
+    } finally {
+      // set_model may already have succeeded if the effort request fails.
+      // Read back the actual model and level instead of keeping the old UI.
+      await syncSession(store.activeSessionId)
+    }
+  } else {
+    const levels = modelThinkingLevels(model)
     store.updateSession(store.activeSessionId, {
       modelKey: modelKey(model),
-      thinking: model.reasoning ? 'medium' : 'off',
+      thinking: defaultThinkingLevel(levels),
     })
+    useWorkspace.setState({ thinkingLevels: levels })
+  }
   store.rememberModel(modelKey(model))
 }
 
 export async function changeThinking(level: ThinkingLevel) {
   const store = useWorkspace.getState()
   if (!store.activeSessionId) return
-  if (isDesktop) await request({ type: 'set_thinking_level', level })
-  store.updateSession(store.activeSessionId, { thinking: level })
+  if (isDesktop) {
+    // Runtime clamps unsupported levels; display the accepted result.
+    await request({ type: 'set_thinking_level', level })
+    const state = await request<RpcState>({ type: 'get_state' })
+    store.updateSession(store.activeSessionId, { thinking: state.thinkingLevel })
+  } else {
+    const model = store.models.find(
+      (item) =>
+        modelKey(item) ===
+        store.sessions.find((session) => session.id === store.activeSessionId)?.modelKey,
+    )
+    if (modelThinkingLevels(model).includes(level))
+      store.updateSession(store.activeSessionId, { thinking: level })
+  }
 }
 
 export async function renameSession(sessionId: string, value: string) {

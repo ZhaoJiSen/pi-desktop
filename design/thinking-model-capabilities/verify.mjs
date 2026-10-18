@@ -1,0 +1,42 @@
+export async function verifyModelCapabilities(tab,round){
+ const assert=(condition,message)=>{if(!condition)throw new Error(message)}
+ const button=name=>tab.playwright.getByRole('button',{name,exact:true})
+ const slider=()=>tab.playwright.getByRole('slider',{name:'Thinking effort',exact:true})
+ const snap=()=>tab.getAXState({emit:false})
+ const requests=async()=>JSON.parse(await tab.playwright.locator('body').getAttribute('data-requests')||'[]')
+ const read=()=>tab.playwright.evaluate(()=>{const p=document.querySelector('.model-thinking-control'),e=p.querySelector('input'),fill=p.querySelector('[data-slot=slider-fill]'),output=p.querySelector('output');return {level:p.dataset.level,bg:getComputedStyle(p).backgroundColor,fill:fill?getComputedStyle(fill).backgroundColor:null,image:fill?getComputedStyle(fill).backgroundImage:null,title:output?getComputedStyle(output).color:null,max:e?.max,text:e?.getAttribute('aria-valuetext'),ticks:p.querySelectorAll('.model-thinking-tick').length,focus:document.activeElement===e,brain:Boolean(p.querySelector('.lucide-brain')),zap:Boolean(p.querySelector('.lucide-zap'))}})
+ const choose=async name=>{await button(name).click();await snap();return read()}
+ const key=async name=>{await slider().press(name);await snap();return read()}
+ await tab.goto(`http://localhost:1420/design/thinking-model-capabilities/rpc.html?seed=round-${round}`)
+ await button('Model and thinking effort').waitFor({state:'visible'});await button('Model and thinking effort').click();await snap()
+ const initial=await read();assert(initial.level==='low'&&initial.ticks===4&&initial.brain&&!initial.zap,'Grok uses its four actual levels and a thinking icon, no fake fast switch')
+ const medium=await key('ArrowRight'),high=await key('ArrowRight'),xhigh=await key('End')
+ assert(medium.level==='medium'&&high.level==='high'&&xhigh.level==='xhigh','Discrete keyboard levels match runtime availability')
+ assert([medium,high,xhigh].every(s=>s.bg===initial.bg&&s.title===initial.title),'Panel background and title stay neutral across levels')
+ assert(medium.fill!==high.fill&&xhigh.image.includes('linear-gradient'),'Rail changes color, with a gradient for extra high')
+ let before=(await requests()).length
+ const sonnet=await choose('Claude Sonnet 4.6, anthropic')
+ let calls=(await requests()).slice(before)
+ assert(sonnet.level==='medium'&&sonnet.ticks===6,'Switching models explicitly sets Medium with that model’s capability list')
+ assert(calls[0].type==='set_model'&&calls[1].type==='get_available_thinking_levels'&&calls[2].type==='set_thinking_level'&&calls[2].level==='medium','Desktop sends default Medium after querying actual availability')
+ const sonnetMax=await key('End'),sonnetHigh=await key('ArrowLeft')
+ assert(sonnetMax.level==='max'&&sonnetHigh.level==='high','Sonnet supports Max but skips unsupported Extra high')
+ const sol=await choose('GPT-5.6 Sol, openai-codex');const solMax=await key('End')
+ assert(sol.level==='medium'&&solMax.level==='max'&&solMax.ticks===7,'Sol supports seven levels and resets to Medium')
+ const grok=await choose('Grok 4.7, xai');const grokTop=await key('End')
+ assert(grok.level==='medium'&&grokTop.level==='xhigh'&&grokTop.ticks===4,'Grok has Extra high but no Max; no previous model levels leak')
+ before=(await requests()).length;await choose('Grok 4.7, xai');assert((await requests()).length===before&&(await read()).level==='xhigh','Clicking selected model preserves user effort without redundant changes')
+ await choose('Plain model, local');assert(await slider().count()===0,'Non-reasoning model has no slider')
+ assert(!(await button('Model and thinking effort').innerText()).includes('·'),'Non-reasoning trigger omits effort')
+ const fixed=await choose('High only, local');assert(fixed.level==='high'&&fixed.ticks===1&&!(await slider().isEnabled()),'A model without Medium uses its single valid level')
+ await tab.pressKey(null,'F9');const failed=await choose('Grok 4.7, xai')
+ assert(failed.level==='high'&&failed.ticks===4&&await tab.playwright.getByRole('alert').isVisible(),'Partial model-change failure reads back actual model and effort')
+ await tab.pressKey(null,'F10');await choose('GPT-5.6 Sol, openai-codex');await tab.pressKey(null,'F7');const clamped=await key('End')
+ assert(clamped.level==='medium','Display reflects runtime-accepted level rather than unsupported requested value')
+ await tab.pressKey(null,'F10');await tab.pressKey(null,'F8');await choose('Claude Sonnet 4.6, anthropic')
+ assert(await slider().count()===0&&await tab.playwright.getByRole('alert').isVisible(),'Availability failure hides stale levels after model change')
+ await tab.pressKey(null,'F10');await choose('Grok 4.7, xai');await key('End');await button('Reset to Medium').click();await snap();assert((await read()).level==='medium','Reset uses same Medium default')
+ await key('End');await tab.pressKey(null,'Escape');await tab.reload();await button('Model and thinking effort').waitFor({state:'visible'});await button('Model and thinking effort').click();await snap()
+ const restored=await read();assert(restored.level==='xhigh'&&restored.ticks===4,'Saved effort and model capabilities survive reload')
+ return {round,initial,medium,high,xhigh,sonnet,sonnetMax,sonnetHigh,sol,solMax,grok,fixed,failed,clamped,restored,defaultCommand:calls[2],saveFailure:true,availabilityFailure:true,persisted:true}
+}

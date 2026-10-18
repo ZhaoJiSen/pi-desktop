@@ -1,0 +1,269 @@
+{
+  "context": {
+    "rect": {
+      "bottom": 614.489990234375,
+      "left": 462,
+      "right": 822,
+      "top": 98.859375
+    },
+    "vh": 720,
+    "vw": 1280
+  },
+  "frames": [
+    {
+      "file": "frames/000.png",
+      "t": 79,
+      "stage": 0
+    },
+    {
+      "file": "frames/001.png",
+      "t": 180,
+      "stage": 0
+    },
+    {
+      "file": "frames/002.png",
+      "t": 244,
+      "stage": 0
+    },
+    {
+      "file": "frames/003.png",
+      "t": 280,
+      "stage": 0
+    },
+    {
+      "file": "frames/004.png",
+      "t": 380,
+      "stage": 0
+    },
+    {
+      "file": "frames/005.png",
+      "t": 481,
+      "stage": 0
+    },
+    {
+      "file": "frames/006.png",
+      "t": 495,
+      "stage": 0
+    },
+    {
+      "file": "frames/007.png",
+      "t": 584,
+      "stage": 0
+    },
+    {
+      "file": "frames/008.png",
+      "t": 682,
+      "stage": 0
+    },
+    {
+      "file": "frames/009.png",
+      "t": 745,
+      "stage": 0
+    },
+    {
+      "file": "frames/010.png",
+      "t": 783,
+      "stage": 0
+    },
+    {
+      "file": "frames/011.png",
+      "t": 884,
+      "stage": 0
+    },
+    {
+      "file": "frames/012.png",
+      "t": 1072,
+      "stage": 1
+    },
+    {
+      "file": "frames/013.png",
+      "t": 1105,
+      "stage": 1
+    },
+    {
+      "file": "frames/014.png",
+      "t": 1185,
+      "stage": 1
+    },
+    {
+      "file": "frames/015.png",
+      "t": 1222,
+      "stage": 1
+    },
+    {
+      "file": "frames/016.png",
+      "t": 1246,
+      "stage": 1
+    },
+    {
+      "file": "frames/017.png",
+      "t": 1265,
+      "stage": 1
+    },
+    {
+      "file": "frames/018.png",
+      "t": 1297,
+      "stage": 1
+    },
+    {
+      "file": "frames/019.png",
+      "t": 1489,
+      "stage": 1
+    },
+    {
+      "file": "frames/020.png",
+      "t": 1595,
+      "stage": 1
+    },
+    {
+      "file": "frames/021.png",
+      "t": 1691,
+      "stage": 2
+    },
+    {
+      "file": "frames/022.png",
+      "t": 1752,
+      "stage": 2
+    },
+    {
+      "file": "frames/023.png",
+      "t": 1795,
+      "stage": 2
+    },
+    {
+      "file": "frames/024.png",
+      "t": 1813,
+      "stage": 2
+    },
+    {
+      "file": "frames/025.png",
+      "t": 1831,
+      "stage": 2
+    },
+    {
+      "file": "frames/026.png",
+      "t": 1847,
+      "stage": 2
+    },
+    {
+      "file": "frames/027.png",
+      "t": 1864,
+      "stage": 2
+    },
+    {
+      "file": "frames/028.png",
+      "t": 1996,
+      "stage": 2
+    },
+    {
+      "file": "frames/029.png",
+      "t": 2277,
+      "stage": 2
+    },
+    {
+      "file": "frames/030.png",
+      "t": 2613,
+      "stage": 2
+    },
+    {
+      "file": "frames/031.png",
+      "t": 2922,
+      "stage": 2
+    },
+    {
+      "file": "frames/032.png",
+      "t": 3225,
+      "stage": 2
+    },
+    {
+      "file": "frames/033.png",
+      "t": 3566,
+      "stage": 3
+    },
+    {
+      "file": "frames/034.png",
+      "t": 3625,
+      "stage": 3
+    },
+    {
+      "file": "frames/035.png",
+      "t": 3724,
+      "stage": 3
+    },
+    {
+      "file": "frames/036.png",
+      "t": 3788,
+      "stage": 3
+    },
+    {
+      "file": "frames/037.png",
+      "t": 3826,
+      "stage": 3
+    },
+    {
+      "file": "frames/038.png",
+      "t": 3893,
+      "stage": 3
+    },
+    {
+      "file": "frames/039.png",
+      "t": 3927,
+      "stage": 3
+    },
+    {
+      "file": "frames/040.png",
+      "t": 4028,
+      "stage": 3
+    },
+    {
+      "file": "frames/041.png",
+      "t": 4052,
+      "stage": 3
+    },
+    {
+      "file": "frames/042.png",
+      "t": 4087,
+      "stage": 3
+    },
+    {
+      "file": "frames/043.png",
+      "t": 4129,
+      "stage": 3
+    },
+    {
+      "file": "frames/044.png",
+      "t": 4146,
+      "stage": 3
+    },
+    {
+      "file": "frames/045.png",
+      "t": 4176,
+      "stage": 3
+    },
+    {
+      "file": "frames/046.png",
+      "t": 4230,
+      "stage": 3
+    },
+    {
+      "file": "frames/047.png",
+      "t": 4418,
+      "stage": 3
+    },
+    {
+      "file": "frames/048.png",
+      "t": 4459,
+      "stage": 3
+    },
+    {
+      "file": "frames/049.png",
+      "t": 4487,
+      "stage": 3
+    },
+    {
+      "file": "frames/050.png",
+      "t": 4579,
+      "stage": 3
+    }
+  ]
+}

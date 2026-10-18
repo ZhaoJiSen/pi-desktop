@@ -1,0 +1,122 @@
+[
+  {
+    "round": 40,
+    "oneTrigger": true,
+    "search": true,
+    "modelAndEffort": true,
+    "persisted": true,
+    "commandFocus": true,
+    "unsupported": true,
+    "saveRecovery": true,
+    "narrow": {
+      "button": {
+        "bottom": 163.2840576171875,
+        "height": 34,
+        "left": 105,
+        "right": 255,
+        "top": 129.2840576171875,
+        "width": 150,
+        "x": 105,
+        "y": 129.2840576171875
+      },
+      "effortOverflow": 0,
+      "shell": {
+        "bottom": 172.2840576171875,
+        "height": 84,
+        "left": 50,
+        "right": 306,
+        "top": 88.2840576171875,
+        "width": 256,
+        "x": 50,
+        "y": 88.2840576171875
+      }
+    },
+    "panel": {
+      "bottom": 638.140625,
+      "right": 451.25,
+      "viewport": 1280,
+      "viewportHeight": 720,
+      "width": 344
+    }
+  },
+  {
+    "round": 41,
+    "oneTrigger": true,
+    "search": true,
+    "modelAndEffort": true,
+    "persisted": true,
+    "commandFocus": true,
+    "unsupported": true,
+    "saveRecovery": true,
+    "narrow": {
+      "button": {
+        "bottom": 163.4338836669922,
+        "height": 34,
+        "left": 105,
+        "right": 255,
+        "top": 129.4338836669922,
+        "width": 150,
+        "x": 105,
+        "y": 129.4338836669922
+      },
+      "effortOverflow": 0,
+      "shell": {
+        "bottom": 172.4338836669922,
+        "height": 84,
+        "left": 50,
+        "right": 306,
+        "top": 88.43388366699219,
+        "width": 256,
+        "x": 50,
+        "y": 88.43388366699219
+      }
+    },
+    "panel": {
+      "bottom": 638.140625,
+      "right": 451.25,
+      "viewport": 779,
+      "viewportHeight": 1100,
+      "width": 344
+    }
+  },
+  {
+    "round": 42,
+    "oneTrigger": true,
+    "search": true,
+    "modelAndEffort": true,
+    "persisted": true,
+    "commandFocus": true,
+    "unsupported": true,
+    "saveRecovery": true,
+    "narrow": {
+      "button": {
+        "bottom": 163.5723419189453,
+        "height": 34,
+        "left": 105,
+        "right": 255,
+        "top": 129.5723419189453,
+        "width": 150,
+        "x": 105,
+        "y": 129.5723419189453
+      },
+      "effortOverflow": 0,
+      "shell": {
+        "bottom": 172.5723419189453,
+        "height": 84,
+        "left": 50,
+        "right": 306,
+        "top": 88.57234191894531,
+        "width": 256,
+        "x": 50,
+        "y": 88.57234191894531
+      }
+    },
+    "panel": {
+      "bottom": 638.140625,
+      "right": 451.25,
+      "viewport": 779,
+      "viewportHeight": 1100,
+      "width": 344
+    }
+  }
+]

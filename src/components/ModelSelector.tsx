@@ -1,8 +1,8 @@
 import { Button, Popover, ScrollShadow } from '@heroui/react'
 import { useDebounce } from 'ahooks'
 import { Check, ChevronDown, Search } from 'lucide-react'
-import { AnimatePresence, motion } from 'motion/react'
-import { useState } from 'react'
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
+import { useEffect, useRef, useState } from 'react'
 import { useWorkspace } from '../store/workspace'
 import { changeModel } from '../lib/desktop'
 import { useT } from '../lib/i18n'
@@ -14,12 +14,17 @@ export function ModelSelector({
   onOpenChange,
   placement = 'bottom start',
   boundaryElement,
+  disabled = false,
+  onPendingChange,
 }: {
   isOpen?: boolean
   onOpenChange?: (open: boolean) => void
   placement?: 'top start' | 'bottom start'
   boundaryElement?: Element
+  disabled?: boolean
+  onPendingChange?: (pending: boolean) => void
 } = {}) {
+  const reducedMotion = useReducedMotion()
   const models = useWorkspace((state) => state.models)
   const recent = useWorkspace((state) => state.recentModels)
   const session = useWorkspace((state) =>
@@ -33,12 +38,24 @@ export function ModelSelector({
   function setOpen(value: boolean) {
     setInternalOpen(value)
     onOpenChange?.(value)
+    if (!value) {
+      setQuery('')
+      setError('')
+    }
   }
   const [query, setQuery] = useState('')
   const [changing, setChanging] = useState(false)
+  const [error, setError] = useState('')
+  const searchInput = useRef<HTMLInputElement>(null)
+  useEffect(() => {
+    // Disabling a focused option moves native focus out of the dialog. Keep
+    // keyboard dismissal available while a request or connection is pending.
+    if (open && (busy || changing || disabled)) searchInput.current?.focus({ preventScroll: true })
+  }, [open, busy, changing, disabled])
   const search = useDebounce(query.trim().toLowerCase(), { wait: 100 })
   const t = useT()
   const selected = models.find((model) => modelKey(model) === session?.modelKey)
+  const label = t('models.choose')
   const filtered = models.filter((model) =>
     `${model.name} ${model.provider} ${model.id}`.toLowerCase().includes(search),
   )
@@ -55,15 +72,23 @@ export function ModelSelector({
     else groups.set(model.provider, [model])
   }
   async function choose(model: Model) {
-    if (changing) return
+    if (changing || disabled || busy) return
+    if (modelKey(model) === session?.modelKey) {
+      setOpen(false)
+      return
+    }
     setChanging(true)
+    onPendingChange?.(true)
+    setError('')
     try {
       await changeModel(model)
       setOpen(false)
     } catch (error) {
+      setError(errorText(error))
       useWorkspace.setState({ connectionError: errorText(error) })
     } finally {
       setChanging(false)
+      onPendingChange?.(false)
     }
   }
   const row = (model: Model, showProvider = false) => (
@@ -71,7 +96,8 @@ export function ModelSelector({
       key={modelKey(model)}
       variant="ghost"
       className="model-row"
-      isDisabled={changing}
+      isDisabled={changing || disabled || busy}
+      aria-pressed={modelKey(model) === session?.modelKey}
       onPress={() => void choose(model)}
       aria-label={`${model.name}, ${model.provider}`}
     >
@@ -94,20 +120,16 @@ export function ModelSelector({
     </Button>
   )
   return (
-    <Popover
-      isOpen={open}
-      onOpenChange={(value) => {
-        setOpen(value)
-        if (!value) setQuery('')
-      }}
-    >
+    <Popover isOpen={open} onOpenChange={setOpen}>
       <Button
         variant="ghost"
         className="composer-select model-trigger"
-        isDisabled={busy || changing}
-        aria-label={t('models.choose')}
+        isDisabled={busy || changing || disabled}
+        aria-label={label}
       >
-        <span>{selected?.name || t('models.choose')}</span>
+        <span className="model-trigger-name" title={selected?.name || t('models.choose')}>
+          {selected?.name || t('models.choose')}
+        </span>
         <ChevronDown className="chevron" />
       </Button>
       <Popover.Content
@@ -118,17 +140,18 @@ export function ModelSelector({
         className="model-popover"
         offset={12}
       >
-        <Popover.Dialog aria-label={t('models.choose')}>
+        <Popover.Dialog aria-label={label}>
           <AnimatePresence>
             <motion.div
               className="model-popover-content"
-              initial={{ opacity: 0, y: -6 }}
+              initial={reducedMotion ? false : { opacity: 0, y: -6 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.2 }}
             >
               <label className="popover-search">
                 <Search />
                 <input
+                  ref={searchInput}
                   autoFocus
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
@@ -151,6 +174,11 @@ export function ModelSelector({
                 ))}
                 {!filtered.length && <div className="popover-empty">{t('models.noResults')}</div>}
               </ScrollShadow>
+              {error && (
+                <p className="model-selection-error" role="alert">
+                  {error}
+                </p>
+              )}
             </motion.div>
           </AnimatePresence>
         </Popover.Dialog>
