@@ -82,11 +82,17 @@
 }
 .nav .button.nav-row,
 .projects .projects-toggle {
-  height: 32px;
-  min-height: 32px;
   gap: 8px;
   font-size: 13px;
   line-height: 20px;
+}
+.nav .button.nav-row {
+  height: 32px;
+  min-height: 32px;
+}
+.projects .projects-toggle {
+  height: 24px;
+  min-height: 24px;
 }
 .nav .button.nav-row > svg,
 .projects-toggle .projects-indicator {
@@ -99,6 +105,9 @@
 }
 .nav .nav-row:is(:hover, [data-hovered='true'], .nav-active):not(:disabled) > svg {
   color: var(--ink);
+}
+.nav .button.nav-row:is(:hover, [data-hovered='true']) {
+  background: transparent;
 }
 .nav .nav-active {
   background: var(--selection);
@@ -117,7 +126,7 @@
   overflow-y: auto;
 }
 .recent-section {
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 .recent-section .section-label {
   margin-bottom: 0;
@@ -157,11 +166,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 32px;
-  min-height: 32px;
+  height: 24px;
+  min-height: 24px;
   gap: 0;
   padding: 0 7px 0 0;
-  margin: 0 0 6px;
+  margin: 0 0 2px;
   color: var(--muted);
   font-size: 12px;
 }
@@ -221,10 +230,10 @@
   color: var(--ink);
 }
 .sidebar .section-label :is(.project-picker-trigger, .section-action) {
-  width: 28px;
-  min-width: 28px;
-  height: 28px;
-  min-height: 28px;
+  width: 24px;
+  min-width: 24px;
+  height: 24px;
+  min-height: 24px;
   border-radius: var(--radius);
   opacity: 0;
   pointer-events: none;
@@ -284,10 +293,15 @@
   opacity: 0.4;
 }
 .project {
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 .project-heading.list-box-item {
+  height: 32px;
+  min-height: 32px;
   padding: 0;
+}
+.project-heading.list-box-item:is(:hover, [data-hovered='true']) {
+  background: transparent;
 }
 .project-heading[data-menu-open] {
   background: var(--default);
@@ -301,8 +315,8 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  height: 36px;
-  min-height: 36px;
+  height: 32px;
+  min-height: 32px;
   gap: 8px;
   padding: 0 7px;
   font-size: 13px;
@@ -336,7 +350,7 @@
 .project-actions {
   position: absolute;
   right: 6px;
-  top: 6px;
+  top: 4px;
   display: flex;
   gap: 4px;
   opacity: 0;
@@ -433,8 +447,8 @@
   flex: none;
   padding: 0;
 }
-.session-row:not(.selected):focus-within {
-  background: var(--default);
+.session-row:not(.selected):is(:hover, :focus-within) {
+  background: var(--selection);
 }
 .button.session {
   --button-bg-hover: transparent;
