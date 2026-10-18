@@ -44,14 +44,22 @@ export function useExtensionPackages() {
   const running = useWorkspace(
     (state) => Boolean(state.runningSessionId) || state.connection === 'connecting',
   )
-  const [mode, setMode] = useState<'installed' | 'discover'>('installed')
+  const [mode, setMode] = useState<'installed' | 'discover'>(() =>
+    useWorkspace.getState().extensionSelection?.category === 'skill' ? 'discover' : 'installed',
+  )
   const [query, setQuery] = useState('')
   const [sort, setSort] = useState<CatalogOptions['sort']>('downloads')
-  const [category, setCategory] = useState<CatalogOptions['category']>('')
+  const [category, setCategory] = useState<CatalogOptions['category']>(
+    () => useWorkspace.getState().extensionSelection?.category || '',
+  )
   const [page, setPage] = useState(1)
   const search = useDebounce(query.trim(), { wait: 300 })
-  const [mobileDetail, setMobileDetail] = useState(false)
-  const [selected, setSelected] = useState<string | null>(null)
+  const [mobileDetail, setMobileDetail] = useState(() =>
+    Boolean(useWorkspace.getState().extensionSelection?.key),
+  )
+  const [selected, setSelected] = useState<string | null>(
+    () => useWorkspace.getState().extensionSelection?.key || null,
+  )
   const [catalogResult, setCatalogResult] = useState<{
     key: string
     items: PackageInfo[]
@@ -167,10 +175,17 @@ export function useExtensionPackages() {
     forcedCheckRevision.current = checkRetry
     checkPackageUpdates(path, packages, packageInfo, force)
       .then((result) => {
-        if (!cancelled) setChecked({ source: infoSource, result, revision: checkRetry })
+        if (!cancelled) {
+          // Finish both states together: updating `checked` invalidates this effect.
+          setChecking(false)
+          setChecked({ source: infoSource, result, revision: checkRetry })
+        }
       })
-      .finally(() => {
-        if (!cancelled) setChecking(false)
+      .catch((error) => {
+        if (!cancelled) {
+          setChecking(false)
+          setError(errorText(error))
+        }
       })
     return () => {
       cancelled = true

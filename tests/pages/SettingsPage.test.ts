@@ -16,8 +16,11 @@ import { useWorkspace } from '../../src/store/workspace'
 let root: Root
 let container: HTMLDivElement
 
-async function mount() {
-  await act(async () => root.render(createElement(SettingsPage)))
+async function mount(section: 'general' | 'appearance' | 'connection' = 'general') {
+  await act(async () => {
+    useWorkspace.setState({ settingsSection: section })
+    root.render(createElement(SettingsPage))
+  })
 }
 function button(label: string) {
   return [...container.querySelectorAll('button')].find((item) => item.textContent?.includes(label))
@@ -47,6 +50,8 @@ beforeEach(() => {
     language: 'en',
     theme: 'light',
     palette: 'ink',
+    palettesByMode: { light: 'ink', dark: 'ink' },
+    accentOverrides: {},
     piExecutable: 'pi',
     activeSessionId: null,
     connection: 'disconnected',
@@ -67,17 +72,34 @@ afterEach(() => {
 })
 
 describe('SettingsPage', () => {
-  it('keeps appearance first and shows the saved connection', async () => {
+  it('organizes settings into sections and keeps the saved controls mounted', async () => {
     await mount()
-    const headings = [...container.querySelectorAll('h2')].map((item) => item.textContent)
-    expect(headings).toEqual(['Appearance', 'General', 'Extensions', 'Pi connection'])
+    const sections = [...container.querySelectorAll('.settings-navigation [role="option"]')].map(
+      (item) => item.textContent,
+    )
+    expect(sections).toEqual([
+      'General',
+      'Appearance',
+      'Shortcuts',
+      'Extensions',
+      'Pi connection',
+    ])
+    expect(container.querySelector('.settings-panel-heading h2')?.textContent).toBe('General')
+    expect(
+      container.querySelector('.settings-navigation [aria-selected="true"]')?.textContent,
+    ).toBe('General')
     expect(container.textContent).toContain('Not connected')
+    expect(container.textContent).toContain('Wrap text and code')
+    const wrap = container.querySelector<HTMLInputElement>('.settings-inline-switch input')
+    expect(wrap?.checked).toBe(false)
+    await act(async () => wrap?.click())
+    expect(useWorkspace.getState().wrapLines).toBe(true)
     expect(frame().getAttribute('data-preview')).toBeNull()
   })
 
   it('previews a palette on the theme cards without saving it', async () => {
-    await mount()
-    const trigger = container.querySelector<HTMLButtonElement>('.settings-palette-select button')
+    await mount('appearance')
+    const trigger = container.querySelector<HTMLButtonElement>('.settings-palette-trigger')
     expect(trigger?.textContent).toContain('Ink')
     await act(async () => {
       trigger?.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true }))
@@ -96,7 +118,7 @@ describe('SettingsPage', () => {
   })
 
   it('saves a path without reconnecting when no session is open', async () => {
-    await mount()
+    await mount('connection')
     await setPath('/usr/local/bin/pi')
     expect(container.textContent).toContain('Not applied')
     await act(async () => button('Save and reconnect')?.click())
@@ -106,12 +128,29 @@ describe('SettingsPage', () => {
     expect(container.textContent).not.toContain('Not applied')
   })
 
+  it('changes mode-specific names and rebuilds the accent swatches when switching modes', async () => {
+    useWorkspace.setState({ palettesByMode: { light: 'min-dark', dark: 'catppuccin' } })
+    await mount('appearance')
+    expect(container.querySelector('.settings-palette-trigger')?.textContent).toContain('Min Light')
+    const lightSwatches = [...container.querySelectorAll('.settings-accent-picker [role="option"]')]
+    expect(lightSwatches).toHaveLength(9)
+    await act(async () => useWorkspace.getState().setPreference({ theme: 'dark' }))
+    expect(container.querySelector('.settings-palette-trigger')?.textContent).toContain(
+      'Catppuccin Mocha',
+    )
+    const darkSwatches = [...container.querySelectorAll('.settings-accent-picker [role="option"]')]
+    expect(darkSwatches).toHaveLength(9)
+    expect(darkSwatches[1]?.id).not.toBe(lightSwatches[1]?.id)
+    await act(async () => useWorkspace.getState().setPreference({ theme: 'light' }))
+    expect(container.querySelector('.settings-palette-trigger')?.textContent).toContain('Min Light')
+  })
+
   it('reports reconnect success and keeps a failed path', async () => {
     useWorkspace.setState({ activeSessionId: 'session', connection: 'disconnected' })
     mocks.connect.mockImplementation(async () => {
       useWorkspace.setState({ connection: 'connected', connectionError: null })
     })
-    await mount()
+    await mount('connection')
     await act(async () => button('Save and reconnect')?.click())
     expect(mocks.connect).toHaveBeenCalledWith('session', true)
     expect(container.textContent).toContain('Reconnected')
@@ -134,7 +173,7 @@ describe('SettingsPage', () => {
       connection: 'connected',
       piExecutable: '/usr/local/bin/pi',
     })
-    await mount()
+    await mount('connection')
     const save = button('Save and reconnect')
     expect(save?.disabled).toBe(true)
     expect(container.textContent).toContain('A session is running')

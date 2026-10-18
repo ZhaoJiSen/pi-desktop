@@ -1,0 +1,22 @@
+{
+  "childrenFit": true,
+  "composerWidth": 736,
+  "sameRow": true,
+  "tags": [
+    {
+      "overflow": false,
+      "text": "先做计划会话",
+      "width": 145
+    },
+    {
+      "overflow": false,
+      "text": "审查改动单次",
+      "width": 145
+    }
+  ],
+  "tagsRightOfPlus": true,
+  "viewport": [
+    679,
+    1100
+  ]
+}

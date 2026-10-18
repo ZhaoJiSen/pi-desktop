@@ -7,10 +7,12 @@ export function PackageScrollArea({
   className,
   label,
   children,
+  shadowSize,
 }: {
   className: string
   label: string
   children: ReactNode
+  shadowSize?: number
 }) {
   const viewport = useRef<HTMLDivElement>(null)
   const content = useRef<HTMLDivElement>(null)
@@ -51,6 +53,7 @@ export function PackageScrollArea({
         ref={viewport}
         className="package-scroll-viewport"
         hideScrollBar
+        size={shadowSize}
         tabIndex={0}
         aria-label={label}
       >

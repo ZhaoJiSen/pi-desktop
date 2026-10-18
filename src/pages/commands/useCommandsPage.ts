@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useT } from '../../lib/i18n'
 import {
   commandCapability,
+  desktopCommandEnabled,
   discoverCommands,
   filterCommands,
   type DiscoverableCommand,
@@ -19,6 +20,7 @@ export type CommandServices = typeof defaultServices
 export function useCommandsPage(services: CommandServices = defaultServices) {
   const t = useT()
   const language = useWorkspace((s) => s.language)
+  const requestedCapability = useWorkspace((s) => s.commandCapabilityId)
   const active = useWorkspace((s) => s.activeSessionId)
   const connection = useWorkspace((s) => s.connection)
   const runtimeCommands = useWorkspace((s) => s.commands)
@@ -111,7 +113,10 @@ export function useCommandsPage(services: CommandServices = defaultServices) {
     connected && !loading && !error
       ? previewing
         ? catalog
-        : [...catalog.filter((c) => c.source === 'builtin'), ...runtimeCommands]
+        : [
+            ...catalog.filter((c) => c.source === 'builtin'),
+            ...runtimeCommands.filter((command) => !command.name.startsWith('desktop-bridge')),
+          ]
       : []
   const matches = filterCommands(all, query, source, labels)
   const groups = sources
@@ -122,8 +127,15 @@ export function useCommandsPage(services: CommandServices = defaultServices) {
     }))
     .filter((group) => group.commands.length > 0)
   const filtered = source === 'all' ? groups.flatMap((group) => group.commands) : matches
+  const requested = filtered.find((command) => commandKey(command) === requestedCapability)
   const selectedVisible = filtered.some((command) => commandKey(command) === selected)
-  const visibleSelected = selectedVisible ? selected : filtered[0] ? commandKey(filtered[0]) : null
+  const visibleSelected = requested
+    ? commandKey(requested)
+    : selectedVisible
+      ? selected
+      : filtered[0]
+        ? commandKey(filtered[0])
+        : null
   const item = filtered.find((command) => commandKey(command) === visibleSelected) ?? null
   useEffect(() => {
     if (!scrollDetail.current) return
@@ -132,7 +144,14 @@ export function useCommandsPage(services: CommandServices = defaultServices) {
     document.querySelector('.commands-detail')?.scrollIntoView({ block: 'start' })
   }, [visibleSelected])
   async function execute(command: DiscoverableCommand) {
-    if (locked || execution.current || commandCapability(command) !== 'execute' || !active) return
+    if (
+      !desktopCommandEnabled(command) ||
+      locked ||
+      execution.current ||
+      commandCapability(command) !== 'execute' ||
+      !active
+    )
+      return
     execution.current = true
     const id = generation.current
     setExecuting(true)
@@ -157,6 +176,7 @@ export function useCommandsPage(services: CommandServices = defaultServices) {
     }
   }
   function choose(command: DiscoverableCommand) {
+    useWorkspace.setState({ commandCapabilityId: null })
     setSelected(commandKey(command))
     setNotice('')
     setActionError('')

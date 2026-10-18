@@ -37,7 +37,7 @@ export function CommandEmpty({
         {loading ? <Spinner size="sm" /> : <SearchX />}
       </div>
       <p>{title}</p>
-      <span>{detail}</span>
+      {detail && <span>{detail}</span>}
     </div>
   )
 }

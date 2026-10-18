@@ -3,10 +3,16 @@ import { act, createElement } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 vi.mock('../../src/components/ModelSelector', () => ({ ModelSelector: () => null }))
-vi.mock('../../src/router/navigation', () => ({ navigateToPage: vi.fn() }))
+vi.mock('../../src/router/navigation', () => ({
+  navigateToPage: vi.fn(),
+  navigateToExtensionSource: vi.fn(),
+}))
 vi.mock('motion/react', async (importOriginal) => ({
   ...(await importOriginal<typeof import('motion/react')>()),
   useReducedMotion: () => true,
+}))
+vi.mock('../../src/components/composer/useComposerCommands', () => ({
+  useComposerCommands: () => ({ commands: [], loading: false, catalogError: '' }),
 }))
 import { CommandsPage } from '../../src/pages/CommandsPage'
 import { useWorkspace } from '../../src/store/workspace'
@@ -25,6 +31,11 @@ async function mount() {
     root.render(
       createElement(SidebarWidthProvider, null, createElement(CommandsPage, { services })),
     ),
+  )
+}
+async function chooseNative(name: string) {
+  await act(async () =>
+    container.querySelector<HTMLElement>(`[data-key="builtin:${name}:"]`)!.click(),
   )
 }
 function action() {
@@ -46,6 +57,8 @@ beforeEach(() => {
     language: 'en',
     connection: 'connected',
     runningSessionId: null,
+    commandCapabilityId: null,
+    capabilityPreferences: { showShortcuts: true, visibleCount: 2, items: [] },
     commands: commands.filter((c) => c.source !== 'builtin') as SlashCommand[],
   })
   services = {
@@ -73,13 +86,14 @@ describe('command center actions', () => {
       commands: [{ name: 'websearch', source: 'extension', description: 'Search the web' }],
     })
     await mount()
-    expect(container.querySelector('.command-inspector')).toBeNull()
-    expect(container.querySelector('.command-row')).toBeNull()
+    expect(container.querySelector('[data-key="builtin:compact:"]')).toBeNull()
+    expect(container.querySelectorAll('.command-row')).toHaveLength(5)
     await act(async () =>
       finish([{ name: 'settings', source: 'builtin', description: 'Open settings' }]),
     )
-    expect(container.querySelector('.command-inspector h3')?.textContent).toBe('/settings')
-    expect(container.querySelectorAll('.command-row')).toHaveLength(2)
+    await chooseNative('settings')
+    expect(container.querySelector('.card__title')?.textContent).toBe('/settings')
+    expect(container.querySelectorAll('.command-row')).toHaveLength(7)
   })
   it('does not show the previous catalog while the next session catalog loads', async () => {
     await mount()
@@ -88,11 +102,12 @@ describe('command center actions', () => {
       () => new Promise<DiscoverableCommand[]>((resolve) => (finish = resolve)),
     )
     await act(async () => useWorkspace.setState({ activeSessionId: 'files' }))
-    expect(container.querySelector('.command-inspector')).toBeNull()
+    expect(container.querySelector('[data-key="builtin:compact:"]')).toBeNull()
     await act(async () =>
       finish([{ name: 'settings', source: 'builtin', description: 'Open settings' }]),
     )
-    expect(container.querySelector('.command-inspector h3')?.textContent).toBe('/settings')
+    await chooseNative('settings')
+    expect(container.querySelector('.card__title')?.textContent).toBe('/settings')
   })
   it('allows retry when the initial catalog fails to load', async () => {
     services.discover = vi
@@ -101,32 +116,37 @@ describe('command center actions', () => {
       .mockResolvedValue(commands)
     await mount()
     expect(container.querySelector('[role="alert"]')?.textContent).toBe('Catalog unavailable')
-    expect(container.querySelector('.command-inspector')).toBeNull()
+    expect(container.querySelector('[data-key="builtin:compact:"]')).toBeNull()
     await act(async () =>
       container.querySelector<HTMLButtonElement>('[aria-label="Refresh"]')!.click(),
     )
     expect(container.querySelector('[role="alert"]')).toBeNull()
-    expect(container.querySelector('.command-inspector h3')?.textContent).toBe('/compact')
+    await chooseNative('compact')
+    expect(container.querySelector('.card__title')?.textContent).toBe('/compact')
   })
   it('keeps the source group while searching and shows the source again in the detail', async () => {
     await mount()
     await act(async () =>
       container
-        .querySelector<HTMLButtonElement>('[aria-controls="commands-browser-search"]')!
+        .querySelector<HTMLButtonElement>(
+          '[aria-label="Search commands, descriptions or sources"]',
+        )!
         .click(),
     )
     const input = container.querySelector('input')!
     await act(async () => {
       Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(
         input,
-        'review',
+        'Review changes',
       )
       input.dispatchEvent(new Event('input', { bubbles: true }))
     })
-    expect(container.querySelectorAll('.command-row')).toHaveLength(1)
-    expect(container.querySelector('.commands-group-heading span')?.textContent).toBe('Extension')
-    expect(container.querySelector('.command-summary')?.textContent).toBe('Review changes')
-    expect(container.querySelector('.command-source')?.textContent).toBe('Extension')
+    expect(container.querySelectorAll('.command-row')).toHaveLength(2)
+    expect(container.querySelector('.commands-group-heading span')?.textContent).toBe('Built-in')
+    expect(container.querySelector('.command-summary')?.textContent).toBe(
+      'Find bugs and regression risks without changing code.',
+    )
+    expect(container.querySelector('.library-metadata')?.textContent).toContain('Built-in')
   })
   it('retains the catalog and allows retry after compaction fails', async () => {
     services.request = vi
@@ -134,9 +154,10 @@ describe('command center actions', () => {
       .mockRejectedValueOnce(new Error('Compaction failed'))
       .mockResolvedValue({})
     await mount()
+    await chooseNative('compact')
     await act(async () => action().click())
     expect(container.querySelector('[role="alert"]')?.textContent).toBe('Compaction failed')
-    expect(container.querySelectorAll('.command-row')).toHaveLength(2)
+    expect(container.querySelectorAll('.command-row')).toHaveLength(7)
     expect(action().disabled).toBe(false)
     await act(async () => action().click())
     expect(container.querySelector('[role="alert"]')).toBeNull()
@@ -151,6 +172,7 @@ describe('command center actions', () => {
         }),
     )
     await mount()
+    await chooseNative('compact')
     await act(async () => {
       action().click()
       action().click()
@@ -167,12 +189,13 @@ describe('command center actions', () => {
         }),
     )
     await mount()
+    await chooseNative('compact')
     await act(async () => action().click())
     await act(async () =>
       useWorkspace.setState({ activeSessionId: 'files', runningSessionId: null }),
     )
     await act(async () => fail(new Error('Old session failed')))
     expect(container.querySelector('[role="alert"]')).toBeNull()
-    expect(container.querySelectorAll('.command-row')).toHaveLength(2)
+    expect(container.querySelectorAll('.command-row')).toHaveLength(7)
   })
 })
