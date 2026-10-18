@@ -23,6 +23,26 @@ import { useColorMode } from '../../hooks/useColorMode'
 import { SettingsSection } from './SettingsSection'
 import { PalettePreview } from './PalettePreview'
 
+const paletteMessageNames = {
+  ink: 'ink',
+  gruvbox: 'gruvbox',
+  everforest: 'everforest',
+  catppuccin: 'catppuccin',
+  'catppuccin-frappe': 'catppuccinFrappe',
+  'catppuccin-macchiato': 'catppuccinMacchiato',
+  linear: 'linear',
+  nord: 'nord',
+  ayu: 'ayu',
+  'one-dark': 'oneDark',
+  'min-dark': 'minDark',
+  solarized: 'solarized',
+  'rose-pine': 'rosePine',
+  'rose-pine-moon': 'rosePineMoon',
+  'tokyo-night': 'tokyoNight',
+  'tokyo-night-storm': 'tokyoNightStorm',
+  'tokyo-night-moon': 'tokyoNightMoon',
+} as const
+
 const themeOptions = [
   { mode: 'light', icon: Sun },
   { mode: 'dark', icon: Moon },
@@ -50,8 +70,8 @@ export function AppearanceSettings() {
     id === 'rose-pine-moon' ||
     id === 'tokyo-night-storm' ||
     id === 'tokyo-night-moon'
-      ? t(`settings.palette.${id}.dark`)
-      : t(`settings.palette.${id}.${colorMode}`)
+      ? t(`settings.palette.${paletteMessageNames[id]}.dark`)
+      : t(`settings.palette.${paletteMessageNames[id]}.${colorMode}`)
   function changeOpen(value: boolean) {
     setOpen(value)
     if (!value) {

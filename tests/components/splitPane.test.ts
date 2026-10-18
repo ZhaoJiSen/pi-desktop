@@ -37,6 +37,7 @@ async function pointer(type: string, x: number) {
   )
 }
 beforeEach(() => {
+  vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
   localStorage.clear()
   narrow = false
   vi.stubGlobal('matchMedia', () => ({

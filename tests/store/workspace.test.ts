@@ -464,7 +464,7 @@ describe('language-independent session titles', () => {
       '用户自己的标题',
     )
     expect(restored.getState().language).toBe('en')
-    expect(JSON.parse(storage.getItem('pi-desktop-workspace-v1')!).version).toBe(2)
+    expect(JSON.parse(storage.getItem('pi-desktop-workspace-v1')!).version).toBe(3)
   })
 })
 

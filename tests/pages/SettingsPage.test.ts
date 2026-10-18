@@ -23,7 +23,11 @@ async function mount(section: 'general' | 'appearance' | 'connection' = 'general
   })
 }
 function button(label: string) {
-  return [...container.querySelectorAll('button')].find((item) => item.textContent?.includes(label))
+  const target = [...container.querySelectorAll('button')].find((item) =>
+    item.textContent?.includes(label),
+  )
+  if (!target) throw new Error(`missing button: ${label}`)
+  return target
 }
 function pathField() {
   const field = container.querySelector<HTMLInputElement>('input[placeholder="pi"]')
@@ -53,6 +57,8 @@ beforeEach(() => {
     palettesByMode: { light: 'ink', dark: 'ink' },
     accentOverrides: {},
     piExecutable: 'pi',
+    lastCustomPiExecutable: '',
+    wrapLines: false,
     activeSessionId: null,
     connection: 'disconnected',
     connectionError: null,
@@ -139,6 +145,25 @@ describe('SettingsPage', () => {
     expect(container.querySelector('.settings-palette-trigger')?.textContent).toContain('Min Light')
   })
 
+  it.each([
+    ['catppuccin-frappe', 'dark', 'Catppuccin Frappé'],
+    ['catppuccin-macchiato', 'dark', 'Catppuccin Macchiato'],
+    ['one-dark', 'light', 'One Light'],
+    ['min-dark', 'light', 'Min Light'],
+    ['rose-pine', 'light', 'Rosé Pine Dawn'],
+    ['rose-pine-moon', 'dark', 'Rosé Pine Moon'],
+    ['tokyo-night', 'light', 'Tokyo Night Day'],
+    ['tokyo-night-storm', 'dark', 'Tokyo Night Storm'],
+    ['tokyo-night-moon', 'dark', 'Tokyo Night Moon'],
+  ] as const)('resolves the display name for %s in %s mode', async (palette, theme, label) => {
+    useWorkspace.setState({
+      theme,
+      palettesByMode: { light: 'ink', dark: 'ink', [theme]: palette },
+    })
+    await mount('appearance')
+    expect(container.querySelector('.settings-palette-trigger')?.textContent).toContain(label)
+  })
+
   it('reports reconnect success and keeps a failed path', async () => {
     useWorkspace.setState({ activeSessionId: 'session', connection: 'disconnected' })
     mocks.connect.mockImplementation(async () => {
@@ -160,6 +185,25 @@ describe('SettingsPage', () => {
     expect(container.textContent).not.toContain('Path saved')
   })
 
+  it('keeps the custom path recoverable after saving the default command', async () => {
+    useWorkspace.setState({ piExecutable: '/usr/local/bin/pi' })
+    await mount('connection')
+    await act(async () => button('Use default command (pi)').click())
+    expect(pathField().value).toBe('pi')
+    await act(async () => button('Save and reconnect').click())
+    expect(useWorkspace.getState()).toMatchObject({
+      piExecutable: 'pi',
+      lastCustomPiExecutable: '/usr/local/bin/pi',
+    })
+    await act(async () => root.unmount())
+    root = createRoot(container)
+    await mount('connection')
+    await act(async () => button('Restore custom path').click())
+    expect(pathField().value).toBe('/usr/local/bin/pi')
+    expect(container.textContent).toContain('Not applied')
+    expect(mocks.connect).not.toHaveBeenCalled()
+  })
+
   it('explains why reconnect is unavailable while a session is running', async () => {
     useWorkspace.setState({
       activeSessionId: 'session',
@@ -171,9 +215,11 @@ describe('SettingsPage', () => {
     const save = button('Save and reconnect')
     expect(save?.disabled).toBe(true)
     expect(container.textContent).toContain('A session is running')
-    await act(async () => button('Restore to pi')?.click())
+    const restore = button('Use default command (pi)')
+    expect(restore.disabled).toBe(true)
+    await act(async () => restore.click())
     expect(mocks.connect).not.toHaveBeenCalled()
-    expect(pathField().value).toBe('pi')
-    expect(container.textContent).toContain('Not applied')
+    expect(pathField().value).toBe('/usr/local/bin/pi')
+    expect(container.textContent).not.toContain('Not applied')
   })
 })

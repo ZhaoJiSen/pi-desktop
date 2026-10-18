@@ -38,11 +38,12 @@ async function mount() {
   await act(async () => root.render(createElement(ActivityRail)))
 }
 async function click(label: string) {
-  await act(async () =>
-    container.querySelector<HTMLButtonElement>(`[aria-label="${label}"]`)!.click(),
-  )
+  const target = container.querySelector<HTMLButtonElement>(`[aria-label="${label}"]`)
+  expect(target, `missing navigation button: ${label}`).not.toBeNull()
+  await act(async () => target!.click())
 }
 beforeEach(() => {
+  vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
   vi.clearAllMocks()
   mocks.page = 'chat'
   useWorkspace.setState({ language: 'zh' })
@@ -53,6 +54,7 @@ beforeEach(() => {
 afterEach(async () => {
   await act(async () => root.unmount())
   container.remove()
+  vi.unstubAllGlobals()
 })
 describe('activity rail', () => {
   it('places the existing search action beside the Pi Desktop title in the Home sidebar', async () => {
@@ -100,7 +102,7 @@ describe('activity rail', () => {
     )
     for (const [label, page] of [
       ['扩展', 'extensions'],
-      ['命令', 'commands'],
+      ['指令', 'commands'],
       ['用量', 'usage'],
       ['设置', 'settings'],
     ]) {
