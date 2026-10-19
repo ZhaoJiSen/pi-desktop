@@ -1,7 +1,7 @@
 // Load each module once; this order preserves the existing CSS cascade.
 @use 'themes';
 @use 'base';
-@use 'split-pane';
+@use 'resizable';
 @use 'sidebar-layout';
 @use 'startup';
 @use 'onboarding';
@@ -27,3 +27,6 @@
 @use 'usage';
 
 @use 'settings-workspace';
+
+@use 'questions';
+@use 'notifications';

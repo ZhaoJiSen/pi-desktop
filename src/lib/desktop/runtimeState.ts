@@ -10,6 +10,8 @@ export interface PiConnection {
   ponytailLoaded?: boolean
   bindingUncertain?: boolean
   needsReconcile?: boolean
+  hasReplacedSession?: boolean
+  contextFailed?: boolean
 }
 
 interface RuntimeState {
@@ -17,6 +19,9 @@ interface RuntimeState {
   projectConnections: Map<string, PiConnection>
   connecting: Promise<void> | null
   initializing: Promise<void> | null
+  activationRequest: number
+  sessionRestartPaths: Map<string, string>
+  lastExitedRun: PiConnection | null
 }
 
 // Shared by lifecycle, requests and events so every operation checks the same binding.
@@ -25,4 +30,7 @@ export const runtimeState: RuntimeState = {
   projectConnections: new Map(),
   connecting: null,
   initializing: null,
+  activationRequest: 0,
+  sessionRestartPaths: new Map(),
+  lastExitedRun: null,
 }

@@ -3,12 +3,16 @@ import { Download, Ellipsis, Pencil } from 'lucide-react'
 import { useState } from 'react'
 import { useCurrentPage } from '../router/hooks'
 import { useWorkspace } from '../store/workspace'
+import { useShallow } from 'zustand/react/shallow'
 import { useT } from '../lib/i18n'
 import { exportSession } from '../lib/desktop'
 
 export function Header({ onRename }: { onRename: () => void }) {
-  const session = useWorkspace((state) =>
-    state.sessions.find((item) => item.id === state.activeSessionId),
+  const session = useWorkspace(
+    useShallow((state) => {
+      const current = state.sessions.find((item) => item.id === state.activeSessionId)
+      return current ? { id: current.id, title: current.title } : undefined
+    }),
   )
   const view = useCurrentPage()
   const running = useWorkspace((state) => state.runningSessionId)

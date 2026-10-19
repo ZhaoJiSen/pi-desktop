@@ -29,6 +29,26 @@ export async function connectSession(sessionId: string, force = false): Promise<
   await activateSession(sessionId, force)
 }
 
+// Recover a failed extension context once, then avoid hot replacement for this
+// project/executable. Keep one process per project and never replay prompts.
+export async function recoverStaleContext(run: PiConnection): Promise<void> {
+  runtimeState.sessionRestartPaths.set(run.path, run.executable)
+  const pending = runtimeState.connecting
+  if (pending) await pending
+  const current = runtimeState.currentRun
+  const store = useWorkspace.getState()
+  if (
+    (current && current !== run) ||
+    store.piUpdating ||
+    store.runningSessionId ||
+    store.piBusyRuns.includes(run.id)
+  )
+    return
+  const session = store.sessions.find((item) => item.id === store.activeSessionId)
+  const project = store.projects.find((item) => item.id === session?.projectId)
+  if (session && project?.path === run.path) await connectSession(session.id, true)
+}
+
 async function startProjectConnection(
   project: Project,
   executable: string,
@@ -103,8 +123,10 @@ export async function activateSession(
 ): Promise<void> {
   if (!isDesktop) return
   if (useWorkspace.getState().piUpdating && !restoring) return
+  const activationRequest = ++runtimeState.activationRequest
   // Serialize replacements so a late start/switch cannot replace a newer session.
   while (runtimeState.connecting) await runtimeState.connecting
+  if (activationRequest !== runtimeState.activationRequest) return
   if (useWorkspace.getState().piUpdating && !restoring) return
   if (
     runtimeState.currentRun?.sessionId === sessionId &&
@@ -124,7 +146,11 @@ export async function activateSession(
   if (!session || !project) return
   const previous = runtimeState.currentRun
   const cached = runtimeState.projectConnections.get(project.path)
-  const reusable = !force && cached?.executable === store.piExecutable ? cached : undefined
+  const restartForSession =
+    cached?.sessionId !== sessionId &&
+    runtimeState.sessionRestartPaths.get(project.path) === store.piExecutable
+  const reusable =
+    !force && !restartForSession && cached?.executable === store.piExecutable ? cached : undefined
   // Invalidate outstanding work as soon as activation begins, including A → B → A
   // across projects where the native session binding itself does not change.
   if (previous) previous.bindingVersion++
@@ -161,6 +187,7 @@ export async function activateSession(
         }
         if (reusable.sessionId !== sessionId) {
           replacing = true
+          reusable.hasReplacedSession = true
           const result = await requestConnection<{ cancelled?: boolean }>(
             session.piSessionFile
               ? { type: 'switch_session', sessionPath: session.piSessionFile }
@@ -176,7 +203,7 @@ export async function activateSession(
                   : 'disconnected',
               connectionAction: null,
               connectionError: t('errors.switchCancelled'),
-              ...(store.activeSessionId === sessionId
+              ...(useWorkspace.getState().activeSessionId === sessionId
                 ? { activeSessionId: previous?.sessionId || null }
                 : {}),
             })
@@ -198,7 +225,7 @@ export async function activateSession(
               connection: previous ? 'connected' : 'error',
               connectionAction: null,
               connectionError: errorText(error),
-              ...(store.activeSessionId === sessionId && previous
+              ...(useWorkspace.getState().activeSessionId === sessionId && previous
                 ? { activeSessionId: previous.sessionId }
                 : {}),
             })
@@ -214,6 +241,8 @@ export async function activateSession(
         )
       }
       if (runtimeState.currentRun?.id !== runId) return
+      // Skip intermediate metadata work when a newer selection is already queued.
+      if (activationRequest !== runtimeState.activationRequest) return
       const [state, catalog, commands, packages] = await Promise.all([
         requestConnection<RpcState>({ type: 'get_state' }),
         requestConnection<{ models: Model[] }>({ type: 'get_available_models' }),
@@ -284,9 +313,9 @@ export async function activateSession(
             runtimeState.projectConnections.delete(project.path)
         }
         useWorkspace.setState({
-          connection: 'error',
+          connection: reusable?.contextFailed ? 'disconnected' : 'error',
           connectionAction: null,
-          connectionError: errorText(error),
+          connectionError: reusable?.contextFailed ? null : errorText(error),
           runningSessionId: null,
         })
         if (!reuse) await invoke('stop_pi', { runId }).catch(() => {})

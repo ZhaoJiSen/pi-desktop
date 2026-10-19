@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { isDesktop, useWorkspace } from '../../store/workspace'
+import { useShallow } from 'zustand/react/shallow'
 import { useT } from '../../lib/i18n'
 import {
   capabilityAvailable,
@@ -16,7 +17,12 @@ import {
 
 export function useComposerCapabilities(commands: DiscoverableCommand[]) {
   const preferences = useWorkspace((s) => s.capabilityPreferences)
-  const session = useWorkspace((s) => s.sessions.find((item) => item.id === s.activeSessionId))
+  const session = useWorkspace(
+    useShallow((s) => {
+      const current = s.sessions.find((item) => item.id === s.activeSessionId)
+      return current ? { id: current.id, capabilities: current.capabilities } : undefined
+    }),
+  )
   const connected = useWorkspace((s) => s.connection === 'connected')
   const ready = useWorkspace((s) => Boolean(s.capabilityBridge))
   const unavailableTargets = useWorkspace((s) => s.capabilityBridge?.unavailableTargets)

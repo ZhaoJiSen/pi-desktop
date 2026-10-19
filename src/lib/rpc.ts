@@ -92,18 +92,24 @@ export function normalizeMessage(value: unknown, id: string = crypto.randomUUID(
 
 export function normalizeMessages(rawMessages: unknown[]): Message[] {
   const messages: Message[] = []
+  const calls = new Map<string, { message: Message; index: number }>()
   rawMessages.forEach((value, i) => {
     const raw = record(value)
     if (raw.role === 'toolResult') {
-      for (const message of messages)
-        message.blocks = message.blocks.map((block) =>
-          block.type === 'tool' && block.id === raw.toolCallId
-            ? applyToolResult(block, raw, raw.isError === true)
-            : block,
-        )
+      const call = calls.get(string(raw.toolCallId))
+      if (call) {
+        const block = call.message.blocks[call.index]
+        if (block.type === 'tool')
+          call.message.blocks[call.index] = applyToolResult(block, raw, raw.isError === true)
+      }
     } else {
       const message = normalizeMessage(raw, `${string(raw.role)}-${number(raw.timestamp)}-${i}`)
-      if (message) messages.push(message)
+      if (message) {
+        messages.push(message)
+        message.blocks.forEach((block, index) => {
+          if (block.type === 'tool') calls.set(block.id, { message, index })
+        })
+      }
     }
   })
   // Historical incomplete calls are interrupted; do not revive a phantom running spinner.
@@ -123,7 +129,10 @@ export function applyStreamEvent(messages: Message[], event: PiEvent): Message[]
     const next = normalizeMessage(raw)
     return next ? [...messages, next] : messages
   }
-  let index = messages.reduce((last, message, i) => (message.role === 'assistant' ? i : last), -1)
+  // Most events concern the tail. Search backwards rather than scanning all
+  // historical messages for each token.
+  let index = messages.length - 1
+  while (index >= 0 && messages[index].role !== 'assistant') index--
   if (index < 0 && (event.type === 'message_update' || event.type === 'tool_execution_start')) {
     messages = [
       ...messages,
@@ -138,6 +147,7 @@ export function applyStreamEvent(messages: Message[], event: PiEvent): Message[]
     const update = record(event.assistantMessageEvent)
     const blockIndex = number(update.contentIndex)
     const kind = string(update.type)
+    if (!kind.startsWith('text_') && !kind.startsWith('thinking_')) return messages
     if (kind.startsWith('text_') || kind.startsWith('thinking_')) {
       const type = kind.startsWith('thinking_') ? 'thinking' : 'text'
       const old = next.blocks[blockIndex]
@@ -168,18 +178,30 @@ export function applyStreamEvent(messages: Message[], event: PiEvent): Message[]
       next.blocks.push(tool)
   } else if (event.type === 'tool_execution_end' || event.type === 'tool_execution_update') {
     // Tool results can arrive after a newer assistant message; correlate across the whole branch.
-    return messages.map((message) => ({
-      ...message,
-      blocks: message.blocks.map((block) =>
-        block.type === 'tool' && block.id === event.toolCallId
-          ? event.type === 'tool_execution_end'
-            ? applyToolResult(block, event.result, event.isError === true)
-            : { ...block, output: contentText(record(event.partialResult).content) }
-          : block,
-      ),
-    }))
+    let messageIndex = messages.length - 1
+    while (
+      messageIndex >= 0 &&
+      !messages[messageIndex].blocks.some(
+        (block) => block.type === 'tool' && block.id === event.toolCallId,
+      )
+    )
+      messageIndex--
+    if (messageIndex < 0) return messages
+    const message = messages[messageIndex]
+    const blocks = message.blocks.map((block) =>
+      block.type === 'tool' && block.id === event.toolCallId
+        ? event.type === 'tool_execution_end'
+          ? applyToolResult(block, event.result, event.isError === true)
+          : { ...block, output: contentText(record(event.partialResult).content) }
+        : block,
+    )
+    const result = messages.slice()
+    result[messageIndex] = { ...message, blocks }
+    return result
   } else return messages
-  return messages.map((message, i) => (i === index ? next : message))
+  const result = messages.slice()
+  result[index] = next
+  return result
 }
 
 export function normalizeUsage(value: unknown): Usage {

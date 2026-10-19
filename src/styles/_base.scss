@@ -9,10 +9,11 @@ body,
   height: 100%;
   overflow: hidden;
   overscroll-behavior: none;
+  // Paint the document canvas as well as the app while the window is resizing.
+  background: var(--ground);
 }
 body {
   margin: 0;
-  background: #08090b;
   color: var(--ink);
   font:
     14px/1.55 -apple-system,
@@ -107,7 +108,7 @@ svg {
   transition: grid-template-columns 280ms cubic-bezier(0.2, 0, 0, 1);
 }
 .app-shell[data-resizing='true'] .window-chrome,
-.split-pane[data-resizing='true'] {
+.resizable[data-resizing='true'] {
   transition: none;
 }
 .window-controls {

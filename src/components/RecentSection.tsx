@@ -9,6 +9,7 @@ import { openRecentProject } from '../lib/recent'
 import { isRecentProject } from '../lib/recentProject'
 import { errorText } from '../lib/utils'
 import { useWorkspace } from '../store/workspace'
+import { selectSessionSummaries } from '../store/sessionSelectors'
 import type { Project } from '../types'
 import type { SessionMenuTarget } from './SessionContextMenu'
 import { SessionRow } from './SessionRow'
@@ -23,7 +24,7 @@ export function RecentSection({
   onRemove: (id: string) => void
 }) {
   const [error, setError] = useState('')
-  const sessions = useWorkspace((state) => state.sessions)
+  const sessions = useWorkspace(selectSessionSummaries)
   const active = useWorkspace((state) => state.activeSessionId)
   const running = useWorkspace((state) => state.runningSessionId)
   const connecting = useWorkspace((state) => state.connection === 'connecting')

@@ -3,6 +3,7 @@ import { Plus } from 'lucide-react'
 import { motion, useReducedMotion } from 'motion/react'
 import { useCallback, useRef, useState } from 'react'
 import { isDesktop, useWorkspace } from '../store/workspace'
+import { useSessionDetails } from '../store/sessionSelectors'
 import { readAttachments, sendPrompt } from '../lib/desktop'
 import { useT } from '../lib/i18n'
 import { errorText } from '../lib/utils'
@@ -17,6 +18,7 @@ import { desktopCommandEnabled } from '../lib/commands'
 import { draftProblemMessage } from '../lib/draftMessages'
 import { navigateToPage } from '../router/navigation'
 import { useComposerCapabilities } from './composer/useComposerCapabilities'
+import { useQuestions } from './conversation/QuestionContext'
 import { CapabilityTags } from './capabilities/CapabilityTags'
 
 export function Composer() {
@@ -24,9 +26,7 @@ export function Composer() {
   return active ? <SessionComposer key={active} /> : null
 }
 function SessionComposer() {
-  const session = useWorkspace((state) =>
-    state.sessions.find((item) => item.id === state.activeSessionId),
-  )
+  const session = useSessionDetails()
   const project = useWorkspace((state) =>
     state.projects.find((item) => item.id === session?.projectId),
   )
@@ -37,6 +37,12 @@ function SessionComposer() {
   const connecting = useWorkspace((state) => state.connection === 'connecting')
   const model = useWorkspace((state) =>
     state.models.find((model) => `${model.provider}/${model.id}` === session?.modelKey),
+  )
+  const { questions } = useQuestions()
+  const awaitingAnswer = questions.some(
+    (item) =>
+      item.status === 'pending' &&
+      (!item.request.sessionId || item.request.sessionId === session?.id),
   )
   const attachments = session?.attachments || []
   const [selector, setSelector] = useState<'model' | 'thinking' | null>(null)
@@ -58,11 +64,11 @@ function SessionComposer() {
   const t = useT()
   if (!session) return null
   const preparing = !running && (sending || reading || connecting || capability.pending)
-  const menuPlacement = session.messages.length === 0 ? 'bottom start' : 'top start'
+  const menuPlacement = session.hasMessages ? 'top start' : 'bottom start'
   const navigationOnly =
     planDraft(sessionDraft(session), catalog.commands, attachments.length).kind === 'navigate'
   async function submit() {
-    if (sending || reading || running || connecting || capability.pending) return
+    if (sending || reading || running || connecting || capability.pending || awaitingAnswer) return
     const leading = /^\s*\/([\w:.-]+)(?:\s+([\s\S]*))?$/.exec(session!.draft)
     if (leading) {
       const matching = capability.capabilities.filter((c) => c.alias === leading[1])
@@ -196,7 +202,8 @@ function SessionComposer() {
           preparing={preparing}
           sendDisabled={
             !running &&
-            (preparing ||
+            (awaitingAnswer ||
+              preparing ||
               (!session.draft.trim() && !attachments.length && !capability.selection.task) ||
               (isDesktop && !model && !navigationOnly))
           }

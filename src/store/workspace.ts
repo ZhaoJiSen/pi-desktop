@@ -1,5 +1,11 @@
 import { create } from 'zustand'
-import { createJSONStorage, persist, type StateStorage } from 'zustand/middleware'
+import { persist, type StateStorage } from 'zustand/middleware'
+import { createWorkspacePersistence } from './persistence'
+import {
+  defaultNotificationPreferences,
+  restoreNotificationPreferences,
+  type NotificationPreferences,
+} from '../lib/notificationPreferences'
 import { palettes, type Palette } from '../types'
 import {
   resolveColorMode,
@@ -35,6 +41,7 @@ import {
 export type SettingsSectionId =
   | 'general'
   | 'appearance'
+  | 'notifications'
   | 'shortcuts'
   | 'capabilities'
   | 'extensions'
@@ -61,6 +68,7 @@ interface WorkspaceState {
   autoReloadAfterToggle: boolean
   autoReloadAfterUpdate: boolean
   wrapLines: boolean
+  notificationPreferences: NotificationPreferences
   piExecutable: string
   lastCustomPiExecutable: string
   extensionSelection: { key: string | null; category: '' | 'skill' } | null
@@ -110,6 +118,7 @@ interface WorkspaceState {
         | 'autoReloadAfterUpdate'
         | 'autoReloadAfterToggle'
         | 'wrapLines'
+        | 'notificationPreferences'
         | 'capabilityPreferences'
       >
     >,
@@ -117,6 +126,7 @@ interface WorkspaceState {
 }
 
 export function createWorkspaceStore(storage: StateStorage, preview = false) {
+  let streamingWrite = false
   const guardedStorage: StateStorage = {
     getItem: (name) => storage.getItem(name),
     removeItem: (name) => storage.removeItem(name),
@@ -134,6 +144,10 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
       }
     },
   }
+  const persistence = createWorkspacePersistence<Partial<WorkspaceState>>(
+    guardedStorage,
+    () => streamingWrite,
+  )
   const store = create<WorkspaceState>()(
     persist(
       (set, get) => ({
@@ -151,6 +165,7 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
         autoReloadAfterUpdate: true,
         autoReloadAfterToggle: true,
         wrapLines: false,
+        notificationPreferences: defaultNotificationPreferences,
         theme: 'system',
         palette: 'ink',
         palettesByMode: { light: 'ink', dark: 'ink' },
@@ -368,14 +383,22 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
                 : session,
             ),
           })),
-        appendEvent: (id, event) =>
-          set((state) => ({
-            sessions: state.sessions.map((session) =>
-              session.id === id
-                ? { ...session, messages: applyStreamEvent(session.messages, event) }
-                : session,
-            ),
-          })),
+        appendEvent: (id, event) => {
+          const state = get()
+          const index = state.sessions.findIndex((session) => session.id === id)
+          if (index < 0) return
+          const session = state.sessions[index]
+          const messages = applyStreamEvent(session.messages, event)
+          if (messages === session.messages) return
+          const sessions = state.sessions.slice()
+          sessions[index] = { ...session, messages }
+          streamingWrite = event.type === 'message_update' || event.type === 'tool_execution_update'
+          try {
+            set({ sessions })
+          } finally {
+            streamingWrite = false
+          }
+        },
         rememberModel: (key) =>
           set((state) => ({
             recentModels: [key, ...state.recentModels.filter((item) => item !== key)].slice(0, 8),
@@ -398,7 +421,7 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
       {
         name: preview ? 'pi-desktop-preview-v1' : 'pi-desktop-workspace-v1',
         version: 3,
-        storage: createJSONStorage(() => guardedStorage),
+        storage: persistence.storage,
         partialize: (state) => ({
           projects: state.projects,
           sessions: state.sessions,
@@ -417,6 +440,7 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
           autoReloadAfterUpdate: state.autoReloadAfterUpdate,
           autoReloadAfterToggle: state.autoReloadAfterToggle,
           wrapLines: state.wrapLines,
+          notificationPreferences: state.notificationPreferences,
           onboardingCompleted: state.onboardingCompleted,
           capabilityPreferences: state.capabilityPreferences,
         }),
@@ -450,6 +474,7 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
           return {
             ...current,
             ...saved,
+            notificationPreferences: restoreNotificationPreferences(saved?.notificationPreferences),
             capabilityPreferences: saved?.capabilityPreferences || current.capabilityPreferences,
             palette:
               palettesByMode[resolveColorMode(saved?.theme ?? current.theme, systemIsDark())],
@@ -476,7 +501,10 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
       },
     ),
   )
-  return store
+  store.subscribe((state, previous) => {
+    if (previous.runningSessionId && !state.runningSessionId) void persistence.flush()
+  })
+  return Object.assign(store, { flushPersistence: persistence.flush })
 }
 
 export const isDesktop = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window

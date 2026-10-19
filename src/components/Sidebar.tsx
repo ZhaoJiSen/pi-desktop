@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'motion/react'
 import { ChevronRight, Search, SquarePen, Terminal } from 'lucide-react'
 import { useCurrentPage } from '../router/hooks'
 import { useWorkspace } from '../store/workspace'
+import { selectSessionSummaries } from '../store/sessionSelectors'
 import { useT } from '../lib/i18n'
 import { useState } from 'react'
 import { SessionContextMenu, type SessionMenuTarget } from './SessionContextMenu'
@@ -36,7 +37,7 @@ export function Sidebar({ onSearch, onNew, onProject, onRename, onRemove }: Prop
   const projects = savedProjects
     .filter((project) => !project.hidden && !isRecentProject(project))
     .sort((a, b) => Number(Boolean(b.pinned)) - Number(Boolean(a.pinned)))
-  const sessions = useWorkspace((state) => state.sessions)
+  const sessions = useWorkspace(selectSessionSummaries)
   const active = useWorkspace((state) => state.activeSessionId)
   const running = useWorkspace((state) => state.runningSessionId)
   const connecting = useWorkspace((state) => state.connection === 'connecting')

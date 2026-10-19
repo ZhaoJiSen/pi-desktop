@@ -1,0 +1,112 @@
+.resizable {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+.resizable[data-split='true'] {
+  flex-direction: row;
+}
+
+.resizable-panel {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  > * {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+  }
+}
+
+.resizable-panel-side {
+  border-right: 1px solid transparent;
+}
+
+// Closing keeps the session list at its open width and clips it, so the text
+// does not reflow while the panel eases shut.
+.resizable[data-collapsible='true'] > .resizable-panel-side {
+  transition:
+    flex-basis 280ms cubic-bezier(0.2, 0, 0, 1),
+    border-color 280ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.resizable[data-collapsible='true'][data-resizing='true'] > .resizable-panel-side {
+  transition: none;
+}
+
+.resizable[data-collapsible='true'][data-split-active='true'] > .resizable-panel-side {
+  border-right-color: var(--line);
+}
+
+.resizable[data-collapsible='true'] > .resizable-panel-side > .resizable-panel-fixed {
+  display: flex;
+  flex-direction: column;
+  width: var(--panel-open);
+  min-width: var(--panel-open);
+  min-height: 0;
+  flex: 1 1 auto;
+
+  > * {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+  }
+}
+
+// The handle takes no space. Its hit target straddles the panel edge, so the
+// line cannot get ahead of the width.
+.resizable-handle {
+  position: relative;
+  z-index: 30;
+  flex: 0 0 0px;
+  width: 0;
+  align-self: stretch;
+  cursor: col-resize;
+  touch-action: none;
+  outline: none;
+
+  &:focus-visible {
+    outline: none;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -4px;
+    width: 8px;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -1px;
+    width: 2px;
+    background: var(--focus);
+    opacity: 0;
+    transition: opacity 120ms ease;
+  }
+
+  &:hover::after,
+  &:focus-visible::after,
+  .resizable[data-resizing='true'] > &::after {
+    opacity: 0.65;
+  }
+}
+
+.resizable[data-resizing='true'] {
+  cursor: col-resize;
+  user-select: none;
+
+  > .resizable-panel {
+    pointer-events: none;
+  }
+}

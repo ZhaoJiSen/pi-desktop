@@ -1,0 +1,84 @@
+.notification-settings-rows {
+  max-width: 820px;
+}
+@container (max-width: 520px) {
+  .notification-settings-rows .settings-row {
+    gap: 10px;
+  }
+}
+.notification-permission {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 0 0 14px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.notification-test-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+.notification-test-row .settings-saved {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.notification-error {
+  margin-top: 16px;
+  color: var(--ink);
+  font-size: 14px;
+}
+.notification-error p {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.question-attention-notice {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: calc(100vw - 32px);
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg, var(--radius));
+  background: var(--paper);
+  box-shadow: 0 8px 32px rgb(0 0 0 / 12%);
+  color: var(--ink);
+  font-size: 14px;
+}
+.question-attention-notice > svg {
+  flex: none;
+  color: var(--muted);
+}
+.question-attention-notice .button {
+  flex: none;
+}
+.session-awaiting {
+  display: inline-flex;
+  flex: none;
+  color: var(--accent);
+}
+.session-awaiting svg {
+  width: 14px;
+  height: 14px;
+}
+.chat-question:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+@media (max-width: 600px) {
+  .question-attention-notice {
+    right: 16px;
+    bottom: 16px;
+    flex-wrap: wrap;
+  }
+}

@@ -6,6 +6,7 @@ import { useT } from '../lib/i18n'
 import { modelThinkingLevels, thinkingLabel } from '../lib/thinking'
 import { errorText, modelKey } from '../lib/utils'
 import { isDesktop, useWorkspace } from '../store/workspace'
+import { useShallow } from 'zustand/react/shallow'
 import type { ThinkingLevel } from '../types'
 import { ModelThinkingControl } from './ModelThinkingControl'
 
@@ -27,8 +28,13 @@ export function ThinkingSelector({
   const t = useT()
   const models = useWorkspace((state) => state.models)
   const runtimeLevels = useWorkspace((state) => state.thinkingLevels)
-  const session = useWorkspace((state) =>
-    state.sessions.find((item) => item.id === state.activeSessionId),
+  const session = useWorkspace(
+    useShallow((state) => {
+      const current = state.sessions.find((item) => item.id === state.activeSessionId)
+      return current
+        ? { id: current.id, modelKey: current.modelKey, thinking: current.thinking }
+        : undefined
+    }),
   )
   const busy = useWorkspace(
     (state) => Boolean(state.runningSessionId) || state.connection === 'connecting',

@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, type ReactNode } from 'react'
-import { SplitPane } from '../components/SplitPane'
+import { Resizable } from './Resizable'
 
 const DEFAULT_WIDTH = 280
 const MIN_WIDTH = 270
@@ -58,7 +58,7 @@ export function SidebarLayout({ sidebar, children, className = '', ...resize }: 
   const preference = useContext(SidebarWidthContext)
   if (!preference) throw new Error('SidebarLayout requires SidebarWidthProvider')
   return (
-    <SplitPane
+    <Resizable
       {...resize}
       preferredWidth={preference.width}
       onPreferredWidthChange={preference.change}
@@ -72,6 +72,6 @@ export function SidebarLayout({ sidebar, children, className = '', ...resize }: 
     >
       {sidebar}
       {children}
-    </SplitPane>
+    </Resizable>
   )
 }

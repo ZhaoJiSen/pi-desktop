@@ -35,6 +35,10 @@ async function pointer(type: string, x: number) {
       new PointerEvent(type, { pointerId: 1, clientX: x, button: 0, bubbles: true }),
     ),
   )
+  if (type === 'pointermove')
+    await act(async () => {
+      await new Promise((resolve) => setImmediate(resolve))
+    })
 }
 beforeEach(() => {
   vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
@@ -69,6 +73,41 @@ afterEach(async () => {
   vi.unstubAllGlobals()
 })
 describe('shared sidebar layout', () => {
+  it('resizes collapsible content and the header before release, saving only on release', async () => {
+    const onWidthChange = vi.fn()
+    await render(
+      createElement(
+        'div',
+        { className: 'app-shell' },
+        createElement('div', { className: 'window-chrome' }),
+        createElement(SidebarLayout, { ...props, collapsible: true, onWidthChange }),
+      ),
+    )
+    handle().setPointerCapture = vi.fn()
+    handle().releasePointerCapture = vi.fn()
+    onWidthChange.mockClear()
+    const side = container.querySelector<HTMLElement>('[data-panel="side"]')!
+    const chrome = container.querySelector<HTMLElement>('.window-chrome')!
+    expect(side.querySelector('.resizable-panel-fixed')).not.toBeNull()
+
+    await pointer('pointerdown', 280)
+    for (const width of [360, 420, 300]) {
+      await pointer('pointermove', width)
+      expect(side.style.flexBasis).toBe(`${width}px`)
+      expect(side.style.getPropertyValue('--panel-open')).toBe(`${width}px`)
+      expect(chrome.style.getPropertyValue('--sidebar-width')).toBe(`${width}px`)
+      expect(handle().getAttribute('aria-valuenow')).toBe(String(width))
+      expect(localStorage.getItem('pi.sidebar-panel-width')).toBeNull()
+      expect(onWidthChange).not.toHaveBeenCalled()
+    }
+
+    await pointer('pointerup', 300)
+    expect(side.style.getPropertyValue('--panel-open')).toBe('300px')
+    expect(localStorage.getItem('pi.sidebar-panel-width')).toBe('300')
+    expect(onWidthChange).toHaveBeenCalledWith(300)
+    expect(chrome.style.getPropertyValue('--sidebar-width')).toBe('')
+    expect(container.querySelector('.app-shell')?.hasAttribute('data-resizing')).toBe(false)
+  })
   it('captures a drag, clamps against the content width, and restores it after remount', async () => {
     await mount()
     handle().setPointerCapture = vi.fn()
@@ -79,6 +118,9 @@ describe('shared sidebar layout', () => {
     await pointer('pointerdown', 280)
     await pointer('pointermove', 900)
     expect(handle().getAttribute('aria-valuenow')).toBe('340')
+    expect(container.querySelector<HTMLElement>('[data-panel="side"]')?.style.flexBasis).toBe(
+      '340px',
+    )
     await pointer('pointerup', 900)
     expect(localStorage.getItem('pi.sidebar-panel-width')).toBe('340')
     expect(container.firstElementChild?.hasAttribute('data-resizing')).toBe(false)

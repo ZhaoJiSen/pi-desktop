@@ -4,7 +4,7 @@
   overflow: hidden;
   background: var(--paper);
 
-  > :not(.split-pane-handle) {
+  > :not(.resizable-handle) {
     min-width: 0;
     min-height: 0;
   }
@@ -14,11 +14,7 @@
   }
 
   // The session list meets the conversation on this line only.
-  &[data-split-active='true'][data-collapsible='true'] > .split-pane-side {
-    border-right-color: var(--shell-line);
-  }
-
-  &[data-split-active='true'][data-collapsible='true'] > .split-pane-side {
+  &[data-split-active='true'][data-collapsible='true'] > .resizable-panel-side {
     border-right-color: var(--shell-line);
   }
 

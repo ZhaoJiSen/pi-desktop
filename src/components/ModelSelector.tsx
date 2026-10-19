@@ -4,6 +4,7 @@ import { Check, ChevronDown, Search } from 'lucide-react'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useEffect, useRef, useState } from 'react'
 import { useWorkspace } from '../store/workspace'
+import { useShallow } from 'zustand/react/shallow'
 import { changeModel } from '../lib/desktop'
 import { useT } from '../lib/i18n'
 import { errorText, modelKey, tokens } from '../lib/utils'
@@ -27,8 +28,11 @@ export function ModelSelector({
   const reducedMotion = useReducedMotion()
   const models = useWorkspace((state) => state.models)
   const recent = useWorkspace((state) => state.recentModels)
-  const session = useWorkspace((state) =>
-    state.sessions.find((item) => item.id === state.activeSessionId),
+  const session = useWorkspace(
+    useShallow((state) => {
+      const current = state.sessions.find((item) => item.id === state.activeSessionId)
+      return current ? { id: current.id, modelKey: current.modelKey } : undefined
+    }),
   )
   const busy = useWorkspace(
     (state) => Boolean(state.runningSessionId) || state.connection === 'connecting',

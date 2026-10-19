@@ -960,6 +960,239 @@ describe('desktop prompt lifecycle', () => {
     expect(mocks.invoke.mock.calls.filter(([name]) => name === 'start_pi')).toHaveLength(1)
   })
 
+  it('coalesces a burst of selections and binds only the last queued session', async () => {
+    const { runtimeState } = await import('../../src/lib/desktop/runtimeState')
+    const store = useWorkspace.getState()
+    const next = store.createSession(store.projects[0].id)
+    let release!: (value: object) => void
+    let replacements = 0
+    mocks.invoke.mockImplementation(async (name, args) => {
+      if (name !== 'pi_request') return []
+      if (['new_session', 'switch_session'].includes(args.command.type) && ++replacements === 1)
+        return new Promise((resolve) => {
+          release = resolve
+        })
+      return metadata(args.command)
+    })
+    const pending = [connectSession(next)]
+    for (let i = 0; i < 30; i++) {
+      const target = i % 2 ? id : next
+      useWorkspace.setState({ activeSessionId: target })
+      pending.push(connectSession(target))
+    }
+    expect(replacements).toBe(1)
+    release({})
+    await Promise.all(pending)
+    expect(replacements).toBe(2)
+    expect(runtimeState.currentRun?.sessionId).toBe(id)
+    expect(useWorkspace.getState()).toMatchObject({
+      activeSessionId: id,
+      connection: 'connected',
+      connectionError: null,
+    })
+  })
+
+  it.each(['before exit', 'after exit'])(
+    'recovers a stale context reported %s and isolates only that project',
+    async (timing) => {
+      const { runtimeState } = await import('../../src/lib/desktop/runtimeState')
+      const { onRuntimeNotice } = await import('../../src/lib/desktop')
+      const notice = vi.fn()
+      const unsubscribe = onRuntimeNotice(notice)
+      const store = useWorkspace.getState()
+      const next = store.createSession(store.projects[0].id)
+      store.updateSession(next, { draft: 'Keep this draft' })
+      const run = runtimeState.currentRun!
+      const channel = mocks.channels.at(-1)!
+      const staleDiagnostic = () => {
+        for (let i = 0; i < 3; i++)
+          channel.onmessage({
+            runId: run.id,
+            event: {
+              type: 'runtime_diagnostic',
+              message:
+                'Error: This extension ctx is stale after session replacement or reload. Do not use a captured pi.',
+            },
+          })
+      }
+      mocks.invoke.mockClear()
+      mocks.invoke.mockImplementation(async (name, args) => {
+        if (name !== 'pi_request') return []
+        if (args.command.type === 'new_session') {
+          channel.onmessage({
+            runId: run.id,
+            event: {
+              type: 'runtime_diagnostic',
+              message: 'function extractSpawnMarker(args) { throw new Error("failed") }',
+            },
+          })
+          if (timing === 'before exit') staleDiagnostic()
+          channel.onmessage({ runId: run.id, event: { type: 'runtime_exit' } })
+          throw new Error('Process exited')
+        }
+        return metadata(args.command)
+      })
+      try {
+        await connectSession(next)
+        if (timing === 'after exit') staleDiagnostic()
+        await vi.waitFor(() => {
+          expect(runtimeState.currentRun?.sessionId).toBe(next)
+          expect(useWorkspace.getState().connection).toBe('connected')
+        })
+        expect(mocks.invoke.mock.calls.filter(([name]) => name === 'start_pi')).toHaveLength(1)
+        expect(notice).not.toHaveBeenCalled()
+        expect(useWorkspace.getState().sessions.find((session) => session.id === next)?.draft).toBe(
+          'Keep this draft',
+        )
+        expect(useWorkspace.getState().sessions.find((session) => session.id === id)?.title).toBe(
+          'Existing session',
+        )
+        mocks.invoke.mockClear()
+        store.selectSession(id)
+        await connectSession(id)
+        expect(mocks.invoke.mock.calls.filter(([name]) => name === 'stop_pi')).toHaveLength(1)
+        expect(mocks.invoke.mock.calls.filter(([name]) => name === 'start_pi')).toHaveLength(1)
+        expect(
+          mocks.invoke.mock.calls.some(
+            ([name, args]) =>
+              name === 'pi_request' &&
+              ['new_session', 'switch_session', 'prompt'].includes(args.command.type),
+          ),
+        ).toBe(false)
+        const other = store.createSession(store.addProject('/tmp/healthy-project'))
+        await connectSession(other)
+        const another = store.createSession(
+          useWorkspace.getState().sessions.find((session) => session.id === other)!.projectId,
+        )
+        mocks.invoke.mockClear()
+        await connectSession(another)
+        expect(
+          mocks.invoke.mock.calls.some(
+            ([name, args]) => name === 'pi_request' && args.command.type === 'new_session',
+          ),
+        ).toBe(true)
+        expect(
+          mocks.invoke.mock.calls.filter(([name]) => name === 'start_pi' || name === 'stop_pi'),
+        ).toHaveLength(0)
+      } finally {
+        unsubscribe()
+      }
+    },
+  )
+
+  it('ignores an old failure line after a different process has already connected', async () => {
+    const { runtimeState } = await import('../../src/lib/desktop/runtimeState')
+    const store = useWorkspace.getState()
+    const next = store.createSession(store.projects[0].id)
+    await connectSession(next)
+    const old = runtimeState.currentRun!
+    const channel = mocks.channels.at(-1)!
+    channel.onmessage({ runId: old.id, event: { type: 'runtime_exit' } })
+    store.selectSession(id)
+    await connectSession(id)
+    const current = runtimeState.currentRun
+    mocks.invoke.mockClear()
+    channel.onmessage({
+      runId: old.id,
+      event: {
+        type: 'runtime_diagnostic',
+        message: 'Error: This extension ctx is stale after session replacement or reload.',
+      },
+    })
+    expect(runtimeState.currentRun).toBe(current)
+    expect(useWorkspace.getState().connection).toBe('connected')
+    expect(mocks.invoke).not.toHaveBeenCalled()
+  })
+
+  it('does not roll a newer selection back when an earlier switch is cancelled', async () => {
+    const { runtimeState } = await import('../../src/lib/desktop/runtimeState')
+    const store = useWorkspace.getState()
+    const firstTarget = store.createSession(store.projects[0].id)
+    const lastTarget = store.createSession(store.projects[0].id)
+    let release!: (value: object) => void
+    let held = false
+    mocks.invoke.mockImplementation(async (name, args) => {
+      if (name !== 'pi_request') return []
+      if (args.command.type === 'new_session' && !held) {
+        held = true
+        return new Promise((resolve) => {
+          release = resolve
+        })
+      }
+      return metadata(args.command)
+    })
+    useWorkspace.setState({ activeSessionId: firstTarget })
+    const first = connectSession(firstTarget)
+    useWorkspace.setState({ activeSessionId: lastTarget })
+    const last = connectSession(lastTarget)
+    release({ cancelled: true })
+    await Promise.all([first, last])
+    expect(useWorkspace.getState().activeSessionId).toBe(lastTarget)
+    expect(runtimeState.currentRun?.sessionId).toBe(lastTarget)
+    expect(useWorkspace.getState().connectionError).toBeNull()
+  })
+
+  it('surfaces a failed safe restart instead of retrying indefinitely', async () => {
+    const { runtimeState } = await import('../../src/lib/desktop/runtimeState')
+    const store = useWorkspace.getState()
+    const next = store.createSession(store.projects[0].id)
+    const run = runtimeState.currentRun!
+    const channel = mocks.channels.at(-1)!
+    mocks.invoke.mockClear()
+    mocks.invoke.mockImplementation(async (name, args) => {
+      if (name === 'start_pi') throw new Error('Cannot start replacement')
+      if (name !== 'pi_request') return []
+      if (args.command.type === 'new_session') {
+        channel.onmessage({
+          runId: run.id,
+          event: {
+            type: 'extension_error',
+            error: 'This extension ctx is stale after session replacement or reload.',
+          },
+        })
+        throw new Error('Stale extension context')
+      }
+      return metadata(args.command)
+    })
+    await connectSession(next)
+    await vi.waitFor(() =>
+      expect(useWorkspace.getState()).toMatchObject({
+        connection: 'error',
+        connectionError: 'Cannot start replacement',
+      }),
+    )
+    expect(mocks.invoke.mock.calls.filter(([name]) => name === 'start_pi')).toHaveLength(1)
+    expect(runtimeState.connecting).toBeNull()
+  })
+
+  it('does not interrupt or replay a running prompt after a stale extension callback', async () => {
+    const { runtimeState } = await import('../../src/lib/desktop/runtimeState')
+    const { onRuntimeNotice } = await import('../../src/lib/desktop')
+    const notice = vi.fn()
+    const unsubscribe = onRuntimeNotice(notice)
+    const store = useWorkspace.getState()
+    const next = store.createSession(store.projects[0].id)
+    await connectSession(next)
+    const run = runtimeState.currentRun!
+    useWorkspace.setState({ runningSessionId: next, piBusyRuns: [run.id] })
+    mocks.invoke.mockClear()
+    try {
+      mocks.channels.at(-1)!.onmessage({
+        runId: run.id,
+        event: {
+          type: 'runtime_diagnostic',
+          message: 'Error: This extension ctx is stale after session replacement or reload.',
+        },
+      })
+      expect(useWorkspace.getState().runningSessionId).toBe(next)
+      expect(runtimeState.currentRun).toBe(run)
+      expect(mocks.invoke).not.toHaveBeenCalled()
+      expect(notice).toHaveBeenCalledOnce()
+    } finally {
+      unsubscribe()
+    }
+  })
+
   it('retains the process after removing the last session and ignores its unbound events', async () => {
     const runId = mocks.invoke.mock.calls.find(([name]) => name === 'start_pi')![1].runId
     const channel = mocks.channels.at(-1)!

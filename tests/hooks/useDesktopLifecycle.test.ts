@@ -7,6 +7,10 @@ const mocks = vi.hoisted(() => ({
   language: vi.fn(),
   sync: vi.fn(),
   connect: vi.fn(),
+  background: vi.fn(),
+}))
+vi.mock('@tauri-apps/api/webviewWindow', () => ({
+  getCurrentWebviewWindow: () => ({ setBackgroundColor: mocks.background }),
 }))
 vi.mock('../../src/lib/desktop', () => ({
   initializeDesktop: mocks.initialize,
@@ -28,7 +32,10 @@ vi.mock('../../src/store/workspace', async (original) => {
 })
 import { useWorkspace } from '../../src/store/workspace'
 import { useDesktopLifecycle } from '../../src/hooks/useDesktopLifecycle'
-let root: Root, container: HTMLDivElement, lifecycle: ReturnType<typeof useDesktopLifecycle>
+let root: Root,
+  container: HTMLDivElement,
+  appearanceStyle: HTMLStyleElement,
+  lifecycle: ReturnType<typeof useDesktopLifecycle>
 function Probe({ enabled }: { enabled: boolean }) {
   const current = useDesktopLifecycle('chat', enabled)
   useEffect(() => {
@@ -47,7 +54,20 @@ beforeEach(() => {
     removeEventListener() {},
   }))
   for (const mock of Object.values(mocks)) mock.mockReset().mockResolvedValue(undefined)
-  useWorkspace.setState({ activeSessionId: 'first', connection: 'disconnected' })
+  useWorkspace.setState({
+    activeSessionId: 'first',
+    connection: 'disconnected',
+    theme: 'light',
+    palettesByMode: { light: 'ink', dark: 'ink' },
+    accentOverrides: {},
+  })
+  appearanceStyle = document.createElement('style')
+  appearanceStyle.textContent = `
+    html { --ground: #f7f7f6; }
+    html[data-theme='dark'] { --ground: #1b1c1d; }
+    html[data-theme='dark'][data-palette='catppuccin'] { --ground: #181825; }
+  `
+  document.head.append(appearanceStyle)
   container = document.createElement('div')
   document.body.append(container)
   root = createRoot(container)
@@ -55,9 +75,50 @@ beforeEach(() => {
 afterEach(async () => {
   await act(async () => root.unmount())
   container.remove()
+  appearanceStyle.remove()
   vi.unstubAllGlobals()
 })
 describe('onboarding startup boundary', () => {
+  it('keeps native resize backing in sync with the resolved mode and palette', async () => {
+    await render(false)
+    expect(mocks.background).toHaveBeenLastCalledWith('#f7f7f6')
+    await act(async () => useWorkspace.setState({ theme: 'dark' }))
+    expect(mocks.background).toHaveBeenLastCalledWith('#1b1c1d')
+    await act(async () =>
+      useWorkspace.setState({
+        palettesByMode: { light: 'ink', dark: 'catppuccin' },
+      }),
+    )
+    expect(mocks.background).toHaveBeenLastCalledWith('#181825')
+    const calls = mocks.background.mock.calls.length
+    await act(async () => useWorkspace.setState({ connection: 'connecting' }))
+    expect(mocks.background).toHaveBeenCalledTimes(calls)
+  })
+  it('keeps the workspace usable if the native background update fails', async () => {
+    const warning = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    mocks.background.mockRejectedValueOnce(new Error('Native color unavailable'))
+    try {
+      await render(false)
+      expect(document.documentElement.dataset.theme).toBe('light')
+      expect(warning).toHaveBeenCalledOnce()
+      expect(lifecycle.startup).toBe('loading')
+    } finally {
+      warning.mockRestore()
+    }
+  })
+  it('flushes pending persistence when the page is hidden or leaves the webview', async () => {
+    const flush = vi.spyOn(useWorkspace, 'flushPersistence')
+    await render(false)
+    window.dispatchEvent(new Event('pagehide'))
+    expect(flush).toHaveBeenCalledOnce()
+    const visibility = Object.getOwnPropertyDescriptor(document, 'visibilityState')
+    Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'hidden' })
+    document.dispatchEvent(new Event('visibilitychange'))
+    expect(flush).toHaveBeenCalledTimes(2)
+    if (visibility) Object.defineProperty(document, 'visibilityState', visibility)
+    else Reflect.deleteProperty(document, 'visibilityState')
+    flush.mockRestore()
+  })
   it('sets locale and theme during setup without connecting Pi', async () => {
     await render(false)
     expect(mocks.language).toHaveBeenCalledOnce()

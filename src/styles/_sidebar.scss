@@ -128,9 +128,6 @@
 .recent-section {
   margin-bottom: 8px;
 }
-.recent-section .section-label {
-  margin-bottom: 0;
-}
 .recent-toggle {
   display: flex;
   align-items: center;
@@ -170,7 +167,7 @@
   min-height: 24px;
   gap: 0;
   padding: 0 7px 0 0;
-  margin: 0 0 2px;
+  margin: 0 0 4px;
   color: var(--muted);
   font-size: 12px;
 }
@@ -293,7 +290,7 @@
   opacity: 0.4;
 }
 .project {
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 .project-heading.list-box-item {
   height: 32px;

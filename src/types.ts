@@ -153,4 +153,8 @@ export interface ExtensionRequest {
   placeholder?: string
   prefill?: string
   timeout?: number
+  /** Desktop routing metadata; never sent back as part of the answer. */
+  runId?: string
+  sessionId?: string | null
+  afterMessageId?: string
 }

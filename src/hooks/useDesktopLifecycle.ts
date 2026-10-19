@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'
 import {
   connectSession,
   initializeDesktop,
@@ -12,6 +13,21 @@ import { useColorMode } from './useColorMode'
 import { accentKey, applyAppearance } from '../lib/appearance'
 
 export function useDesktopLifecycle(view: Page, enabled = true) {
+  useEffect(() => {
+    const flush = () => {
+      void useWorkspace.flushPersistence()
+    }
+    const hidden = () => {
+      if (document.visibilityState === 'hidden') flush()
+    }
+    window.addEventListener('pagehide', flush)
+    document.addEventListener('visibilitychange', hidden)
+    return () => {
+      window.removeEventListener('pagehide', flush)
+      document.removeEventListener('visibilitychange', hidden)
+      flush()
+    }
+  }, [])
   const active = useWorkspace((state) => state.activeSessionId)
   const theme = useWorkspace((state) => state.theme)
   const palettesByMode = useWorkspace((state) => state.palettesByMode)
@@ -64,6 +80,17 @@ export function useDesktopLifecycle(view: Page, enabled = true) {
   }, [active, startup, view, enabled, allowConnection])
   useEffect(() => {
     applyAppearance(document.documentElement, mode, palette, accent)
+    // Newly exposed native pixels can paint before the web content during resize.
+    // Match that backing surface on appearance changes, without resize listeners.
+    if (isDesktop) {
+      // Theme surface tokens are hex colors, as required by Tauri's Color API.
+      const background = getComputedStyle(document.documentElement)
+        .getPropertyValue('--ground')
+        .trim()
+      void getCurrentWebviewWindow()
+        .setBackgroundColor(background)
+        .catch((error) => console.warn('Unable to synchronize window background', error))
+    }
   }, [mode, palette, accent])
   useEffect(() => {
     document.documentElement.lang = language === 'zh' ? 'zh-CN' : 'en'

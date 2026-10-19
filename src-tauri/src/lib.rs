@@ -1,6 +1,7 @@
 mod commands;
 mod environment;
 mod i18n;
+mod notifications;
 mod onboarding;
 mod packages;
 mod repositories;
@@ -159,6 +160,7 @@ async fn stop_pi(runtime: State<'_, Runtime>, run_id: Option<String>) -> Result<
 pub fn run() {
     let app = tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_notification::init())
         .manage(Runtime::default())
         .manage(repositories::RepositoryClones::default())
         .manage(updates::PiUpdates::default())
@@ -175,6 +177,8 @@ pub fn run() {
             updates::upgrade_pi,
             onboarding::default_workspace,
             system_locale,
+            notifications::notification_permission,
+            notifications::open_notification_settings,
             set_app_language,
             desktop_environment,
             inspect_project,

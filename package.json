@@ -25,6 +25,7 @@
     "@tanstack/react-router": "^1.170.41",
     "@tauri-apps/api": "^2.12.1",
     "@tauri-apps/plugin-dialog": "^2.8.1",
+    "@tauri-apps/plugin-notification": "^2.7.0",
     "ahooks": "^3.10.0",
     "lucide-react": "^1.53.0",
     "motion": "^14.0.0",

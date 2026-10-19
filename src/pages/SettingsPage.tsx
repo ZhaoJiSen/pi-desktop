@@ -1,6 +1,6 @@
 import { ListBox } from '@heroui/react'
 import { motion, useReducedMotion } from 'motion/react'
-import { SlidersHorizontal, Palette, Zap, Blocks, Plug } from 'lucide-react'
+import { SlidersHorizontal, Palette, Zap, Blocks, Plug, Bell } from 'lucide-react'
 import { useT } from '../lib/i18n'
 import { useWorkspace, type SettingsSectionId } from '../store/workspace'
 import { AppearanceSettings } from './settings/AppearanceSettings'
@@ -8,10 +8,12 @@ import { GeneralSettings } from './settings/GeneralSettings'
 import { ExtensionSettings } from './settings/ExtensionSettings'
 import { ConnectionSettings } from './settings/ConnectionSettings'
 import { CapabilitySettings } from './settings/CapabilitySettings'
+import { NotificationSettings } from './settings/NotificationSettings'
 
 const sections = [
   { id: 'general', label: 'settings.general', icon: SlidersHorizontal },
   { id: 'appearance', label: 'settings.appearance', icon: Palette },
+  { id: 'notifications', label: 'notification.settings', icon: Bell },
   { id: 'shortcuts', label: 'capability.shortcutSettings', icon: Zap },
   { id: 'extensions', label: 'settings.extensions', icon: Blocks },
   { id: 'connection', label: 'settings.connection', icon: Plug },
@@ -69,6 +71,9 @@ export function SettingsPage() {
           </div>
           <div hidden={section !== 'appearance'}>
             <AppearanceSettings />
+          </div>
+          <div hidden={section !== 'notifications'}>
+            <NotificationSettings />
           </div>
           <div
             id="settings-capability-panel"

@@ -4,11 +4,14 @@ import { Pin, PinOff, Trash2 } from 'lucide-react'
 import { motion } from 'motion/react'
 import { useT } from '../lib/i18n'
 import { useWorkspace } from '../store/workspace'
-import type { Session } from '../types'
+import { memo } from 'react'
+import type { SessionSummary } from '../store/sessionSelectors'
 import type { SessionMenuTarget } from './SessionContextMenu'
 import { useTextTruncated } from '../hooks/useTextTruncated'
+import { useQuestions } from './conversation/QuestionContext'
+import { MessageCircleQuestion } from 'lucide-react'
 
-export function SessionRow({
+export const SessionRow = memo(function SessionRow({
   session,
   selected,
   locked,
@@ -16,7 +19,7 @@ export function SessionRow({
   onMenu,
   onRemove,
 }: {
-  session: Session
+  session: SessionSummary
   selected: boolean
   locked: boolean
   removalLocked: boolean
@@ -24,6 +27,10 @@ export function SessionRow({
   onRemove: (id: string) => void
 }) {
   const t = useT()
+  const { questions } = useQuestions()
+  const awaiting = questions.some(
+    (item) => item.status === 'pending' && item.request.sessionId === session.id,
+  )
   const title = session.title || t('sessions.new')
   const { ref: titleRef, truncated } = useTextTruncated(title)
   const pinLabel = t(session.pinned ? 'sessions.unpin' : 'sessions.pin')
@@ -41,7 +48,7 @@ export function SessionRow({
         onPress={() => selectChat(session.id)}
         isDisabled={locked && !selected}
         aria-current={selected ? 'page' : undefined}
-        aria-label={title}
+        aria-label={awaiting ? t('notification.sessionWaiting', { name: title }) : title}
         aria-haspopup="menu"
         onContextMenu={(event) => {
           event.preventDefault()
@@ -55,6 +62,15 @@ export function SessionRow({
           onMenu({ id: session.id, x: rect.left + 12, y: rect.bottom })
         }}
       >
+        {awaiting && (
+          <span
+            className="session-awaiting"
+            title={t('notification.needsAnswer')}
+            aria-hidden="true"
+          >
+            <MessageCircleQuestion aria-hidden="true" />
+          </span>
+        )}
         <Tooltip delay={450} closeDelay={100} isDisabled={!truncated}>
           <Tooltip.Trigger<'span'>
             render={(props) => <span {...props} />}
@@ -95,4 +111,4 @@ export function SessionRow({
       </div>
     </motion.div>
   )
-}
+})

@@ -1,8 +1,10 @@
 import { Outlet } from '@tanstack/react-router'
 import { useKeyPress } from 'ahooks'
 import { MotionConfig } from 'motion/react'
-import { useCallback, useEffect, useState, type CSSProperties } from 'react'
-import { ExtensionDialog } from '../components/dialogs/ExtensionDialog'
+import { useState, type CSSProperties } from 'react'
+import { QuestionProvider, useQuestions } from '../components/conversation/QuestionContext'
+import { PendingQuestions } from '../components/conversation/QuestionCard'
+import { QuestionNotifications } from '../components/QuestionNotifications'
 import { ProjectDialog } from '../components/dialogs/ProjectDialog'
 import { RemoveSessionDialog } from '../components/dialogs/RemoveSessionDialog'
 import { RenameDialog } from '../components/dialogs/RenameDialog'
@@ -15,13 +17,12 @@ import { SidebarToggle, WindowControls } from '../components/Chrome'
 import { ConnectionNotice } from '../components/ConnectionNotice'
 import { RuntimeNotice } from '../components/RuntimeNotice'
 import { StartupScreen } from '../components/StartupScreen'
-import { onExtensionRequest, pickProject } from '../lib/desktop'
+import { pickProject } from '../lib/desktop'
 import { openRecentProject } from '../lib/recent'
 import { folderForNewChat } from '../lib/recentProject'
 import { useT } from '../lib/i18n'
 import { reportActionNotice } from '../lib/notices'
 import { isDesktop, useWorkspace } from '../store/workspace'
-import type { ExtensionRequest } from '../types'
 import { useDesktopLifecycle } from '../hooks/useDesktopLifecycle'
 import { useCurrentPage } from '../router/hooks'
 import { createChat, navigateToPage } from '../router/navigation'
@@ -31,6 +32,15 @@ import { PiUpdateDialog } from '../components/PiUpdateDialog'
 import { usePiUpdatePrompt } from '../hooks/usePiUpdatePrompt'
 
 export function WorkspaceLayout() {
+  return (
+    <QuestionProvider>
+      <WorkspaceContent />
+      <QuestionNotifications />
+    </QuestionProvider>
+  )
+}
+
+function WorkspaceContent() {
   const sidebar = useWorkspace((state) => state.sidebarOpen)
   const active = useWorkspace((state) => state.activeSessionId)
   const connection = useWorkspace((state) => state.connection)
@@ -46,18 +56,14 @@ export function WorkspaceLayout() {
   const [projectOpen, setProjectOpen] = useState(false)
   const [renameId, setRenameId] = useState<string | null>(null)
   const [removeId, setRemoveId] = useState<string | null>(null)
-  const [extensionRequests, setExtensionRequests] = useState<ExtensionRequest[]>([])
+  const { questions } = useQuestions()
+  const hasQuestion = questions.some((item) => item.status === 'pending')
   const piUpdate = usePiUpdatePrompt(
     startup === 'ready',
     onboardingOpen,
-    searchOpen || projectOpen || Boolean(renameId || removeId || extensionRequests.length),
+    searchOpen || projectOpen || Boolean(renameId || removeId || hasQuestion),
   )
   const t = useT()
-  const closeExtension = useCallback(() => setExtensionRequests((items) => items.slice(1)), [])
-  useEffect(
-    () => onExtensionRequest((request) => setExtensionRequests((items) => [...items, request])),
-    [],
-  )
   async function addProject() {
     if (updating || running || connection === 'connecting') return
     if (!isDesktop) {
@@ -103,13 +109,6 @@ export function WorkspaceLayout() {
     if (!onboardingOpen && startup === 'ready' && !updating && !piUpdate.update)
       void navigateToPage('settings')
   })
-  const extensionDialog = extensionRequests[0] && (
-    <ExtensionDialog
-      key={extensionRequests[0].id}
-      current={extensionRequests[0]}
-      onClose={closeExtension}
-    />
-  )
   if (onboardingOpen)
     return (
       <MotionConfig reducedMotion="user">
@@ -120,8 +119,8 @@ export function WorkspaceLayout() {
               void navigateToPage('chat')
             }}
           />
+          <PendingQuestions />
         </main>
-        {extensionDialog}
       </MotionConfig>
     )
   if (startup !== 'ready')
@@ -136,8 +135,8 @@ export function WorkspaceLayout() {
               continueStartup()
             }}
           />
+          <PendingQuestions />
         </main>
-        {extensionDialog}
       </MotionConfig>
     )
   return (
@@ -197,7 +196,6 @@ export function WorkspaceLayout() {
           onClose={() => setRemoveId(null)}
         />
       )}
-      {extensionDialog}
     </MotionConfig>
   )
 }

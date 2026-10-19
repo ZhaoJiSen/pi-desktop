@@ -28,7 +28,12 @@ vi.mock('../../src/pages/OnboardingPage', () => ({
 vi.mock('../../src/components/StartupScreen', () => ({
   StartupScreen: () => createElement('p', null, 'Reconnecting'),
 }))
-// Keep the real extension dialog and response path; replace only UI primitives.
+// Keep the real inline question card and response path; replace only UI primitives.
+vi.mock('motion/react', () => ({
+  MotionConfig: ({ children }: { children?: ReactNode }) => children,
+  useReducedMotion: () => true,
+  motion: { section: 'section', p: 'p', span: 'span', aside: 'aside', div: 'div' },
+}))
 vi.mock('@heroui/react', async (original) => {
   const module = await original<typeof import('@heroui/react')>()
   const { createElement } = await import('react')
@@ -125,10 +130,11 @@ describe('extension requests during inline Pi update recovery', () => {
         options: ['Allow access'],
       })
       expect(container.textContent).toContain('Setup guide')
-      expect(container.querySelector('[role="dialog"]')?.textContent).toContain(
+      expect(container.querySelector('.chat-question')?.textContent).toContain(
         'Restore project access',
       )
-      await click(method === 'select' ? 'Allow access' : 'Save')
+      if (method === 'select') await click('Allow access')
+      await click(method === 'confirm' ? 'Confirm' : 'Send answer')
       expect(mocks.invoke).toHaveBeenCalledExactlyOnceWith('pi_request', {
         runId: 'restoring-run',
         command: {
@@ -139,7 +145,7 @@ describe('extension requests during inline Pi update recovery', () => {
             : { value: method === 'select' ? 'Allow access' : 'saved answer' }),
         },
       })
-      expect(container.querySelector('[role="dialog"]')).toBeNull()
+      expect(container.querySelector('.question-recovery')).toBeNull()
       expect(useWorkspace.getState().piUpdating).toBe(true)
     },
   )
@@ -148,17 +154,17 @@ describe('extension requests during inline Pi update recovery', () => {
     await mount()
     await emit({ id: 'first', method: 'confirm', title: 'First project' })
     await emit({ id: 'second', method: 'input', title: 'Second project', prefill: 'retained' })
-    expect(container.querySelectorAll('[role="dialog"]')).toHaveLength(1)
-    await click('Save')
+    expect(container.querySelectorAll('.chat-question')).toHaveLength(1)
+    await click('Confirm')
     await act(async () => useWorkspace.setState({ onboardingOpen: false }))
     expect(container.textContent).not.toContain('Setup guide')
-    expect(container.querySelector('[role="dialog"]')?.textContent).toContain('Second project')
+    expect(container.querySelector('.chat-question')?.textContent).toContain('Second project')
     expect(container.querySelector('textarea')?.value).toBe('retained')
-    await click('Save')
+    await click('Send answer')
     expect(mocks.invoke).toHaveBeenLastCalledWith('pi_request', {
       runId: 'restoring-run',
       command: { type: 'extension_ui_response', id: 'second', value: 'retained' },
     })
-    expect(container.querySelector('[role="dialog"]')).toBeNull()
+    expect(container.querySelector('.question-recovery')).toBeNull()
   })
 })
