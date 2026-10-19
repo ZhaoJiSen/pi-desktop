@@ -6,6 +6,7 @@ src-tauri/gen/
 .impeccable
 *.local
 coverage/
+/design/
 docs/implementation/check-*/
 docs/design/
 docs/implementation/*/
