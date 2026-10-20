@@ -105,13 +105,23 @@
   color: var(--muted);
   font-size: calc(var(--font-ui-size) * 13 / 14 * 1px);
   line-height: 1.6;
+  min-height: 1.6em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.settings-palette-trigger #settings-palette-value {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .settings-palette-trigger {
   flex: none;
   gap: 9px;
   min-width: 206px;
   min-height: 36px;
-  height: auto;
+  height: 36px;
   padding: 7px 10px;
   border: 1px solid var(--settings-control-border);
   border-radius: var(--radius);

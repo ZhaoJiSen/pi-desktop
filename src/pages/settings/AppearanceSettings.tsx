@@ -131,11 +131,7 @@ export function AppearanceSettings() {
         <div className="settings-row settings-palette-row">
           <div className="settings-row-text">
             <span id="settings-palette-label">{t('settings.palette')}</span>
-            {theme === 'system' && (
-              <p className="settings-palette-hint">
-                {t('settings.systemTheme', { mode: t(`settings.theme.${mode}`) })}
-              </p>
-            )}
+            <p className="settings-palette-hint">{t('settings.paletteHelp')}</p>
           </div>
           <Popover isOpen={open} onOpenChange={changeOpen}>
             <Button

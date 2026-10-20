@@ -587,7 +587,7 @@ export const zh = {
   'settings.palette': '配色主题',
   'settings.choosePalette': '选择配色主题',
   'settings.paletteHeading': '{mode}主题',
-  'settings.systemTheme': '当前为{mode}，亮暗主题分别记忆。',
+  'settings.paletteHelp': '亮色和暗色各自记住主题。',
   'settings.accent': '强调色',
   'settings.accent.default': '主题默认',
   'settings.accent.graphite': '石墨',

@@ -636,7 +636,7 @@ export const en = {
   'settings.palette': 'Color theme',
   'settings.choosePalette': 'Choose a color theme',
   'settings.paletteHeading': '{mode} themes',
-  'settings.systemTheme': '{mode} is active. Each mode remembers its theme.',
+  'settings.paletteHelp': 'Each mode keeps its own theme.',
   'settings.accent': 'Accent color',
   'settings.accent.default': 'Theme default',
   'settings.accent.graphite': 'Graphite',
