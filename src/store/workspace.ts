@@ -15,6 +15,7 @@ import {
   type ModePalettes,
   type AccentOverrides,
 } from '../lib/appearance'
+import { defaultFonts, restoreFonts, type FontPreferences } from '../lib/fonts'
 import type {
   ExtensionPackage,
   Model,
@@ -63,6 +64,7 @@ interface WorkspaceState {
   palette: Palette
   palettesByMode: ModePalettes
   accentOverrides: AccentOverrides
+  fonts: FontPreferences
   language: Language
   languageSource: 'system' | 'user'
   autoReloadAfterToggle: boolean
@@ -112,6 +114,7 @@ interface WorkspaceState {
         | 'palette'
         | 'palettesByMode'
         | 'accentOverrides'
+        | 'fonts'
         | 'language'
         | 'piExecutable'
         | 'lastCustomPiExecutable'
@@ -170,6 +173,7 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
         palette: 'ink',
         palettesByMode: { light: 'ink', dark: 'ink' },
         accentOverrides: {},
+        fonts: defaultFonts,
         language: browserLanguage(),
         languageSource: 'system',
         piExecutable: 'pi',
@@ -433,6 +437,7 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
           palette: state.palette,
           palettesByMode: state.palettesByMode,
           accentOverrides: state.accentOverrides,
+          fonts: state.fonts,
           language: state.language,
           languageSource: state.languageSource,
           piExecutable: state.piExecutable,
@@ -480,6 +485,7 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
               palettesByMode[resolveColorMode(saved?.theme ?? current.theme, systemIsDark())],
             palettesByMode,
             accentOverrides: restoreAccentOverrides(saved?.accentOverrides),
+            fonts: restoreFonts(saved?.fonts),
             language:
               languageSource === 'user' && validLanguage ? saved.language! : current.language,
             languageSource,

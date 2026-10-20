@@ -20,9 +20,16 @@
   padding: 10px 13px;
   border-radius: var(--radius-xl);
   background: var(--user);
-  font-size: 14px;
+  font-size: var(--font-reading-size);
+  line-height: var(--font-reading-leading);
   overflow-wrap: anywhere;
   white-space: pre-wrap;
+}
+.conversation-history {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+  color: var(--muted);
 }
 .user-attachment {
   color: var(--muted);
@@ -45,11 +52,18 @@
   margin-bottom: 12px;
 }
 .reply-text {
-  font-size: 15px;
-  line-height: 1.7;
+  font-size: var(--font-reading-size);
+  line-height: var(--font-reading-leading);
   min-width: 0;
   max-width: 100%;
   overflow-x: auto;
+  // Horizontal scrolling must not create a second vertical chat viewport.
+  overflow-y: hidden;
+}
+.reply-markdown {
+  // Inline code padding can paint beyond the first/last line by a fraction of
+  // a pixel, especially with a larger code font and compact reading line height.
+  padding-block: 2px;
 }
 .reply-text p {
   margin: 0 0 14px;
@@ -74,16 +88,16 @@
   margin: 20px 0 8px;
 }
 .reply-text h1 {
-  font-size: 20px;
+  font-size: 1.333em;
 }
 .reply-text h2 {
-  font-size: 18px;
+  font-size: 1.2em;
 }
 .reply-text h3 {
-  font-size: 16px;
+  font-size: 1.067em;
 }
 .reply-text :is(h4, h5, h6) {
-  font-size: 15px;
+  font-size: 1em;
 }
 .reply-text ul,
 .reply-text ol {
@@ -103,11 +117,11 @@
   padding: 2px 4px;
   border-radius: var(--radius-xs, calc(var(--radius) * 0.25));
   background: var(--chat-inline);
-  font:
-    12.5px ui-monospace,
-    SFMono-Regular,
-    Menlo,
-    monospace;
+  font-family: var(--font-code);
+  font-size: var(--font-code-size);
+  line-height: inherit;
+  font-variant-ligatures: var(--font-code-ligatures);
+  font-feature-settings: var(--font-code-features);
 }
 .reply-text blockquote {
   margin: 0 0 14px;
@@ -128,7 +142,7 @@
 }
 .reply-text table {
   width: 100%;
-  font-size: 13px;
+  font-size: calc(var(--font-reading-size) * 13 / 15);
   line-height: 1.6;
   border-collapse: collapse;
 }
@@ -254,10 +268,19 @@
   margin: 0;
   padding: 8px 12px;
   border-radius: inherit;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease,
+    border-bottom-left-radius 200ms var(--ease-out-quad),
+    border-bottom-right-radius 200ms var(--ease-out-quad);
 }
 .tool-block > .chat-disclosure-heading,
 .tool-group > .chat-disclosure-heading {
   border-radius: inherit;
+}
+.chat-disclosure-trigger.tool[aria-expanded='true'] {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
 }
 .chat-disclosure-trigger .tool-chevron {
   display: flex;
@@ -298,7 +321,7 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding: 0 10px 10px;
+  padding: 6px 10px 10px;
   min-width: 0;
 }
 .tool-group-items > .tool-block {
@@ -361,11 +384,11 @@
   color: var(--muted);
 }
 .filename {
-  font:
-    12.5px/1.4 ui-monospace,
-    SFMono-Regular,
-    Menlo,
-    monospace;
+  font-family: var(--font-code);
+  font-size: var(--font-code-size);
+  line-height: 1.4;
+  font-variant-ligatures: var(--font-code-ligatures);
+  font-feature-settings: var(--font-code-features);
   color: var(--ink);
   min-width: 0;
   overflow: hidden;
@@ -404,11 +427,10 @@
   display: inline-flex;
   gap: 6px;
   margin-left: 8px;
-  font:
-    11px ui-monospace,
-    SFMono-Regular,
-    Menlo,
-    monospace;
+  font-family: var(--font-code);
+  font-size: calc(var(--font-code-size) * 11 / 13);
+  font-variant-ligatures: var(--font-code-ligatures);
+  font-feature-settings: var(--font-code-features);
 }
 .positive {
   color: var(--mint);
@@ -426,11 +448,11 @@
   min-width: 0;
   max-width: 100%;
   padding: 6px 0;
-  font:
-    12.5px/28px ui-monospace,
-    SFMono-Regular,
-    Menlo,
-    monospace;
+  font-family: var(--font-code);
+  font-size: var(--font-code-size);
+  line-height: var(--font-code-leading);
+  font-variant-ligatures: var(--font-code-ligatures);
+  font-feature-settings: var(--font-code-features);
 }
 .code-line {
   display: flex;
@@ -509,11 +531,11 @@
   overflow: visible;
   background: transparent;
   white-space: pre;
-  font:
-    12.5px/1.7 ui-monospace,
-    SFMono-Regular,
-    Menlo,
-    monospace;
+  font-family: var(--font-code);
+  font-size: var(--font-code-size);
+  line-height: var(--font-code-leading);
+  font-variant-ligatures: var(--font-code-ligatures);
+  font-feature-settings: var(--font-code-features);
 }
 .tool-pending {
   color: var(--muted);
@@ -527,8 +549,8 @@
 .thinking-text {
   margin: 0;
   padding: 4px 0 8px;
-  font-size: 14px;
-  line-height: 1.7;
+  font-size: var(--font-reading-size);
+  line-height: var(--font-reading-leading);
 }
 .thinking-text p,
 .thinking-text ul,
@@ -537,7 +559,7 @@
   margin-bottom: 8px;
 }
 .thinking-text :is(h1, h2, h3, h4, h5, h6) {
-  font-size: 14px;
+  font-size: 1em;
   font-weight: 500;
   line-height: 1.5;
   margin: 12px 0 6px;
@@ -587,11 +609,11 @@
   overflow: visible;
   background: transparent;
   white-space: pre;
-  font:
-    12.5px/1.75 ui-monospace,
-    SFMono-Regular,
-    Menlo,
-    monospace;
+  font-family: var(--font-code);
+  font-size: var(--font-code-size);
+  line-height: var(--font-code-leading);
+  font-variant-ligatures: var(--font-code-ligatures);
+  font-feature-settings: var(--font-code-features);
 }
 .conversation.is-wrap .reply-text {
   overflow-wrap: anywhere;

@@ -74,7 +74,7 @@
   justify-content: flex-start;
   text-align: left;
   color: var(--ink);
-  font-size: 14px;
+  font-size: calc(var(--font-ui-size) * 14 / 14 * 1px);
   font-weight: 400;
 }
 .button.nav-row svg {
@@ -83,7 +83,7 @@
 .nav .button.nav-row,
 .projects .projects-toggle {
   gap: 8px;
-  font-size: 13px;
+  font-size: calc(var(--font-ui-size) * 13 / 14 * 1px);
   line-height: 20px;
 }
 .nav .button.nav-row {
@@ -147,7 +147,7 @@
   margin: 0;
   padding: 4px 7px 6px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: calc(var(--font-ui-size) * 12 / 14 * 1px);
   line-height: 1.5;
   overflow-wrap: anywhere;
 }
@@ -155,7 +155,7 @@
   margin: 0;
   padding: 4px 7px 6px 29px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: calc(var(--font-ui-size) * 12 / 14 * 1px);
   line-height: 1.5;
   overflow-wrap: anywhere;
 }
@@ -169,7 +169,7 @@
   padding: 0 7px 0 0;
   margin: 0 0 4px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: calc(var(--font-ui-size) * 12 / 14 * 1px);
 }
 .section-label svg {
   width: 15px;
@@ -316,7 +316,7 @@
   min-height: 32px;
   gap: 8px;
   padding: 0 7px;
-  font-size: 13px;
+  font-size: calc(var(--font-ui-size) * 13 / 14 * 1px);
   font-weight: 400;
   text-align: left;
   background: transparent;
@@ -368,7 +368,7 @@
   background: var(--paper);
   color: var(--ink);
   box-shadow: 0 8px 28px #00000016;
-  font-size: 12px;
+  font-size: calc(var(--font-ui-size) * 12 / 14 * 1px);
   line-height: 19px;
 }
 .project-summary-title {
@@ -379,7 +379,7 @@
 .project-summary-title strong {
   flex: 1;
   min-width: 0;
-  font-size: 13px;
+  font-size: calc(var(--font-ui-size) * 13 / 14 * 1px);
   font-weight: 500;
   overflow-wrap: anywhere;
 }
@@ -421,7 +421,7 @@
   gap: 4px;
   padding: 4px 7px 8px 27px;
   color: var(--danger);
-  font-size: 11px;
+  font-size: calc(var(--font-ui-size) * 11 / 14 * 1px);
   line-height: 17px;
 }
 .project-error span {
@@ -462,7 +462,7 @@
   width: 100%;
   min-width: 0;
   text-align: left;
-  font-size: 13px;
+  font-size: calc(var(--font-ui-size) * 13 / 14 * 1px);
   font-weight: 400;
   background: transparent;
   color: var(--ink);
@@ -595,7 +595,7 @@
   background: var(--selection);
 }
 .sidebar-title {
-  font-size: 15px;
+  font-size: calc(var(--font-ui-size) * 15 / 14 * 1px);
   font-weight: 600;
   line-height: 26px;
 }

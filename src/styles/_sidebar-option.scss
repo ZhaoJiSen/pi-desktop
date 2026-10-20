@@ -49,7 +49,7 @@
   strong {
     display: block;
     overflow: hidden;
-    font-size: 13px;
+    font-size: calc(var(--font-ui-size) * 13 / 14 * 1px);
     font-weight: 500;
     line-height: 1.4;
     text-overflow: ellipsis;
@@ -60,7 +60,7 @@
     min-width: 0;
     overflow: hidden;
     color: var(--muted);
-    font-size: 11px;
+    font-size: calc(var(--font-ui-size) * 11 / 14 * 1px);
     text-overflow: ellipsis;
     white-space: nowrap;
   }
@@ -84,7 +84,7 @@
   padding-inline: 5px;
   background: var(--hover);
   color: var(--muted);
-  font-size: 10px;
+  font-size: calc(var(--font-ui-size) * 10 / 14 * 1px);
   font-weight: 500;
   line-height: 16px;
 }
@@ -105,7 +105,7 @@
   background: var(--paper);
   color: var(--ink);
   box-shadow: 0 4px 16px #00000014;
-  font-size: 12px;
+  font-size: calc(var(--font-ui-size) * 12 / 14 * 1px);
   line-height: 18px;
   overflow-wrap: anywhere;
 }

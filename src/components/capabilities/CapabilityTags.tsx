@@ -1,4 +1,4 @@
-import { isPlanCapability } from '../../lib/capabilities/catalog'
+import { isPlanCapability, localizeCapability } from '../../lib/capabilities/catalog'
 import { Button, Popover, Tag, TagGroup } from '@heroui/react'
 import { motion, useReducedMotion } from 'motion/react'
 import { LockKeyhole } from 'lucide-react'
@@ -20,7 +20,9 @@ export function CapabilityTags({
 }) {
   const t = useT(),
     reduced = useReducedMotion()
-  const items = [selection.mode, selection.task].filter((c): c is Capability => Boolean(c))
+  const items = [selection.mode, selection.task]
+    .filter((c): c is Capability => Boolean(c))
+    .map((item) => localizeCapability(item, t))
   if (!items.length) return null
   return (
     <TagGroup
@@ -60,7 +62,12 @@ export function CapabilityTags({
                     {t(item.scope === 'session' ? 'capability.scopeChat' : 'capability.scopeOnce')}
                   </span>
                 </Button>
-                <Popover.Content placement="top start" className="capability-details-popover">
+                <Popover.Content
+                  placement="top start"
+                  className="capability-details-popover"
+                  maxHeight={560}
+                  containerPadding={16}
+                >
                   <Popover.Dialog aria-label={t('capability.details')}>
                     <CapabilityDetails
                       capability={item}

@@ -69,7 +69,9 @@ export const Highlight = memo(function Highlight({
   text: string
   language?: string
 }) {
-  const grammar = prismGrammar(language)
+  // Large files remain complete and copyable without building hundreds of
+  // thousands of syntax-token nodes or running a large regex grammar.
+  const grammar = text.length <= 50_000 ? prismGrammar(language) : undefined
   const tokens = grammar ? Prism.tokenize(text, grammar) : [text]
   return (
     <>

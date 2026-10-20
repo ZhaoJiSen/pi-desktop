@@ -3,9 +3,13 @@ import { act, createElement as h, memo, type ReactNode } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 
-const mocks = vi.hoisted(() => ({ messageRender: vi.fn() }))
+const mocks = vi.hoisted(() => ({
+  messageRender: vi.fn(),
+  questions: [] as import('../../src/components/conversation/QuestionContext').ChatQuestion[],
+}))
 vi.mock('motion/react', () => ({ motion: { create: (component: unknown) => component } }))
-vi.mock('@heroui/react', () => ({
+vi.mock('@heroui/react', async (original) => ({
+  ...(await original<typeof import('@heroui/react')>()),
   Button: ({ children, onPress }: { children?: ReactNode; onPress?: () => void }) =>
     h('button', { onClick: onPress }, children),
   ScrollShadow: ({
@@ -26,7 +30,11 @@ vi.mock('../../src/components/TextShimmer', () => ({
 }))
 vi.mock('../../src/components/conversation/ToolCall', () => ({ toolStartsOpen: () => false }))
 vi.mock('../../src/components/conversation/QuestionContext', () => ({
-  useQuestions: () => ({ questions: [] }),
+  useQuestions: () => ({ questions: mocks.questions }),
+}))
+vi.mock('../../src/components/conversation/QuestionCard', () => ({
+  QuestionCard: ({ question }: { question: { key: string } }) =>
+    h('aside', { 'data-question': question.key }, question.key),
 }))
 vi.mock('../../src/components/conversation/MessageView', () => ({
   MessageView: memo(({ message }: { message: { id: string; blocks: { text: string }[] } }) => {
@@ -61,6 +69,7 @@ beforeEach(() => {
   document.body.append(container)
   root = createRoot(container)
   mocks.messageRender.mockClear()
+  mocks.questions = []
 })
 afterEach(async () => {
   await act(async () => root.unmount())
@@ -86,12 +95,10 @@ it('opens a 2,000-message conversation by rendering only the latest 80, then loa
   expect(scroll.scrollTop).toBe(8120)
   expect(mocks.messageRender).toHaveBeenCalledTimes(160)
   await act(async () =>
-    useWorkspace
-      .getState()
-      .appendEvent('active', {
-        type: 'message_update',
-        assistantMessageEvent: { type: 'text_delta', contentIndex: 0, delta: 'new' },
-      }),
+    useWorkspace.getState().appendEvent('active', {
+      type: 'message_update',
+      assistantMessageEvent: { type: 'text_delta', contentIndex: 0, delta: 'new' },
+    }),
   )
   expect(mocks.messageRender).toHaveBeenCalledTimes(161)
   expect(scroll.scrollTop).toBe(8120)
@@ -122,12 +129,10 @@ it('does not render history on draft changes or refresh sidebar and input settin
   expect(composer).toHaveBeenCalledOnce()
   composer.mockClear()
   await act(async () =>
-    useWorkspace
-      .getState()
-      .appendEvent('active', {
-        type: 'message_update',
-        assistantMessageEvent: { type: 'text_delta', contentIndex: 0, delta: 'new' },
-      }),
+    useWorkspace.getState().appendEvent('active', {
+      type: 'message_update',
+      assistantMessageEvent: { type: 'text_delta', contentIndex: 0, delta: 'new' },
+    }),
   )
   expect(mocks.messageRender).toHaveBeenCalledOnce()
   expect(sidebar).not.toHaveBeenCalled()
@@ -157,4 +162,72 @@ it('applies the history limit to an asynchronously restored thread and resets it
   expect(container.querySelector('[data-message]')?.getAttribute('data-message')).toBe(
     'message-420',
   )
+})
+
+it('does not read offscreen history on streamed tokens after questions, including unresolved anchors', async () => {
+  const messages = useWorkspace.getState().sessions[0].messages
+  const readHistory = vi.fn(() => [{ type: 'text' as const, text: 'Old reply' }])
+  Object.defineProperty(messages[0], 'blocks', { get: readHistory })
+  mocks.questions = [
+    {
+      key: 'answered',
+      receivedAt: 1,
+      status: 'answered',
+      request: {
+        id: 'answered',
+        method: 'input',
+        title: 'Question',
+        sessionId: 'active',
+        afterMessageId: messages[1950].id,
+        afterMessageAnchor: { role: 'assistant', timestamp: 1950, occurrence: 0, toolCallIds: [] },
+      },
+    },
+    {
+      key: 'removed-branch',
+      receivedAt: 2,
+      status: 'answered',
+      request: {
+        id: 'removed',
+        method: 'input',
+        title: 'Removed',
+        sessionId: 'active',
+        afterMessageAnchor: {
+          role: 'assistant',
+          timestamp: -1,
+          occurrence: 0,
+          toolCallIds: ['gone'],
+        },
+      },
+    },
+  ]
+  await act(async () => root.render(h(Conversation, { onProject: () => {} })))
+  expect(readHistory).toHaveBeenCalled()
+  readHistory.mockClear()
+  for (let i = 0; i < 8; i++) {
+    await act(async () =>
+      useWorkspace.getState().appendEvent('active', {
+        type: 'message_update',
+        assistantMessageEvent: { type: 'text_delta', contentIndex: 0, delta: 'new' },
+      }),
+    )
+  }
+  expect(readHistory).not.toHaveBeenCalled()
+  expect(
+    container
+      .querySelector('[data-question="answered"]')
+      ?.previousElementSibling?.getAttribute('data-message'),
+  ).toBe('message-1950')
+  expect(container.querySelector('[data-question="removed-branch"]')).toBeNull()
+
+  // Authoritative history is a new identity snapshot and must be re-associated.
+  const restored = messages.map((message, index) => ({ ...message, id: `restored-${index}` }))
+  readHistory.mockClear()
+  await act(async () => useWorkspace.getState().updateSession('active', { messages: restored }))
+  expect(
+    container
+      .querySelector('[data-question="answered"]')
+      ?.previousElementSibling?.getAttribute('data-message'),
+  ).toBe('restored-1950')
+  await act(async () => useWorkspace.getState().updateSession('active', { messages: history(100) }))
+  expect(container.querySelector('[data-question="answered"]')).toBeNull()
 })

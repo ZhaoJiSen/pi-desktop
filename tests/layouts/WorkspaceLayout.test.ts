@@ -32,7 +32,22 @@ vi.mock('../../src/components/StartupScreen', () => ({
 vi.mock('motion/react', () => ({
   MotionConfig: ({ children }: { children?: ReactNode }) => children,
   useReducedMotion: () => true,
-  motion: { section: 'section', p: 'p', span: 'span', aside: 'aside', div: 'div' },
+  motion: {
+    section: 'section',
+    p: 'p',
+    span: 'span',
+    aside: 'aside',
+    div: 'div',
+    create:
+      (component: React.ElementType) =>
+      ({
+        initial: _initial,
+        animate: _animate,
+        transition: _transition,
+        ...props
+      }: Record<string, unknown>) =>
+        createElement(component, props),
+  },
 }))
 vi.mock('@heroui/react', async (original) => {
   const module = await original<typeof import('@heroui/react')>()

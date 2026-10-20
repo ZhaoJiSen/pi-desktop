@@ -8,9 +8,14 @@ const mocks = vi.hoisted(() => ({
   sync: vi.fn(),
   connect: vi.fn(),
   background: vi.fn(),
+  theme: vi.fn(),
 }))
 vi.mock('@tauri-apps/api/webviewWindow', () => ({
-  getCurrentWebviewWindow: () => ({ setBackgroundColor: mocks.background }),
+  getCurrentWebviewWindow: () => ({
+    setBackgroundColor: mocks.background,
+    setEffects: vi.fn().mockResolvedValue(undefined),
+    setTheme: mocks.theme,
+  }),
 }))
 vi.mock('../../src/lib/desktop', () => ({
   initializeDesktop: mocks.initialize,
@@ -79,32 +84,29 @@ afterEach(async () => {
   vi.unstubAllGlobals()
 })
 describe('onboarding startup boundary', () => {
-  it('keeps native resize backing in sync with the resolved mode and palette', async () => {
+  it('keeps the native window transparent when the theme or palette changes', async () => {
     await render(false)
-    expect(mocks.background).toHaveBeenLastCalledWith('#f7f7f6')
+    expect(mocks.background).toHaveBeenCalledWith([0, 0, 0, 0])
+    expect(mocks.theme).toHaveBeenCalledWith('light')
+    const calls = mocks.background.mock.calls.length
     await act(async () => useWorkspace.setState({ theme: 'dark' }))
-    expect(mocks.background).toHaveBeenLastCalledWith('#1b1c1d')
+    expect(mocks.theme).toHaveBeenLastCalledWith('dark')
     await act(async () =>
       useWorkspace.setState({
         palettesByMode: { light: 'ink', dark: 'catppuccin' },
       }),
     )
-    expect(mocks.background).toHaveBeenLastCalledWith('#181825')
-    const calls = mocks.background.mock.calls.length
+    expect(mocks.background).toHaveBeenCalledTimes(calls)
+    expect(document.documentElement.dataset.theme).toBe('dark')
+    expect(document.documentElement.dataset.palette).toBe('catppuccin')
     await act(async () => useWorkspace.setState({ connection: 'connecting' }))
     expect(mocks.background).toHaveBeenCalledTimes(calls)
   })
   it('keeps the workspace usable if the native background update fails', async () => {
-    const warning = vi.spyOn(console, 'warn').mockImplementation(() => {})
     mocks.background.mockRejectedValueOnce(new Error('Native color unavailable'))
-    try {
-      await render(false)
-      expect(document.documentElement.dataset.theme).toBe('light')
-      expect(warning).toHaveBeenCalledOnce()
-      expect(lifecycle.startup).toBe('loading')
-    } finally {
-      warning.mockRestore()
-    }
+    await render(false)
+    expect(document.documentElement.dataset.theme).toBe('light')
+    expect(lifecycle.startup).toBe('loading')
   })
   it('flushes pending persistence when the page is hidden or leaves the webview', async () => {
     const flush = vi.spyOn(useWorkspace, 'flushPersistence')

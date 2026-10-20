@@ -11,6 +11,7 @@ import { toolStartsOpen } from './conversation/ToolCall'
 
 import { useQuestions } from './conversation/QuestionContext'
 import { QuestionCard } from './conversation/QuestionCard'
+import { questionAnchorResolver } from '../lib/questionAnchors'
 
 const MotionScrollShadow = motion.create(ScrollShadow)
 const HISTORY_PAGE_SIZE = 80
@@ -34,6 +35,7 @@ function SessionConversation({
   const running = useWorkspace(
     (state) => state.runningSessionId === sessionId && Boolean(sessionId),
   )
+  const connecting = useWorkspace((state) => state.connection === 'connecting')
   // Open the current part of a long thread without parsing years of Markdown.
   // Keep the start fixed while new messages arrive so reading history is stable.
   const [historyStart, setHistoryStart] = useState<number | null>(null)
@@ -46,23 +48,29 @@ function SessionConversation({
       questions.filter(
         (item) =>
           item.request.sessionId === sessionId ||
-          (!item.request.sessionId && item.status === 'pending'),
+          // A switch can wait for confirmation from the previous Pi session.
+          // Keep it answerable without changing the selected destination.
+          (item.status === 'pending' && (connecting || !item.request.sessionId)),
       ),
-    [questions, sessionId],
+    [questions, sessionId, connecting],
   )
   const anchoredQuestions = useMemo(() => {
     const result = new Map<string | undefined, typeof visibleQuestions>()
     if (!visibleQuestions.length) return result
-    const ids = new Set(messages.slice(start).map((message) => message.id))
+    const resolve = questionAnchorResolver(messages)
     for (const item of visibleQuestions) {
-      const anchor = item.request.afterMessageId
-      const key = anchor && ids.has(anchor) ? anchor : undefined
+      const index = item.request.sessionId === sessionId ? resolve(item.request) : undefined
+      let key: string | undefined
+      if (index !== undefined && index >= start) key = messages[index].id
+      else if (index === -1 && start === 0) key = undefined
+      else if (item.status === 'pending') key = messages.at(-1)?.id
+      else continue // Hidden history/removed branch is not the beginning of the conversation.
       const group = result.get(key) ?? []
       group.push(item)
       result.set(key, group)
     }
     return result
-  }, [messages, start, visibleQuestions])
+  }, [messages, start, visibleQuestions, sessionId])
   const awaitingAnswer = visibleQuestions.some((item) => item.status === 'pending')
   const pendingKey = questions.find((item) => item.status === 'pending')?.key
   const questionCards = (after?: string) =>

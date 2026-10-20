@@ -491,11 +491,10 @@
 .model-thinking-slider .slider__output {
   display: inline-block;
   vertical-align: top;
-  font:
-    600 15px/21px ui-monospace,
-    SFMono-Regular,
-    Menlo,
-    monospace;
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 21px;
+  font-family: var(--font-code);
   letter-spacing: 0.035em;
   color: var(--ink);
 }

@@ -1,11 +1,13 @@
-.chat-question {
+.chat-question.card {
   width: 100%;
-  max-width: 440px;
-  margin: 0 auto 16px 0;
+  max-width: none;
+  margin: 0 0 16px;
+  gap: 0;
   padding: 12px;
   border: 1px solid var(--line);
   border-radius: var(--radius-xl, calc(var(--radius) * 1.5));
   background: var(--paper);
+  box-shadow: none;
   min-width: 0;
   overflow-wrap: anywhere;
   h3 {
@@ -17,8 +19,9 @@
     white-space: pre-wrap;
   }
 }
-.chat-question-heading {
+.chat-question-heading.card__header {
   display: flex;
+  flex-direction: row;
   gap: 8px;
   align-items: flex-start;
   margin-bottom: 8px;
@@ -33,6 +36,9 @@
   > div {
     min-width: 0;
   }
+}
+.chat-question-content.card__content {
+  min-width: 0;
 }
 .chat-question-status {
   display: block;
@@ -115,11 +121,12 @@
 .chat-question-custom {
   margin-top: 4px;
 }
-.chat-question-actions {
+.chat-question-actions.card__footer {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
   margin-top: 8px;
+  padding: 0;
 }
 .chat-question-answer {
   display: flex;
@@ -132,10 +139,10 @@
   color: var(--muted);
   margin-top: 3px;
 }
-.chat-question[data-status='answered'],
-.chat-question[data-status='cancelled'],
-.chat-question[data-status='expired'],
-.chat-question[data-status='unavailable'] {
+.chat-question.card[data-status='answered'],
+.chat-question.card[data-status='cancelled'],
+.chat-question.card[data-status='expired'],
+.chat-question.card[data-status='unavailable'] {
   background: transparent;
 }
 .question-recovery {

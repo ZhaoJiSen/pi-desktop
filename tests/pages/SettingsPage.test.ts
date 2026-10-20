@@ -10,6 +10,7 @@ vi.mock('motion/react', async (importOriginal) => ({
   useReducedMotion: () => true,
 }))
 
+import { defaultFonts } from '../../src/lib/fonts'
 import { SettingsPage } from '../../src/pages/SettingsPage'
 import { useWorkspace } from '../../src/store/workspace'
 
@@ -56,6 +57,7 @@ beforeEach(() => {
     palette: 'ink',
     palettesByMode: { light: 'ink', dark: 'ink' },
     accentOverrides: {},
+    fonts: defaultFonts,
     piExecutable: 'pi',
     lastCustomPiExecutable: '',
     wrapLines: false,
@@ -86,7 +88,6 @@ describe('SettingsPage', () => {
     expect(sections).toEqual([
       'General',
       'Appearance',
-      'Notifications',
       'Shortcuts',
       'Extensions',
       'Pi connection',
@@ -122,6 +123,23 @@ describe('SettingsPage', () => {
     })
     expect(frame().getAttribute('data-preview')).toBe('gruvbox')
     expect(useWorkspace.getState().palette).toBe('ink')
+  })
+
+  it('previews a larger code size until it is applied', async () => {
+    await mount('appearance')
+    const code = [...container.querySelectorAll('.settings-row')].find((row) =>
+      row.textContent?.includes('Code size'),
+    )
+    const increase = [...(code?.querySelectorAll('button') ?? [])].find(
+      (button) => button.getAttribute('aria-label') === 'Increase size',
+    )
+    await act(async () => increase?.click())
+    expect(useWorkspace.getState().fonts.codeSize).toBe(13)
+    expect(document.documentElement.style.getPropertyValue('--font-code-size')).not.toBe('14px')
+    expect(container.querySelector<HTMLElement>('.font-preview-code')?.style.fontSize).toBe('14px')
+    await act(async () => button('Apply')?.click())
+    expect(useWorkspace.getState().fonts.codeSize).toBe(14)
+    expect(document.documentElement.style.getPropertyValue('--font-code-size')).toBe('14px')
   })
 
   it('saves a path without reconnecting when no session is open', async () => {

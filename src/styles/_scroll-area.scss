@@ -1,0 +1,54 @@
+/* A separate thumb follows hover immediately, independent of macOS overlays. */
+.hover-scroll-area {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  padding: 0;
+}
+.hover-scroll-viewport {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 10px;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+    width: 0;
+  }
+}
+.hover-scroll-content {
+  flex: 1 0 auto;
+  min-height: 0;
+}
+.hover-scroll-track {
+  position: absolute;
+  inset: 4px 1px 4px auto;
+  width: 8px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 100ms;
+}
+.hover-scroll-area:is(:hover, :focus-within, .is-dragging) > .hover-scroll-track {
+  opacity: 1;
+}
+.hover-scroll-thumb {
+  width: 5px;
+  margin-inline: auto;
+  border-radius: calc(infinity * 1px);
+  background: color-mix(in srgb, var(--muted) 35%, transparent);
+  pointer-events: auto;
+  touch-action: none;
+  &:hover {
+    background: color-mix(in srgb, var(--muted) 60%, transparent);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hover-scroll-track {
+    transition: none;
+  }
+}

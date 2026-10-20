@@ -1,5 +1,6 @@
 mod commands;
 mod environment;
+mod fonts;
 mod i18n;
 mod notifications;
 mod onboarding;
@@ -13,6 +14,13 @@ use runtime::Runtime;
 use serde_json::{json, Value};
 use std::path::PathBuf;
 use tauri::{Manager, State};
+
+#[tauri::command]
+async fn system_fonts() -> Vec<fonts::SystemFont> {
+    tauri::async_runtime::spawn_blocking(fonts::system_fonts)
+        .await
+        .unwrap_or_default()
+}
 
 #[tauri::command]
 fn system_locale() -> String {
@@ -177,6 +185,7 @@ pub fn run() {
             updates::upgrade_pi,
             onboarding::default_workspace,
             system_locale,
+            system_fonts,
             notifications::notification_permission,
             notifications::open_notification_settings,
             set_app_language,

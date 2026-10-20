@@ -10,6 +10,7 @@
 @use 'text-shimmer';
 @use 'conversation';
 @use 'composer';
+@use 'scroll-area';
 @use 'capabilities';
 @use 'runtime-notices';
 @use 'popovers';
@@ -30,3 +31,5 @@
 
 @use 'questions';
 @use 'notifications';
+@use 'typefaces';
+

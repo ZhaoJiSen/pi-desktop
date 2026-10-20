@@ -6,6 +6,9 @@
     <meta name="theme-color" content="#f7f7f6" />
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
     <title>pi Desktop</title>
+    <script>
+      if ('__TAURI_INTERNALS__' in window) document.documentElement.dataset.native = ''
+    </script>
   </head>
   <body>
     <div id="root"></div>

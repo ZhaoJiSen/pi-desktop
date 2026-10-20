@@ -24,7 +24,7 @@
   min-height: 30px;
   padding: 0 11px;
   font-weight: 400;
-  font-size: 12px;
+  font-size: calc(var(--font-ui-size) * 12 / 14 * 1px);
   color: var(--muted);
   background: transparent;
 }
@@ -44,11 +44,11 @@
 }
 .usage-breakdown dt {
   color: var(--muted);
-  font-size: 12px;
+  font-size: calc(var(--font-ui-size) * 12 / 14 * 1px);
 }
 .usage-breakdown dd {
   margin: 7px 0 0;
-  font-size: 22px;
+  font-size: calc(var(--font-ui-size) * 22 / 14 * 1px);
   font-weight: 500;
   font-variant-numeric: tabular-nums;
 }
@@ -58,7 +58,7 @@
 .usage-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 12px;
+  font-size: calc(var(--font-ui-size) * 12 / 14 * 1px);
   white-space: nowrap;
 }
 .usage-table th {
@@ -85,7 +85,7 @@
   min-height: 24px;
   height: 24px;
   min-width: 0;
-  font-size: 12px;
+  font-size: calc(var(--font-ui-size) * 12 / 14 * 1px);
   font-weight: 400;
   background: transparent;
 }
@@ -105,7 +105,7 @@
 .inline-search input {
   min-width: 0;
   width: 100%;
-  font-size: 12px;
+  font-size: calc(var(--font-ui-size) * 12 / 14 * 1px);
   outline: none;
   background: none;
 }
@@ -141,11 +141,11 @@
   gap: 5px;
 }
 .extension-row strong {
-  font-size: 13px;
+  font-size: calc(var(--font-ui-size) * 13 / 14 * 1px);
   font-weight: 500;
 }
 .extension-row small {
-  font-size: 12px;
+  font-size: calc(var(--font-ui-size) * 12 / 14 * 1px);
   color: var(--muted);
   overflow-wrap: anywhere;
 }
@@ -158,7 +158,7 @@
   gap: 12px;
   padding: 16px 6px;
   border-bottom: 1px solid var(--line);
-  font-size: 13px;
+  font-size: calc(var(--font-ui-size) * 13 / 14 * 1px);
 }
 .package-row span {
   flex: 1;
@@ -166,7 +166,7 @@
   overflow-wrap: anywhere;
 }
 .package-row small {
-  font-size: 11px;
+  font-size: calc(var(--font-ui-size) * 11 / 14 * 1px);
   color: var(--muted);
 }
 .utility-empty {
@@ -179,11 +179,11 @@
   color: var(--muted);
 }
 .utility-empty p {
-  font-size: 14px;
+  font-size: calc(var(--font-ui-size) * 14 / 14 * 1px);
   color: var(--ink);
 }
 .utility-empty span {
-  font-size: 12px;
+  font-size: calc(var(--font-ui-size) * 12 / 14 * 1px);
 }
 // Keep settings layout local; HeroUI owns control geometry and interaction states.
 .app-shell:has(.settings-view) {
@@ -217,25 +217,30 @@
   padding-top: 0;
 }
 .settings-section h2 {
-  margin: 0 0 16px;
-  font-size: 15px;
-  font-weight: 600;
-  line-height: 24px;
+  margin: 0 0 4px;
+  color: var(--muted);
+  font-size: calc(var(--font-ui-size) * 13 / 14 * 1px);
+  font-weight: 500;
+  line-height: 1.4;
 }
 .settings-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
-  padding-block: 14px;
+  gap: 32px;
+  min-height: 64px;
+  padding-block: 12px;
 }
 .settings-row-text {
   min-width: 0;
+  display: grid;
+  gap: 2px;
 }
 .settings-row-text > span,
 .settings-row > span {
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: calc(var(--font-ui-size) * 14 / 14 * 1px);
+  font-weight: 500;
+  line-height: 1.4;
 }
 .settings-rows .settings-row + .settings-row,
 .settings-switches .settings-switch + .settings-switch,
@@ -286,7 +291,7 @@
   height: 15px;
 }
 .settings-theme-label .label {
-  font-size: 14px;
+  font-size: calc(var(--font-ui-size) * 14 / 14 * 1px);
   font-weight: 500;
 }
 .settings-row .settings-language {
@@ -299,7 +304,7 @@
   min-height: 32px;
   min-width: 0;
   padding: 0 10px;
-  font-size: 13px;
+  font-size: calc(var(--font-ui-size) * 13 / 14 * 1px);
   font-weight: 400;
   line-height: 1;
 }
@@ -341,15 +346,16 @@
   min-width: 0;
 }
 .settings-view .label {
-  font-size: 14px;
+  font-size: calc(var(--font-ui-size) * 14 / 14 * 1px);
   line-height: 1.5;
 }
 .settings-view .description,
 .settings-help {
   padding: 0;
   color: var(--muted);
-  font-size: 13px;
-  line-height: 1.65;
+  font-size: calc(var(--font-ui-size) * 13 / 14 * 1px);
+  font-weight: 400;
+  line-height: 1.45;
 }
 .settings-switch > .description {
   margin-top: 2px;
@@ -360,7 +366,7 @@
   align-items: baseline;
   gap: 8px;
   margin: 0 0 16px;
-  font-size: 14px;
+  font-size: calc(var(--font-ui-size) * 14 / 14 * 1px);
   line-height: 1.5;
 }
 .settings-status-sep,
@@ -368,8 +374,10 @@
   color: var(--muted);
 }
 .settings-status-path {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 13px;
+  font-family: var(--font-code);
+  font-size: var(--font-code-size);
+  font-variant-ligatures: var(--font-code-ligatures);
+  font-feature-settings: var(--font-code-features);
   overflow-wrap: anywhere;
 }
 .settings-text-link {
@@ -379,7 +387,7 @@
   background: none;
   color: var(--muted);
   font: inherit;
-  font-size: 13px;
+  font-size: calc(var(--font-ui-size) * 13 / 14 * 1px);
   line-height: 1.5;
   text-decoration: underline;
   text-underline-offset: 3px;
@@ -389,12 +397,12 @@
   color: var(--ink);
 }
 .settings-status-flag {
-  font-size: 13px;
+  font-size: calc(var(--font-ui-size) * 13 / 14 * 1px);
 }
 .settings-error {
   margin: 10px 0 0;
   color: var(--danger);
-  font-size: 13px;
+  font-size: calc(var(--font-ui-size) * 13 / 14 * 1px);
   line-height: 1.5;
 }
 .settings-busy {
@@ -411,8 +419,10 @@
   min-height: 42px;
   padding-inline: 14px;
   width: 100%;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 14px;
+  font-family: var(--font-code);
+  font-size: var(--font-code-size);
+  font-variant-ligatures: var(--font-code-ligatures);
+  font-feature-settings: var(--font-code-features);
 }
 .settings-save-row {
   display: flex;
@@ -436,7 +446,7 @@
   align-items: center;
   min-height: 24px;
   color: var(--muted);
-  font-size: 13px;
+  font-size: calc(var(--font-ui-size) * 13 / 14 * 1px);
 }
 .settings-saved-result {
   display: inline-flex;
@@ -471,7 +481,7 @@
     padding-inline: 0;
   }
   .settings-theme-label .label {
-    font-size: 13px;
+    font-size: calc(var(--font-ui-size) * 13 / 14 * 1px);
   }
   .settings-theme-label > svg {
     display: none;
@@ -495,7 +505,7 @@
   }
 }
 .command-title {
-  font-size: 20px;
+  font-size: calc(var(--font-ui-size) * 20 / 14 * 1px);
   margin: 20px 0 12px;
 }
 .command-details {
@@ -505,7 +515,7 @@
   padding: 20px 0;
   margin: 20px 0;
   border-block: 1px solid var(--line);
-  font-size: 12px;
+  font-size: calc(var(--font-ui-size) * 12 / 14 * 1px);
 }
 .command-details dt {
   color: var(--muted);
@@ -517,7 +527,7 @@
   padding: 0;
   min-height: 26px;
   height: 26px;
-  font-size: 12px;
+  font-size: calc(var(--font-ui-size) * 12 / 14 * 1px);
   color: var(--muted);
   background: transparent;
 }

@@ -21,7 +21,7 @@
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 14px;
+  font-size: calc(var(--font-ui-size) * 14 / 14 * 1px);
   line-height: 20px;
   font-weight: 500;
   white-space: nowrap;

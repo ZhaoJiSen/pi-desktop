@@ -153,11 +153,17 @@ export async function sendPrompt(attachments: Attachment[]): Promise<boolean> {
       return false
     }
   }
+  const fileText = attachments
+    .filter((file) => file.kind === 'text')
+    .map((file) => `<file name=${JSON.stringify(file.name)}>\n${file.data}\n</file>`)
+    .join('\n\n')
   const localId = crypto.randomUUID()
   const localMessage = {
     id: localId,
     role: 'user' as const,
     timestamp: Date.now(),
+    pendingPrompt: [text, fileText].filter(Boolean).join('\n\n'),
+    ...(submission ? { capabilityRequestId: submission.id } : {}),
     blocks: [{ type: 'text' as const, text: displayText }],
     attachments: attachments.map((file) => file.name),
     ...(submission?.task
@@ -170,16 +176,12 @@ export async function sendPrompt(attachments: Attachment[]): Promise<boolean> {
   })
   useWorkspace.setState({ runningSessionId: session.id, connectionError: null })
   try {
-    const fileText = attachments
-      .filter((file) => file.kind === 'text')
-      .map((file) => `<file name=${JSON.stringify(file.name)}>\n${file.data}\n</file>`)
-      .join('\n\n')
     const images = attachments
       .filter((file) => file.kind === 'image')
       .map((file) => ({ type: 'image', data: file.data, mimeType: file.mimeType }))
     const response = await request<{ disposition: string }>({
       type: 'prompt',
-      message: [text, fileText].filter(Boolean).join('\n\n'),
+      message: localMessage.pendingPrompt,
       ...(images.length ? { images } : {}),
     })
     if (submission) {
@@ -251,7 +253,10 @@ export async function sendPrompt(attachments: Attachment[]): Promise<boolean> {
     }
     const current = useWorkspace.getState().sessions.find((item) => item.id === session.id)
     store.updateSession(session.id, {
-      messages: current?.messages.filter((message) => message.id !== localId) || session.messages,
+      messages:
+        current?.messages.filter(
+          (message) => message.id !== localId || message.pendingPrompt === undefined,
+        ) || session.messages,
     })
     useWorkspace.setState({ runningSessionId: null, connectionError: capabilityError(error) })
     return false

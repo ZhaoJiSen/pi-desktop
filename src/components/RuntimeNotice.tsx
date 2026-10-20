@@ -5,8 +5,9 @@ import { onRuntimeNotice } from '../lib/desktop'
 import { useT } from '../lib/i18n'
 import type { MessageKey } from '../lib/locale'
 import { actionNotice, onActionNotice } from '../lib/notices'
+import { onPackageBatchNotice } from '../lib/packageBatch'
 
-type Notice = { message: string; tone: 'info' | 'warning' }
+type Notice = { message: string; tone: 'info' | 'warning' | 'success' }
 
 function causeText(detail: string) {
   const code = detail.match(/^(.*?)(\(os error \d+\))$/)
@@ -34,9 +35,16 @@ export function RuntimeNotice({
     const unsubscribeActions = onActionNotice((message) => {
       queue.add({ message, tone: 'warning' }, { timeout: 8000 })
     })
+    const unsubscribePackages = onPackageBatchNotice((notice) => {
+      queue.add(
+        { message: notice.message, tone: notice.tone },
+        { timeout: notice.tone === 'warning' ? 8000 : 5000 },
+      )
+    })
     return () => {
       unsubscribe()
       unsubscribeActions()
+      unsubscribePackages()
       queue.clear()
     }
   }, [queue, subscribe])
@@ -57,9 +65,11 @@ export function RuntimeNotice({
       {({ toast }) => {
         const { message, tone } = toast.content
         const warning = tone === 'warning'
+        const success = tone === 'success'
         const failure = warning ? actionNotice(message) : null
         // Only adapt a known plugin message; arbitrary extension text stays intact.
-        const loaded = warning ? null : /^Ponytail loaded: (lite|full|ultra|off)$/.exec(message)
+        const loaded =
+          warning || success ? null : /^Ponytail loaded: (lite|full|ultra|off)$/.exec(message)
         const title = failure ? failure.title : loaded ? t('notifications.ponytailLoaded') : message
         const detail = failure
           ? failure.detail
@@ -69,8 +79,8 @@ export function RuntimeNotice({
                 code: loaded[1],
               })
             : ''
-        const Icon = loaded ? CircleCheck : warning ? TriangleAlert : Info
-        const iconTone = loaded ? ' is-success' : warning ? ' is-warning' : ''
+        const Icon = loaded || success ? CircleCheck : warning ? TriangleAlert : Info
+        const iconTone = loaded || success ? ' is-success' : warning ? ' is-warning' : ''
         return (
           <Toast toast={toast} className={`runtime-notice${warning ? ' is-warning' : ''}`}>
             <Toast.Indicator className="runtime-notice-indicator">

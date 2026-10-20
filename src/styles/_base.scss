@@ -15,12 +15,9 @@ body,
 body {
   margin: 0;
   color: var(--ink);
-  font:
-    14px/1.55 -apple-system,
-    BlinkMacSystemFont,
-    'PingFang SC',
-    'Segoe UI',
-    sans-serif;
+  font-family: var(--font-ui);
+  font-size: calc(var(--font-ui-size) * 1px);
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
 }
 /* Stop pane boundaries from forwarding trackpad gestures to the viewport. */
@@ -98,7 +95,43 @@ svg {
   margin: 0;
   height: 100dvh;
   border: 0;
-  border-radius: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  // The icon rail sits on this layer, so it stays the most transparent.
+  // Blur comes from the window material. A CSS backdrop-filter repaints every
+  // frame while the window moves and flashes.
+  background: color-mix(in srgb, var(--sidebar) 34%, transparent);
+}
+html[data-native],
+html[data-native] body,
+html[data-native] #root {
+  background: transparent;
+}
+.app-shell.native .sidebar-layout {
+  background: transparent;
+}
+// Text panels stay readable: less transparent than the icon rail.
+.app-shell.native .sidebar-layout.has-sidebar > :first-child {
+  background: color-mix(in srgb, var(--sidebar) 70%, transparent);
+}
+.app-shell.native .main {
+  flex: 1;
+  min-height: 0;
+  background: color-mix(in srgb, var(--paper) 76%, transparent);
+}
+@media (prefers-reduced-transparency: reduce) {
+  html[data-native],
+  html[data-native] body,
+  html[data-native] #root,
+  .app-shell.native {
+    background: var(--ground);
+  }
+  .app-shell.native .sidebar-layout.has-sidebar > :first-child {
+    background: var(--sidebar);
+  }
+  .app-shell.native .main {
+    background: var(--paper);
+  }
 }
 .window-chrome {
   grid-column: 1 / -1;
