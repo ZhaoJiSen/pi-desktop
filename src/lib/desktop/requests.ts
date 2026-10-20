@@ -2,7 +2,7 @@ import { invoke } from '@tauri-apps/api/core'
 import type { RpcState } from '../../types'
 import { isDesktop, useWorkspace } from '../../store/workspace'
 import { t } from '../i18n'
-import { normalizeMessages, normalizeUsage } from '../rpc'
+import { normalizeMessages, normalizeUsage, reconcileUserMessageIds } from '../rpc'
 import { modelKey } from '../utils'
 import { runtimeState } from './runtimeState'
 import { refreshCapabilityBridge } from '../capabilities/bridge'
@@ -68,11 +68,15 @@ export async function syncSession(sessionId: string) {
     messages:
       !bridge && current?.pendingCapabilitySend
         ? current.messages
-        : normalizeMessages(
-            applyCapabilityReceipts(
-              data.messages,
-              bridge?.receipts || current?.capabilityReceipts || [],
+        : reconcileUserMessageIds(
+            current?.messages ?? [],
+            normalizeMessages(
+              applyCapabilityReceipts(
+                data.messages,
+                bridge?.receipts || current?.capabilityReceipts || [],
+              ),
             ),
+            bridge?.receipts || current?.capabilityReceipts || [],
           ),
     ...(bridge ? { capabilityReceipts: bridge.receipts } : {}),
     ...(bridge ? { capabilities: { ...current?.capabilities, mode: bridge.mode } } : {}),

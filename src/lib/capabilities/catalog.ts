@@ -1,6 +1,6 @@
 import { previousBuiltinPrompts, previousBuiltinDescriptions } from './previousPrompts'
 import type { DiscoverableCommand } from '../commands'
-import type { Translator } from '../locale'
+import { messages, type Translator } from '../locale'
 import { commandOrigin } from '../draft'
 import type { Capability, CapabilityPreferences } from './types'
 export const isPlanCapability = (capability?: Capability) =>
@@ -21,6 +21,32 @@ export function defaultCapabilities(t: Translator): Capability[] {
     modifies: id === 'tests',
   }))
 }
+
+// Persisted built-ins and session selections may have been created in another
+// language. Translate only known defaults; user-authored text stays untouched.
+export function localizeCapability(item: Capability, t: Translator): Capability {
+  if (!item.builtin) return item
+  const id = item.builtin
+  const legacyNames: Partial<Record<typeof id, string[]>> = {
+    review: ['审查改动'],
+    plan: ['先做计划', 'Plan first'],
+    explain: ['解释代码'],
+    tests: ['补充测试'],
+  }
+  const known = (key: keyof typeof messages.en, value: string, previous: string[] = []) =>
+    [messages.en[key], messages.zh[key], ...previous].includes(value)
+  const nameKey = `composer.prompt.${id}` as const
+  const promptKey = `composer.prompt.${id}.text` as const
+  const descriptionKey = `capability.description.${id}` as const
+  return {
+    ...item,
+    name: known(nameKey, item.name, legacyNames[id]) ? t(nameKey) : item.name,
+    prompt: known(promptKey, item.prompt, previousBuiltinPrompts[id]) ? t(promptKey) : item.prompt,
+    description: known(descriptionKey, item.description, previousBuiltinDescriptions[id])
+      ? t(descriptionKey)
+      : item.description,
+  }
+}
 export function resolveCapabilities(
   preferences: CapabilityPreferences,
   commands: DiscoverableCommand[],
@@ -28,26 +54,7 @@ export function resolveCapabilities(
 ) {
   const defaults = defaultCapabilities(t)
   const saved = preferences.items
-  const legacyNames: Record<string, string[]> = {
-    review: ['审查改动'],
-    plan: ['先做计划', 'Plan first'],
-    explain: ['解释代码'],
-    tests: ['补充测试'],
-  }
-  const items = (saved.length ? saved : defaults).map((item) => {
-    if (!item.builtin) return item
-    const original = defaults.find((value) => value.builtin === item.builtin)!
-    return {
-      ...item,
-      name: legacyNames[item.builtin]?.includes(item.name) ? original.name : item.name,
-      prompt: previousBuiltinPrompts[item.builtin]?.includes(item.prompt)
-        ? original.prompt
-        : item.prompt,
-      description: previousBuiltinDescriptions[item.builtin]?.includes(item.description)
-        ? original.description
-        : item.description,
-    }
-  })
+  const items = (saved.length ? saved : defaults).map((item) => localizeCapability(item, t))
   const dynamic: Capability[] = commands
     .filter((c) => c.source !== 'builtin' && !c.name.startsWith('desktop-bridge'))
     .map((c) => ({

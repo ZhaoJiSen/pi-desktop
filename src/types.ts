@@ -75,6 +75,10 @@ export interface Message {
   role: 'user' | 'assistant'
   blocks: MessageBlock[]
   timestamp: number
+  /** Exact submitted text, retained only until the optimistic user message is synchronized. */
+  pendingPrompt?: string
+  /** Stable bridge submission identity, independent of receipt display text. */
+  capabilityRequestId?: string
   error?: string
   attachments?: string[]
   capabilityLabel?: { name: string; icon: import('./lib/capabilities/types').CapabilityIcon }
@@ -157,4 +161,12 @@ export interface ExtensionRequest {
   runId?: string
   sessionId?: string | null
   afterMessageId?: string
+  /** Stable correlation captured before history replaces temporary UI message IDs. Null means session start. */
+  afterMessageAnchor?: MessageAnchor | null
+}
+export interface MessageAnchor {
+  role: Message['role']
+  timestamp: number
+  occurrence: number
+  toolCallIds: string[]
 }

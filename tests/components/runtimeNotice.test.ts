@@ -4,6 +4,7 @@ import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { RuntimeNotice } from '../../src/components/RuntimeNotice'
 import { reportActionNotice } from '../../src/lib/notices'
+import { reportPackageBatchNotice } from '../../src/lib/packageBatch'
 import { useWorkspace } from '../../src/store/workspace'
 
 let root: Root
@@ -37,5 +38,18 @@ describe('action failure toast', () => {
     expect(toast?.textContent).not.toContain('Reconnect')
     expect(document.querySelector('.runtime-notice-icon.is-warning')).not.toBeNull()
     expect(useWorkspace.getState().connectionError).toBe('still connected')
+  })
+
+  it('shows a package update that finished away from the extensions page', async () => {
+    await act(async () => root.render(createElement(RuntimeNotice)))
+    await act(async () => reportPackageBatchNotice('Updated 2 packages', 'success'))
+    const toast = document.querySelector('.runtime-notice')
+    expect(toast?.textContent).toContain('Updated 2 packages')
+    expect(toast?.className).not.toContain('is-warning')
+    expect(document.querySelector('.runtime-notice-icon.is-success')).not.toBeNull()
+    await act(async () => reportPackageBatchNotice('Could not refresh packages', 'warning'))
+    const failure = document.querySelector('.runtime-notice.is-warning')
+    expect(failure?.textContent).toContain('Could not refresh packages')
+    expect(failure?.querySelector('.runtime-notice-icon.is-warning')).not.toBeNull()
   })
 })

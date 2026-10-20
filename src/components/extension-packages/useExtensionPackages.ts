@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from 'react'
+import { useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useDebounce } from 'ahooks'
 import { useWorkspace } from '../../store/workspace'
 import { useT } from '../../lib/i18n'
@@ -11,13 +11,21 @@ import {
   type CatalogOptions,
 } from '../../lib/packages'
 import {
+  clearPackageBatch,
+  getPackageBatch,
+  isPackageBatchRunning,
+  retainPackageBatchViewer,
+  runPackageBatch,
+  subscribePackageBatch,
+  type PackageBatchSnapshot,
+} from '../../lib/packageBatch'
+import {
   checkPackageUpdates,
   clearCompletedPackageUpdates,
   metadataSource,
   packageKey as keyOf,
   summarizePackageCheck,
   updatablePackages,
-  updatePackageBatch,
   type UpdateCheck,
   type PackageUpdateState,
 } from '../../lib/packageUpdates'
@@ -87,28 +95,34 @@ export function useExtensionPackages() {
   const [checkRetry, setCheckRetry] = useState(0)
   const forcedCheckRevision = useRef(0)
 
-  const [batchStates, setBatchStates] = useState<Record<string, PackageUpdateState>>({})
+  const restoredBatch = getPackageBatch()
+  const restored = restoredBatch?.path === path ? restoredBatch : null
+  const [batchStates, setBatchStates] = useState<Record<string, PackageUpdateState>>(
+    restored?.states ?? {},
+  )
   const [batchSummary, setBatchSummary] = useState<{ succeeded: number; failed: number } | null>(
-    null,
+    restored?.summary ?? null,
   )
   const operation = useRef(false)
-  const [busy, setBusy] = useState<string | null>(null)
+  const [busy, setBusy] = useState<string | null>(restored?.busy ?? null)
   const checking =
     manualChecking ||
     (busy !== 'batch' &&
       mode === 'installed' &&
       Boolean(path) &&
       (checked?.source !== infoSource || checked?.revision !== checkRetry))
-  const [error, setError] = useState('')
+  const [error, setError] = useState(restored?.error ?? '')
   const [failedOperation, setFailedOperation] = useState<
     | { action: 'install' | 'update' | 'remove' | 'enable' | 'disable'; target: ExtensionPackage }
     | { action: 'reload' }
     | null
-  >(null)
-  const [notice, setNotice] = useState('')
-  const [changed, setChanged] = useState(false)
-  const [batchFeedback, setBatchFeedback] = useState(false)
-  const [toastMessage, setToastMessage] = useState('')
+  >(restored?.reloadFailed ? { action: 'reload' } : null)
+  const [notice, setNotice] = useState(restored?.notice ?? '')
+  const [changed, setChanged] = useState(restored?.changed ?? false)
+  const [batchFeedback, setBatchFeedback] = useState(Boolean(restored))
+  const [toastMessage, setToastMessage] = useState(
+    restored && !restored.toastSeen ? restored.toast : '',
+  )
   const [removing, setRemoving] = useState<ExtensionPackage | null>(null)
   const [retry, setRetry] = useState(0)
   const catalogKey = JSON.stringify([search, sort, category, page, retry])
@@ -219,8 +233,58 @@ export function useExtensionPackages() {
     return () => controller.abort()
   }, [mode, name, info, updateInfo, infoSource, retry, packageInfo])
 
+  const showPackageBatch = useCallback((batch: PackageBatchSnapshot) => {
+    setBatchStates(batch.states)
+    setBatchSummary(batch.summary)
+    setBusy(batch.busy)
+    setError(batch.error)
+    setFailedOperation(batch.reloadFailed ? { action: 'reload' } : null)
+    setNotice(batch.notice)
+    setChanged(batch.changed)
+    setBatchFeedback(true)
+    if (!batch.toastSeen) setToastMessage(batch.toast)
+    if (batch.toast) batch.toastSeen = true
+  }, [])
+
+  useLayoutEffect(() => {
+    if (!path) return
+    const apply = () => {
+      const batch = getPackageBatch()
+      if (!batch || batch.path !== path) return
+      showPackageBatch(batch)
+    }
+    apply()
+    const unsubscribe = subscribePackageBatch(apply)
+    const release = retainPackageBatchViewer(path)
+    return () => {
+      unsubscribe()
+      release()
+    }
+  }, [path, showPackageBatch])
+
+  function batchForThisPath() {
+    const batch = getPackageBatch()
+    return isPackageBatchRunning() && batch?.path === path
+  }
+
+  function batchForAnotherPath() {
+    const batch = getPackageBatch()
+    return Boolean(isPackageBatchRunning() && batch && batch.path !== path)
+  }
+
+  function canReloadBatch(sessionId: string | null) {
+    const state = useWorkspace.getState()
+    return Boolean(
+      state.autoReloadAfterUpdate &&
+      sessionId &&
+      state.activeSessionId === sessionId &&
+      !state.runningSessionId,
+    )
+  }
+
   async function checkUpdates() {
-    if (checking || operation.current || !path) return
+    if (checking || operation.current || batchForThisPath() || !path) return
+    clearPackageBatch(path)
     setChecking(true)
     setError('')
     setFailedOperation(null)
@@ -255,49 +319,49 @@ export function useExtensionPackages() {
   }
 
   async function updateAll() {
-    if (operation.current || checking || running || !path || !updateTargets.length) return
-    operation.current = true
-    setBatchFeedback(true)
-    setToastMessage('')
-    setBusy('batch')
-    setFailedOperation(null)
-    setError('')
-    setNotice('')
-    setBatchSummary(null)
-    setBatchStates(
-      Object.fromEntries(updateTargets.map((pkg) => [keyOf(pkg), { status: 'queued' }])),
-    )
-    try {
-      const result = await updatePackageBatch(
-        updateTargets,
-        (pkg) => managePackage('update', pkg, path),
-        (pkg, state) => setBatchStates((current) => ({ ...current, [keyOf(pkg)]: state })),
-      )
-      setBatchSummary(result)
-      if (result.succeeded) setChanged(true)
-      setNotice(
-        result.failed
-          ? t('packages.batchResult', result)
-          : t('packages.batchSuccess', { count: result.succeeded }),
-      )
-      await refreshExtensionPackages(path)
-      setInfoCache({ source: '', items: {} })
-      setCheckRetry((value) => value + 1)
-      if (result.succeeded) await autoReloadPackages('update')
-    } catch (error) {
-      setError(errorText(error))
-    } finally {
-      operation.current = false
-      setBatchStates(clearCompletedPackageUpdates)
-      setBusy(null)
+    if (batchForAnotherPath()) {
+      setError(t('packages.batchBusy'))
+      return
     }
+    if (
+      operation.current ||
+      batchForThisPath() ||
+      checking ||
+      running ||
+      !path ||
+      !updateTargets.length
+    )
+      return
+    const projectPath = path
+    const sessionId = active
+    await runPackageBatch({
+      path: projectPath,
+      targets: updateTargets,
+      update: (pkg) => managePackage('update', pkg, projectPath),
+      refresh: refreshExtensionPackages,
+      canReload: () => canReloadBatch(sessionId),
+      reload: async () => {
+        if (!canReloadBatch(sessionId) || !sessionId) return false
+        await connectSession(sessionId, true)
+        return true
+      },
+      onUpdated: () => {
+        setInfoCache({ source: '', items: {} })
+        setCheckRetry((value) => value + 1)
+      },
+    })
   }
 
   async function perform(
     action: 'install' | 'update' | 'remove' | 'enable' | 'disable',
     target: ExtensionPackage,
   ) {
-    if (operation.current || running || !path) return
+    if (batchForAnotherPath()) {
+      setError(t('packages.batchBusy'))
+      return
+    }
+    if (operation.current || batchForThisPath() || running || !path) return
+    clearPackageBatch(path)
     operation.current = true
     setBatchFeedback(false)
     setToastMessage('')
@@ -352,7 +416,8 @@ export function useExtensionPackages() {
   }
 
   async function reload() {
-    if (!active || busy || running) return
+    if (!active || busy || running || batchForThisPath()) return
+    clearPackageBatch(path)
     setBusy('reload')
     setError('')
     setFailedOperation(null)
@@ -370,12 +435,15 @@ export function useExtensionPackages() {
   }
 
   function changeMode(next: typeof mode) {
+    clearPackageBatch(path)
     setMode(next)
     setSelected(null)
     setMobileDetail(false)
     setQuery('')
     setError('')
     setNotice('')
+    setChanged(false)
+    setBatchFeedback(false)
     setPage(1)
   }
 

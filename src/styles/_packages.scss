@@ -300,59 +300,10 @@
     height: 100%;
   }
 }
-/* A separate thumb follows hover immediately, independent of macOS overlays. */
-.package-scroll-area {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  overflow: hidden;
-  padding: 0;
-}
-.package-scroll-viewport {
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  flex: 1;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding-right: 10px;
-  scrollbar-width: none;
-  &::-webkit-scrollbar {
-    display: none;
-    width: 0;
-  }
-}
-.package-scroll-content {
-  flex: 1 0 auto;
-  min-height: 0;
-}
-.package-scroll-track {
-  position: absolute;
-  inset: 4px 1px 4px auto;
-  width: 8px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 100ms;
-}
-.package-scroll-area:is(:hover, .is-dragging) > .package-scroll-track {
-  opacity: 1;
-}
-.package-scroll-thumb {
-  width: 5px;
-  margin-inline: auto;
-  border-radius: calc(infinity * 1px);
-  background: color-mix(in srgb, var(--muted) 35%, transparent);
-  pointer-events: auto;
-  touch-action: none;
-  &:hover {
-    background: color-mix(in srgb, var(--muted) 60%, transparent);
-  }
-}
-.package-detail-scroll .package-scroll-viewport {
+.package-detail-scroll .hover-scroll-viewport {
   padding-right: 8px;
 }
-.package-detail-scroll .package-scroll-content {
+.package-detail-scroll .hover-scroll-content {
   display: flex;
   flex-direction: column;
 }
@@ -416,7 +367,6 @@
   margin: 2px 0 3px;
 }
 @media (prefers-reduced-motion: reduce) {
-  .package-scroll-track,
   .package-update-progress .progress-bar__fill {
     transition: none;
   }

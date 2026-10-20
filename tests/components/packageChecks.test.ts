@@ -35,6 +35,7 @@ vi.mock('motion/react', async (importOriginal) => ({
   ...(await importOriginal<typeof import('motion/react')>()),
   useReducedMotion: () => true,
 }))
+import { onPackageBatchNotice, resetPackageBatch } from '../../src/lib/packageBatch'
 import { PackageServices } from '../../src/components/extension-packages/services'
 import { PackageUpdateSummary } from '../../src/components/extension-packages/PackageUpdateSummary'
 import { PackageLibrary } from '../../src/components/extension-packages/PackageLibrary'
@@ -91,10 +92,13 @@ async function mount() {
   })
 }
 beforeEach(() => {
+  resetPackageBatch()
   vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
   renderLibrary = false
   mocks.state.autoReloadAfterToggle = true
+  mocks.state.autoReloadAfterUpdate = false
   mocks.state.packages = [pkg('demo')]
+  mocks.state.projects = [{ id: 'project', path: '/project' }]
   services = {
     browsePackages: vi.fn(async () => ({ items: [], hasNext: false })),
     discoverPackages: vi.fn(async () => []),
@@ -317,6 +321,102 @@ describe('installed package check effects', () => {
     await mount()
     expect(container.textContent).toContain('Checked 1 packages; remaining checks incomplete')
     expect(container.textContent).not.toContain('up to date')
+  })
+})
+
+describe('update all across navigation', () => {
+  let stopNotice = () => {}
+  const notices: string[] = []
+  afterEach(() => stopNotice())
+
+  async function startUpdate() {
+    services.packageInfo = vi.fn(async (name: string) => ({
+      ...metadata(name),
+      version: '2.0.0',
+      newerThan: ['1.0.0'],
+    }))
+    let finish = () => {}
+    services.managePackage = vi.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          finish = resolve
+        }),
+    )
+    notices.length = 0
+    stopNotice = onPackageBatchNotice((notice) => notices.push(notice.message))
+    await mount()
+    await act(async () => {
+      void current.library.updates.updateAll()
+    })
+    return finish
+  }
+
+  it('shows the running and finished update on the page without a toast', async () => {
+    const finish = await startUpdate()
+    expect(container.textContent).toContain('Updating 0/1')
+    await act(async () => finish())
+    expect(notices).toEqual([])
+    expect(services.connectSession).not.toHaveBeenCalled()
+    expect(current.feedback.notice).toBe('Updated 1 packages')
+    expect(current.feedback.changed).toBe(true)
+    expect(current.toast.message).toBe('')
+  })
+
+  it('toasts when the update finishes away from the page and restores that result on return', async () => {
+    const finish = await startUpdate()
+    expect(container.textContent).toContain('Updating 0/1')
+    await act(async () => root.unmount())
+    await act(async () => finish())
+    expect(notices).toEqual(['Updated 1 packages'])
+    root = createRoot(container)
+    await mount()
+    expect(current.feedback.notice).toBe('Updated 1 packages')
+    expect(current.feedback.changed).toBe(true)
+    expect(current.library.updates.busy).toBeNull()
+    expect(notices).toEqual(['Updated 1 packages'])
+  })
+
+  it('keeps automatic reload on the page instead of announcing it elsewhere', async () => {
+    mocks.state.autoReloadAfterUpdate = true
+    const finish = await startUpdate()
+    await act(async () => finish())
+    expect(notices).toEqual([])
+    expect(services.connectSession).toHaveBeenCalledWith('session', true)
+    expect(current.toast.message).toBe('Pi reloaded. Changes are now applied.')
+    expect(current.feedback.notice).toBe('')
+    expect(current.feedback.changed).toBe(false)
+  })
+
+  it('explains a click on another project while an update is still running', async () => {
+    const finish = await startUpdate()
+    await act(async () => root.unmount())
+    mocks.state.projects = [{ id: 'project', path: '/other' }]
+    root = createRoot(container)
+    await mount()
+    await act(async () => {
+      void current.library.updates.updateAll()
+    })
+    expect(current.feedback.error).toBe(
+      'Another package operation is in progress. Try again shortly',
+    )
+    await act(async () => current.detail.perform('remove', pkg('demo')))
+    expect(services.managePackage).toHaveBeenCalledTimes(1)
+    await act(async () => current.library.updates.checkUpdates())
+    expect(services.refreshExtensionPackages).toHaveBeenCalledWith('/other')
+    await act(async () => finish())
+  })
+
+  it('restores the in-progress update when the page is opened again', async () => {
+    const finish = await startUpdate()
+    await act(async () => root.unmount())
+    root = createRoot(container)
+    await mount()
+    expect(container.textContent).toContain('Updating 0/1')
+    expect(current.library.updates.busy).toBe('batch')
+    await act(async () => finish())
+    expect(notices).toEqual([])
+    expect(current.feedback.notice).toBe('Updated 1 packages')
+    expect(current.library.updates.batchStates).toEqual({})
   })
 })
 

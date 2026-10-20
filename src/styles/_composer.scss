@@ -65,15 +65,15 @@
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   font: inherit;
-  font-size: 15px;
-  line-height: 22px;
+  font-size: var(--font-reading-size);
+  line-height: var(--font-reading-leading);
 }
 .composer-shell .composer-input {
   display: block;
   width: 100%;
   min-width: 0;
   min-height: 22px;
-  max-height: 176px;
+  max-height: calc(var(--font-reading-size) * var(--font-reading-leading) * 8);
   padding: 0;
   border: 0;
   border-radius: 0;
@@ -84,8 +84,8 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   font: inherit;
-  font-size: 15px;
-  line-height: 22px;
+  font-size: var(--font-reading-size);
+  line-height: var(--font-reading-leading);
   color: var(--ink);
   caret-color: var(--ink);
   transition: none;
@@ -145,7 +145,7 @@
   align-items: center;
   gap: 7px;
   padding: 0 10px;
-  font-size: 13px;
+  font-size: calc(var(--font-ui-size) * 13 / 14 * 1px);
   font-weight: 400;
   border-radius: 999px;
   background: var(--composer-control);
@@ -255,7 +255,7 @@
   border-radius: var(--radius-lg, var(--radius));
   padding: 6px 8px;
   background: var(--composer-control);
-  font-size: 12px;
+  font-size: calc(var(--font-ui-size) * 12 / 14 * 1px);
 }
 .attachment > svg {
   width: 14px;
@@ -309,7 +309,7 @@
   padding-inline: 12px;
   min-height: 22px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: calc(var(--font-ui-size) * 12 / 14 * 1px);
 }
 .composer-branch {
   display: flex;
@@ -335,7 +335,7 @@
   min-height: 22px;
   height: auto;
   padding: 0;
-  font-size: 12px;
+  font-size: calc(var(--font-ui-size) * 12 / 14 * 1px);
   font-weight: 400;
   color: var(--muted);
   background: transparent;
@@ -349,7 +349,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  font-size: 13px;
+  font-size: calc(var(--font-ui-size) * 13 / 14 * 1px);
 }
 .composer-usage-popover [role='dialog'] > span {
   display: flex;
@@ -379,7 +379,7 @@
   border-radius: 999px;
   background: transparent;
   color: var(--ink);
-  font-size: 12px;
+  font-size: calc(var(--font-ui-size) * 12 / 14 * 1px);
   font-weight: 400;
   transition:
     background-color 120ms ease,
@@ -413,7 +413,7 @@
   width: 100%;
   justify-content: flex-start;
   gap: 8px;
-  font-size: 13px;
+  font-size: calc(var(--font-ui-size) * 13 / 14 * 1px);
 }
 .composer-prompts-menu .menu-row svg {
   width: 15px;
@@ -425,7 +425,7 @@
   margin-top: 6px;
   padding: 10px 8px 4px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: calc(var(--font-ui-size) * 12 / 14 * 1px);
 }
 .composer-prompts-menu .button.composer-template {
   height: auto;
@@ -438,7 +438,7 @@
   white-space: normal;
 }
 .composer-template small {
-  font-size: 12px;
+  font-size: calc(var(--font-ui-size) * 12 / 14 * 1px);
   line-height: 18px;
   color: var(--muted);
   text-align: left;
@@ -458,7 +458,7 @@
   gap: 12px;
 }
 .composer-prompt-preview-heading strong {
-  font-size: 13px;
+  font-size: calc(var(--font-ui-size) * 13 / 14 * 1px);
   font-weight: 500;
 }
 .composer-prompt-preview-heading .button {
@@ -473,7 +473,7 @@
   height: 14px;
 }
 .composer-prompt-description {
-  font-size: 13px;
+  font-size: calc(var(--font-ui-size) * 13 / 14 * 1px);
   color: var(--muted);
   line-height: 20px;
   margin: 6px 0;
@@ -481,7 +481,7 @@
 .composer-prompt-text {
   margin-top: 6px;
   max-height: 120px;
-  font-size: 13px;
+  font-size: calc(var(--font-ui-size) * 13 / 14 * 1px);
   line-height: 21px;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -521,7 +521,7 @@
   justify-content: space-between;
   gap: 12px;
   padding: 4px 8px 8px;
-  font-size: 11px;
+  font-size: calc(var(--font-ui-size) * 11 / 14 * 1px);
   line-height: 18px;
   color: var(--muted);
 }
@@ -550,12 +550,12 @@
   gap: 2px;
 }
 .slash-option-copy strong {
-  font-size: 13px;
+  font-size: calc(var(--font-ui-size) * 13 / 14 * 1px);
   font-weight: 500;
   overflow-wrap: anywhere;
 }
 .slash-option-copy > span {
-  font-size: 12px;
+  font-size: calc(var(--font-ui-size) * 12 / 14 * 1px);
   line-height: 18px;
   color: var(--muted);
   overflow: hidden;
@@ -563,12 +563,12 @@
   white-space: nowrap;
 }
 .slash-option-source {
-  font-size: 11px;
+  font-size: calc(var(--font-ui-size) * 11 / 14 * 1px);
   color: var(--muted);
   flex: none;
 }
 .slash-empty {
-  font-size: 12px;
+  font-size: calc(var(--font-ui-size) * 12 / 14 * 1px);
   line-height: 18px;
   color: var(--muted);
   padding: 8px;
@@ -579,7 +579,7 @@
   background: var(--removed);
   border-radius: var(--radius-md, calc(var(--radius) * 0.75));
   padding: 8px 10px;
-  font-size: 12px;
+  font-size: calc(var(--font-ui-size) * 12 / 14 * 1px);
   line-height: 18px;
   margin: 8px 0 0;
 }
@@ -591,7 +591,7 @@
   .composer .button.composer-select {
     padding-inline: 6px;
     gap: 4px;
-    font-size: 12px;
+    font-size: calc(var(--font-ui-size) * 12 / 14 * 1px);
   }
   .reasoning > svg:not(.chevron) {
     display: none;
@@ -614,7 +614,7 @@
     display: none;
   }
   .button.composer-prompt-button {
-    font-size: 12px;
+    font-size: calc(var(--font-ui-size) * 12 / 14 * 1px);
     padding-inline: 8px;
     gap: 4px;
   }
@@ -623,7 +623,7 @@
     padding-inline: 4px;
   }
   .button.composer-usage {
-    font-size: 11px;
+    font-size: calc(var(--font-ui-size) * 11 / 14 * 1px);
     gap: 4px;
   }
 }

@@ -1,5 +1,5 @@
 .commands-view {
-  --command-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --command-mono: var(--font-code);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -272,7 +272,9 @@
     color: var(--ink);
     overflow-wrap: anywhere;
     font-family: var(--command-mono);
-    font-size: 19px;
+    font-size: calc(var(--font-code-size) * 19 / 13);
+    font-variant-ligatures: var(--font-code-ligatures);
+    font-feature-settings: var(--font-code-features);
     font-weight: 550;
     line-height: 1.35;
     letter-spacing: -0.3px;
@@ -553,6 +555,8 @@
 }
 .capability-alias {
   font-family: var(--command-mono);
+  font-variant-ligatures: var(--font-code-ligatures);
+  font-feature-settings: var(--font-code-features);
 }
 .command-capability-link {
   padding-block: 20px;

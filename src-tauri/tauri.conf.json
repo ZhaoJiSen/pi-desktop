@@ -20,7 +20,13 @@
       "titleBarStyle": "Overlay",
       "hiddenTitle": true,
       "trafficLightPosition": { "x": 17, "y": 22 },
-      "backgroundColor": "#1b1c1d"
+      "transparent": true,
+      "backgroundColor": "#00000000",
+      "windowEffects": {
+        "effects": ["underWindowBackground"],
+        "state": "active",
+        "radius": 12
+      }
     }],
     "security": {
       "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src https://registry.npmjs.org ipc: http://ipc.localhost http://127.0.0.1:1420 ws://127.0.0.1:1420"

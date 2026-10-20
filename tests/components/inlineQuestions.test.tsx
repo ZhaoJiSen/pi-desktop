@@ -3,7 +3,17 @@ import { act, createElement as h, type ReactNode } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ExtensionRequest } from '../../src/types'
-const mocks = vi.hoisted(() => ({ invoke: vi.fn() }))
+const mocks = vi.hoisted(() => ({ invoke: vi.fn(), navigate: vi.fn(), focus: vi.fn() }))
+vi.mock('../../src/router/hooks', () => ({ useCurrentPage: () => 'chat' }))
+vi.mock('../../src/router/navigation', () => ({ navigateToPage: mocks.navigate }))
+vi.mock('../../src/hooks/useAppForeground', () => ({ useAppForeground: () => true }))
+vi.mock('../../src/lib/notifications', () => ({
+  focusApplication: mocks.focus,
+  listenNotificationActions: async () => ({ unregister: async () => {} }),
+  requestQuestionAttention: vi.fn(),
+  showQuestionNotification: vi.fn(),
+  reportNotificationError: vi.fn(),
+}))
 vi.mock('@tauri-apps/api/core', () => ({ invoke: mocks.invoke, Channel: class {} }))
 vi.mock('../../src/store/workspace', async (original) => ({
   ...(await original<typeof import('../../src/store/workspace')>()),
@@ -26,7 +36,16 @@ vi.mock('motion/react', () => {
       p: element('p'),
       span: element('span'),
       div: element('div'),
-      create: (component: unknown) => component,
+      aside: element('aside'),
+      create:
+        (component: React.ElementType) =>
+        ({
+          initial: _initial,
+          animate: _animate,
+          transition: _transition,
+          ...props
+        }: Record<string, unknown>) =>
+          h(component, props),
     },
   }
 })
@@ -34,7 +53,8 @@ vi.mock('../../src/components/conversation/MessageView', () => ({
   MessageView: ({ message }: { message: { blocks: { text: string }[] } }) =>
     h('p', null, message.blocks[0]?.text),
 }))
-vi.mock('@heroui/react', () => ({
+vi.mock('@heroui/react', async (original) => ({
+  ...(await original<typeof import('@heroui/react')>()),
   Button: ({
     children,
     onPress,
@@ -62,14 +82,28 @@ vi.mock('@heroui/react', () => ({
 }))
 import { QuestionProvider } from '../../src/components/conversation/QuestionContext'
 import { Conversation } from '../../src/components/Conversation'
+import { QuestionNotifications } from '../../src/components/QuestionNotifications'
+import { connectSession } from '../../src/lib/desktop/connections'
+import { sendPrompt } from '../../src/lib/desktop/prompts'
+import { syncSession } from '../../src/lib/desktop/requests'
 import { handleEvent, decodeExtensionRequest } from '../../src/lib/desktop/events'
 import { runtimeState } from '../../src/lib/desktop/runtimeState'
 import { useWorkspace } from '../../src/store/workspace'
 import { createPreviewSessions, previewProjects } from '../../src/lib/fixtures'
+import { normalizeMessages } from '../../src/lib/rpc'
+import type {
+  Capability,
+  CapabilityBridgeState,
+  CapabilitySubmission,
+} from '../../src/lib/capabilities/types'
 let root: Root, container: HTMLDivElement
 beforeEach(async () => {
   vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
   mocks.invoke.mockReset().mockResolvedValue(undefined)
+  mocks.navigate.mockReset().mockResolvedValue(undefined)
+  mocks.focus.mockReset().mockResolvedValue(undefined)
+  runtimeState.projectConnections.clear()
+  runtimeState.connecting = null
   const session = createPreviewSessions()[0]!
   session.id = 'question-session'
   session.draft = 'Do not change this draft'
@@ -86,6 +120,10 @@ beforeEach(async () => {
     projects: previewProjects,
     activeSessionId: session.id,
     connection: 'connected',
+    runningSessionId: null,
+    piBusyRuns: [],
+    commands: [],
+    capabilityBridge: null,
     language: 'en',
     piUpdating: false,
   })
@@ -149,6 +187,378 @@ async function type(value: string) {
   })
 }
 describe('questions inside the conversation', () => {
+  it.each(['file', 'extension', 'consumed extension'] as const)(
+    'preserves an answered question when bridge receipts replace the %s submission text',
+    async (kind) => {
+      const task: Capability = {
+        id: 'test-review',
+        name: 'Custom review',
+        alias: 'custom-review',
+        description: '',
+        icon: 'review',
+        prompt: '',
+        scope: 'once',
+        enabled: true,
+        pinned: false,
+        modifies: false,
+        target: { name: 'custom-review', source: 'extension', origin: 'test' },
+      }
+      const bridge: CapabilityBridgeState = { version: 1, plan: false, tools: [], receipts: [] }
+      let submission!: CapabilitySubmission
+      let wireText = ''
+      let localId = ''
+      const consumed = kind === 'consumed extension'
+      await act(async () => {
+        const store = useWorkspace.getState()
+        useWorkspace.setState({
+          capabilityBridge: bridge,
+          capabilityPreferences: { ...store.capabilityPreferences, items: [task] },
+          commands: [
+            {
+              name: 'desktop-bridge',
+              source: 'extension',
+              description: 'Pi Desktop capability transport v1',
+            },
+          ],
+        })
+        store.updateSession('question-session', {
+          messages: [],
+          draft: 'Review',
+          capabilities: kind === 'file' ? undefined : { task },
+          pendingCapabilitySend: undefined,
+        })
+      })
+      mocks.invoke.mockImplementation(async (name, args) => {
+        if (name !== 'pi_request') return []
+        switch (args.command.type) {
+          case 'desktop_bridge': {
+            const call = args.command.call
+            if (call.op === 'prepare') submission = call.submission
+            if (call.op === 'finish')
+              bridge.receipts = [
+                {
+                  id: submission.id,
+                  body: submission.body,
+                  timestamp: 5,
+                  ...(consumed ? {} : { userIndex: 0, sourceTimestamp: 10 }),
+                  selection: { task: submission.task },
+                },
+              ]
+            return bridge
+          }
+          case 'prompt':
+            wireText = args.command.message
+            localId = useWorkspace.getState().sessions[0]!.messages[0].id
+            handleEvent({
+              runId: 'question-run',
+              event: {
+                type: 'extension_ui_request',
+                id: 'question',
+                method: 'confirm',
+                title: 'May I review?',
+              },
+            })
+            return { disposition: consumed ? 'handled' : 'queued' }
+          case 'get_state':
+            return {
+              sessionFile: '/tmp/questions.jsonl',
+              thinkingLevel: 'medium',
+              isStreaming: false,
+            }
+          case 'get_messages':
+            return {
+              messages: [
+                ...(consumed ? [] : [{ role: 'user', content: wireText, timestamp: 10 }]),
+                { role: 'assistant', content: 'Review response', timestamp: 20 },
+              ],
+            }
+          default:
+            return {}
+        }
+      })
+      await act(async () => {
+        expect(
+          await sendPrompt(
+            kind === 'file'
+              ? [
+                  {
+                    id: 'file',
+                    name: 'notes.txt',
+                    kind: 'text',
+                    mimeType: 'text/plain',
+                    data: 'Private file contents',
+                  },
+                ]
+              : [],
+          ),
+          useWorkspace.getState().connectionError || '',
+        ).toBe(true)
+      })
+      expect(wireText).not.toBe(submission.body)
+      expect(container.querySelector('[data-status="pending"]')).not.toBeNull()
+      await submit()
+      for (let count = 0; count < 2; count++) {
+        await act(async () => {
+          await syncSession('question-session')
+        })
+        expect(useWorkspace.getState().sessions[0]!.messages[0]).toMatchObject({
+          id: localId,
+          blocks: [{ type: 'text', text: 'Review' }],
+        })
+        expect(container.querySelector('[data-status="answered"]')?.textContent).toContain(
+          'May I review?',
+        )
+        const text = container.textContent!
+        expect(text.indexOf('May I review?')).toBeLessThan(text.indexOf('Review response'))
+        expect(text).not.toContain('Private file contents')
+        expect(text).not.toContain('/custom-review')
+      }
+    },
+  )
+  it('keeps an answered pre-assistant question attached to its optimistic user message across repeated syncs', async () => {
+    await act(async () => {
+      useWorkspace.setState({ runningSessionId: null, capabilityBridge: null })
+      useWorkspace.getState().updateSession('question-session', {
+        messages: [],
+        draft: 'Ask before starting',
+        capabilities: undefined,
+        pendingCapabilitySend: undefined,
+      })
+    })
+    mocks.invoke.mockImplementation(async (name, args) => {
+      if (name !== 'pi_request') return []
+      switch (args.command.type) {
+        case 'prompt':
+          handleEvent({
+            runId: 'question-run',
+            event: {
+              type: 'extension_ui_request',
+              id: 'question',
+              method: 'confirm',
+              title: 'May I start?',
+            },
+          })
+          return { disposition: 'queued' }
+        case 'get_state':
+          return {
+            sessionFile: '/tmp/questions.jsonl',
+            thinkingLevel: 'medium',
+            isStreaming: false,
+          }
+        case 'get_messages':
+          return {
+            messages: [
+              { role: 'user', content: 'Ask before starting', timestamp: 10 },
+              { role: 'assistant', content: 'Starting now', timestamp: 20 },
+            ],
+          }
+        default:
+          return {}
+      }
+    })
+    await act(async () => {
+      expect(await sendPrompt([]), useWorkspace.getState().connectionError || '').toBe(true)
+    })
+    const local = useWorkspace.getState().sessions[0]!.messages[0]
+    expect(local.timestamp).not.toBe(10)
+    // History can refresh while Pi is still waiting for the confirmation.
+    await act(async () => {
+      await syncSession('question-session')
+    })
+    expect(useWorkspace.getState().sessions[0]!.messages[0]).toMatchObject({
+      id: local.id,
+      timestamp: 10,
+    })
+    expect(container.querySelector('[data-status="pending"]')?.textContent).toContain(
+      'May I start?',
+    )
+    const pendingText = container.textContent!
+    expect(pendingText.indexOf('Ask before starting')).toBeLessThan(
+      pendingText.indexOf('May I start?'),
+    )
+    expect(pendingText.indexOf('May I start?')).toBeLessThan(pendingText.indexOf('Starting now'))
+    await submit()
+    expect(container.querySelector('[data-status="answered"]')).not.toBeNull()
+    for (let count = 0; count < 2; count++) {
+      await act(async () => {
+        await syncSession('question-session')
+      })
+      expect(container.querySelector('[data-status="answered"]')?.textContent).toContain(
+        'May I start?',
+      )
+      const text = container.textContent!
+      expect(text.indexOf('Ask before starting')).toBeLessThan(text.indexOf('May I start?'))
+      expect(text.indexOf('May I start?')).toBeLessThan(text.indexOf('Starting now'))
+      expect(useWorkspace.getState().sessions[0]!.messages[0].timestamp).toBe(10)
+      expect(useWorkspace.getState().sessions[0]!.messages[0].id).toBe(local.id)
+    }
+  })
+  it('keeps an answered Card after its tool call when authoritative history replaces every UI ID', async () => {
+    const raw = [
+      { role: 'user', content: 'Ask me a question', timestamp: 1 },
+      {
+        role: 'assistant',
+        timestamp: 2,
+        content: [
+          { type: 'text', text: 'Before question' },
+          { type: 'toolCall', id: 'ask-1', name: 'ask_user_question', arguments: {} },
+        ],
+      },
+    ]
+    await act(async () =>
+      useWorkspace.getState().updateSession('question-session', {
+        messages: normalizeMessages(raw).map((item, index) => ({
+          ...item,
+          id: `temporary-${index}`,
+        })),
+      }),
+    )
+    await emit()
+    await click('API contracts')
+    await submit()
+    await act(async () =>
+      useWorkspace.getState().updateSession('question-session', {
+        messages: normalizeMessages([
+          ...raw,
+          {
+            role: 'toolResult',
+            toolCallId: 'ask-1',
+            content: [{ type: 'text', text: 'API contracts' }],
+          },
+          { role: 'assistant', content: 'After answer', timestamp: 3 },
+        ]),
+      }),
+    )
+    const text = container.textContent!
+    expect(text.indexOf('Ask me a question')).toBeLessThan(text.indexOf('Before question'))
+    expect(text.indexOf('Before question')).toBeLessThan(text.indexOf('Which area?'))
+    expect(text.indexOf('Which area?')).toBeLessThan(text.indexOf('After answer'))
+  })
+  it('keeps answered questions with paginated history instead of moving them ahead of visible messages', async () => {
+    await emit()
+    await click('API contracts')
+    await submit()
+    await act(async () =>
+      useWorkspace.getState().updateSession('question-session', {
+        messages: [
+          ...useWorkspace.getState().sessions[0]!.messages,
+          ...Array.from({ length: 100 }, (_, index) => ({
+            id: `later-${index}`,
+            role: 'assistant' as const,
+            timestamp: index + 2,
+            blocks: [{ type: 'text' as const, text: `Later reply ${index}` }],
+          })),
+        ],
+      }),
+    )
+    expect(container.querySelector('.chat-question')).toBeNull()
+    await click('Show earlier messages')
+    expect(container.querySelector('.chat-question')).not.toBeNull()
+    expect(container.textContent!.indexOf('Before question')).toBeLessThan(
+      container.textContent!.indexOf('Which area?'),
+    )
+    expect(container.textContent!.indexOf('Which area?')).toBeLessThan(
+      container.textContent!.indexOf('Later reply 0'),
+    )
+  })
+  it.each([
+    ['new_session', true],
+    ['new_session', false],
+    ['switch_session', true],
+    ['switch_session', false],
+  ] as const)(
+    'answers a %s confirmation from the old session without changing the selected target (confirm=%s)',
+    async (commandType, confirmed) => {
+      const owner = useWorkspace.getState().sessions[0]!
+      const target = {
+        ...owner,
+        id: 'switch-target',
+        messages: [
+          {
+            ...owner.messages[0]!,
+            blocks: [{ type: 'text' as const, text: 'Destination history' }],
+          },
+        ],
+        piSessionFile: commandType === 'switch_session' ? '/tmp/saved-target.jsonl' : undefined,
+      }
+      const project = useWorkspace.getState().projects.find((item) => item.id === owner.projectId)!
+      const run = runtimeState.currentRun!
+      run.path = project.path
+      run.executable = useWorkspace.getState().piExecutable
+      runtimeState.projectConnections.set(project.path, run)
+      let release!: (value: object) => void
+      mocks.invoke.mockImplementation(async (name, args) => {
+        if (name !== 'pi_request') return []
+        if (args.command.type === commandType) {
+          handleEvent({
+            runId: run.id,
+            event: {
+              type: 'extension_ui_request',
+              id: 'switch-confirm',
+              method: 'confirm',
+              title: 'Leave this session?',
+            },
+          })
+          return new Promise((resolve) => {
+            release = resolve
+          })
+        }
+        switch (args.command.type) {
+          case 'get_state':
+            return { sessionFile: '/tmp/target.jsonl', thinkingLevel: 'medium', isStreaming: false }
+          case 'get_available_models':
+            return { models: [] }
+          case 'get_commands':
+            return { commands: [] }
+          case 'get_available_thinking_levels':
+            return { levels: ['medium'] }
+          case 'get_messages':
+            return { messages: [] }
+          default:
+            return {}
+        }
+      })
+      let switching!: Promise<void>
+      await act(async () => {
+        root.render(
+          h(
+            QuestionProvider,
+            null,
+            h(Conversation, { onProject: () => {} }),
+            h(QuestionNotifications),
+          ),
+        )
+        useWorkspace.setState({ sessions: [owner, target], activeSessionId: target.id })
+        switching = connectSession(target.id)
+      })
+      expect(useWorkspace.getState().connection).toBe('connecting')
+      expect(run.sessionId).toBe(owner.id)
+      expect(container.querySelector('.chat-question')?.textContent).toContain(
+        'Leave this session?',
+      )
+      await click('View question')
+      expect(mocks.focus).toHaveBeenCalledOnce()
+      expect(mocks.navigate).toHaveBeenCalledWith('chat')
+      expect(document.activeElement).toBe(container.querySelector('.chat-question'))
+      expect(useWorkspace.getState().activeSessionId).toBe(target.id)
+      if (confirmed) await submit()
+      else await click('Decline')
+      expect(mocks.invoke).toHaveBeenCalledWith('pi_request', {
+        runId: run.id,
+        command: { type: 'extension_ui_response', id: 'switch-confirm', confirmed },
+      })
+      await act(async () => {
+        release(confirmed ? {} : { cancelled: true })
+        await switching
+      })
+      expect(useWorkspace.getState().connection).toBe('connected')
+      expect(useWorkspace.getState().activeSessionId).toBe(confirmed ? target.id : owner.id)
+      expect(run.sessionId).toBe(confirmed ? target.id : owner.id)
+      expect(useWorkspace.getState().sessions.find((item) => item.id === owner.id)?.draft).toBe(
+        owner.draft,
+      )
+    },
+  )
   it('opens and focuses custom input, preserves it across choices, and sends typed text instead of the sentinel', async () => {
     await emit({ options: ['API contracts', '2. Type something.'] })
     await click('Write your own answer')

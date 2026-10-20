@@ -1,3 +1,5 @@
+import { Button } from '@heroui/react'
+import { ArrowUpRight } from 'lucide-react'
 import { navigateToPage } from '../../router/navigation'
 import { SettingsSwitch } from './SettingsSwitch'
 import { useWorkspace } from '../../store/workspace'
@@ -25,14 +27,14 @@ export function ExtensionSettings() {
           onChange={(value) => setPreference({ autoReloadAfterToggle: value })}
         />
         <div className="settings-row">
-          <p className="settings-help">{t('settings.reloadHelp')}</p>
-          <button
-            type="button"
-            className="settings-text-link"
-            onClick={() => void navigateToPage('extensions')}
-          >
+          <div className="settings-row-text">
+            <span>{t('settings.manageExtensions')}</span>
+            <p className="settings-help">{t('settings.reloadHelp')}</p>
+          </div>
+          <Button variant="secondary" onPress={() => void navigateToPage('extensions')}>
             {t('settings.manageExtensions')}
-          </button>
+            <ArrowUpRight />
+          </Button>
         </div>
       </div>
     </SettingsSection>

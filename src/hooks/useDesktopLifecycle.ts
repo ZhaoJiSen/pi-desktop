@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { Effect, EffectState } from '@tauri-apps/api/window'
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'
 import {
   connectSession,
@@ -11,8 +12,21 @@ import { isDesktop, useWorkspace } from '../store/workspace'
 import type { Page } from '../router/paths'
 import { useColorMode } from './useColorMode'
 import { accentKey, applyAppearance } from '../lib/appearance'
+import { applyFonts, loadSystemFonts } from '../lib/fonts'
 
 export function useDesktopLifecycle(view: Page, enabled = true) {
+  useEffect(() => {
+    if (!isDesktop) return
+    const appWindow = getCurrentWebviewWindow()
+    void appWindow.setBackgroundColor([0, 0, 0, 0]).catch(() => {})
+    void appWindow
+      .setEffects({
+        effects: [Effect.UnderWindowBackground],
+        state: EffectState.Active,
+        radius: 12,
+      })
+      .catch(() => {})
+  }, [])
   useEffect(() => {
     const flush = () => {
       void useWorkspace.flushPersistence()
@@ -35,6 +49,7 @@ export function useDesktopLifecycle(view: Page, enabled = true) {
   const mode = useColorMode(theme)
   const palette = palettesByMode[mode]
   const accent = accentOverrides[accentKey(mode, palette)]
+  const fonts = useWorkspace((state) => state.fonts)
   const language = useWorkspace((state) => state.language)
   const connection = useWorkspace((state) => state.connection)
   const [startup, setStartup] = useState<'loading' | 'error' | 'ready'>(
@@ -79,18 +94,21 @@ export function useDesktopLifecycle(view: Page, enabled = true) {
       void connectSession(active)
   }, [active, startup, view, enabled, allowConnection])
   useEffect(() => {
-    applyAppearance(document.documentElement, mode, palette, accent)
-    // Newly exposed native pixels can paint before the web content during resize.
-    // Match that backing surface on appearance changes, without resize listeners.
-    if (isDesktop) {
-      // Theme surface tokens are hex colors, as required by Tauri's Color API.
-      const background = getComputedStyle(document.documentElement)
-        .getPropertyValue('--ground')
-        .trim()
-      void getCurrentWebviewWindow()
-        .setBackgroundColor(background)
-        .catch((error) => console.warn('Unable to synchronize window background', error))
+    applyFonts(document.documentElement, fonts)
+  }, [fonts])
+  useEffect(() => {
+    let alive = true
+    void loadSystemFonts().then(() => {
+      if (alive) applyFonts(document.documentElement, useWorkspace.getState().fonts)
+    })
+    return () => {
+      alive = false
     }
+  }, [])
+  useEffect(() => {
+    // Theme tokens stay in CSS. The native backing color is transparent so the
+    // window material stays visible; painting --ground here would cover it.
+    applyAppearance(document.documentElement, mode, palette, accent)
   }, [mode, palette, accent])
   useEffect(() => {
     document.documentElement.lang = language === 'zh' ? 'zh-CN' : 'en'

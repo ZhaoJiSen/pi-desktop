@@ -1,9 +1,11 @@
-import { Button } from '@heroui/react'
+import { Button, Card } from '@heroui/react'
 import { ArrowUp, Check, Circle, MessageCircleQuestion } from 'lucide-react'
 import { motion, useReducedMotion } from 'motion/react'
 import { useEffect, useId, useRef } from 'react'
 import { useT } from '../../lib/i18n'
 import { useQuestions, type ChatQuestion } from './QuestionContext'
+
+const MotionCard = motion.create(Card)
 
 // The ask-user-question plugin reserves this row for verbatim custom replies.
 // Match only its sentinel (including the RPC option number), not generic "Other" choices.
@@ -20,7 +22,7 @@ export function QuestionCard({
 }) {
   const { request, status, sending, error } = question
   const { respond, updateDraft, focusRequest } = useQuestions()
-  const card = useRef<HTMLElement>(null)
+  const card = useRef<HTMLDivElement>(null)
   const value = question.value ?? request.prefill ?? ''
   const selected = question.selected
   const title = useId()
@@ -45,20 +47,22 @@ export function QuestionCard({
     }
   }, [focusRequest, question.key])
   return (
-    <motion.section
+    <MotionCard
+      variant="transparent"
       className="chat-question"
       ref={card}
       tabIndex={-1}
+      role="region"
       aria-labelledby={title}
       data-status={status}
       initial={reduced ? false : { opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.18 }}
     >
-      <header className="chat-question-heading">
+      <Card.Header className="chat-question-heading">
         <MessageCircleQuestion aria-hidden="true" />
         <div>
-          <h3 id={title}>{request.title}</h3>
+          <Card.Title id={title}>{request.title}</Card.Title>
           <span className={pending && !queued ? 'chat-question-status-sr' : 'chat-question-status'}>
             {t(
               pending
@@ -75,129 +79,131 @@ export function QuestionCard({
             )}
           </span>
         </div>
-      </header>
-      {request.message && <p className="chat-question-message">{request.message}</p>}
-      {pending ? (
-        <form
-          onSubmit={(event) => {
-            event.preventDefault()
-            if (ready && !disabled)
-              void respond(
-                question,
-                confirm ? { confirmed: true } : { value: answer },
-                confirm ? t('question.confirmed') : answer,
+      </Card.Header>
+      <Card.Content className="chat-question-content">
+        {request.message && <p className="chat-question-message">{request.message}</p>}
+        {pending ? (
+          <form
+            onSubmit={(event) => {
+              event.preventDefault()
+              if (ready && !disabled)
+                void respond(
+                  question,
+                  confirm ? { confirmed: true } : { value: answer },
+                  confirm ? t('question.confirmed') : answer,
+                )
+            }}
+          >
+            {select ? (
+              <div className="chat-question-options" role="group" aria-labelledby={title}>
+                {request.options?.map((option, index) => (
+                  <Button
+                    key={index}
+                    variant="ghost"
+                    className="chat-question-option"
+                    aria-pressed={selected === index}
+                    aria-controls={isCustomAnswer(option) && custom ? `${title}-custom` : undefined}
+                    aria-expanded={isCustomAnswer(option) ? custom : undefined}
+                    isDisabled={disabled}
+                    onPress={() => updateDraft(question.key, { selected: index })}
+                  >
+                    <span className="chat-question-choice" aria-hidden="true">
+                      {selected === index ? (
+                        <motion.span
+                          initial={reduced ? false : { scale: 0.65 }}
+                          animate={{ scale: 1 }}
+                        >
+                          <Check />
+                        </motion.span>
+                      ) : (
+                        <Circle />
+                      )}
+                    </span>
+                    <span>{isCustomAnswer(option) ? t('question.customAnswer') : option}</span>
+                  </Button>
+                ))}
+                {custom && (
+                  <motion.div
+                    className="chat-question-custom"
+                    initial={reduced ? false : { opacity: 0, y: 3 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.14 }}
+                  >
+                    <textarea
+                      ref={input}
+                      id={`${title}-custom`}
+                      className="chat-question-input"
+                      aria-label={t('question.customAnswer')}
+                      placeholder={t('question.placeholder')}
+                      value={value}
+                      rows={2}
+                      disabled={disabled}
+                      onChange={(event) => updateDraft(question.key, { value: event.target.value })}
+                    />
+                  </motion.div>
+                )}
+              </div>
+            ) : (
+              !confirm && (
+                <textarea
+                  className="chat-question-input"
+                  aria-labelledby={title}
+                  placeholder={request.placeholder || t('question.placeholder')}
+                  value={value}
+                  rows={request.method === 'editor' ? 5 : 2}
+                  disabled={disabled}
+                  onChange={(event) => updateDraft(question.key, { value: event.target.value })}
+                />
               )
-          }}
-        >
-          {select ? (
-            <div className="chat-question-options" role="group" aria-labelledby={title}>
-              {request.options?.map((option, index) => (
-                <Button
-                  key={index}
-                  variant="ghost"
-                  className="chat-question-option"
-                  aria-pressed={selected === index}
-                  aria-controls={isCustomAnswer(option) && custom ? `${title}-custom` : undefined}
-                  aria-expanded={isCustomAnswer(option) ? custom : undefined}
-                  isDisabled={disabled}
-                  onPress={() => updateDraft(question.key, { selected: index })}
-                >
-                  <span className="chat-question-choice" aria-hidden="true">
-                    {selected === index ? (
-                      <motion.span
-                        initial={reduced ? false : { scale: 0.65 }}
-                        animate={{ scale: 1 }}
-                      >
-                        <Check />
-                      </motion.span>
-                    ) : (
-                      <Circle />
-                    )}
-                  </span>
-                  <span>{isCustomAnswer(option) ? t('question.customAnswer') : option}</span>
-                </Button>
-              ))}
-              {custom && (
-                <motion.div
-                  className="chat-question-custom"
-                  initial={reduced ? false : { opacity: 0, y: 3 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.14 }}
-                >
-                  <textarea
-                    ref={input}
-                    id={`${title}-custom`}
-                    className="chat-question-input"
-                    aria-label={t('question.customAnswer')}
-                    placeholder={t('question.placeholder')}
-                    value={value}
-                    rows={2}
-                    disabled={disabled}
-                    onChange={(event) => updateDraft(question.key, { value: event.target.value })}
-                  />
-                </motion.div>
-              )}
-            </div>
-          ) : (
-            !confirm && (
-              <textarea
-                className="chat-question-input"
-                aria-labelledby={title}
-                placeholder={request.placeholder || t('question.placeholder')}
-                value={value}
-                rows={request.method === 'editor' ? 5 : 2}
-                disabled={disabled}
-                onChange={(event) => updateDraft(question.key, { value: event.target.value })}
-              />
-            )
-          )}
-          {error && (
-            <p className="field-error" role="alert">
-              {error}
-            </p>
-          )}
-          <footer className="chat-question-actions">
-            <Button
-              size="sm"
-              variant="ghost"
-              isDisabled={disabled}
-              onPress={() =>
-                void respond(question, confirm ? { confirmed: false } : { cancelled: true })
-              }
-            >
-              {t(confirm ? 'question.decline' : 'question.skip')}
-            </Button>
-            <Button
-              size="sm"
-              className="chat-question-submit"
-              type="submit"
-              isPending={sending}
-              isDisabled={disabled || !ready}
-            >
-              {t(confirm ? 'question.confirm' : 'question.submit')}
-              <ArrowUp aria-hidden="true" />
-            </Button>
-          </footer>
-        </form>
-      ) : (
-        <motion.p
-          className="chat-question-answer"
-          initial={reduced ? false : { opacity: 0 }}
-          animate={{ opacity: 1 }}
-          role="status"
-        >
-          {status === 'answered' && <Check aria-hidden="true" />}
-          {question.answer ||
-            t(
-              status === 'expired'
-                ? 'question.expiredHelp'
-                : status === 'unavailable'
-                  ? 'question.unavailableHelp'
-                  : 'question.skipped',
             )}
-        </motion.p>
-      )}
-    </motion.section>
+            {error && (
+              <p className="field-error" role="alert">
+                {error}
+              </p>
+            )}
+            <Card.Footer className="chat-question-actions">
+              <Button
+                size="sm"
+                variant="ghost"
+                isDisabled={disabled}
+                onPress={() =>
+                  void respond(question, confirm ? { confirmed: false } : { cancelled: true })
+                }
+              >
+                {t(confirm ? 'question.decline' : 'question.skip')}
+              </Button>
+              <Button
+                size="sm"
+                className="chat-question-submit"
+                type="submit"
+                isPending={sending}
+                isDisabled={disabled || !ready}
+              >
+                {t(confirm ? 'question.confirm' : 'question.submit')}
+                <ArrowUp aria-hidden="true" />
+              </Button>
+            </Card.Footer>
+          </form>
+        ) : (
+          <motion.p
+            className="chat-question-answer"
+            initial={reduced ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            role="status"
+          >
+            {status === 'answered' && <Check aria-hidden="true" />}
+            {question.answer ||
+              t(
+                status === 'expired'
+                  ? 'question.expiredHelp'
+                  : status === 'unavailable'
+                    ? 'question.unavailableHelp'
+                    : 'question.skipped',
+              )}
+          </motion.p>
+        )}
+      </Card.Content>
+    </MotionCard>
   )
 }
 

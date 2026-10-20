@@ -103,7 +103,7 @@
 .settings-palette-hint {
   margin: 3px 0 0;
   color: var(--muted);
-  font-size: 13px;
+  font-size: calc(var(--font-ui-size) * 13 / 14 * 1px);
   line-height: 1.6;
 }
 .settings-palette-trigger {
@@ -118,7 +118,7 @@
   background: var(--code-head);
   box-shadow: none;
   color: var(--ink);
-  font-size: 13px;
+  font-size: calc(var(--font-ui-size) * 13 / 14 * 1px);
   svg {
     width: 14px;
     height: 14px;
@@ -153,7 +153,7 @@
   }
   .popover__heading {
     margin: 0 0 12px;
-    font-size: 14px;
+    font-size: calc(var(--font-ui-size) * 14 / 14 * 1px);
     font-weight: 600;
   }
 }
@@ -257,7 +257,7 @@
 .settings-palette-option-label {
   display: block;
   flex: none;
-  font-size: 13px;
+  font-size: calc(var(--font-ui-size) * 13 / 14 * 1px);
   line-height: 20px;
   white-space: nowrap;
 }

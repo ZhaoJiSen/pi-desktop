@@ -74,17 +74,64 @@
   border: 1px solid var(--line);
   border-radius: 14px;
   box-shadow: var(--composer-shadow);
-  padding: 16px;
+  padding: 0;
+  overflow: hidden;
+}
+.capability-details-popover .popover__dialog {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  max-height: inherit;
 }
 .capability-details {
-  display: grid;
-  gap: 12px;
+  display: flex;
+  flex-direction: column;
   min-width: 0;
+  max-height: inherit;
   font-size: 14px;
   line-height: 1.6;
 }
 .capability-details > strong {
   font-size: 15px;
+  padding: 16px 16px 10px;
+  flex: none;
+}
+.capability-details-body {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  gap: 12px;
+  padding: 0 16px 14px;
+  overflow-wrap: anywhere;
+}
+.capability-details-body > :not(.capability-instructions) {
+  flex: none;
+}
+.capability-details-footer {
+  padding: 10px 12px;
+  border-top: 1px solid var(--line);
+  flex: none;
+}
+.capability-details .button.capability-details-manage {
+  width: 100%;
+  height: 34px;
+  justify-content: start;
+  gap: 8px;
+  border-radius: 8px;
+  background: var(--hover);
+  color: var(--ink);
+  svg {
+    width: 16px;
+    height: 16px;
+    flex: none;
+  }
+  svg:last-child {
+    margin-left: auto;
+    color: var(--muted);
+  }
+  &:hover {
+    background: var(--composer-control);
+  }
 }
 .capability-details p {
   margin: 0;
@@ -108,11 +155,23 @@
   overflow-wrap: anywhere;
 }
 .capability-instructions {
-  max-height: 220px;
-  overflow: auto;
-  white-space: pre-wrap;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  gap: 4px;
   padding-top: 12px;
   border-top: 1px solid var(--line);
+}
+.capability-instructions > span {
+  flex: none;
+}
+.capability-instructions-scroll {
+  min-height: 0;
+  max-height: 220px;
+  white-space: pre-wrap;
+}
+.capability-instructions-scroll .hover-scroll-viewport {
+  padding-right: 10px;
 }
 .capability-origin {
   display: block;
@@ -347,7 +406,7 @@
   box-shadow: none;
 }
 .capability-tag-label .capability-tag-scope {
-  color: var(--muted);
+  color: var(--ink);
   flex: none;
   font-size: 13px;
   border-left: 1px solid var(--line);

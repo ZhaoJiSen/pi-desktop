@@ -35,10 +35,10 @@ export function QuestionNotifications() {
     const store = useWorkspace.getState()
     if (sessionId && sessionId !== store.activeSessionId) {
       if (store.runningSessionId && store.runningSessionId !== sessionId) return
-      if (store.connection === 'connecting') return
       if (!store.sessions.some((item) => item.id === sessionId)) return
-      // Viewing a waiting run never changes Pi's execution binding.
-      useWorkspace.setState({ activeSessionId: sessionId })
+      // During a switch the chat exposes pending confirmations directly. Keep
+      // its destination selected so viewing a question cannot queue a switch back.
+      if (store.connection !== 'connecting') useWorkspace.setState({ activeSessionId: sessionId })
     }
     await focusApplication()
     await navigateToPage('chat')

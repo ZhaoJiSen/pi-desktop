@@ -5,6 +5,7 @@ import { errorText, list, record, string } from '../utils'
 import { request, syncSession } from './requests'
 import { runtimeState, type PiConnection } from './runtimeState'
 import { diagnosticNotice, isStaleExtensionContext } from './diagnostics'
+import { captureQuestionAnchor } from '../questionAnchors'
 
 let extensionListener: ((request: ExtensionRequest) => void) | null = null
 let noticeListener: ((message: string) => void) | null = null
@@ -85,13 +86,14 @@ export function handleEvent({ runId, event }: RuntimeEvent) {
   }
   if (event.type === 'extension_ui_request') {
     const method = string(event.method)
+    const messages = store.sessions.find((session) => session.id === sessionId)?.messages ?? []
     if (['select', 'confirm', 'input', 'editor'].includes(method))
       extensionListener?.({
         ...(event as unknown as ExtensionRequest),
         runId,
         sessionId,
-        afterMessageId: store.sessions.find((session) => session.id === sessionId)?.messages.at(-1)
-          ?.id,
+        afterMessageId: messages.at(-1)?.id,
+        afterMessageAnchor: captureQuestionAnchor(messages),
       })
     else if (method === 'notify') {
       const message = string(event.message)

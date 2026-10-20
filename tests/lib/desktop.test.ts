@@ -157,6 +157,32 @@ describe('desktop prompt lifecycle', () => {
     })
   })
 
+  it('does not remove an authoritative user message after a late prompt transport failure', async () => {
+    const { syncSession } = await import('../../src/lib/desktop')
+    let rejectPrompt!: (error: Error) => void
+    mocks.invoke.mockImplementation(async (name, args) => {
+      if (name !== 'pi_request') return []
+      if (args.command.type === 'prompt')
+        return new Promise((_resolve, reject) => {
+          rejectPrompt = reject
+        })
+      if (args.command.type === 'get_messages')
+        return { messages: [{ role: 'user', content: '请读取这个文件', timestamp: 10 }] }
+      return metadata(args.command)
+    })
+    const sending = sendPrompt([])
+    const localId = useWorkspace.getState().sessions[0].messages[0].id
+    await syncSession(id)
+    expect(useWorkspace.getState().sessions[0].messages[0]).toMatchObject({
+      id: localId,
+      timestamp: 10,
+    })
+    rejectPrompt(new Error('Transport unavailable'))
+    expect(await sending).toBe(false)
+    expect(useWorkspace.getState().sessions[0].messages).toHaveLength(1)
+    expect(useWorkspace.getState().sessions[0].messages[0].id).toBe(localId)
+  })
+
   it('warms all saved projects at startup and restores the selected session last', async () => {
     const store = useWorkspace.getState()
     const other = store.createSession(store.addProject('/tmp/startup-two'))

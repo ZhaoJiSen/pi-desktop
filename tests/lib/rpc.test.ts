@@ -1,8 +1,222 @@
 import { describe, expect, it } from 'vitest'
-import { applyStreamEvent, normalizeMessages, normalizeUsage, parseDiff } from '../../src/lib/rpc'
+import {
+  applyStreamEvent,
+  normalizeMessages,
+  normalizeUsage,
+  parseDiff,
+  reconcileUserMessageIds,
+} from '../../src/lib/rpc'
 import type { Message } from '../../src/types'
+import type { CapabilityReceipt } from '../../src/lib/capabilities/types'
+import { applyCapabilityReceipts } from '../../src/lib/capabilities/presentation'
 
 describe('pi RPC reconstruction', () => {
+  it('uses receipt identities for repeated display text and ignores receipts from other requests', () => {
+    const pending: Message = {
+      id: 'local-user',
+      role: 'user',
+      timestamp: 999,
+      blocks: [{ type: 'text', text: 'Review' }],
+      pendingPrompt: '/review Review',
+      capabilityRequestId: 'request-current',
+    }
+    const receipts: CapabilityReceipt[] = [
+      {
+        id: 'request-other',
+        body: 'Review',
+        timestamp: 4,
+        userIndex: 0,
+        sourceTimestamp: 5,
+        selection: {},
+      },
+      {
+        id: 'request-current',
+        body: 'Review',
+        timestamp: 9,
+        userIndex: 1,
+        sourceTimestamp: 10,
+        selection: {},
+      },
+    ]
+    const canonical = normalizeMessages([
+      { role: 'user', content: 'Review', timestamp: 5 },
+      { role: 'user', content: 'Review', timestamp: 10 },
+    ])
+    const result = reconcileUserMessageIds([pending], canonical, receipts)
+    expect(result[0].id).not.toBe(pending.id)
+    expect(result[1]).toMatchObject({ id: pending.id, capabilityRequestId: 'request-current' })
+    const identicalTextPending = { ...pending, pendingPrompt: 'Review' }
+    expect(
+      reconcileUserMessageIds([identicalTextPending], canonical.slice(0, 1), receipts)[0].id,
+    ).not.toBe(pending.id)
+  })
+  it('retains submission identity when canonical history arrives before its receipt', () => {
+    const pending: Message = {
+      id: 'local-user',
+      role: 'user',
+      timestamp: 999,
+      blocks: [{ type: 'text', text: 'Review' }],
+      pendingPrompt: '/review Review',
+      capabilityRequestId: 'request-current',
+    }
+    const first = reconcileUserMessageIds(
+      [pending],
+      normalizeMessages([{ role: 'user', content: '/review Review', timestamp: 10 }]),
+    )
+    expect(first[0]).toMatchObject({ id: pending.id, capabilityRequestId: 'request-current' })
+    expect(first[0].pendingPrompt).toBeUndefined()
+    const receipt: CapabilityReceipt = {
+      id: 'request-current',
+      body: 'Review',
+      timestamp: 9,
+      userIndex: 0,
+      sourceTimestamp: 10,
+      selection: {},
+    }
+    const second = reconcileUserMessageIds(
+      first,
+      normalizeMessages([{ role: 'user', content: 'Review', timestamp: 10 }]),
+      [receipt],
+    )
+    expect(second[0]).toMatchObject({ id: pending.id, blocks: [{ type: 'text', text: 'Review' }] })
+  })
+  it('associates only the new optimistic turn after the same history prefix and keeps its ID on later syncs', () => {
+    const history = [
+      { role: 'user', content: 'Repeat this', timestamp: 1 },
+      { role: 'assistant', content: 'Done', timestamp: 2 },
+    ]
+    const pending: Message = {
+      id: 'local-user',
+      role: 'user',
+      timestamp: 999,
+      blocks: [{ type: 'text', text: 'Repeat this' }],
+      pendingPrompt: 'Repeat this',
+    }
+    const previous = [...normalizeMessages(history), pending]
+    const snapshot = normalizeMessages([
+      ...history,
+      { role: 'user', content: 'Repeat this', timestamp: 3 },
+      { role: 'assistant', content: 'Next reply', timestamp: 4 },
+    ])
+    const first = reconcileUserMessageIds(previous, snapshot)
+    expect(first[0].id).not.toBe(pending.id)
+    expect(first[2]).toMatchObject({ id: pending.id, timestamp: 3 })
+    expect(first[2].pendingPrompt).toBeUndefined()
+    const second = reconcileUserMessageIds(
+      first,
+      normalizeMessages([
+        ...history,
+        { role: 'user', content: 'Repeat this', timestamp: 3 },
+        { role: 'assistant', content: 'Next reply', timestamp: 4 },
+      ]),
+    )
+    expect(second[2].id).toBe(pending.id)
+    expect(previous[2]).toBe(pending)
+    expect(snapshot[2].id).not.toBe(pending.id)
+  })
+  it('matches the submitted text rather than display text for commands and file attachments', () => {
+    const pending: Message = {
+      id: 'local',
+      role: 'user',
+      timestamp: 99,
+      blocks: [{ type: 'text', text: 'Review' }],
+      pendingPrompt: '/review expanded instructions\n\n<file name="a.txt">\nnotes\n</file>',
+    }
+    const canonical = normalizeMessages([
+      { role: 'user', content: pending.pendingPrompt, timestamp: 100 },
+    ])
+    expect(reconcileUserMessageIds([pending], canonical)[0].id).toBe(pending.id)
+  })
+  it.each([false, true])(
+    'uses receipt identity for repeated capability bodies, including consumed commands: %s',
+    (consumed) => {
+      const pending: Message = {
+        id: 'local-second',
+        role: 'user',
+        timestamp: 999,
+        blocks: [{ type: 'text', text: 'Review' }],
+        pendingPrompt: '/review hidden arguments\n\n<file name="notes.txt">private</file>',
+        capabilityRequestId: 'second-request',
+      }
+      const first: Message = {
+        id: 'local-first',
+        role: 'user',
+        timestamp: 10,
+        blocks: [{ type: 'text', text: 'Review' }],
+        capabilityRequestId: 'first-request',
+      }
+      const receipts: CapabilityReceipt[] = [
+        {
+          id: 'first-request',
+          body: 'Review',
+          timestamp: 5,
+          userIndex: 0,
+          sourceTimestamp: 10,
+          selection: {},
+        },
+        {
+          id: 'second-request',
+          body: 'Review',
+          timestamp: 15,
+          ...(consumed ? {} : { userIndex: 1, sourceTimestamp: 20 }),
+          selection: {},
+        },
+      ]
+      const raw = [
+        { role: 'user', content: '/review first', timestamp: 10 },
+        ...(consumed ? [] : [{ role: 'user', content: pending.pendingPrompt, timestamp: 20 }]),
+        { role: 'assistant', content: 'Reviewed', timestamp: 30 },
+      ]
+      const presented = normalizeMessages(applyCapabilityReceipts(raw, receipts))
+      const reconciled = reconcileUserMessageIds([first, pending], presented, receipts)
+      expect(reconciled.slice(0, 2).map((message) => message.id)).toEqual([
+        'local-first',
+        'local-second',
+      ])
+      expect(reconciled[1]).toMatchObject({
+        capabilityRequestId: 'second-request',
+        blocks: [{ type: 'text', text: 'Review' }],
+      })
+      expect(reconciled[1].pendingPrompt).toBeUndefined()
+      expect(reconcileUserMessageIds(reconciled, presented, receipts)).toEqual(reconciled)
+
+      // A different branch can have the same body and offset, but not the same receipt.
+      const otherReceipt = { ...receipts[1], id: 'other-request' }
+      const otherBranch = normalizeMessages(
+        applyCapabilityReceipts(raw, [receipts[0], otherReceipt]),
+      )
+      expect(
+        reconcileUserMessageIds([first, pending], otherBranch, [receipts[0], otherReceipt])[1].id,
+      ).not.toBe(pending.id)
+    },
+  )
+  it('does not move an optimistic anchor to a different branch or a different prompt', () => {
+    const before = normalizeMessages([{ role: 'assistant', content: 'Before', timestamp: 1 }])
+    const pending: Message = {
+      id: 'local',
+      role: 'user',
+      timestamp: 99,
+      blocks: [{ type: 'text', text: 'Repeat this' }],
+      pendingPrompt: 'Repeat this',
+    }
+    for (const raw of [
+      [{ role: 'user', content: 'Repeat this', timestamp: 3 }],
+      [
+        { role: 'assistant', content: 'Other branch', timestamp: 2 },
+        { role: 'user', content: 'Repeat this', timestamp: 3 },
+      ],
+      [
+        { role: 'assistant', content: 'Before', timestamp: 1 },
+        { role: 'user', content: 'Different', timestamp: 3 },
+      ],
+    ]) {
+      expect(
+        reconcileUserMessageIds([...before, pending], normalizeMessages(raw)).some(
+          (message) => message.id === pending.id,
+        ),
+      ).toBe(false)
+    }
+  })
   it('replaces streamed deltas with authoritative completed content, preserving Unicode', () => {
     let messages: Message[] = []
     messages = applyStreamEvent(messages, {

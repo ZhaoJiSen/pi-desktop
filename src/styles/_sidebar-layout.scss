@@ -25,7 +25,8 @@
 
 /* Peer library pages share their title row and compact HeroUI tools. */
 .commands-browser-heading,
-.package-library-heading {
+.package-library-heading,
+.settings-browser-heading {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -35,10 +36,11 @@
 
 .commands-browser-title,
 .package-library-title,
+.settings-browser-title,
 .utility-page-title {
   margin: 0;
   color: var(--ink);
-  font-size: 16px;
+  font-size: calc(var(--font-ui-size) * 16 / 14 * 1px);
   font-weight: 600;
   line-height: 24px;
 }
@@ -80,7 +82,8 @@
 
 @media (max-width: 780px) {
   .sidebar-layout .commands-browser,
-  .sidebar-layout .package-library {
+  .sidebar-layout .package-library,
+  .utility-view.settings-workspace {
     padding-top: 16px;
   }
 }
