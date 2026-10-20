@@ -9,17 +9,23 @@
   container-type: inline-size;
 }
 .settings-split {
+  display: flex;
   flex: 1;
+  min-width: 0;
   min-height: 0;
+  background: var(--paper);
 }
 .settings-navigation {
   display: flex;
+  flex: none;
   flex-direction: column;
-  min-width: 0;
+  width: 280px;
   min-height: 0;
   height: 100%;
   overflow: hidden;
   padding: 20px 12px 12px;
+  background: var(--sidebar);
+  border-right: 1px solid var(--shell-line);
 }
 .settings-navigation .list-box {
   flex: 1;
@@ -55,9 +61,10 @@
   color: var(--ink);
 }
 .settings-scroll {
+  flex: 1 1 auto;
   min-width: 0;
   min-height: 0;
-  height: 100%;
+  height: auto;
 }
 .settings-scroll .hover-scroll-viewport {
   padding-right: 0;
@@ -516,9 +523,8 @@
   }
 }
 @container (max-width: 680px) {
-  .settings-layout {
-    grid-template-columns: 150px minmax(0, 1fr);
-    gap: 20px;
+  .settings-navigation {
+    width: 200px;
   }
   .settings-navigation .list-box-item {
     padding-inline: 8px;
@@ -528,14 +534,15 @@
   }
 }
 @container (max-width: 500px) {
-  .settings-layout {
-    display: flex;
+  .settings-split {
     flex-direction: column;
-    gap: 18px;
   }
   .settings-navigation {
-    padding: 0 0 4px;
-    flex: none;
+    width: auto;
+    height: auto;
+    padding: 12px 12px 4px;
+    border-right: 0;
+    border-bottom: 1px solid var(--shell-line);
   }
   .settings-navigation .list-box {
     display: flex;

@@ -11,7 +11,6 @@ vi.mock('motion/react', async (importOriginal) => ({
 }))
 
 import { defaultFonts } from '../../src/lib/fonts'
-import { SidebarWidthProvider } from '../../src/layouts/SidebarLayout'
 import { SettingsPage } from '../../src/pages/SettingsPage'
 import { useWorkspace } from '../../src/store/workspace'
 
@@ -21,7 +20,7 @@ let container: HTMLDivElement
 async function mount(section: 'general' | 'appearance' | 'connection' = 'general') {
   await act(async () => {
     useWorkspace.setState({ settingsSection: section })
-    root.render(createElement(SidebarWidthProvider, null, createElement(SettingsPage)))
+    root.render(createElement(SettingsPage))
   })
 }
 function button(label: string) {

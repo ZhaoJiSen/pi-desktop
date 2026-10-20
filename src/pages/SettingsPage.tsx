@@ -2,7 +2,6 @@ import { ListBox } from '@heroui/react'
 import { motion, useReducedMotion } from 'motion/react'
 import { SlidersHorizontal, Palette, Zap, Blocks, Plug } from 'lucide-react'
 import { HoverScrollArea } from '../components/HoverScrollArea'
-import { SidebarLayout } from '../layouts/SidebarLayout'
 import { useT } from '../lib/i18n'
 import { useWorkspace, type SettingsSectionId } from '../store/workspace'
 import { AppearanceSettings } from './settings/AppearanceSettings'
@@ -31,35 +30,29 @@ export function SettingsPage() {
   const t = useT()
   return (
     <div className="utility-view settings-view settings-workspace">
-      <SidebarLayout
-        className="settings-split"
-        collapseAt={780}
-        label={t('layout.resizeSettings')}
-        sidebar={
-          <nav className="settings-navigation" aria-label={t('navigation.settings')}>
-            <div className="settings-browser-heading">
-              <h1 className="settings-browser-title">{t('navigation.settings')}</h1>
-            </div>
-            <ListBox
-              aria-label={t('settings.sections')}
-              selectionMode="single"
-              disallowEmptySelection
-              selectedKeys={[section]}
-              onSelectionChange={(keys) => {
-                const next = sections.find((item) => keys !== 'all' && keys.has(item.id))
-                if (next) useWorkspace.setState({ settingsSection: next.id as SettingsSectionId })
-              }}
-            >
-              {sections.map(({ id, label, icon: Icon }) => (
-                <ListBox.Item key={id} id={id} textValue={t(label)}>
-                  <Icon aria-hidden="true" />
-                  <span>{t(label)}</span>
-                </ListBox.Item>
-              ))}
-            </ListBox>
-          </nav>
-        }
-      >
+      <div className="settings-split">
+        <nav className="settings-navigation" aria-label={t('navigation.settings')}>
+          <div className="settings-browser-heading">
+            <h1 className="settings-browser-title">{t('navigation.settings')}</h1>
+          </div>
+          <ListBox
+            aria-label={t('settings.sections')}
+            selectionMode="single"
+            disallowEmptySelection
+            selectedKeys={[section]}
+            onSelectionChange={(keys) => {
+              const next = sections.find((item) => keys !== 'all' && keys.has(item.id))
+              if (next) useWorkspace.setState({ settingsSection: next.id as SettingsSectionId })
+            }}
+          >
+            {sections.map(({ id, label, icon: Icon }) => (
+              <ListBox.Item key={id} id={id} textValue={t(label)}>
+                <Icon aria-hidden="true" />
+                <span>{t(label)}</span>
+              </ListBox.Item>
+            ))}
+          </ListBox>
+        </nav>
         <HoverScrollArea
           className="settings-scroll"
           label={t(sections.find((item) => item.id === section)!.label)}
@@ -105,7 +98,7 @@ export function SettingsPage() {
             </div>
           </motion.div>
         </HoverScrollArea>
-      </SidebarLayout>
+      </div>
     </div>
   )
 }

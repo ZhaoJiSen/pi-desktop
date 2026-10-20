@@ -435,7 +435,6 @@ export const en = {
   'layout.resizeHome': 'Resize project sidebar',
   'layout.resizeExtensions': 'Resize extension list',
   'layout.resizeCommands': 'Resize command list',
-  'layout.resizeSettings': 'Resize settings menu',
   'layout.width': '{width} pixels',
   'navigation.home': 'Home',
   'navigation.terminal': 'Terminal',

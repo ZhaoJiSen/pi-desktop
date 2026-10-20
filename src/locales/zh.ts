@@ -394,7 +394,6 @@ export const zh = {
   'layout.resizeHome': '调整项目侧栏宽度',
   'layout.resizeExtensions': '调整扩展列表宽度',
   'layout.resizeCommands': '调整命令列表宽度',
-  'layout.resizeSettings': '调整设置菜单宽度',
   'layout.width': '{width} 像素',
   'navigation.home': '主页',
   'navigation.terminal': '终端',
