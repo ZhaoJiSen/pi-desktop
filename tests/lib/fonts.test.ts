@@ -62,7 +62,7 @@ describe('font preferences', () => {
     applyFonts(
       {
         style: { setProperty: (key: string, value: string) => root.style.set(key, value) },
-      } as HTMLElement,
+      } as unknown as HTMLElement,
       { ...defaultFonts, readingLeading: 'loose', ligatures: true, codeSize: 16 },
     )
     expect(root.style.get('--font-reading-leading')).toBe('1.95')
