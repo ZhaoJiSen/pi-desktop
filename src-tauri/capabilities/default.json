@@ -17,6 +17,7 @@
     "notification:allow-remove-listener",
     "core:window:allow-set-background-color",
     "core:window:allow-set-effects",
+    "core:window:allow-set-theme",
     "core:webview:allow-set-webview-background-color",
     "dialog:allow-open"
   ]

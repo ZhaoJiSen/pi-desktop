@@ -8,11 +8,13 @@ const mocks = vi.hoisted(() => ({
   sync: vi.fn(),
   connect: vi.fn(),
   background: vi.fn(),
+  theme: vi.fn(),
 }))
 vi.mock('@tauri-apps/api/webviewWindow', () => ({
   getCurrentWebviewWindow: () => ({
     setBackgroundColor: mocks.background,
     setEffects: vi.fn().mockResolvedValue(undefined),
+    setTheme: mocks.theme,
   }),
 }))
 vi.mock('../../src/lib/desktop', () => ({
@@ -85,8 +87,10 @@ describe('onboarding startup boundary', () => {
   it('keeps the native window transparent when the theme or palette changes', async () => {
     await render(false)
     expect(mocks.background).toHaveBeenCalledWith([0, 0, 0, 0])
+    expect(mocks.theme).toHaveBeenCalledWith('light')
     const calls = mocks.background.mock.calls.length
     await act(async () => useWorkspace.setState({ theme: 'dark' }))
+    expect(mocks.theme).toHaveBeenLastCalledWith('dark')
     await act(async () =>
       useWorkspace.setState({
         palettesByMode: { light: 'ink', dark: 'catppuccin' },

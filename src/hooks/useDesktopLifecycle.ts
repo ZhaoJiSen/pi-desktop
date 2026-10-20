@@ -109,6 +109,12 @@ export function useDesktopLifecycle(view: Page, enabled = true) {
     // Theme tokens stay in CSS. The native backing color is transparent so the
     // window material stays visible; painting --ground here would cover it.
     applyAppearance(document.documentElement, mode, palette, accent)
+    // Vibrancy follows the window appearance. Match the resolved light or dark
+    // mode, otherwise a light UI sits on the system's dark material.
+    if (isDesktop)
+      void getCurrentWebviewWindow()
+        .setTheme(mode)
+        .catch(() => {})
   }, [mode, palette, accent])
   useEffect(() => {
     document.documentElement.lang = language === 'zh' ? 'zh-CN' : 'en'
