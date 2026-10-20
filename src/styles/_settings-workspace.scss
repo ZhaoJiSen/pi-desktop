@@ -158,7 +158,7 @@
 .settings-workspace .select__trigger,
 .settings-workspace .number-field__group {
   box-sizing: border-box;
-  height: 36px;
+  height: auto;
   min-height: 36px;
   border: 1px solid var(--settings-control-border);
   border-radius: var(--radius);
@@ -166,6 +166,17 @@
 }
 .settings-workspace .number-field__group {
   overflow: hidden;
+}
+.settings-workspace .settings-font-number {
+  width: auto;
+  min-width: 120px;
+}
+.settings-workspace .settings-font-number .number-field__input {
+  width: 3.2ch;
+  min-width: 3.2ch;
+  flex: none;
+  padding-inline: 2px;
+  text-align: center;
 }
 .settings-workspace .select__trigger:is(:focus-visible, [data-focus-visible='true']),
 .settings-workspace .number-field__group:focus-within {
