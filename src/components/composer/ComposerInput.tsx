@@ -60,8 +60,11 @@ export function ComposerInput({
     const shell = input?.closest<HTMLElement>('.composer-shell')
     if (!input || !mirror || !shell) return
     const style = getComputedStyle(shell)
+    const inputStyle = getComputedStyle(input)
+    const lineHeight = parseFloat(inputStyle.lineHeight) || 22
+    const minHeight = Math.ceil(Math.max(parseFloat(inputStyle.minHeight) || 0, lineHeight))
+    const maxHeight = parseFloat(inputStyle.maxHeight) || 176
     const width = shell.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight)
-    setNarrow(width < 320)
     const toolbar = shell.querySelector<HTMLElement>('.composer-toolbar')
     const compactWidth = width - (toolbar?.offsetWidth ?? 0) - 34 - 16
     mirror.style.width = `${Math.max(1, compactWidth)}px`
@@ -69,10 +72,12 @@ export function ComposerInput({
       Boolean(shell.querySelector('.attachments')) ||
       input.value.includes('\n') ||
       compactWidth < 120 ||
-      (Boolean(input.value) && mirror.scrollHeight > 22)
+      (Boolean(input.value) && mirror.scrollHeight > minHeight)
+    setNarrow((multiline ? width : compactWidth) < 320)
     if (multiline) mirror.style.width = `${width}px`
-    const height = Math.min(176, Math.max(22, mirror.scrollHeight))
+    const height = Math.min(maxHeight, Math.max(minHeight, mirror.scrollHeight))
     if (input.style.height !== `${height}px`) input.style.height = `${height}px`
+    input.style.overflowY = mirror.scrollHeight > Math.ceil(maxHeight) ? 'auto' : 'hidden'
     setExpanded(multiline)
   }, [inputRef])
   useLayoutEffect(resize, [resize, text])
@@ -83,6 +88,11 @@ export function ComposerInput({
     observer.observe(shell)
     const toolbar = shell.querySelector('.composer-toolbar')
     if (toolbar) observer.observe(toolbar)
+    // The mirror itself stays zero-height. Its child still lays out naturally,
+    // so font/line-height changes trigger a resize even when the toolbar keeps
+    // the outer shell at the same height.
+    const content = measure.current?.firstElementChild
+    if (content) observer.observe(content)
     return () => observer.disconnect()
   }, [inputRef, resize])
   useLayoutEffect(() => {
@@ -131,7 +141,7 @@ export function ComposerInput({
   return (
     <div className="composer-input-wrap">
       <div ref={measure} className="composer-input-measure" aria-hidden="true">
-        {text + '\u200b'}
+        <div>{text + '\u200b'}</div>
       </div>
       <TextArea
         ref={inputRef}

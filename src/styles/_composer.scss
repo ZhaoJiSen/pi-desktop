@@ -98,6 +98,7 @@
 }
 .composer-input::placeholder {
   color: var(--muted);
+  white-space: nowrap;
 }
 .composer-shell > .attach {
   grid-area: attach;
