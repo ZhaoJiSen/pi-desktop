@@ -129,6 +129,11 @@ messages! {
     SendPi => ("无法发送到 pi", "Could not send the request to pi"),
     RequestTimeout => ("pi 请求超时，请检查连接后重试", "The pi request timed out. Check the connection and retry"),
     RequestFailed => ("pi 请求失败", "The pi request failed"),
+    GitUnavailable => ("找不到 git，无法读取仓库", "Could not find git"),
+    SourceOutside => ("路径超出项目目录", "That path is outside the project"),
+    SourceRead => ("无法读取项目文件", "Could not read the project file"),
+    SourceList => ("无法读取项目目录", "Could not read the project folder"),
+    GitRead => ("无法读取 Git 仓库", "Could not read the Git repository"),
 }
 
 #[cfg(test)]

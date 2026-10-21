@@ -7,6 +7,7 @@ mod onboarding;
 mod packages;
 mod repositories;
 mod runtime;
+mod source;
 mod updates;
 
 use i18n::Message;
@@ -32,7 +33,7 @@ fn set_app_language(language: String) {
     i18n::set_language(&language);
 }
 
-fn project_path(app: &tauri::AppHandle, path: &str) -> Result<PathBuf, String> {
+pub(crate) fn project_path(app: &tauri::AppHandle, path: &str) -> Result<PathBuf, String> {
     let expanded = if path == "~" || path.starts_with("~/") {
         app.path()
             .home_dir()
@@ -205,7 +206,14 @@ pub fn run() {
             packages::registry::browse_extension_catalog,
             packages::registry::extension_package_metadata,
             packages::manage_extension_package,
-            packages::open_extension_page
+            packages::open_extension_page,
+            source::list_project_directory,
+            source::read_project_file,
+            source::search_project_files,
+            source::git_status,
+            source::git_file_diff,
+            source::git_log,
+            source::git_commit_files
         ])
         .build(tauri::generate_context!())
         .unwrap_or_else(|error| panic!("{}", Message::AppStart.detail(error)));
