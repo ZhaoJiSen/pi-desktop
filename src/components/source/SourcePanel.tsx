@@ -49,17 +49,30 @@ function PanelResize({ width, onWidth }: { width: number; onWidth: (next: number
       aria-orientation="vertical"
       aria-label={t('source.resize')}
       onPointerDown={(event) => {
+        if (event.button !== 0) return
+        event.preventDefault()
+        const handle = event.currentTarget
+        handle.setPointerCapture(event.pointerId)
+        window.getSelection()?.removeAllRanges()
         const startX = event.clientX
         const start = width
+        const stage = handle.closest('.chat-stage')
+        stage?.setAttribute('data-resizing', 'true')
         const move = (ev: PointerEvent) => {
+          if (ev.pointerId !== event.pointerId) return
           onWidth(Math.min(640, Math.max(320, start + startX - ev.clientX)))
         }
-        const up = () => {
+        const end = (ev: PointerEvent) => {
+          if (ev.pointerId !== event.pointerId) return
+          stage?.removeAttribute('data-resizing')
           window.removeEventListener('pointermove', move)
-          window.removeEventListener('pointerup', up)
+          window.removeEventListener('pointerup', end)
+          window.removeEventListener('pointercancel', end)
+          if (handle.hasPointerCapture(ev.pointerId)) handle.releasePointerCapture(ev.pointerId)
         }
         window.addEventListener('pointermove', move)
-        window.addEventListener('pointerup', up)
+        window.addEventListener('pointerup', end)
+        window.addEventListener('pointercancel', end)
       }}
     />
   )

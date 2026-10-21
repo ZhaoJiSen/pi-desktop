@@ -81,6 +81,17 @@
   min-height: 56px;
 }
 
+.source-resize {
+  z-index: 2;
+  touch-action: none;
+  user-select: none;
+}
+
+.chat-stage[data-resizing='true'] {
+  cursor: col-resize;
+  user-select: none;
+}
+
 .source-link {
   display: flex;
   align-items: center;
