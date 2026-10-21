@@ -54,7 +54,7 @@ pub fn system_fonts() -> Vec<SystemFont> {
             };
             fonts.push(SystemFont { family, monospace });
         }
-        fonts.sort_by(|left, right| left.family.to_lowercase().cmp(&right.family.to_lowercase()));
+        fonts.sort_by_cached_key(|font| font.family.to_lowercase());
         fonts.dedup_by(|left, right| left.family == right.family);
         fonts
     }
@@ -75,7 +75,9 @@ mod tests {
         let menlo = fonts.iter().find(|font| font.family == "Menlo");
         assert!(menlo.is_some_and(|font| font.monospace), "{fonts:?}");
         assert!(
-            fonts.iter().any(|font| font.family == "PingFang SC" && !font.monospace),
+            fonts
+                .iter()
+                .any(|font| font.family == "PingFang SC" && !font.monospace),
             "{fonts:?}"
         );
     }

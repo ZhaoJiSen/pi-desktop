@@ -30,11 +30,14 @@ export function FontSettings() {
   const committed = useWorkspace((state) => state.fonts)
   const setPreference = useWorkspace((state) => state.setPreference)
   const [draft, setDraft] = useState(committed)
+  const [previous, setPrevious] = useState(committed)
+  // Discard stale edits before rendering rather than cascading from an effect.
+  if (previous !== committed) {
+    setPrevious(committed)
+    setDraft(committed)
+  }
   const [catalog, setCatalog] = useState<SystemFont[]>([])
   const t = useT()
-  useEffect(() => {
-    setDraft(committed)
-  }, [committed])
   useEffect(() => {
     let alive = true
     void loadSystemFonts().then((fonts) => {

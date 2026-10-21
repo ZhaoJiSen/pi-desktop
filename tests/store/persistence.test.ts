@@ -83,22 +83,18 @@ describe('stream checkpoints', () => {
     store
       .getState()
       .appendEvent(id, { type: 'message_start', message: { role: 'assistant', content: [] } })
-    store
-      .getState()
-      .appendEvent(id, {
-        type: 'message_update',
-        assistantMessageEvent: { type: 'text_delta', contentIndex: 0, delta: 'draft' },
-      })
+    store.getState().appendEvent(id, {
+      type: 'message_update',
+      assistantMessageEvent: { type: 'text_delta', contentIndex: 0, delta: 'draft' },
+    })
     store.setState({ runningSessionId: null })
     expect(
       createWorkspaceStore(storage).getState().sessions[0].messages[0].blocks[0],
     ).toMatchObject({ text: 'draft' })
-    store
-      .getState()
-      .appendEvent(id, {
-        type: 'message_end',
-        message: { role: 'assistant', content: [{ type: 'text', text: '最终结果' }] },
-      })
+    store.getState().appendEvent(id, {
+      type: 'message_end',
+      message: { role: 'assistant', content: [{ type: 'text', text: '最终结果' }] },
+    })
     expect(
       createWorkspaceStore(storage).getState().sessions[0].messages[0].blocks[0],
     ).toMatchObject({ text: '最终结果' })
@@ -122,12 +118,10 @@ describe('stream checkpoints', () => {
     store
       .getState()
       .appendEvent(id, { type: 'message_start', message: { role: 'assistant', content: [] } })
-    store
-      .getState()
-      .appendEvent(id, {
-        type: 'message_update',
-        assistantMessageEvent: { type: 'text_delta', contentIndex: 0, delta: '保留内容' },
-      })
+    store.getState().appendEvent(id, {
+      type: 'message_update',
+      assistantMessageEvent: { type: 'text_delta', contentIndex: 0, delta: '保留内容' },
+    })
     failed = true
     await vi.advanceTimersByTimeAsync(500)
     expect(store.getState().storageError).not.toBeNull()
