@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { fromToolDiff, parseUnifiedDiff, toSplitRows } from '../../src/lib/source/diff'
+import {
+  countPatch,
+  ensureUnifiedPatch,
+  isBinaryPatch,
+  toolDiffToUnified,
+} from '../../src/lib/source/diff'
 
 const unified = `diff --git a/src/models.ts b/src/models.ts
 --- a/src/models.ts
@@ -12,54 +17,43 @@ const unified = `diff --git a/src/models.ts b/src/models.ts
 `
 
 describe('unified diffs', () => {
-  it('counts added and removed lines and keeps hunk context', () => {
-    const parsed = parseUnifiedDiff(unified)
-    expect(parsed.binary).toBe(false)
-    expect(parsed.additions).toBe(1)
-    expect(parsed.deletions).toBe(0)
-    expect(parsed.rows.some((row) => row.kind === 'hunk')).toBe(true)
-    expect(parsed.rows.find((row) => row.kind === 'add')).toMatchObject({
-      text: '  { id: "gpt-5", provider: "openai" },',
-      newLine: 3,
+  it('counts added and removed lines without treating headers as changes', () => {
+    expect(countPatch(unified)).toEqual({ additions: 1, deletions: 0 })
+    expect(countPatch('@@ -1,2 +1,2 @@\n-old\n+new\n same\n')).toEqual({
+      additions: 1,
+      deletions: 1,
     })
   })
 
-  it('pairs a removed line with the added line beside it', () => {
-    const parsed = parseUnifiedDiff(`@@ -1,2 +1,2 @@
--old
-+new
- same
-`)
-    const split = toSplitRows(parsed.rows)
-    expect(split[1]).toMatchObject({
-      kind: 'pair',
-      left: { kind: 'remove', text: 'old' },
-      right: { kind: 'add', text: 'new' },
-    })
+  it('adds file headers when a patch is only hunks', () => {
+    const patch = ensureUnifiedPatch('src/models.ts', '@@ -1 +1 @@\n-old\n+new\n')
+    expect(patch.startsWith('diff --git a/src/models.ts b/src/models.ts\n')).toBe(true)
+    expect(patch).toContain('@@ -1 +1 @@')
+    expect(ensureUnifiedPatch('src/models.ts', unified)).toBe(unified)
   })
 
-  it('keeps tool diffs that are not unified hunks', () => {
-    const parsed = fromToolDiff([
+  it('turns tool rows into one unified hunk', () => {
+    const patch = toolDiffToUnified('note.ts', [
       { kind: 'remove', text: 'before', number: 4 },
       { kind: 'add', text: 'after', number: 4 },
     ])
-    expect(parsed.deletions).toBe(1)
-    expect(parsed.additions).toBe(1)
-    expect(parsed.rows[0]).toMatchObject({ oldLine: 4, newLine: undefined })
+    expect(patch).toContain('@@ -4,1 +4,1 @@')
+    expect(patch).toContain('-before')
+    expect(patch).toContain('+after')
+    expect(countPatch(patch)).toEqual({ additions: 1, deletions: 1 })
   })
 
   it('treats a binary patch as binary', () => {
-    expect(parseUnifiedDiff('Binary files a and b differ').binary).toBe(true)
-    expect(parseUnifiedDiff('GIT binary patch\nliteral 0').binary).toBe(true)
+    expect(isBinaryPatch('Binary files a and b differ')).toBe(true)
+    expect(isBinaryPatch('GIT binary patch\nliteral 0')).toBe(true)
   })
 
   it('keeps a content line that mentions binary files', () => {
-    const parsed = parseUnifiedDiff(`@@ -1 +1,2 @@
+    const text = `@@ -1 +1,2 @@
  kept
 +Binary files a and b differ
-`)
-    expect(parsed.binary).toBe(false)
-    expect(parsed.additions).toBe(1)
-    expect(parsed.rows.some((row) => row.text === 'Binary files a and b differ')).toBe(true)
+`
+    expect(isBinaryPatch(text)).toBe(false)
+    expect(countPatch(text).additions).toBe(1)
   })
 })

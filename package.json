@@ -20,6 +20,7 @@
     "verify:pi-v1": "vitest run tests/compat/pi-v1.test.ts"
   },
   "dependencies": {
+    "@git-diff-view/react": "^0.1.8",
     "@heroui/react": "^3.2.6",
     "@heroui/styles": "^3.2.6",
     "@tanstack/react-router": "^1.170.41",
@@ -28,6 +29,7 @@
     "@tauri-apps/plugin-notification": "^2.7.0",
     "ahooks": "^3.10.0",
     "lucide-react": "^1.53.0",
+    "material-icon-theme": "^5.39.0",
     "motion": "^14.0.0",
     "prismjs": "^1.30.0",
     "react": "^19.3.0",

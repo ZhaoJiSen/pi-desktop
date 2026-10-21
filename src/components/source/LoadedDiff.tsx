@@ -11,6 +11,8 @@ export function LoadedDiff({
   revision,
   tick,
   fallback,
+  embedded,
+  layout,
   onBack,
 }: {
   projectPath: string
@@ -18,6 +20,8 @@ export function LoadedDiff({
   revision?: string | null
   tick: number
   fallback?: DiffLine[]
+  embedded?: boolean
+  layout?: 'unified' | 'split'
   onBack?: () => void
 }) {
   const t = useT()
@@ -39,6 +43,8 @@ export function LoadedDiff({
       truncated={diff.data.truncated}
       missing={diff.data.missing}
       fallback={fallback}
+      embedded={embedded}
+      layout={layout}
       onBack={onBack}
     />
   )

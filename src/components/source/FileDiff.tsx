@@ -1,12 +1,24 @@
 import { Button, ToggleButton, ToggleButtonGroup } from '@heroui/react'
-import { FileText } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { DiffModeEnum, DiffView } from '@git-diff-view/react'
+import { ChevronLeft, Columns2, Rows3 } from 'lucide-react'
+import { useMemo } from 'react'
+import { useColorMode } from '../../hooks/useColorMode'
 import { useT } from '../../lib/i18n'
-import { fromToolDiff, parseUnifiedDiff } from '../../lib/source/diff'
+import {
+  countPatch,
+  ensureUnifiedPatch,
+  isBinaryPatch,
+  toolDiffToUnified,
+} from '../../lib/source/diff'
 import { fileNameOf } from '../../lib/source/paths'
+import { useWorkspace } from '../../store/workspace'
 import type { DiffLine } from '../../types'
-import { SplitRows, UnifiedRows } from './DiffRows'
+import { fileLanguage } from '../conversation/Highlight'
 import { SourceNotice } from './SourceNotice'
+import { useDiffLayout } from './useDiffLayout'
+import '@git-diff-view/react/styles/diff-view-pure.css'
+
+const highlightLang: Record<string, string> = { markup: 'xml' }
 
 export function FileDiff({
   path,
@@ -15,6 +27,8 @@ export function FileDiff({
   truncated,
   missing,
   fallback,
+  embedded,
+  layout,
   onBack,
 }: {
   path: string
@@ -23,63 +37,96 @@ export function FileDiff({
   truncated: boolean
   missing: boolean
   fallback?: DiffLine[]
+  embedded?: boolean
+  layout?: 'unified' | 'split'
   onBack?: () => void
 }) {
   const t = useT()
-  const [layout, setLayout] = useState<'unified' | 'split'>('unified')
-  const parsed = useMemo(() => {
-    if (!missing && text) return parseUnifiedDiff(text)
-    if (fallback?.length) return fromToolDiff(fallback)
+  const theme = useWorkspace((state) => state.theme)
+  const codeSize = useWorkspace((state) => state.fonts.codeSize)
+  const mode = useColorMode(theme)
+  const {
+    ref: layoutRef,
+    layout: ownLayout,
+    setLayout: setOwnLayout,
+  } = useDiffLayout(layout === undefined)
+  const layoutMode = layout ?? ownLayout
+  const patch = useMemo(() => {
+    if (binary || isBinaryPatch(text)) return null
+    if (!missing && text.trim()) return ensureUnifiedPatch(path, text)
+    if (fallback?.length) return toolDiffToUnified(path, fallback)
     return null
-  }, [fallback, missing, text])
+  }, [binary, fallback, missing, path, text])
+  const stats = useMemo(() => (patch ? countPatch(patch) : null), [patch])
+  const lang = highlightLang[fileLanguage(path)] ?? fileLanguage(path)
   const name = fileNameOf(path)
+  const showBar = Boolean(onBack) || !embedded || layout === undefined
   return (
-    <div className="source-detail">
-      <div className="source-detail-bar">
-        {onBack && (
-          <Button variant="ghost" className="source-back" onPress={onBack}>
-            {t('source.back')}
-          </Button>
-        )}
-        <span className="source-detail-path" title={path}>
-          {path}
-        </span>
-        {parsed && !parsed.binary && (
-          <ToggleButtonGroup
-            className="source-layout"
-            aria-label={t('source.diffLayout')}
-            selectionMode="single"
-            disallowEmptySelection
-            selectedKeys={[layout]}
-            onSelectionChange={(keys) => setLayout(keys.has('split') ? 'split' : 'unified')}
-          >
-            <ToggleButton id="unified">{t('source.unified')}</ToggleButton>
-            <ToggleButton id="split">{t('source.split')}</ToggleButton>
-          </ToggleButtonGroup>
-        )}
-      </div>
+    <div className={embedded ? 'source-detail is-embedded' : 'source-detail'} ref={layoutRef}>
+      {showBar && (
+        <div className="source-detail-bar">
+          {onBack && (
+            <Button
+              isIconOnly
+              variant="ghost"
+              className="icon-button source-back"
+              aria-label={t('source.back')}
+              onPress={onBack}
+            >
+              <ChevronLeft />
+            </Button>
+          )}
+          {!embedded && (
+            <span className="source-detail-path" title={path}>
+              {name}
+            </span>
+          )}
+          {!embedded && stats && (
+            <span className="diff-stats">
+              <span className="positive">+{stats.additions}</span>
+              {stats.deletions > 0 && <span className="negative">−{stats.deletions}</span>}
+            </span>
+          )}
+          {layout === undefined && patch && (
+            <ToggleButtonGroup
+              className="source-layout"
+              aria-label={t('source.diffLayout')}
+              selectionMode="single"
+              disallowEmptySelection
+              selectedKeys={[layoutMode]}
+              onSelectionChange={(keys) => setOwnLayout(keys.has('split') ? 'split' : 'unified')}
+            >
+              <ToggleButton id="unified" aria-label={t('source.unified')} className="icon-button">
+                <Rows3 />
+              </ToggleButton>
+              <ToggleButton id="split" aria-label={t('source.split')} className="icon-button">
+                <Columns2 />
+              </ToggleButton>
+            </ToggleButtonGroup>
+          )}
+        </div>
+      )}
       {truncated && <p className="source-note">{t('source.truncatedDiff')}</p>}
-      {binary || parsed?.binary ? (
+      {binary || isBinaryPatch(text) ? (
         <SourceNotice kind="empty" text={t('source.binaryFile')} />
-      ) : !parsed ? (
+      ) : !patch || !stats ? (
         <SourceNotice kind="empty" text={t('source.missingDiff')} />
       ) : (
         <div className="diff diff-panel">
-          <div className="diff-header">
-            <FileText />
-            <span className="diff-file" title={path}>
-              {name}
-            </span>
-            <span className="diff-stats">
-              <span className="positive">+{parsed.additions}</span>
-              {parsed.deletions > 0 && <span className="negative">−{parsed.deletions}</span>}
-            </span>
+          <div className="source-git-diff" data-layout={layoutMode}>
+            <DiffView
+              data={{
+                oldFile: { fileName: path, fileLang: lang || null },
+                newFile: { fileName: path, fileLang: lang || null },
+                hunks: [patch],
+              }}
+              diffViewMode={layoutMode === 'split' ? DiffModeEnum.Split : DiffModeEnum.Unified}
+              diffViewTheme={mode}
+              diffViewFontSize={codeSize}
+              diffViewHighlight
+              diffViewWrap={false}
+            />
           </div>
-          {layout === 'split' ? (
-            <SplitRows rows={parsed.rows} path={path} />
-          ) : (
-            <UnifiedRows rows={parsed.rows} path={path} />
-          )}
         </div>
       )}
     </div>
