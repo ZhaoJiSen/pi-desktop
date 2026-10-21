@@ -1,4 +1,5 @@
 import { en } from '../locales/en'
+import { sourceEn, sourceZh } from '../locales/sourceMessages'
 import { zh } from '../locales/zh'
 
 export type Language = 'zh' | 'en'
@@ -18,15 +19,25 @@ export function browserLanguage(): Language {
   return languageFromLocale(typeof navigator === 'undefined' ? undefined : navigator.language)
 }
 
-export type MessageKey = keyof typeof en
-export const messages = { en, zh }
+type Catalog = typeof en & typeof sourceEn
+export type MessageKey = keyof Catalog
+export const messages = {
+  en: { ...en, ...sourceEn },
+  zh: { ...zh, ...sourceZh },
+} as { en: Record<MessageKey, string>; zh: Record<MessageKey, string> }
+
+type EnText<K extends MessageKey> = K extends keyof typeof sourceEn
+  ? (typeof sourceEn)[K]
+  : K extends keyof typeof en
+    ? (typeof en)[K]
+    : never
 
 type Placeholders<S extends string> = S extends `${string}{${infer Key}}${infer Rest}`
   ? Key | Placeholders<Rest>
   : never
-export type TranslationArgs<K extends MessageKey> = [Placeholders<(typeof en)[K]>] extends [never]
+export type TranslationArgs<K extends MessageKey> = [Placeholders<EnText<K>>] extends [never]
   ? [values?: never]
-  : [values: Record<Placeholders<(typeof en)[K]>, string | number>]
+  : [values: Record<Placeholders<EnText<K>>, string | number>]
 export type Translator = <K extends MessageKey>(key: K, ...args: TranslationArgs<K>) => string
 
 export function translate<K extends MessageKey>(
