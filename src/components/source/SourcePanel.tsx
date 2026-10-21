@@ -1,71 +1,101 @@
-import { Button, Tabs } from '@heroui/react'
-import { RotateCw, X } from 'lucide-react'
+import { Button, Separator, Toolbar } from '@heroui/react'
+import { FolderTree, GitCompare, History, PanelsLeftRight, RotateCw, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useT } from '../../lib/i18n'
 import { ChangesPane } from './ChangesView'
 import { useSource, type SourceRequest, type SourceTab } from './context'
 import { FilesPane } from './FilesPane'
 import { HistoryPane } from './HistoryPane'
+import { PanelResize } from './PanelResize'
 import { useProjectSource } from './useProjectSource'
 
-const WIDTH_KEY = 'pi.source-panel-width'
-
-function readWidth() {
-  if (typeof localStorage === 'undefined') return 420
-  const raw = Number(localStorage.getItem(WIDTH_KEY))
-  if (!Number.isFinite(raw)) return 420
-  return Math.min(640, Math.max(320, raw))
-}
-
-export function SourcePanel() {
+export function SourcePanel({
+  width,
+  maxWidth,
+  expanded,
+  onWidth,
+  onShowConversation,
+}: {
+  width: number
+  maxWidth: number
+  expanded: boolean
+  onWidth: (next: number) => void
+  onShowConversation: () => void
+}) {
   const source = useSource()
   const t = useT()
-  const [width, setWidth] = useState(readWidth)
-  if (!source?.open) return null
+  const open = Boolean(source?.open)
+  const [rendered, setRendered] = useState(open)
+  const [visible, setVisible] = useState(false)
+  const [resizing, setResizing] = useState(false)
+  if (open && !rendered) setRendered(true)
+  useEffect(() => {
+    if (!rendered) return
+    if (open) {
+      let inner = 0
+      const outer = requestAnimationFrame(() => {
+        inner = requestAnimationFrame(() => setVisible(true))
+      })
+      return () => {
+        cancelAnimationFrame(outer)
+        cancelAnimationFrame(inner)
+      }
+    }
+    setVisible(false)
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setRendered(false)
+      return
+    }
+    const timer = window.setTimeout(() => setRendered(false), 280)
+    return () => window.clearTimeout(timer)
+  }, [open, rendered])
+  if (!rendered || !source) return null
   return (
-    <aside className="source-panel" style={{ width }} aria-label={t('source.panel')}>
+    <aside
+      className={
+        visible
+          ? resizing
+            ? 'source-panel is-open is-resizing'
+            : 'source-panel is-open'
+          : 'source-panel'
+      }
+      style={{ width: visible ? width : 0 }}
+      aria-label={t('source.panel')}
+      aria-hidden={!visible}
+      onTransitionEnd={(event) => {
+        if (event.target !== event.currentTarget || event.propertyName !== 'width' || open) return
+        setRendered(false)
+      }}
+    >
       <PanelResize
         width={width}
-        onWidth={(next) => {
-          setWidth(next)
-          localStorage.setItem(WIDTH_KEY, String(next))
-        }}
+        maxWidth={maxWidth}
+        onWidth={onWidth}
+        onDrag={setResizing}
+        onReset={onShowConversation}
       />
       <PanelBody
         key={source.request.nonce}
         request={source.request}
+        expanded={expanded}
+        onShowConversation={onShowConversation}
         onClose={() => source.setOpen(false)}
       />
     </aside>
   )
 }
 
-function PanelResize({ width, onWidth }: { width: number; onWidth: (next: number) => void }) {
-  const t = useT()
-  return (
-    <div
-      className="source-resize"
-      role="separator"
-      aria-orientation="vertical"
-      aria-label={t('source.resize')}
-      onPointerDown={(event) => {
-        const startX = event.clientX
-        const start = width
-        const move = (ev: PointerEvent) => {
-          onWidth(Math.min(640, Math.max(320, start + startX - ev.clientX)))
-        }
-        const up = () => {
-          window.removeEventListener('pointermove', move)
-          window.removeEventListener('pointerup', up)
-        }
-        window.addEventListener('pointermove', move)
-        window.addEventListener('pointerup', up)
-      }}
-    />
-  )
-}
-
-function PanelBody({ request, onClose }: { request: SourceRequest; onClose: () => void }) {
+function PanelBody({
+  request,
+  expanded,
+  onShowConversation,
+  onClose,
+}: {
+  request: SourceRequest
+  expanded: boolean
+  onShowConversation: () => void
+  onClose: () => void
+}) {
   const t = useT()
   const { path, revision } = useProjectSource()
   const [tab, setTab] = useState<SourceTab>(request.tab ?? 'changes')
@@ -80,49 +110,76 @@ function PanelBody({ request, onClose }: { request: SourceRequest; onClose: () =
     const timer = window.setTimeout(() => setTick((value) => value + 1), 300)
     return () => window.clearTimeout(timer)
   }, [revision])
+  const title =
+    tab === 'files'
+      ? t('source.files')
+      : tab === 'history'
+        ? t('source.history')
+        : t('source.changes')
   return (
     <>
       <div className="source-toolbar">
-        <Tabs
-          selectedKey={tab}
-          onSelectionChange={(key) => setTab(String(key) as SourceTab)}
-          className="source-tabs"
-        >
-          <Tabs.List aria-label={t('source.panel')}>
-            <Tabs.Tab id="changes">
-              {t('source.changes')}
-              <Tabs.Indicator />
-            </Tabs.Tab>
-            <Tabs.Tab id="files">
-              {t('source.files')}
-              <Tabs.Indicator />
-            </Tabs.Tab>
-            <Tabs.Tab id="history">
-              {t('source.history')}
-              <Tabs.Indicator />
-            </Tabs.Tab>
-          </Tabs.List>
-        </Tabs>
-        <Button
-          isIconOnly
-          variant="ghost"
-          className="icon-button"
-          aria-label={t('source.refresh')}
-          onPress={() => setTick((value) => value + 1)}
-        >
-          <RotateCw />
-        </Button>
-        <Button
-          isIconOnly
-          variant="ghost"
-          className="icon-button"
-          aria-label={t('source.close')}
-          onPress={onClose}
-        >
-          <X />
-        </Button>
+        <h2 className="source-heading">{title}</h2>
+        {expanded && (
+          <Button variant="ghost" className="source-show-chat" onPress={onShowConversation}>
+            <PanelsLeftRight />
+            {t('source.showConversation')}
+          </Button>
+        )}
+        <Toolbar aria-label={t('source.panel')} className="source-modes">
+          <Button
+            isIconOnly
+            variant="ghost"
+            className="icon-button source-mode"
+            aria-label={t('source.changes')}
+            aria-pressed={tab === 'changes'}
+            onPress={() => setTab('changes')}
+          >
+            <GitCompare />
+          </Button>
+          <Button
+            isIconOnly
+            variant="ghost"
+            className="icon-button source-mode"
+            aria-label={t('source.files')}
+            aria-pressed={tab === 'files'}
+            onPress={() => setTab('files')}
+          >
+            <FolderTree />
+          </Button>
+          <Button
+            isIconOnly
+            variant="ghost"
+            className="icon-button source-mode"
+            aria-label={t('source.history')}
+            aria-pressed={tab === 'history'}
+            onPress={() => setTab('history')}
+          >
+            <History />
+          </Button>
+          <Separator />
+          <Button
+            isIconOnly
+            variant="ghost"
+            className="icon-button"
+            aria-label={t('source.refresh')}
+            onPress={() => setTick((value) => value + 1)}
+          >
+            <RotateCw />
+          </Button>
+          <Button
+            isIconOnly
+            variant="ghost"
+            className="icon-button"
+            aria-label={t('source.close')}
+            onPress={onClose}
+          >
+            <X />
+          </Button>
+        </Toolbar>
       </div>
-      <div className="source-body">
+      <Separator orientation="horizontal" className="source-toolbar-separator" />
+      <div className="source-body" key={tab}>
         {tab === 'changes' && (
           <ChangesPane
             tick={tick}
