@@ -1,49 +1,6 @@
+use super::support::{git_ok, init_repo, temp_dir};
 use super::*;
-use std::{
-    fs,
-    path::PathBuf,
-    process::Command,
-    time::{SystemTime, UNIX_EPOCH},
-};
-
-struct TempDir(PathBuf);
-impl Drop for TempDir {
-    fn drop(&mut self) {
-        let _ = fs::remove_dir_all(&self.0);
-    }
-}
-
-fn temp_dir() -> TempDir {
-    let path = std::env::temp_dir().join(format!(
-        "pi-source-{}-{}",
-        std::process::id(),
-        SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap()
-            .as_nanos()
-    ));
-    fs::create_dir_all(&path).unwrap();
-    TempDir(path.canonicalize().unwrap())
-}
-
-fn git_ok(root: &std::path::Path, args: &[&str]) {
-    let output = Command::new("git")
-        .args(args)
-        .current_dir(root)
-        .output()
-        .unwrap();
-    assert!(
-        output.status.success(),
-        "{args:?}\n{}",
-        String::from_utf8_lossy(&output.stderr)
-    );
-}
-
-fn init_repo(root: &std::path::Path) {
-    git_ok(root, &["init", "-b", "main"]);
-    git_ok(root, &["config", "user.email", "test@example.com"]);
-    git_ok(root, &["config", "user.name", "Test"]);
-}
+use std::fs;
 
 #[test]
 fn directory_listing_skips_gitignore_and_git_dir() {
@@ -107,6 +64,7 @@ fn status_and_diff_cover_edits_untracked_and_deletes() {
     fs::remove_file(dir.0.join("gone.txt")).unwrap();
 
     let status = repo_status(&dir.0).unwrap();
+    assert!(status.available);
     assert!(status.repo);
     assert_eq!(status.branch.as_deref(), Some("main"));
     let codes: Vec<_> = status
@@ -145,9 +103,11 @@ fn plain_folders_are_not_repositories() {
     let dir = temp_dir();
     fs::write(dir.0.join("solo.txt"), "hi").unwrap();
     let status = repo_status(&dir.0).unwrap();
+    assert!(status.available);
     assert!(!status.repo);
     assert!(status.files.is_empty());
     let history = log(&dir.0, None, 20).unwrap();
+    assert!(history.available);
     assert!(!history.repo);
     let listing = list_dir(&dir.0, "").unwrap();
     assert_eq!(listing.entries[0].name, "solo.txt");

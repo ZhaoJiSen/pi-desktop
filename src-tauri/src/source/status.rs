@@ -4,12 +4,17 @@ use super::{git, types::*};
 use crate::i18n::Message;
 use std::path::Path;
 
+const FILE_CAP: usize = 2_000;
+
 fn status_code(x: char, y: char) -> char {
     if x == '?' {
         return '?';
     }
     if x == 'U' || y == 'U' || (x == 'A' && y == 'A') || (x == 'D' && y == 'D') {
         return 'U';
+    }
+    if x == 'R' || x == 'C' {
+        return x;
     }
     let primary = if y == ' ' { x } else { y };
     match primary {
@@ -31,7 +36,6 @@ fn parse_status(bytes: &[u8]) -> Vec<GitFileStatus> {
         let y = entry[1] as char;
         let path = String::from_utf8_lossy(&entry[3..]).replace('\\', "/");
         let rename = x == 'R' || y == 'R' || x == 'C' || y == 'C';
-        // Porcelain puts the new path first and the original path in the next record.
         let (path, old_path) = if rename {
             let Some(next) = parts.next() else {
                 break;
@@ -51,21 +55,41 @@ fn parse_status(bytes: &[u8]) -> Vec<GitFileStatus> {
     files
 }
 
-pub(crate) fn repo_status(root: &Path) -> Result<GitStatus, String> {
-    if !git::is_repo(root) {
-        return Ok(GitStatus {
-            repo: false,
-            branch: None,
-            files: Vec::new(),
-        });
+fn idle(available: bool, repo: bool) -> GitStatus {
+    GitStatus {
+        available,
+        repo,
+        branch: None,
+        files: Vec::new(),
+        truncated: false,
     }
-    let output = git::git(root, &["status", "--porcelain=v1", "-z", "-uall"])?;
-    if !output.status.success() {
-        return Err(Message::GitRead.detail(String::from_utf8_lossy(&output.stderr).trim()));
+}
+
+pub(crate) fn repo_status(root: &Path) -> Result<GitStatus, String> {
+    match git::presence(root)? {
+        git::GitPresence::Missing => return Ok(idle(false, false)),
+        git::GitPresence::Plain => return Ok(idle(true, false)),
+        git::GitPresence::Repo => {}
+    }
+    let captured = git::run(
+        root,
+        &["status", "--porcelain=v1", "-z", "-unormal"],
+        git::LIMIT_STATUS,
+    )?;
+    if !captured.success && !captured.truncated {
+        return Err(Message::GitRead.detail(String::from_utf8_lossy(&captured.stderr).trim()));
+    }
+    let mut files = parse_status(git::drop_partial_z(&captured.stdout, captured.truncated));
+    let mut truncated = captured.truncated;
+    if files.len() > FILE_CAP {
+        files.truncate(FILE_CAP);
+        truncated = true;
     }
     Ok(GitStatus {
+        available: true,
         repo: true,
         branch: git::branch_name(root),
-        files: parse_status(&output.stdout),
+        files,
+        truncated,
     })
 }

@@ -1,0 +1,51 @@
+.code-line.source-vrow,
+.split-pair.source-vrow,
+.split-hunk.source-vrow {
+  overflow: hidden;
+  line-height: 24px;
+}
+
+.code-line.source-vrow .hunk-text,
+.split-hunk.source-vrow {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.split-pair.source-vrow > .code-line {
+  height: 24px;
+}
+
+.button.source-vrow {
+  height: 36px;
+  min-height: 36px;
+  overflow: hidden;
+}
+
+.history-list .button.source-vrow {
+  height: 48px;
+  min-height: 48px;
+}
+
+.search-dialog .search-results {
+  overflow: hidden;
+}
+
+.search-dialog .source-virtual {
+  max-height: 360px;
+  overflow: auto;
+}
+
+.search-dialog .button.search-result.source-vrow {
+  height: 56px;
+  min-height: 56px;
+}
+
+.source-link {
+  display: flex;
+  align-items: center;
+  min-height: 32px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-right: 12px;
+  color: var(--muted);
+}

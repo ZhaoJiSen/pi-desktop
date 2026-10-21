@@ -28,6 +28,7 @@ export function LoadedDiff({
   if (diff.error || !diff.data) {
     return <SourceNotice kind="error" text={diff.error || t('source.missingDiff')} />
   }
+  if (!diff.data.available) return <SourceNotice kind="empty" text={t('source.gitMissing')} />
   return (
     <FileDiff
       path={path}

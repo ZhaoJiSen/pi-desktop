@@ -5,6 +5,7 @@ import { connectVisible, layoutGraph } from '../../lib/source/graph'
 import type { GitCommit } from '../../lib/source/types'
 import { useWorkspace } from '../../store/workspace'
 import { HistoryGraph } from './HistoryGraph'
+import { historyRowHeight, useVirtualWindow } from './useVirtualWindow'
 
 function formatWhen(timestamp: number, language: string) {
   return new Intl.DateTimeFormat(language, {
@@ -39,6 +40,10 @@ export function HistoryList({
     return connectVisible(matched, new Set(matched.map((commit) => commit.hash)))
   }, [commits, query])
   const rows = useMemo(() => layoutGraph(visible), [visible])
+  const { scroller, start, end, paddingTop, paddingBottom } = useVirtualWindow(
+    visible.length,
+    historyRowHeight,
+  )
   return (
     <div className="history-list">
       <label className="source-filter-field">
@@ -49,15 +54,18 @@ export function HistoryList({
           aria-label={t('source.filterCommits')}
         />
       </label>
-      <div className="source-scroll" role="list">
+      <div className="source-scroll" role="list" ref={scroller}>
         {visible.length === 0 && <p className="source-note">{t('source.emptyFilter')}</p>}
-        {visible.map((commit, index) => {
+        <div className="source-vpad" style={{ height: paddingTop }} />
+        {visible.slice(start, end).map((commit, offset) => {
+          const index = start + offset
           const row = rows[index]
           return (
             <Button
               key={commit.hash}
               variant="ghost"
-              className="source-row history-row"
+              className="source-row history-row source-vrow"
+              style={{ height: historyRowHeight }}
               aria-pressed={selected === commit.hash}
               onPress={() => onSelect(commit.hash)}
             >
@@ -74,6 +82,7 @@ export function HistoryList({
             </Button>
           )
         })}
+        <div className="source-vpad" style={{ height: paddingBottom }} />
       </div>
     </div>
   )

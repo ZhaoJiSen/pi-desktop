@@ -1,5 +1,6 @@
 //! Local project files and Git. Commands never touch the network.
 
+mod capture;
 mod diff;
 mod files;
 mod git;
@@ -129,5 +130,13 @@ pub async fn git_commit_files(
 }
 
 #[cfg(test)]
+#[path = "../../tests/source/support.rs"]
+mod support;
+
+#[cfg(test)]
 #[path = "../../tests/source/tests.rs"]
 mod tests;
+
+#[cfg(test)]
+#[path = "../../tests/source/safety.rs"]
+mod safety;

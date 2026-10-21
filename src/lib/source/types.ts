@@ -1,7 +1,7 @@
 export interface DirectoryEntry {
   name: string
   path: string
-  kind: 'file' | 'dir'
+  kind: 'file' | 'dir' | 'link'
 }
 
 export interface DirectoryListing {
@@ -31,12 +31,15 @@ export interface GitFileStatus {
 }
 
 export interface GitStatus {
+  available: boolean
   repo: boolean
   branch: string | null
   files: GitFileStatus[]
+  truncated: boolean
 }
 
 export interface GitDiff {
+  available: boolean
   repo: boolean
   path: string
   binary: boolean
@@ -55,6 +58,7 @@ export interface GitCommit {
 }
 
 export interface GitLog {
+  available: boolean
   repo: boolean
   commits: GitCommit[]
 }
@@ -66,6 +70,7 @@ export interface CommitFile {
 }
 
 export interface GitCommitDetail {
+  available: boolean
   repo: boolean
   hash: string
   files: CommitFile[]

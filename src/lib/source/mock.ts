@@ -106,34 +106,78 @@ export function mockSearch(path: string): ProjectSearch {
 
 export function mockStatus(path: string): GitStatus {
   const repo = repoFor(path)
-  return { repo: repo.repo, branch: repo.branch, files: repo.status }
+  return {
+    available: true,
+    repo: repo.repo,
+    branch: repo.branch,
+    files: repo.status,
+    truncated: false,
+  }
 }
 
 export function mockDiff(path: string, relative: string, revision?: string | null): GitDiff {
   const repo = repoFor(path)
   if (!repo.repo) {
-    return { repo: false, path: relative, binary: false, truncated: false, missing: true, text: '' }
+    return {
+      available: true,
+      repo: false,
+      path: relative,
+      binary: false,
+      truncated: false,
+      missing: true,
+      text: '',
+    }
   }
   const text = revision ? repo.commitDiffs[`${revision}:${relative}`] : repo.diffs[relative]
-  if (!text)
-    return { repo: true, path: relative, binary: false, truncated: false, missing: true, text: '' }
-  if (relative.endsWith('.png')) {
-    return { repo: true, path: relative, binary: true, truncated: false, missing: false, text: '' }
+  if (!text) {
+    return {
+      available: true,
+      repo: true,
+      path: relative,
+      binary: false,
+      truncated: false,
+      missing: true,
+      text: '',
+    }
   }
-  return { repo: true, path: relative, binary: false, truncated: false, missing: false, text }
+  if (relative.endsWith('.png')) {
+    return {
+      available: true,
+      repo: true,
+      path: relative,
+      binary: true,
+      truncated: false,
+      missing: false,
+      text: '',
+    }
+  }
+  return {
+    available: true,
+    repo: true,
+    path: relative,
+    binary: false,
+    truncated: false,
+    missing: false,
+    text,
+  }
 }
 
 export function mockLog(path: string, relative?: string | null): GitLog {
   const repo = repoFor(path)
-  if (!repo.repo) return { repo: false, commits: [] }
-  if (!relative) return { repo: true, commits: repo.commits }
+  if (!repo.repo) return { available: true, repo: false, commits: [] }
+  if (!relative) return { available: true, repo: true, commits: repo.commits }
   const commits = repo.commits.filter((commit) =>
     (repo.commitFiles[commit.hash] ?? []).some((file) => file.path === relative),
   )
-  return { repo: true, commits }
+  return { available: true, repo: true, commits }
 }
 
 export function mockCommit(path: string, revision: string): GitCommitDetail {
   const repo = repoFor(path)
-  return { repo: repo.repo, hash: revision, files: repo.commitFiles[revision] ?? [] }
+  return {
+    available: true,
+    repo: repo.repo,
+    hash: revision,
+    files: repo.commitFiles[revision] ?? [],
+  }
 }

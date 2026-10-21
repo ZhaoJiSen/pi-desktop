@@ -81,6 +81,8 @@ function TreeDir({
             agent={agent}
             onOpen={onOpen}
           />
+        ) : entry.kind === 'link' ? (
+          <TreeLink key={entry.path} entry={entry} depth={depth} />
         ) : (
           <TreeFile
             key={entry.path}
@@ -138,6 +140,16 @@ function TreeBranch({
           onOpen={onOpen}
         />
       )}
+    </div>
+  )
+}
+
+function TreeLink({ entry, depth }: { entry: DirectoryEntry; depth: number }) {
+  return (
+    <div className="source-link" style={{ paddingLeft: 28 + depth * 14 }} role="treeitem">
+      <span className="source-name" title={entry.path}>
+        {entry.name}
+      </span>
     </div>
   )
 }

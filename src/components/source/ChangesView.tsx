@@ -9,6 +9,7 @@ import { LoadedDiff } from './LoadedDiff'
 import { SourceNotice } from './SourceNotice'
 import { useProjectSource } from './useProjectSource'
 import { useSourceQuery } from './useSourceQuery'
+import { changeRowHeight, useVirtualWindow } from './useVirtualWindow'
 
 export function ChangesPane({
   tick,
@@ -28,6 +29,11 @@ export function ChangesPane({
   const status = useSourceQuery(
     projectPath ? `status:${projectPath}:${revision}:${tick}` : null,
     () => gitStatus(projectPath),
+  )
+  const files = status.data && status.data.repo ? status.data.files : []
+  const { scroller, start, end, paddingTop, paddingBottom } = useVirtualWindow(
+    files.length,
+    changeRowHeight,
   )
   if (!projectPath) return <SourceNotice kind="empty" text={t('source.noProject')} />
   if (selected) {
@@ -58,17 +64,21 @@ export function ChangesPane({
   if (status.error || !status.data) {
     return <SourceNotice kind="error" text={status.error || t('source.missingDiff')} />
   }
+  if (!status.data.available) return <SourceNotice kind="empty" text={t('source.gitMissing')} />
   if (!status.data.repo) return <SourceNotice kind="empty" text={t('source.notRepository')} />
   if (!status.data.files.length)
     return <SourceNotice kind="empty" text={t('source.emptyChanges')} />
   return (
-    <div className="source-scroll" role="list">
+    <div className="source-scroll" role="list" ref={scroller}>
       {status.data.branch && <p className="source-branch">{status.data.branch}</p>}
-      {status.data.files.map((file) => (
+      {status.data.truncated && <p className="source-note">{t('source.truncatedList')}</p>}
+      <div className="source-vpad" style={{ height: paddingTop }} />
+      {files.slice(start, end).map((file) => (
         <Button
           key={file.path}
           variant="ghost"
-          className="source-row"
+          className="source-row source-vrow"
+          style={{ height: changeRowHeight }}
           onPress={() => setSelected(file.path)}
         >
           <span className="source-code" data-code={file.code}>
@@ -81,6 +91,7 @@ export function ChangesPane({
           {agent.has(file.path) && <span className="source-agent">{t('source.agent')}</span>}
         </Button>
       ))}
+      <div className="source-vpad" style={{ height: paddingBottom }} />
     </div>
   )
 }

@@ -48,14 +48,17 @@ pub struct GitFileStatus {
 #[derive(Debug, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct GitStatus {
+    pub(crate) available: bool,
     pub(crate) repo: bool,
     pub(crate) branch: Option<String>,
     pub(crate) files: Vec<GitFileStatus>,
+    pub(crate) truncated: bool,
 }
 
 #[derive(Debug, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct GitDiff {
+    pub(crate) available: bool,
     pub(crate) repo: bool,
     pub(crate) path: String,
     pub(crate) binary: bool,
@@ -78,6 +81,7 @@ pub struct GitCommit {
 #[derive(Debug, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct GitLog {
+    pub(crate) available: bool,
     pub(crate) repo: bool,
     pub(crate) commits: Vec<GitCommit>,
 }
@@ -94,6 +98,7 @@ pub struct CommitFile {
 #[derive(Debug, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct GitCommitDetail {
+    pub(crate) available: bool,
     pub(crate) repo: bool,
     pub(crate) hash: String,
     pub(crate) files: Vec<CommitFile>,

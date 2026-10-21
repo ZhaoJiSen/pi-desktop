@@ -50,5 +50,16 @@ describe('unified diffs', () => {
 
   it('treats a binary patch as binary', () => {
     expect(parseUnifiedDiff('Binary files a and b differ').binary).toBe(true)
+    expect(parseUnifiedDiff('GIT binary patch\nliteral 0').binary).toBe(true)
+  })
+
+  it('keeps a content line that mentions binary files', () => {
+    const parsed = parseUnifiedDiff(`@@ -1 +1,2 @@
+ kept
++Binary files a and b differ
+`)
+    expect(parsed.binary).toBe(false)
+    expect(parsed.additions).toBe(1)
+    expect(parsed.rows.some((row) => row.text === 'Binary files a and b differ')).toBe(true)
   })
 })

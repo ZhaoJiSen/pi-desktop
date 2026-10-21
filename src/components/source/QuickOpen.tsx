@@ -9,6 +9,7 @@ import { useSource } from './context'
 import { SourceNotice } from './SourceNotice'
 import { useProjectSource } from './useProjectSource'
 import { useSourceQuery } from './useSourceQuery'
+import { searchRowHeight, useVirtualWindow } from './useVirtualWindow'
 
 export function QuickOpen() {
   const source = useSource()
@@ -46,6 +47,10 @@ function QuickOpenContent({ onOpen }: { onOpen: (path: string) => void }) {
     [found.data?.files, query],
   )
   const selected = Math.min(active, Math.max(results.length - 1, 0))
+  const { scroller, scrollTo, start, end, paddingTop, paddingBottom } = useVirtualWindow(
+    results.length,
+    searchRowHeight,
+  )
   return (
     <Modal.Dialog className="search-dialog" aria-label={t('source.quickOpen')}>
       <Modal.Header>
@@ -57,14 +62,22 @@ function QuickOpenContent({ onOpen }: { onOpen: (path: string) => void }) {
             value={query}
             placeholder={t('source.quickOpenPlaceholder')}
             aria-label={t('source.quickOpen')}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => {
+              setQuery(event.target.value)
+              setActive(0)
+              scrollTo(0)
+            }}
             onKeyDown={(event) => {
               if (event.key === 'ArrowDown') {
                 event.preventDefault()
-                setActive((index) => Math.min(index + 1, results.length - 1))
+                const next = Math.min(selected + 1, results.length - 1)
+                setActive(next)
+                scrollTo(next)
               } else if (event.key === 'ArrowUp') {
                 event.preventDefault()
-                setActive((index) => Math.max(index - 1, 0))
+                const next = Math.max(selected - 1, 0)
+                setActive(next)
+                scrollTo(next)
               } else if (event.key === 'Enter') {
                 const path = results[selected]
                 if (!path) return
@@ -80,20 +93,32 @@ function QuickOpenContent({ onOpen }: { onOpen: (path: string) => void }) {
         {!projectPath && <SourceNotice kind="empty" text={t('source.noProject')} />}
         {projectPath && found.loading && <SourceNotice kind="loading" text={t('source.loading')} />}
         {found.error && <SourceNotice kind="error" text={found.error} />}
-        {results.map((path, index) => (
-          <Button
-            key={path}
-            variant="ghost"
-            className={index === selected ? 'search-result is-active' : 'search-result'}
-            onPress={() => onOpen(path)}
-          >
-            <File />
-            <span>
-              <span>{fileNameOf(path)}</span>
-              <small>{path}</small>
-            </span>
-          </Button>
-        ))}
+        <div className="source-virtual" ref={scroller}>
+          <div className="source-vpad" style={{ height: paddingTop }} />
+          {results.slice(start, end).map((path, offset) => {
+            const index = start + offset
+            return (
+              <Button
+                key={path}
+                variant="ghost"
+                className={
+                  index === selected
+                    ? 'search-result is-active source-vrow'
+                    : 'search-result source-vrow'
+                }
+                style={{ height: searchRowHeight }}
+                onPress={() => onOpen(path)}
+              >
+                <File />
+                <span>
+                  <span>{fileNameOf(path)}</span>
+                  <small>{path}</small>
+                </span>
+              </Button>
+            )
+          })}
+          <div className="source-vpad" style={{ height: paddingBottom }} />
+        </div>
         {projectPath && found.data && results.length === 0 && (
           <div className="popover-empty">{t('source.emptySearch')}</div>
         )}

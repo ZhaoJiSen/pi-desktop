@@ -8,32 +8,49 @@ const DIR_LIMIT: usize = 400;
 const FILE_LIMIT: usize = 512 * 1024;
 const SEARCH_LIMIT: usize = 8_000;
 
-fn ignored_names(root: &Path, dir: &str, names: &[String]) -> HashSet<String> {
-    if !git::is_repo(root) || names.is_empty() {
+fn ignored_paths(root: &Path, relative_paths: &[String]) -> HashSet<String> {
+    if relative_paths.is_empty() || !matches!(git::presence(root), Ok(git::GitPresence::Repo)) {
         return HashSet::new();
     }
     let mut stdin = Vec::new();
-    for name in names {
-        if !stdin.is_empty() {
+    for (index, path) in relative_paths.iter().enumerate() {
+        if index > 0 {
             stdin.push(0);
         }
-        stdin.extend(paths::join_rel(dir, name).as_bytes());
+        stdin.extend(path.as_bytes());
     }
-    let Ok(output) = git::git_stdin(root, &["check-ignore", "-z", "--stdin", "--"], &stdin) else {
+    let Ok(captured) = git::run_stdin(
+        root,
+        &["check-ignore", "-z", "--stdin", "--"],
+        &stdin,
+        git::LIMIT_SMALL,
+    ) else {
         return HashSet::new();
     };
-    if !output.status.success() {
+    if !captured.success {
         return HashSet::new();
     }
-    output
+    captured
         .stdout
         .split(|byte| *byte == 0)
         .filter(|part| !part.is_empty())
-        .filter_map(|part| {
-            let path = String::from_utf8_lossy(part);
-            path.rsplit(['/', '\\']).next().map(ToOwned::to_owned)
+        .map(|part| {
+            let path = String::from_utf8_lossy(part).replace('\\', "/");
+            path.strip_prefix("./").unwrap_or(&path).to_owned()
         })
         .collect()
+}
+
+fn entry_kind(root: &Path, path: &Path) -> Option<&'static str> {
+    let meta = fs::symlink_metadata(path).ok()?;
+    if meta.file_type().is_symlink() {
+        let followed = fs::metadata(path).ok();
+        if followed.is_some_and(|item| item.is_dir()) && paths::inside(root, path).is_ok() {
+            return Some("dir");
+        }
+        return Some("link");
+    }
+    Some(if meta.is_dir() { "dir" } else { "file" })
 }
 
 pub(crate) fn list_dir(root: &Path, relative: &str) -> Result<DirectoryListing, String> {
@@ -53,30 +70,30 @@ pub(crate) fn list_dir(root: &Path, relative: &str) -> Result<DirectoryListing, 
         if name.is_empty() || name == ".git" {
             continue;
         }
-        let is_dir = entry.file_type().is_ok_and(|kind| kind.is_dir());
-        names.push((name, is_dir));
+        let Some(kind) = entry_kind(root, &entry.path()) else {
+            continue;
+        };
+        names.push((name, kind));
     }
-    let ignored = ignored_names(
-        root,
-        &dir,
-        &names
-            .iter()
-            .map(|(name, _)| name.clone())
-            .collect::<Vec<_>>(),
-    );
-    names.retain(|(name, _)| !ignored.contains(name));
-    names.sort_by(|(left, left_dir), (right, right_dir)| {
-        right_dir
-            .cmp(left_dir)
+    let relative_paths = names
+        .iter()
+        .map(|(name, _)| paths::join_rel(&dir, name))
+        .collect::<Vec<_>>();
+    let ignored = ignored_paths(root, &relative_paths);
+    names.retain(|(name, _)| !ignored.contains(&paths::join_rel(&dir, name)));
+    names.sort_by(|(left, left_kind), (right, right_kind)| {
+        let rank = |kind: &str| u8::from(kind != "dir");
+        rank(left_kind)
+            .cmp(&rank(right_kind))
             .then_with(|| left.to_lowercase().cmp(&right.to_lowercase()))
     });
     let truncated = names.len() > DIR_LIMIT;
     let entries = names
         .into_iter()
         .take(DIR_LIMIT)
-        .map(|(name, is_dir)| DirectoryEntry {
+        .map(|(name, kind)| DirectoryEntry {
             path: paths::join_rel(&dir, &name),
-            kind: if is_dir { "dir" } else { "file" }.to_owned(),
+            kind: kind.to_owned(),
             name,
         })
         .collect();
@@ -149,8 +166,8 @@ pub(crate) fn read_file(root: &Path, relative: &str) -> Result<ProjectFile, Stri
 }
 
 pub(crate) fn search_files(root: &Path) -> Result<ProjectSearch, String> {
-    if git::is_repo(root) {
-        let output = git::git(
+    if matches!(git::presence(root), Ok(git::GitPresence::Repo)) {
+        let captured = git::run(
             root,
             &[
                 "ls-files",
@@ -159,12 +176,13 @@ pub(crate) fn search_files(root: &Path) -> Result<ProjectSearch, String> {
                 "--others",
                 "--exclude-standard",
             ],
+            git::LIMIT_SEARCH,
         )?;
-        if !output.status.success() {
-            return Err(Message::GitRead.detail(String::from_utf8_lossy(&output.stderr).trim()));
+        if !captured.success && !captured.truncated {
+            return Err(Message::GitRead.detail(String::from_utf8_lossy(&captured.stderr).trim()));
         }
-        let mut files = git::z_paths(&output.stdout);
-        let truncated = files.len() > SEARCH_LIMIT;
+        let mut files = git::z_paths(git::drop_partial_z(&captured.stdout, captured.truncated));
+        let truncated = captured.truncated || files.len() > SEARCH_LIMIT;
         files.truncate(SEARCH_LIMIT);
         return Ok(ProjectSearch { files, truncated });
     }

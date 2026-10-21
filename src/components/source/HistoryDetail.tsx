@@ -25,6 +25,9 @@ export function HistoryDetail({
   const detail = useSourceQuery(`commit:${projectPath}:${revision}:${tick}`, () =>
     gitCommitFiles(projectPath, revision),
   )
+  if (detail.data && !detail.data.available) {
+    return <SourceNotice kind="empty" text={t('source.gitMissing')} />
+  }
   if (file) {
     return (
       <LoadedDiff

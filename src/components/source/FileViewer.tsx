@@ -5,6 +5,7 @@ import { fileNameOf } from '../../lib/source/paths'
 import { fileLanguage, Highlight } from '../conversation/Highlight'
 import { SourceNotice } from './SourceNotice'
 import { useSourceQuery } from './useSourceQuery'
+import { codeRowHeight, useVirtualWindow } from './useVirtualWindow'
 
 export function FileViewer({
   projectPath,
@@ -27,6 +28,12 @@ export function FileViewer({
   const file = useSourceQuery(`file:${projectPath}:${path}:${tick}`, () =>
     readProjectFile(projectPath, path),
   )
+  const lines = file.data && !file.data.binary ? file.data.text.split('\n') : []
+  const { scroller, start, end, paddingTop, paddingBottom } = useVirtualWindow(
+    lines.length,
+    codeRowHeight,
+  )
+  const language = fileLanguage(path)
   return (
     <div className="source-detail">
       <div className="source-detail-bar">
@@ -51,15 +58,29 @@ export function FileViewer({
       {file.data && !file.data.binary && (
         <>
           {file.data.truncated && <p className="source-note">{t('source.truncatedFile')}</p>}
-          <div className="code source-file" tabIndex={0} aria-label={fileNameOf(path)}>
-            {file.data.text.split('\n').map((line, index) => (
-              <div className="code-line context" key={index}>
-                <span className="line-no">{index + 1}</span>
-                <code className="source">
-                  <Highlight text={line} language={fileLanguage(path)} />
-                </code>
-              </div>
-            ))}
+          <div
+            className="code source-file"
+            tabIndex={0}
+            aria-label={fileNameOf(path)}
+            ref={scroller}
+          >
+            <div className="source-vpad" style={{ height: paddingTop }} />
+            {lines.slice(start, end).map((line, offset) => {
+              const index = start + offset
+              return (
+                <div
+                  className="code-line context source-vrow"
+                  style={{ height: codeRowHeight }}
+                  key={index}
+                >
+                  <span className="line-no">{index + 1}</span>
+                  <code className="source">
+                    <Highlight text={line} language={language} />
+                  </code>
+                </div>
+              )
+            })}
+            <div className="source-vpad" style={{ height: paddingBottom }} />
           </div>
         </>
       )}

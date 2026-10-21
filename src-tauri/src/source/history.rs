@@ -37,16 +37,23 @@ fn parse_log(bytes: &[u8]) -> Vec<GitCommit> {
         .collect()
 }
 
+fn empty_log(available: bool, repo: bool) -> GitLog {
+    GitLog {
+        available,
+        repo,
+        commits: Vec::new(),
+    }
+}
+
 pub(crate) fn commit_log(
     root: &Path,
     relative: Option<&str>,
     limit: u32,
 ) -> Result<GitLog, String> {
-    if !git::is_repo(root) {
-        return Ok(GitLog {
-            repo: false,
-            commits: Vec::new(),
-        });
+    match git::presence(root)? {
+        git::GitPresence::Missing => return Ok(empty_log(false, false)),
+        git::GitPresence::Plain => return Ok(empty_log(true, false)),
+        git::GitPresence::Repo => {}
     }
     let limit = limit.clamp(1, 400);
     let count = limit.to_string();
@@ -64,20 +71,18 @@ pub(crate) fn commit_log(
         args.push("--");
         args.push(&path);
     }
-    let output = git::git(root, &args)?;
-    if !output.status.success() {
-        let stderr = String::from_utf8_lossy(&output.stderr);
+    let captured = git::run(root, &args, git::LIMIT_LOG)?;
+    if !captured.success && !captured.truncated {
+        let stderr = String::from_utf8_lossy(&captured.stderr);
         if stderr.contains("does not have any commits") {
-            return Ok(GitLog {
-                repo: true,
-                commits: Vec::new(),
-            });
+            return Ok(empty_log(true, true));
         }
         return Err(Message::GitRead.detail(stderr.trim()));
     }
     Ok(GitLog {
+        available: true,
         repo: true,
-        commits: parse_log(&output.stdout),
+        commits: parse_log(git::drop_partial_z(&captured.stdout, captured.truncated)),
     })
 }
 
@@ -124,19 +129,32 @@ pub(crate) fn commit_files(root: &Path, revision: &str) -> Result<GitCommitDetai
     if !git::valid_revision(revision) {
         return Err(Message::GitRead.text());
     }
-    if !git::is_repo(root) {
-        return Ok(GitCommitDetail {
-            repo: false,
-            hash: revision.to_owned(),
-            files: Vec::new(),
-        });
+    let hash = revision.to_owned();
+    match git::presence(root)? {
+        git::GitPresence::Missing => {
+            return Ok(GitCommitDetail {
+                available: false,
+                repo: false,
+                hash,
+                files: Vec::new(),
+            });
+        }
+        git::GitPresence::Plain => {
+            return Ok(GitCommitDetail {
+                available: true,
+                repo: false,
+                hash,
+                files: Vec::new(),
+            });
+        }
+        git::GitPresence::Repo => {}
     }
-    // --first-parent lists what the commit introduced, including merges and roots.
-    let output = git::git(
+    let captured = git::run(
         root,
         &[
             "show",
             "--no-ext-diff",
+            "--no-textconv",
             "--name-status",
             "--format=",
             "-z",
@@ -144,13 +162,15 @@ pub(crate) fn commit_files(root: &Path, revision: &str) -> Result<GitCommitDetai
             "--find-renames",
             revision,
         ],
+        git::LIMIT_LOG,
     )?;
-    if !output.status.success() {
-        return Err(Message::GitRead.detail(String::from_utf8_lossy(&output.stderr).trim()));
+    if !captured.success && !captured.truncated {
+        return Err(Message::GitRead.detail(String::from_utf8_lossy(&captured.stderr).trim()));
     }
     Ok(GitCommitDetail {
+        available: true,
         repo: true,
-        hash: revision.to_owned(),
-        files: parse_name_status(&output.stdout),
+        hash,
+        files: parse_name_status(git::drop_partial_z(&captured.stdout, captured.truncated)),
     })
 }

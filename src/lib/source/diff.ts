@@ -28,10 +28,17 @@ export type SplitRow =
 
 const HUNK = /^@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@/
 
+function binaryHeader(text: string) {
+  return text.split('\n').some((line) => {
+    return (
+      (line.startsWith('Binary files ') && line.endsWith(' differ')) ||
+      line.startsWith('GIT binary patch')
+    )
+  })
+}
+
 export function parseUnifiedDiff(text: string): ParsedDiff {
-  if (text.includes('Binary files ') || text.includes('GIT binary patch')) {
-    return { rows: [], additions: 0, deletions: 0, binary: true }
-  }
+  if (binaryHeader(text)) return { rows: [], additions: 0, deletions: 0, binary: true }
   const rows: DiffRow[] = []
   let oldLine = 0
   let newLine = 0

@@ -31,6 +31,7 @@ export function HistoryPane({
   if (log.error || !log.data) {
     return <SourceNotice kind="error" text={log.error || t('source.emptyHistory')} />
   }
+  if (!log.data.available) return <SourceNotice kind="empty" text={t('source.gitMissing')} />
   if (!log.data.repo) return <SourceNotice kind="empty" text={t('source.notRepository')} />
   if (!log.data.commits.length) return <SourceNotice kind="empty" text={t('source.emptyHistory')} />
   return (

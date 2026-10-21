@@ -58,6 +58,9 @@ export function FilesPane({
   }
   return (
     <div className="source-scroll">
+      {status.data && !status.data.available && (
+        <p className="source-note">{t('source.gitMissing')}</p>
+      )}
       <FileTree
         projectPath={projectPath}
         tick={tick}
