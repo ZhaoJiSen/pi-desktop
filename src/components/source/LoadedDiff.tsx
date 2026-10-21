@@ -21,8 +21,10 @@ export function LoadedDiff({
   onBack?: () => void
 }) {
   const t = useT()
-  const diff = useSourceQuery(`diff:${projectPath}:${revision ?? ''}:${path}:${tick}`, () =>
-    gitFileDiff(projectPath, path, revision),
+  const diff = useSourceQuery(
+    `diff:${projectPath}:${revision ?? ''}:${path}`,
+    () => gitFileDiff(projectPath, path, revision),
+    tick,
   )
   if (diff.loading) return <SourceNotice kind="loading" text={t('source.loading')} />
   if (diff.error || !diff.data) {

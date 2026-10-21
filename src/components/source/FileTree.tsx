@@ -63,8 +63,10 @@ function TreeDir({
   onOpen: (path: string) => void
 }) {
   const t = useT()
-  const listing = useSourceQuery(`dir:${projectPath}:${relative}:${tick}`, () =>
-    listProjectDirectory(projectPath, relative),
+  const listing = useSourceQuery(
+    `dir:${projectPath}:${relative}`,
+    () => listProjectDirectory(projectPath, relative),
+    tick,
   )
   if (listing.loading) {
     return depth === 0 ? <SourceNotice kind="loading" text={t('source.loading')} /> : null
@@ -106,6 +108,7 @@ function TreeDir({
         ),
       )}
       {listing.data.truncated && <p className="source-note">{t('source.truncatedList')}</p>}
+      {listing.data.ignorePartial && <p className="source-note">{t('source.ignorePartial')}</p>}
     </div>
   )
 }
@@ -131,6 +134,11 @@ function TreeBranch({
 }) {
   const t = useT()
   const [open, setOpen] = useState(() => opens(expand, entry.path))
+  const [trackedExpand, setTrackedExpand] = useState(expand)
+  if (trackedExpand !== expand) {
+    setTrackedExpand(expand)
+    if (opens(expand, entry.path)) setOpen(true)
+  }
   return (
     <div>
       <Button

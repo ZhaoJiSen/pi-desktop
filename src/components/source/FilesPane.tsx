@@ -24,9 +24,16 @@ export function FilesPane({
   const expand = initialPath?.endsWith('/') ? initialPath.replace(/\/+$/, '') : null
   const [selected, setSelected] = useState<string | null>(expand ? null : initialPath)
   const [mode, setMode] = useState<'view' | 'diff'>(initialDiff ? 'diff' : 'view')
+  const [trackedPath, setTrackedPath] = useState(initialPath)
+  if (trackedPath !== initialPath) {
+    setTrackedPath(initialPath)
+    setSelected(expand ? null : initialPath)
+    setMode(initialDiff && !expand ? 'diff' : 'view')
+  }
   const status = useSourceQuery(
-    projectPath ? `files-status:${projectPath}:${revision}:${tick}` : null,
+    projectPath ? `files-status:${projectPath}` : null,
     () => gitStatus(projectPath),
+    `${revision}:${tick}`,
   )
   const marks = useMemo(() => {
     const map = new Map<string, string>()

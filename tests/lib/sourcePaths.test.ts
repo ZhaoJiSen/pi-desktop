@@ -3,6 +3,7 @@ import {
   agentTouchedPaths,
   normalizeProjectPath,
   pathTouched,
+  sourceRevision,
   toolFilePath,
 } from '../../src/lib/source/paths'
 import type { Message } from '../../src/types'
@@ -60,5 +61,36 @@ describe('project paths', () => {
     expect(pathTouched(paths, 'src')).toBe(true)
     expect(pathTouched(paths, 'src-extra')).toBe(false)
     expect(pathTouched(paths, 'other/')).toBe(false)
+  })
+
+  it('refreshes after writes and skips read-only tools', () => {
+    const tool = (
+      name: string,
+      status: 'running' | 'done' = 'done',
+    ): Message['blocks'][number] => ({
+      type: 'tool',
+      id: name,
+      name,
+      label: name,
+      args: {},
+      status,
+      output: '',
+    })
+    const messages: Message[] = [
+      {
+        id: '1',
+        role: 'assistant',
+        timestamp: 1,
+        blocks: [
+          tool('read'),
+          tool('grep'),
+          tool('ls'),
+          tool('bash', 'running'),
+          tool('bash'),
+          tool('edit'),
+        ],
+      },
+    ]
+    expect(sourceRevision(messages)).toBe(2)
   })
 })

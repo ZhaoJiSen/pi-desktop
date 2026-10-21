@@ -1,6 +1,18 @@
 import type { Message, ToolBlock } from '../../types'
 
 const CHANGING_TOOLS = new Set(['edit', 'write', 'apply_patch'])
+const SOURCE_REFRESH_TOOLS = new Set(['edit', 'write', 'apply_patch', 'bash'])
+
+export function sourceRevision(messages: Message[]) {
+  let revision = 0
+  for (const message of messages) {
+    for (const block of message.blocks) {
+      if (block.type !== 'tool' || block.status === 'running') continue
+      if (SOURCE_REFRESH_TOOLS.has(block.name) || block.diff) revision += 1
+    }
+  }
+  return revision
+}
 
 export function normalizeProjectPath(raw: string, projectPath = ''): string | null {
   let path = raw.trim().replace(/\\/g, '/')

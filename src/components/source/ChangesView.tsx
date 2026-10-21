@@ -29,8 +29,9 @@ export function ChangesPane({
   const [selected, setSelected] = useState<string | null>(initialPath)
   const [showFallback, setShowFallback] = useState(!initialPath && Boolean(fallback?.length))
   const status = useSourceQuery(
-    projectPath ? `status:${projectPath}:${revision}:${tick}` : null,
+    projectPath ? `status:${projectPath}` : null,
     () => gitStatus(projectPath),
+    `${revision}:${tick}`,
   )
   const files = status.data && status.data.repo ? status.data.files : []
   const { scroller, start, end, paddingTop, paddingBottom } = useVirtualWindow(

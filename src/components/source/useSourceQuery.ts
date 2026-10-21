@@ -6,34 +6,56 @@ export interface SourceQuery<T> {
   error?: string
 }
 
+interface CachedQuery<T> {
+  scope: string
+  refresh: string
+  data?: T
+  error?: string
+}
+
 function messageOf(error: unknown) {
   if (error instanceof Error) return error.message
   if (typeof error === 'string') return error
   return ''
 }
 
-export function useSourceQuery<T>(key: string | null, load: () => Promise<T>): SourceQuery<T> {
-  const [state, setState] = useState<{ key: string; data?: T; error?: string } | null>(null)
+export function useSourceQuery<T>(
+  scope: string | null,
+  load: () => Promise<T>,
+  refresh: string | number = '',
+): SourceQuery<T> {
+  const refreshKey = String(refresh)
+  const [state, setState] = useState<CachedQuery<T> | null>(null)
   const loadRef = useRef(load)
   useEffect(() => {
     loadRef.current = load
   }, [load])
   useEffect(() => {
-    if (!key) return
+    if (!scope) return
     let live = true
+    const requestScope = scope
+    const requestRefresh = refreshKey
     loadRef.current().then(
       (data) => {
-        if (live) setState({ key, data })
+        if (live) setState({ scope: requestScope, refresh: requestRefresh, data })
       },
       (error: unknown) => {
-        if (live) setState({ key, error: messageOf(error) })
+        if (!live) return
+        setState((current) => {
+          if (current?.scope === requestScope && current.data !== undefined) {
+            return { scope: requestScope, refresh: requestRefresh, data: current.data }
+          }
+          return { scope: requestScope, refresh: requestRefresh, error: messageOf(error) }
+        })
       },
     )
     return () => {
       live = false
     }
-  }, [key])
-  if (!key) return { loading: false }
-  if (!state || state.key !== key) return { loading: true }
-  return { loading: false, data: state.data, error: state.error }
+  }, [scope, refreshKey])
+  if (!scope) return { loading: false }
+  if (!state || state.scope !== scope) return { loading: true }
+  const pending = state.refresh !== refreshKey
+  if (pending && state.data === undefined) return { loading: true, error: state.error }
+  return { loading: false, data: state.data, error: pending ? undefined : state.error }
 }

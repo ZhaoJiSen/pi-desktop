@@ -21,8 +21,9 @@ export function HistoryPane({
 }) {
   const t = useT()
   const log = useSourceQuery(
-    projectPath ? `log:${projectPath}:${historyPath ?? ''}:${tick}` : null,
+    projectPath ? `log:${projectPath}:${historyPath ?? ''}` : null,
     () => gitLog(projectPath, historyPath),
+    tick,
   )
   const [commit, setCommit] = useState<string | null>(null)
   const [file, setFile] = useState<string | null>(null)

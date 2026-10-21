@@ -89,7 +89,11 @@ function childEntries(files: MockFile[], relative: string): DirectoryEntry[] {
 }
 
 export function mockList(path: string, relative: string): DirectoryListing {
-  return { entries: childEntries(repoFor(path).files, relative), truncated: false }
+  return {
+    entries: childEntries(repoFor(path).files, relative),
+    truncated: false,
+    ignorePartial: false,
+  }
 }
 
 export function mockRead(path: string, relative: string): ProjectFileContent {

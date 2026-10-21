@@ -7,6 +7,7 @@ export interface DirectoryEntry {
 export interface DirectoryListing {
   entries: DirectoryEntry[]
   truncated: boolean
+  ignorePartial: boolean
 }
 
 export interface ProjectFileContent {

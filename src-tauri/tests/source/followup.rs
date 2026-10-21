@@ -41,6 +41,25 @@ fn many_ignored_files_stay_hidden() {
 }
 
 #[test]
+fn ignored_files_past_one_batch_stay_hidden() {
+    let root = temp_dir();
+    init_repo(&root.0);
+    fs::write(root.0.join(".gitignore"), "ignored/\n").unwrap();
+    fs::write(root.0.join("keep.txt"), "keep\n").unwrap();
+    git_ok(&root.0, &["add", ".gitignore", "keep.txt"]);
+    git_ok(&root.0, &["commit", "-m", "keep"]);
+    let dir = root.0.join("ignored");
+    fs::create_dir(&dir).unwrap();
+    let pad = "n".repeat(48);
+    for index in 0..4_500 {
+        fs::write(dir.join(format!("chunk-{index:04}-{pad}.txt")), "x").unwrap();
+    }
+    let nested = list_dir(&root.0, "ignored").unwrap();
+    assert!(nested.entries.is_empty(), "{}", nested.entries.len());
+    assert!(!nested.ignore_partial);
+}
+
+#[test]
 fn untracked_directory_is_one_status_line() {
     let root = temp_dir();
     init_repo(&root.0);

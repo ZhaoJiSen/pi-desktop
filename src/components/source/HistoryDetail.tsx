@@ -22,8 +22,10 @@ export function HistoryDetail({
   onBack: () => void
 }) {
   const t = useT()
-  const detail = useSourceQuery(`commit:${projectPath}:${revision}:${tick}`, () =>
-    gitCommitFiles(projectPath, revision),
+  const detail = useSourceQuery(
+    `commit:${projectPath}:${revision}`,
+    () => gitCommitFiles(projectPath, revision),
+    tick,
   )
   if (detail.data && !detail.data.available) {
     return <SourceNotice kind="empty" text={t('source.gitMissing')} />

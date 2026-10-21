@@ -15,6 +15,7 @@ pub struct DirectoryEntry {
 pub struct DirectoryListing {
     pub(crate) entries: Vec<DirectoryEntry>,
     pub(crate) truncated: bool,
+    pub(crate) ignore_partial: bool,
 }
 
 #[derive(Debug, Serialize, PartialEq, Eq)]

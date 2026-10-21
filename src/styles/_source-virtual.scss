@@ -33,6 +33,12 @@
   flex-direction: column;
 }
 
+.source-find-status {
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
 .source-find {
   flex: 1;
   min-width: 72px;

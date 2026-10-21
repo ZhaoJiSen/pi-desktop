@@ -7,36 +7,65 @@ use std::{collections::HashSet, fs, io::Read, path::Path};
 const DIR_LIMIT: usize = 400;
 const FILE_LIMIT: usize = 512 * 1024;
 const SEARCH_LIMIT: usize = 8_000;
+const IGNORE_BATCH: usize = 256 * 1024;
 
-fn ignored_paths(root: &Path, relative_paths: &[String]) -> Result<HashSet<String>, String> {
-    if relative_paths.is_empty() || !matches!(git::presence(root), Ok(git::GitPresence::Repo)) {
-        return Ok(HashSet::new());
-    }
-    let mut stdin = Vec::new();
-    for (index, path) in relative_paths.iter().enumerate() {
-        if index > 0 {
-            stdin.push(0);
-        }
-        stdin.extend(path.as_bytes());
-    }
-    let captured = git::run_stdin(
-        root,
-        &["check-ignore", "-z", "--stdin", "--"],
-        &stdin,
-        git::LIMIT_SEARCH,
-    )?;
-    // Exit 1 means nothing matched. A truncated read still lists the paths already seen.
-    if !captured.success && !captured.truncated {
-        return Ok(HashSet::new());
-    }
-    Ok(git::drop_partial_z(&captured.stdout, captured.truncated)
+fn parse_ignored(bytes: &[u8]) -> HashSet<String> {
+    bytes
         .split(|byte| *byte == 0)
         .filter(|part| !part.is_empty())
         .map(|part| {
             let path = String::from_utf8_lossy(part).replace('\\', "/");
             path.strip_prefix("./").unwrap_or(&path).to_owned()
         })
-        .collect())
+        .collect()
+}
+
+fn check_ignore(root: &Path, stdin: &[u8]) -> Result<(HashSet<String>, bool), String> {
+    let captured = git::run_stdin(
+        root,
+        &["check-ignore", "-z", "--stdin", "--"],
+        stdin,
+        git::LIMIT_SEARCH,
+    )?;
+    // Exit 1 means nothing matched. A truncated read still lists the paths already seen.
+    if !captured.success && !captured.truncated {
+        return Ok((HashSet::new(), false));
+    }
+    Ok((
+        parse_ignored(git::drop_partial_z(&captured.stdout, captured.truncated)),
+        captured.truncated,
+    ))
+}
+
+fn ignored_paths(
+    root: &Path,
+    relative_paths: &[String],
+) -> Result<(HashSet<String>, bool), String> {
+    if relative_paths.is_empty() || !matches!(git::presence(root), Ok(git::GitPresence::Repo)) {
+        return Ok((HashSet::new(), false));
+    }
+    let mut ignored = HashSet::new();
+    let mut partial = false;
+    let mut stdin = Vec::new();
+    for path in relative_paths {
+        let extra = path.len() + usize::from(!stdin.is_empty());
+        if !stdin.is_empty() && stdin.len() + extra > IGNORE_BATCH {
+            let (found, truncated) = check_ignore(root, &stdin)?;
+            ignored.extend(found);
+            partial |= truncated;
+            stdin.clear();
+        }
+        if !stdin.is_empty() {
+            stdin.push(0);
+        }
+        stdin.extend(path.as_bytes());
+    }
+    if !stdin.is_empty() {
+        let (found, truncated) = check_ignore(root, &stdin)?;
+        ignored.extend(found);
+        partial |= truncated;
+    }
+    Ok((ignored, partial))
 }
 
 fn entry_kind(root: &Path, path: &Path) -> Option<&'static str> {
@@ -77,7 +106,7 @@ pub(crate) fn list_dir(root: &Path, relative: &str) -> Result<DirectoryListing, 
         .iter()
         .map(|(name, _)| paths::join_rel(&dir, name))
         .collect::<Vec<_>>();
-    let ignored = ignored_paths(root, &relative_paths)?;
+    let (ignored, ignore_partial) = ignored_paths(root, &relative_paths)?;
     names.retain(|(name, _)| !ignored.contains(&paths::join_rel(&dir, name)));
     names.sort_by(|(left, left_kind), (right, right_kind)| {
         let rank = |kind: &str| u8::from(kind != "dir");
@@ -95,7 +124,11 @@ pub(crate) fn list_dir(root: &Path, relative: &str) -> Result<DirectoryListing, 
             name,
         })
         .collect();
-    Ok(DirectoryListing { entries, truncated })
+    Ok(DirectoryListing {
+        entries,
+        truncated,
+        ignore_partial,
+    })
 }
 
 pub(crate) fn read_limited(path: &Path, limit: usize) -> Result<(Vec<u8>, bool, u64), String> {
