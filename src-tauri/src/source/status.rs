@@ -48,11 +48,52 @@ fn parse_status(bytes: &[u8]) -> Vec<GitFileStatus> {
             code: status_code(x, y).to_string(),
             staged: x != ' ' && x != '?',
             unstaged: y != ' ' && y != '?',
+            additions: 0,
+            deletions: 0,
             path,
             old_path,
         });
     }
     files
+}
+
+fn apply_numstat(files: &mut [GitFileStatus], bytes: &[u8]) {
+    for line in String::from_utf8_lossy(bytes).lines() {
+        let mut parts = line.split('\t');
+        let Some(added) = parts.next() else { continue };
+        let Some(deleted) = parts.next() else { continue };
+        let Some(raw_path) = parts.next() else { continue };
+        let path = raw_path
+            .replace('\\', "/")
+            .rsplit(" => ")
+            .next()
+            .unwrap_or(raw_path)
+            .trim_matches('"')
+            .to_owned();
+        let Some(file) = files.iter_mut().find(|file| file.path == path) else {
+            continue;
+        };
+        file.additions = file.additions.saturating_add(added.parse().unwrap_or(0));
+        file.deletions = file.deletions.saturating_add(deleted.parse().unwrap_or(0));
+    }
+}
+
+fn attach_numstat(root: &Path, files: &mut [GitFileStatus]) {
+    if files.is_empty() {
+        return;
+    }
+    let against_head = git::run(root, &["diff", "--numstat", "HEAD"], git::LIMIT_STATUS);
+    if let Ok(captured) = against_head {
+        if captured.success || captured.truncated {
+            apply_numstat(files, &captured.stdout);
+            return;
+        }
+    }
+    if let Ok(captured) = git::run(root, &["diff", "--numstat", "--cached"], git::LIMIT_STATUS) {
+        if captured.success || captured.truncated {
+            apply_numstat(files, &captured.stdout);
+        }
+    }
 }
 
 fn idle(available: bool, repo: bool) -> GitStatus {
@@ -85,6 +126,7 @@ pub(crate) fn repo_status(root: &Path) -> Result<GitStatus, String> {
         files.truncate(FILE_CAP);
         truncated = true;
     }
+    attach_numstat(root, &mut files);
     Ok(GitStatus {
         available: true,
         repo: true,

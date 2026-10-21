@@ -28,6 +28,8 @@ export interface GitFileStatus {
   code: string
   staged: boolean
   unstaged: boolean
+  additions?: number
+  deletions?: number
   oldPath?: string
 }
 

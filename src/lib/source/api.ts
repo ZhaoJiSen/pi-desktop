@@ -1,6 +1,16 @@
 import { invoke } from '@tauri-apps/api/core'
 import { isDesktop } from '../../store/workspace'
-import { mockCommit, mockDiff, mockList, mockLog, mockRead, mockSearch, mockStatus } from './mock'
+import {
+  mockCommit,
+  mockCommitBranch,
+  mockDiff,
+  mockList,
+  mockLog,
+  mockRead,
+  mockRestore,
+  mockSearch,
+  mockStatus,
+} from './mock'
 
 export type {
   CommitFile,
@@ -51,6 +61,18 @@ export function gitLog(path: string, relative?: string | null) {
   return call('git_log', { path, relative: relative || null, limit: 200 }, () =>
     mockLog(path, relative),
   )
+}
+
+export function gitCommitBranch(path: string, branch: string, message: string, files: string[]) {
+  return call('git_commit_branch', { path, branch, message, files }, () => {
+    mockCommitBranch(path, branch, message, files)
+  })
+}
+
+export function gitRestoreFile(path: string, relative: string) {
+  return call('git_restore_file', { path, relative }, () => {
+    mockRestore(path, relative)
+  })
 }
 
 export function gitCommitFiles(path: string, revision: string) {

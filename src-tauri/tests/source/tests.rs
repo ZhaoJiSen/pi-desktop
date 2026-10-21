@@ -87,6 +87,18 @@ fn status_and_diff_cover_edits_untracked_and_deletes() {
 
     let removed = file_diff(&dir.0, "gone.txt", None).unwrap();
     assert!(removed.text.contains("-remove me"), "{}", removed.text);
+
+    let counted = repo_status(&dir.0).unwrap();
+    let readme = counted
+        .files
+        .iter()
+        .find(|file| file.path == "readme.md")
+        .unwrap();
+    assert!(readme.additions >= 1, "{readme:?}");
+
+    restore_worktree(&dir.0, "readme.md").unwrap();
+    assert_eq!(fs::read_to_string(dir.0.join("readme.md")).unwrap(), "one\n");
+    assert!(restore_worktree(&dir.0, "../readme.md").is_err());
 }
 
 #[test]
@@ -184,6 +196,29 @@ fn rename_status_keeps_both_paths() {
     let renamed = renamed.unwrap_or_else(|| panic!("{status:?}"));
     assert_eq!(renamed.path, "new-name.ts");
     assert_eq!(renamed.old_path.as_deref(), Some("old-name.ts"));
+}
+
+#[test]
+fn commit_branch_records_the_change_on_a_new_branch() {
+    let dir = temp_dir();
+    init_repo(&dir.0);
+    fs::write(dir.0.join("readme.md"), "one\n").unwrap();
+    git_ok(&dir.0, &["add", "readme.md"]);
+    git_ok(&dir.0, &["commit", "-m", "init"]);
+    fs::write(dir.0.join("readme.md"), "one\ntwo\n").unwrap();
+    commit_branch(
+        &dir.0,
+        "review",
+        "ship the change",
+        &["readme.md".to_owned()],
+    )
+    .unwrap();
+    let status = repo_status(&dir.0).unwrap();
+    assert_eq!(status.branch.as_deref(), Some("review"));
+    assert!(status.files.iter().all(|file| file.path != "readme.md"));
+    let history = log(&dir.0, None, 5).unwrap();
+    assert_eq!(history.commits[0].subject, "ship the change");
+    assert!(commit_branch(&dir.0, "-bad", "nope", &["readme.md".to_owned()]).is_err());
 }
 
 #[test]

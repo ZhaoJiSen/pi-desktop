@@ -212,6 +212,8 @@ pub fn run() {
             source::search_project_files,
             source::git_status,
             source::git_file_diff,
+            source::git_restore_file,
+            source::git_commit_branch,
             source::git_log,
             source::git_commit_files
         ])

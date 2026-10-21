@@ -42,6 +42,10 @@ pub struct GitFileStatus {
     pub(crate) code: String,
     pub(crate) staged: bool,
     pub(crate) unstaged: bool,
+    #[serde(default)]
+    pub(crate) additions: u32,
+    #[serde(default)]
+    pub(crate) deletions: u32,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) old_path: Option<String>,
 }

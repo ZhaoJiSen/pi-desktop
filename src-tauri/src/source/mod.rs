@@ -1,6 +1,7 @@
 //! Local project files and Git. Commands never touch the network.
 
 mod capture;
+mod commit;
 mod diff;
 mod files;
 mod git;
@@ -15,7 +16,9 @@ use types::{
 };
 
 #[cfg(test)]
-pub(crate) use diff::file_diff;
+pub(crate) use commit::commit_branch;
+#[cfg(test)]
+pub(crate) use diff::{file_diff, restore_worktree};
 #[cfg(test)]
 pub(crate) use files::{list_dir, read_file, search_files};
 #[cfg(test)]
@@ -98,6 +101,34 @@ pub async fn git_file_diff(
     blocking(move || {
         let root = root_of(&app, &path)?;
         diff::file_diff(&root, &relative, revision.as_deref())
+    })
+    .await
+}
+
+#[tauri::command]
+pub async fn git_commit_branch(
+    app: tauri::AppHandle,
+    path: String,
+    branch: String,
+    message: String,
+    files: Vec<String>,
+) -> Result<(), String> {
+    blocking(move || {
+        let root = root_of(&app, &path)?;
+        commit::commit_branch(&root, &branch, &message, &files)
+    })
+    .await
+}
+
+#[tauri::command]
+pub async fn git_restore_file(
+    app: tauri::AppHandle,
+    path: String,
+    relative: String,
+) -> Result<(), String> {
+    blocking(move || {
+        let root = root_of(&app, &path)?;
+        diff::restore_worktree(&root, &relative)
     })
     .await
 }

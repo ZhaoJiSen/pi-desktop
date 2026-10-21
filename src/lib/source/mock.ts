@@ -20,7 +20,9 @@ const studio: MockRepo = {
       text: 'export function App() {\n  return <main>Studio</main>\n}\n',
     },
   ],
-  status: [{ path: 'src/App.tsx', code: 'M', staged: false, unstaged: true }],
+  status: [
+    { path: 'src/App.tsx', code: 'M', staged: false, unstaged: true, additions: 1, deletions: 1 },
+  ],
   diffs: {
     'src/App.tsx': `diff --git a/src/App.tsx b/src/App.tsx
 --- a/src/App.tsx
@@ -60,6 +62,25 @@ const plain: MockRepo = {
   commits: [],
   commitFiles: {},
   commitDiffs: {},
+}
+
+const restored = new Set<string>()
+let branchOverride: { path: string; name: string } | null = null
+
+export function mockCommitBranch(path: string, branch: string, message: string, files: string[]) {
+  if (!branch.trim() || !message.trim() || !files.length) {
+    throw new Error('Could not read the Git repository')
+  }
+  branchOverride = { path, name: branch.trim() }
+  for (const file of files) restored.add(restoredKey(path, file))
+}
+
+function restoredKey(path: string, relative: string) {
+  return `${path}\0${relative}`
+}
+
+export function mockRestore(path: string, relative: string) {
+  restored.add(restoredKey(path, relative))
 }
 
 function repoFor(path: string): MockRepo {
@@ -113,8 +134,8 @@ export function mockStatus(path: string): GitStatus {
   return {
     available: true,
     repo: repo.repo,
-    branch: repo.branch,
-    files: repo.status,
+    branch: branchOverride?.path === path ? branchOverride.name : repo.branch,
+    files: repo.status.filter((file) => !restored.has(restoredKey(path, file.path))),
     truncated: false,
   }
 }
@@ -125,6 +146,17 @@ export function mockDiff(path: string, relative: string, revision?: string | nul
     return {
       available: true,
       repo: false,
+      path: relative,
+      binary: false,
+      truncated: false,
+      missing: true,
+      text: '',
+    }
+  }
+  if (!revision && restored.has(restoredKey(path, relative))) {
+    return {
+      available: true,
+      repo: true,
       path: relative,
       binary: false,
       truncated: false,
