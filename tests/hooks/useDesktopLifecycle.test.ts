@@ -14,6 +14,7 @@ vi.mock('@tauri-apps/api/webviewWindow', () => ({
   getCurrentWebviewWindow: () => ({
     setBackgroundColor: mocks.background,
     setEffects: vi.fn().mockResolvedValue(undefined),
+    clearEffects: vi.fn().mockResolvedValue(undefined),
     setTheme: mocks.theme,
   }),
 }))
@@ -88,7 +89,6 @@ describe('onboarding startup boundary', () => {
     await render(false)
     expect(mocks.background).toHaveBeenCalledWith([0, 0, 0, 0])
     expect(mocks.theme).toHaveBeenCalledWith('light')
-    const calls = mocks.background.mock.calls.length
     await act(async () => useWorkspace.setState({ theme: 'dark' }))
     expect(mocks.theme).toHaveBeenLastCalledWith('dark')
     await act(async () =>
@@ -96,11 +96,12 @@ describe('onboarding startup boundary', () => {
         palettesByMode: { light: 'ink', dark: 'catppuccin' },
       }),
     )
-    expect(mocks.background).toHaveBeenCalledTimes(calls)
     expect(document.documentElement.dataset.theme).toBe('dark')
     expect(document.documentElement.dataset.palette).toBe('catppuccin')
+    expect(document.documentElement.dataset.material).toBe('blur')
+    expect(mocks.background.mock.calls.every((call) => String(call[0]) === '0,0,0,0')).toBe(true)
     await act(async () => useWorkspace.setState({ connection: 'connecting' }))
-    expect(mocks.background).toHaveBeenCalledTimes(calls)
+    expect(mocks.theme).toHaveBeenLastCalledWith('dark')
   })
   it('keeps the workspace usable if the native background update fails', async () => {
     mocks.background.mockRejectedValueOnce(new Error('Native color unavailable'))

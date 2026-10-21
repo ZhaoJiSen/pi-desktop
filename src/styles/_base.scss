@@ -119,17 +119,38 @@ html[data-native] #root {
   min-height: 0;
   background: color-mix(in srgb, var(--paper) 76%, transparent);
 }
+html[data-material='glass'] .app-shell.native {
+  background: color-mix(in srgb, var(--sidebar) 55%, transparent);
+}
+html[data-material='glass'] .app-shell.native .sidebar-layout.has-sidebar > :first-child {
+  background: color-mix(in srgb, var(--sidebar) 88%, transparent);
+}
+html[data-material='glass'] .app-shell.native .main {
+  background: color-mix(in srgb, var(--paper) 92%, transparent);
+}
+html[data-material='off'],
+html[data-material='off'] body,
+html[data-material='off'] #root,
+html[data-material='off'] .app-shell.native {
+  background: var(--ground);
+}
+html[data-material='off'] .app-shell.native .sidebar-layout.has-sidebar > :first-child {
+  background: var(--sidebar);
+}
+html[data-material='off'] .app-shell.native .main {
+  background: var(--paper);
+}
 @media (prefers-reduced-transparency: reduce) {
   html[data-native],
   html[data-native] body,
   html[data-native] #root,
-  .app-shell.native {
+  html[data-native] .app-shell.native {
     background: var(--ground);
   }
-  .app-shell.native .sidebar-layout.has-sidebar > :first-child {
+  html[data-native] .app-shell.native .sidebar-layout.has-sidebar > :first-child {
     background: var(--sidebar);
   }
-  .app-shell.native .main {
+  html[data-native] .app-shell.native .main {
     background: var(--paper);
   }
 }

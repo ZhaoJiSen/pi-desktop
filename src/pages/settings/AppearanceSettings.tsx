@@ -6,10 +6,11 @@ import {
   Popover,
   Radio,
   RadioGroup,
+  Select,
 } from '@heroui/react'
 import { Check, ChevronDown, Monitor, Moon, Sun } from 'lucide-react'
 import { useState } from 'react'
-import type { Palette, Theme } from '../../types'
+import type { Palette, Theme, WindowMaterial } from '../../types'
 import { useWorkspace } from '../../store/workspace'
 import { useT } from '../../lib/i18n'
 import {
@@ -50,11 +51,13 @@ const themeOptions = [
   { mode: 'system', icon: Monitor },
 ] as const
 const accents = Object.keys(accentColors) as AccentColor[]
+const materials = ['off', 'blur', 'glass'] as const satisfies readonly WindowMaterial[]
 
 export function AppearanceSettings() {
   const theme = useWorkspace((state) => state.theme)
   const palettesByMode = useWorkspace((state) => state.palettesByMode)
   const accentOverrides = useWorkspace((state) => state.accentOverrides)
+  const windowMaterial = useWorkspace((state) => state.windowMaterial)
   const setPreference = useWorkspace((state) => state.setPreference)
   const mode = useColorMode(theme)
   const palette = palettesByMode[mode]
@@ -128,6 +131,41 @@ export function AppearanceSettings() {
           </RadioGroup>
         </div>
         <div className="settings-rows">
+          <div className="settings-row">
+            <div className="settings-row-text">
+              <span id="settings-material-label">{t('settings.material')}</span>
+              <p className="settings-help">{t('settings.materialHelp')}</p>
+            </div>
+            <Select
+              className="settings-material-select"
+              variant="secondary"
+              aria-labelledby="settings-material-label"
+              value={windowMaterial}
+              onChange={(next) => {
+                if (materials.includes(next as WindowMaterial))
+                  setPreference({ windowMaterial: next as WindowMaterial })
+              }}
+            >
+              <Select.Trigger>
+                <Select.Value />
+                <Select.Indicator />
+              </Select.Trigger>
+              <Select.Popover placement="bottom end">
+                <ListBox>
+                  {materials.map((item) => (
+                    <ListBox.Item
+                      key={item}
+                      id={item}
+                      textValue={t(`settings.material.${item}`)}
+                    >
+                      {t(`settings.material.${item}`)}
+                      <ListBox.ItemIndicator />
+                    </ListBox.Item>
+                  ))}
+                </ListBox>
+              </Select.Popover>
+            </Select>
+          </div>
           <div className="settings-row settings-palette-row">
             <div className="settings-row-text">
               <span id="settings-palette-label">{t('settings.palette')}</span>

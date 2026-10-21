@@ -1,5 +1,6 @@
 export type ThinkingLevel = 'off' | 'minimal' | 'low' | 'medium' | 'high' | 'xhigh' | 'max'
 export type Theme = 'light' | 'dark' | 'system'
+export type WindowMaterial = 'off' | 'blur' | 'glass'
 export const palettes = [
   'ink',
   'gruvbox',

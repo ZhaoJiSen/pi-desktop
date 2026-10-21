@@ -18,12 +18,14 @@
 
 .settings-font-select,
 .settings-font-leading,
-.settings-font-number {
+.settings-font-number,
+.settings-material-select {
   flex: none;
 }
 
 .settings-font-select,
-.settings-font-leading {
+.settings-font-leading,
+.settings-material-select {
   width: 196px;
 }
 
@@ -32,7 +34,8 @@
 }
 
 .settings-font-select [data-slot='select-trigger'],
-.settings-font-leading [data-slot='select-trigger'] {
+.settings-font-leading [data-slot='select-trigger'],
+.settings-material-select [data-slot='select-trigger'] {
   width: 100%;
 }
 

@@ -25,6 +25,7 @@ import type {
   SlashCommand,
   Theme,
   ThinkingLevel,
+  WindowMaterial,
 } from '../types'
 import { createPreviewSessions, makeSession, previewModels, previewProjects } from '../lib/fixtures'
 import { applyStreamEvent } from '../lib/rpc'
@@ -61,6 +62,7 @@ interface WorkspaceState {
   sidebarOpen: boolean
   recentCollapsed: boolean
   theme: Theme
+  windowMaterial: WindowMaterial
   palette: Palette
   palettesByMode: ModePalettes
   accentOverrides: AccentOverrides
@@ -111,6 +113,7 @@ interface WorkspaceState {
       Pick<
         WorkspaceState,
         | 'theme'
+        | 'windowMaterial'
         | 'palette'
         | 'palettesByMode'
         | 'accentOverrides'
@@ -170,6 +173,7 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
         wrapLines: false,
         notificationPreferences: defaultNotificationPreferences,
         theme: 'system',
+        windowMaterial: 'blur',
         palette: 'ink',
         palettesByMode: { light: 'ink', dark: 'ink' },
         accentOverrides: {},
@@ -434,6 +438,7 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
           sidebarOpen: state.sidebarOpen,
           recentCollapsed: state.recentCollapsed,
           theme: state.theme,
+          windowMaterial: state.windowMaterial,
           palette: state.palette,
           palettesByMode: state.palettesByMode,
           accentOverrides: state.accentOverrides,
@@ -486,6 +491,12 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
             palettesByMode,
             accentOverrides: restoreAccentOverrides(saved?.accentOverrides),
             fonts: restoreFonts(saved?.fonts),
+            windowMaterial:
+              saved?.windowMaterial === 'off' ||
+              saved?.windowMaterial === 'blur' ||
+              saved?.windowMaterial === 'glass'
+                ? saved.windowMaterial
+                : 'blur',
             language:
               languageSource === 'user' && validLanguage ? saved.language! : current.language,
             languageSource,

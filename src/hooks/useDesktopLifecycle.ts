@@ -9,24 +9,43 @@ import {
 } from '../lib/desktop'
 import { errorText } from '../lib/utils'
 import { isDesktop, useWorkspace } from '../store/workspace'
+import type { WindowMaterial } from '../types'
 import type { Page } from '../router/paths'
 import { useColorMode } from './useColorMode'
 import { accentKey, applyAppearance } from '../lib/appearance'
 import { applyFonts, loadSystemFonts } from '../lib/fonts'
 
+function surfaceColor() {
+  const probe = document.createElement('div')
+  probe.style.backgroundColor = 'var(--ground)'
+  document.body.append(probe)
+  const value = getComputedStyle(probe).backgroundColor
+  probe.remove()
+  const channels = value.match(/[\d.]+/g)?.map(Number)
+  if (!channels || channels.length < 3) return [27, 28, 29, 255] as [number, number, number, number]
+  return [channels[0], channels[1], channels[2], 255] as [number, number, number, number]
+}
+
+function applyWindowMaterial(material: WindowMaterial, mode: 'light' | 'dark') {
+  document.documentElement.dataset.material = material
+  const appWindow = getCurrentWebviewWindow()
+  void appWindow.setTheme(mode).catch(() => {})
+  if (material === 'off') {
+    void appWindow.clearEffects().catch(() => {})
+    void appWindow.setBackgroundColor(surfaceColor()).catch(() => {})
+    return
+  }
+  void appWindow.setBackgroundColor([0, 0, 0, 0]).catch(() => {})
+  void appWindow
+    .setEffects({
+      effects: [Effect.UnderWindowBackground],
+      state: EffectState.Active,
+      radius: 12,
+    })
+    .catch(() => {})
+}
+
 export function useDesktopLifecycle(view: Page, enabled = true) {
-  useEffect(() => {
-    if (!isDesktop) return
-    const appWindow = getCurrentWebviewWindow()
-    void appWindow.setBackgroundColor([0, 0, 0, 0]).catch(() => {})
-    void appWindow
-      .setEffects({
-        effects: [Effect.UnderWindowBackground],
-        state: EffectState.Active,
-        radius: 12,
-      })
-      .catch(() => {})
-  }, [])
   useEffect(() => {
     const flush = () => {
       void useWorkspace.flushPersistence()
@@ -46,6 +65,7 @@ export function useDesktopLifecycle(view: Page, enabled = true) {
   const theme = useWorkspace((state) => state.theme)
   const palettesByMode = useWorkspace((state) => state.palettesByMode)
   const accentOverrides = useWorkspace((state) => state.accentOverrides)
+  const windowMaterial = useWorkspace((state) => state.windowMaterial)
   const mode = useColorMode(theme)
   const palette = palettesByMode[mode]
   const accent = accentOverrides[accentKey(mode, palette)]
@@ -109,13 +129,11 @@ export function useDesktopLifecycle(view: Page, enabled = true) {
     // Theme tokens stay in CSS. The native backing color is transparent so the
     // window material stays visible; painting --ground here would cover it.
     applyAppearance(document.documentElement, mode, palette, accent)
-    // Vibrancy follows the window appearance. Match the resolved light or dark
-    // mode, otherwise a light UI sits on the system's dark material.
-    if (isDesktop)
-      void getCurrentWebviewWindow()
-        .setTheme(mode)
-        .catch(() => {})
-  }, [mode, palette, accent])
+    // Vibrancy follows the resolved light or dark mode, otherwise a light UI
+    // sits on the system's dark material.
+    if (isDesktop) applyWindowMaterial(windowMaterial, mode)
+    else document.documentElement.dataset.material = windowMaterial
+  }, [mode, palette, accent, windowMaterial])
   useEffect(() => {
     document.documentElement.lang = language === 'zh' ? 'zh-CN' : 'en'
     document.title = 'pi Desktop'
