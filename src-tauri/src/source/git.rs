@@ -18,7 +18,8 @@ pub(crate) const LIMIT_LOG: usize = 1024 * 1024;
 pub(crate) const LIMIT_SEARCH: usize = 1024 * 1024;
 pub(crate) const LIMIT_SMALL: usize = 64 * 1024;
 
-const PRESENCE_TTL: Duration = Duration::from_secs(5);
+const REPO_TTL: Duration = Duration::from_secs(5);
+const PLAIN_TTL: Duration = Duration::from_secs(2);
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum GitPresence {
@@ -83,43 +84,67 @@ pub(crate) fn run_stdin(
     };
     let pipe = child.stdin.take();
     let payload = stdin.to_vec();
-    let writer = thread::spawn(move || {
+    let writer = thread::spawn(move || -> std::io::Result<()> {
         if let Some(mut pipe) = pipe {
-            let _ = pipe.write_all(&payload);
+            pipe.write_all(&payload)?;
         }
+        Ok(())
     });
-    let captured = capture::capture(child, limit).map_err(|error| Message::GitRead.detail(error));
-    let _ = writer.join();
-    captured
-}
-
-fn presence_cache() -> &'static Mutex<HashMap<PathBuf, Instant>> {
-    static CACHE: OnceLock<Mutex<HashMap<PathBuf, Instant>>> = OnceLock::new();
-    CACHE.get_or_init(|| Mutex::new(HashMap::new()))
-}
-
-fn cached_repo(root: &Path) -> bool {
-    let Ok(guard) = presence_cache().lock() else {
-        return false;
-    };
-    guard
-        .get(root)
-        .is_some_and(|seen| seen.elapsed() < PRESENCE_TTL)
-}
-
-fn remember_repo(root: &Path) {
-    let Ok(mut guard) = presence_cache().lock() else {
-        return;
-    };
-    guard.insert(root.to_path_buf(), Instant::now());
-    if guard.len() > 32 {
-        guard.retain(|_, seen| seen.elapsed() < PRESENCE_TTL);
+    let captured = capture::capture(child, limit);
+    let write_result = writer.join();
+    let captured = captured.map_err(|error| Message::GitRead.detail(error))?;
+    match write_result {
+        Ok(Ok(())) => Ok(captured),
+        Ok(Err(error)) if error.kind() == ErrorKind::BrokenPipe => Ok(captured),
+        Ok(Err(error)) => Err(Message::GitRead.detail(error)),
+        Err(_) => Err(Message::GitRead.text()),
     }
 }
 
-fn forget_repo(root: &Path) {
-    if let Ok(mut guard) = presence_cache().lock() {
+struct PresenceHit {
+    at: Instant,
+    kind: GitPresence,
+}
+
+fn presence_cache() -> &'static Mutex<HashMap<PathBuf, PresenceHit>> {
+    static CACHE: OnceLock<Mutex<HashMap<PathBuf, PresenceHit>>> = OnceLock::new();
+    CACHE.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
+fn presence_ttl(kind: GitPresence) -> Duration {
+    if kind == GitPresence::Plain {
+        PLAIN_TTL
+    } else {
+        REPO_TTL
+    }
+}
+
+fn cached_presence(root: &Path) -> Option<GitPresence> {
+    let guard = presence_cache().lock().ok()?;
+    let hit = guard.get(root)?;
+    if hit.kind == GitPresence::Missing || hit.at.elapsed() >= presence_ttl(hit.kind) {
+        return None;
+    }
+    Some(hit.kind)
+}
+
+fn remember_presence(root: &Path, kind: GitPresence) {
+    let Ok(mut guard) = presence_cache().lock() else {
+        return;
+    };
+    if kind == GitPresence::Missing {
         guard.remove(root);
+        return;
+    }
+    guard.insert(
+        root.to_path_buf(),
+        PresenceHit {
+            at: Instant::now(),
+            kind,
+        },
+    );
+    if guard.len() > 32 {
+        guard.retain(|_, hit| hit.at.elapsed() < presence_ttl(hit.kind));
     }
 }
 
@@ -137,17 +162,13 @@ fn probe(root: &Path) -> Result<GitPresence, String> {
     }
 }
 
-/// Repo checks are reused for a few seconds. A missing binary is never stored as "not a repo".
+/// Repo checks last a few seconds. Plain folders use a shorter cache. A missing binary is never stored.
 pub(crate) fn presence(root: &Path) -> Result<GitPresence, String> {
-    if cached_repo(root) {
-        return Ok(GitPresence::Repo);
+    if let Some(hit) = cached_presence(root) {
+        return Ok(hit);
     }
     let found = probe(root)?;
-    if found == GitPresence::Repo {
-        remember_repo(root);
-    } else {
-        forget_repo(root);
-    }
+    remember_presence(root, found);
     Ok(found)
 }
 

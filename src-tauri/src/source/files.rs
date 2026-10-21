@@ -8,9 +8,9 @@ const DIR_LIMIT: usize = 400;
 const FILE_LIMIT: usize = 512 * 1024;
 const SEARCH_LIMIT: usize = 8_000;
 
-fn ignored_paths(root: &Path, relative_paths: &[String]) -> HashSet<String> {
+fn ignored_paths(root: &Path, relative_paths: &[String]) -> Result<HashSet<String>, String> {
     if relative_paths.is_empty() || !matches!(git::presence(root), Ok(git::GitPresence::Repo)) {
-        return HashSet::new();
+        return Ok(HashSet::new());
     }
     let mut stdin = Vec::new();
     for (index, path) in relative_paths.iter().enumerate() {
@@ -19,26 +19,24 @@ fn ignored_paths(root: &Path, relative_paths: &[String]) -> HashSet<String> {
         }
         stdin.extend(path.as_bytes());
     }
-    let Ok(captured) = git::run_stdin(
+    let captured = git::run_stdin(
         root,
         &["check-ignore", "-z", "--stdin", "--"],
         &stdin,
-        git::LIMIT_SMALL,
-    ) else {
-        return HashSet::new();
-    };
-    if !captured.success {
-        return HashSet::new();
+        git::LIMIT_SEARCH,
+    )?;
+    // Exit 1 means nothing matched. A truncated read still lists the paths already seen.
+    if !captured.success && !captured.truncated {
+        return Ok(HashSet::new());
     }
-    captured
-        .stdout
+    Ok(git::drop_partial_z(&captured.stdout, captured.truncated)
         .split(|byte| *byte == 0)
         .filter(|part| !part.is_empty())
         .map(|part| {
             let path = String::from_utf8_lossy(part).replace('\\', "/");
             path.strip_prefix("./").unwrap_or(&path).to_owned()
         })
-        .collect()
+        .collect())
 }
 
 fn entry_kind(root: &Path, path: &Path) -> Option<&'static str> {
@@ -79,7 +77,7 @@ pub(crate) fn list_dir(root: &Path, relative: &str) -> Result<DirectoryListing, 
         .iter()
         .map(|(name, _)| paths::join_rel(&dir, name))
         .collect::<Vec<_>>();
-    let ignored = ignored_paths(root, &relative_paths);
+    let ignored = ignored_paths(root, &relative_paths)?;
     names.retain(|(name, _)| !ignored.contains(&paths::join_rel(&dir, name)));
     names.sort_by(|(left, left_kind), (right, right_kind)| {
         let rank = |kind: &str| u8::from(kind != "dir");

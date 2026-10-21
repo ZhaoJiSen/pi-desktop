@@ -21,7 +21,8 @@ export function FilesPane({
 }) {
   const t = useT()
   const { path: projectPath, revision, agent } = useProjectSource()
-  const [selected, setSelected] = useState<string | null>(initialPath)
+  const expand = initialPath?.endsWith('/') ? initialPath.replace(/\/+$/, '') : null
+  const [selected, setSelected] = useState<string | null>(expand ? null : initialPath)
   const [mode, setMode] = useState<'view' | 'diff'>(initialDiff ? 'diff' : 'view')
   const status = useSourceQuery(
     projectPath ? `files-status:${projectPath}:${revision}:${tick}` : null,
@@ -64,6 +65,7 @@ export function FilesPane({
       <FileTree
         projectPath={projectPath}
         tick={tick}
+        expand={expand}
         marks={marks}
         agent={agent}
         onOpen={(path) => {

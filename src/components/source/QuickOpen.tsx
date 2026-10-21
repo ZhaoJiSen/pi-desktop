@@ -1,4 +1,4 @@
-import { Button, Modal } from '@heroui/react'
+import { ListBox, Modal } from '@heroui/react'
 import { File, Search } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useT } from '../../lib/i18n'
@@ -59,6 +59,13 @@ function QuickOpenContent({ onOpen }: { onOpen: (path: string) => void }) {
           <Search />
           <input
             autoFocus
+            role="combobox"
+            aria-autocomplete="list"
+            aria-expanded={results.length > 0}
+            aria-controls="source-quick-open"
+            aria-activedescendant={
+              results[selected] ? `source-quick-open-option-${results[selected]}` : undefined
+            }
             value={query}
             placeholder={t('source.quickOpenPlaceholder')}
             aria-label={t('source.quickOpen')}
@@ -93,32 +100,43 @@ function QuickOpenContent({ onOpen }: { onOpen: (path: string) => void }) {
         {!projectPath && <SourceNotice kind="empty" text={t('source.noProject')} />}
         {projectPath && found.loading && <SourceNotice kind="loading" text={t('source.loading')} />}
         {found.error && <SourceNotice kind="error" text={found.error} />}
-        <div className="source-virtual" ref={scroller}>
-          <div className="source-vpad" style={{ height: paddingTop }} />
+        <ListBox
+          className="source-virtual"
+          id="source-quick-open"
+          aria-label={t('source.quickOpen')}
+          selectionMode="single"
+          selectedKeys={results[selected] ? [results[selected]] : []}
+          onAction={(key) => onOpen(String(key))}
+          style={{ paddingTop, paddingBottom }}
+          ref={scroller}
+        >
           {results.slice(start, end).map((path, offset) => {
             const index = start + offset
             return (
-              <Button
+              <ListBox.Item
                 key={path}
-                variant="ghost"
+                id={path}
+                textValue={path}
                 className={
                   index === selected
-                    ? 'search-result is-active source-vrow'
-                    : 'search-result source-vrow'
+                    ? 'button search-result is-active source-vrow'
+                    : 'button search-result source-vrow'
                 }
                 style={{ height: searchRowHeight }}
-                onPress={() => onOpen(path)}
+                onHoverStart={() => {
+                  setActive(index)
+                  scrollTo(index)
+                }}
               >
                 <File />
                 <span>
                   <span>{fileNameOf(path)}</span>
                   <small>{path}</small>
                 </span>
-              </Button>
+              </ListBox.Item>
             )
           })}
-          <div className="source-vpad" style={{ height: paddingBottom }} />
-        </div>
+        </ListBox>
         {projectPath && found.data && results.length === 0 && (
           <div className="popover-empty">{t('source.emptySearch')}</div>
         )}

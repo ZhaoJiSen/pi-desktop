@@ -140,3 +140,7 @@ mod tests;
 #[cfg(test)]
 #[path = "../../tests/source/safety.rs"]
 mod safety;
+
+#[cfg(test)]
+#[path = "../../tests/source/followup.rs"]
+mod followup;

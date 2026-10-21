@@ -39,3 +39,13 @@ export function agentTouchedPaths(messages: Message[], projectPath = ''): Set<st
 export function fileNameOf(path: string) {
   return path.split('/').filter(Boolean).at(-1) || path
 }
+
+export function pathTouched(paths: Set<string>, path: string) {
+  const normalized = path.replace(/\\/g, '/').replace(/\/+$/, '')
+  if (!normalized) return false
+  const prefix = `${normalized}/`
+  for (const item of paths) {
+    if (item === normalized || item.startsWith(prefix)) return true
+  }
+  return false
+}

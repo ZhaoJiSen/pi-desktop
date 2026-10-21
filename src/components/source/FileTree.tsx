@@ -3,19 +3,26 @@ import { ChevronDown, ChevronRight } from 'lucide-react'
 import { useState } from 'react'
 import { useT } from '../../lib/i18n'
 import { listProjectDirectory } from '../../lib/source/api'
+import { pathTouched } from '../../lib/source/paths'
 import type { DirectoryEntry } from '../../lib/source/types'
 import { SourceNotice } from './SourceNotice'
 import { useSourceQuery } from './useSourceQuery'
 
+function opens(expand: string | null | undefined, path: string) {
+  return Boolean(expand && (expand === path || expand.startsWith(`${path}/`)))
+}
+
 export function FileTree({
   projectPath,
   tick,
+  expand,
   marks,
   agent,
   onOpen,
 }: {
   projectPath: string
   tick: number
+  expand?: string | null
   marks: Map<string, string>
   agent: Set<string>
   onOpen: (path: string) => void
@@ -27,6 +34,7 @@ export function FileTree({
         tick={tick}
         relative=""
         depth={0}
+        expand={expand}
         marks={marks}
         agent={agent}
         onOpen={onOpen}
@@ -40,6 +48,7 @@ function TreeDir({
   tick,
   relative,
   depth,
+  expand,
   marks,
   agent,
   onOpen,
@@ -48,6 +57,7 @@ function TreeDir({
   tick: number
   relative: string
   depth: number
+  expand?: string | null
   marks: Map<string, string>
   agent: Set<string>
   onOpen: (path: string) => void
@@ -77,6 +87,7 @@ function TreeDir({
             depth={depth}
             projectPath={projectPath}
             tick={tick}
+            expand={expand}
             marks={marks}
             agent={agent}
             onOpen={onOpen}
@@ -89,7 +100,7 @@ function TreeDir({
             entry={entry}
             depth={depth}
             code={marks.get(entry.path)}
-            agent={agent.has(entry.path)}
+            agent={pathTouched(agent, entry.path)}
             onOpen={onOpen}
           />
         ),
@@ -104,6 +115,7 @@ function TreeBranch({
   depth,
   projectPath,
   tick,
+  expand,
   marks,
   agent,
   onOpen,
@@ -112,11 +124,13 @@ function TreeBranch({
   depth: number
   projectPath: string
   tick: number
+  expand?: string | null
   marks: Map<string, string>
   agent: Set<string>
   onOpen: (path: string) => void
 }) {
-  const [open, setOpen] = useState(false)
+  const t = useT()
+  const [open, setOpen] = useState(() => opens(expand, entry.path))
   return (
     <div>
       <Button
@@ -128,6 +142,9 @@ function TreeBranch({
       >
         {open ? <ChevronDown /> : <ChevronRight />}
         <span className="source-name">{entry.name}</span>
+        {pathTouched(agent, entry.path) && (
+          <span className="source-agent">{t('source.agent')}</span>
+        )}
       </Button>
       {open && (
         <TreeDir
@@ -135,6 +152,7 @@ function TreeBranch({
           tick={tick}
           relative={entry.path}
           depth={depth + 1}
+          expand={expand}
           marks={marks}
           agent={agent}
           onOpen={onOpen}

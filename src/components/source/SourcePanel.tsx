@@ -1,6 +1,6 @@
 import { Button, Tabs } from '@heroui/react'
 import { RotateCw, X } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useT } from '../../lib/i18n'
 import { ChangesPane } from './ChangesView'
 import { useSource, type SourceRequest, type SourceTab } from './context'
@@ -67,10 +67,19 @@ function PanelResize({ width, onWidth }: { width: number; onWidth: (next: number
 
 function PanelBody({ request, onClose }: { request: SourceRequest; onClose: () => void }) {
   const t = useT()
-  const { path } = useProjectSource()
+  const { path, revision } = useProjectSource()
   const [tab, setTab] = useState<SourceTab>(request.tab ?? 'changes')
   const [tick, setTick] = useState(0)
   const [historyPath, setHistoryPath] = useState<string | null>(request.historyPath ?? null)
+  const skipRefresh = useRef(true)
+  useEffect(() => {
+    if (skipRefresh.current) {
+      skipRefresh.current = false
+      return
+    }
+    const timer = window.setTimeout(() => setTick((value) => value + 1), 300)
+    return () => window.clearTimeout(timer)
+  }, [revision])
   return (
     <>
       <div className="source-toolbar">

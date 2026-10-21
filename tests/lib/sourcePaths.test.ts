@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { agentTouchedPaths, normalizeProjectPath, toolFilePath } from '../../src/lib/source/paths'
+import {
+  agentTouchedPaths,
+  normalizeProjectPath,
+  pathTouched,
+  toolFilePath,
+} from '../../src/lib/source/paths'
 import type { Message } from '../../src/types'
 
 describe('project paths', () => {
@@ -46,5 +51,14 @@ describe('project paths', () => {
     expect(toolFilePath(running)).toBe('src/models.ts')
     expect(toolFilePath(done)).toBe('src/components/model-selector.tsx')
     expect([...agentTouchedPaths(messages)]).toEqual(['src/components/model-selector.tsx'])
+  })
+
+  it('marks a directory when an edited file is inside it', () => {
+    const paths = new Set(['newdir/a.ts', 'src/a.ts'])
+    expect(pathTouched(paths, 'newdir/')).toBe(true)
+    expect(pathTouched(paths, 'src/a.ts')).toBe(true)
+    expect(pathTouched(paths, 'src')).toBe(true)
+    expect(pathTouched(paths, 'src-extra')).toBe(false)
+    expect(pathTouched(paths, 'other/')).toBe(false)
   })
 })

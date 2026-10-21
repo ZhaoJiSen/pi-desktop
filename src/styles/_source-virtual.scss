@@ -1,8 +1,11 @@
 .code-line.source-vrow,
+.split-hunk.source-vrow {
+  line-height: 24px;
+}
+
 .split-pair.source-vrow,
 .split-hunk.source-vrow {
   overflow: hidden;
-  line-height: 24px;
 }
 
 .code-line.source-vrow .hunk-text,
@@ -13,6 +16,38 @@
 
 .split-pair.source-vrow > .code-line {
   height: 24px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.split-pair.source-vrow > .code-line > .source {
+  overflow-x: auto;
+  overflow-y: hidden;
+  min-width: 0;
+}
+
+.source-changes {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.source-find {
+  flex: 1;
+  min-width: 72px;
+  max-width: 180px;
+  height: 28px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  outline: none;
+  font: inherit;
+}
+
+.code-line.is-current {
+  background: var(--hover);
 }
 
 .button.source-vrow {
