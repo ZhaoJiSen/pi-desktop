@@ -1,7 +1,7 @@
 import { Outlet } from '@tanstack/react-router'
 import { useKeyPress } from 'ahooks'
 import { MotionConfig } from 'motion/react'
-import { useState, type CSSProperties } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import { QuestionProvider, useQuestions } from '../components/conversation/QuestionContext'
 import { PendingQuestions } from '../components/conversation/QuestionCard'
 import { QuestionNotifications } from '../components/QuestionNotifications'
@@ -9,6 +9,8 @@ import { ProjectDialog } from '../components/dialogs/ProjectDialog'
 import { RemoveSessionDialog } from '../components/dialogs/RemoveSessionDialog'
 import { RenameDialog } from '../components/dialogs/RenameDialog'
 import { SearchDialog } from '../components/dialogs/SearchDialog'
+import { SourceProvider, useSource } from '../components/source/context'
+import { QuickOpen } from '../components/source/QuickOpen'
 import { Header } from '../components/Header'
 import { SidebarLayout, SidebarWidthProvider } from './SidebarLayout'
 import { Sidebar } from '../components/Sidebar'
@@ -34,7 +36,9 @@ import { usePiUpdatePrompt } from '../hooks/usePiUpdatePrompt'
 export function WorkspaceLayout() {
   return (
     <QuestionProvider>
-      <WorkspaceContent />
+      <SourceProvider>
+        <WorkspaceContent />
+      </SourceProvider>
       <QuestionNotifications />
     </QuestionProvider>
   )
@@ -64,6 +68,7 @@ function WorkspaceContent() {
     searchOpen || projectOpen || Boolean(renameId || removeId || hasQuestion),
   )
   const t = useT()
+  const source = useSource()
   async function addProject() {
     if (updating || running || connection === 'connecting') return
     if (!isDesktop) {
@@ -104,6 +109,18 @@ function WorkspaceContent() {
     if (!onboardingOpen && startup === 'ready' && !updating && !piUpdate.update)
       useWorkspace.getState().toggleSidebar()
   })
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key.toLowerCase() !== 'p' || event.altKey || event.shiftKey || event.repeat) return
+      if (!event.metaKey && !event.ctrlKey) return
+      if (onboardingOpen || startup !== 'ready' || updating || piUpdate.update || view !== 'chat')
+        return
+      event.preventDefault()
+      source?.setQuickOpen(true)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onboardingOpen, piUpdate.update, source, startup, updating, view])
   useKeyPress(['meta.comma', 'ctrl.comma'], (event) => {
     event.preventDefault()
     if (!onboardingOpen && startup === 'ready' && !updating && !piUpdate.update)
@@ -184,6 +201,7 @@ function WorkspaceContent() {
         </main>
       </SidebarWidthProvider>
       <SearchDialog open={searchOpen} onClose={() => setSearchOpen(false)} />
+      <QuickOpen />
       {piUpdate.update && <PiUpdateDialog update={piUpdate.update} onClose={piUpdate.dismiss} />}
       <ProjectDialog open={projectOpen} onClose={() => setProjectOpen(false)} />
       {renameId && (

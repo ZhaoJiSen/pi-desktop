@@ -1,11 +1,12 @@
 import { Button, Dropdown } from '@heroui/react'
-import { Download, Ellipsis, Pencil } from 'lucide-react'
+import { Download, Ellipsis, GitCompare, Pencil } from 'lucide-react'
 import { useState } from 'react'
 import { useCurrentPage } from '../router/hooks'
 import { useWorkspace } from '../store/workspace'
 import { useShallow } from 'zustand/react/shallow'
 import { useT } from '../lib/i18n'
 import { exportSession } from '../lib/desktop'
+import { useSource } from './source/context'
 
 export function Header({ onRename }: { onRename: () => void }) {
   const session = useWorkspace(
@@ -19,12 +20,23 @@ export function Header({ onRename }: { onRename: () => void }) {
   const connecting = useWorkspace((state) => state.connection === 'connecting')
   const [menuOpen, setMenuOpen] = useState(false)
   const t = useT()
+  const source = useSource()
   const title = view === 'chat' ? session?.title || t('sessions.new') : t(`navigation.${view}`)
   return (
     <header className="main-header" data-tauri-drag-region="deep">
       <h1 title={title}>{title}</h1>
       {session && view === 'chat' && (
         <div className="header-actions" data-tauri-drag-region="false">
+          <Button
+            isIconOnly
+            variant="ghost"
+            className="icon-button source-toggle"
+            aria-label={t('source.toggle')}
+            aria-pressed={Boolean(source?.open)}
+            onPress={() => source?.toggle()}
+          >
+            <GitCompare />
+          </Button>
           <Dropdown isOpen={menuOpen} onOpenChange={setMenuOpen}>
             <Button
               isIconOnly

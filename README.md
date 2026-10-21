@@ -10,6 +10,7 @@ The app connects to a local `pi` executable over JSONL RPC and uses the models a
 
 - **Projects.** Open folders, create and switch conversations, search titles and message text, pin or rename a conversation, and export Markdown.
 - **Conversations.** Streaming Markdown, highlighted code, expandable tool output, edit diffs, file attachments, and stop or retry controls.
+- **Source.** Review uncommitted changes, browse the project tree, quick-open a file, and read commit history with a branch graph.
 - **Models.** Search by name, provider, or ID, return to recently used models, and set thinking effort.
 - **Commands.** Browse Pi built-ins, extension commands, skills, and prompt templates. Search descriptions and sources, inspect usage, and insert a supported command into the draft.
 - **Drafts.** Slash suggestions, editable command tags and arguments, copy and paste, undo and redo, and a draft saved per conversation.
@@ -54,6 +55,7 @@ Screenshots are from the browser preview. The workspace image uses English inter
 - pnpm, at the version declared in `package.json`
 - Rust and the platform tools required by Tauri 2
 - A local `pi` installation, with a configured model provider, for live agent work
+- Git on `PATH` for changes, diffs, and history. The file tree still opens when the folder is not a repository.
 
 ```sh
 pi --version
@@ -103,6 +105,7 @@ Switching conversations is locked while an agent run is active, and unlocks afte
 | ------------------------- | ----------- | --------------------------- |
 | New conversation          | `⌘ N`       | `Ctrl N`                    |
 | Search                    | `⌘ K`       | `Ctrl K`                    |
+| Quick open                | `⌘ P`       | `Ctrl P`                    |
 | Toggle sidebar            | `⌘ B`       | `Ctrl B`                    |
 | Send                      | `⌘ Enter`   | `Ctrl Enter`                |
 | Conversation context menu | `Shift F10` | `Shift F10` or the Menu key |

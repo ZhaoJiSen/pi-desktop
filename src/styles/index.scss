@@ -9,6 +9,7 @@
 @use 'header';
 @use 'text-shimmer';
 @use 'conversation';
+@use 'source';
 @use 'composer';
 @use 'scroll-area';
 @use 'capabilities';
@@ -32,3 +33,4 @@
 @use 'questions';
 @use 'notifications';
 @use 'typefaces';
+@use 'source-virtual';
