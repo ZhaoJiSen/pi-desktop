@@ -4,6 +4,7 @@ import { memo, useState } from 'react'
 import { useT } from '../../lib/i18n'
 import type { MessageKey } from '../../lib/locale'
 import type { ToolBlock } from '../../types'
+import { OpenSourceButton } from '../source/OpenSourceButton'
 import { Diff } from './Diff'
 import { ToolCode } from './ToolCode'
 import { fileLanguage } from './Highlight'
@@ -85,6 +86,7 @@ export const Tool = memo(function Tool({
             <ChevronDown />
           </Disclosure.Indicator>
         </Disclosure.Trigger>
+        <OpenSourceButton tool={tool} />
       </Disclosure.Heading>
       <Disclosure.Content>
         <div className="tool-output">

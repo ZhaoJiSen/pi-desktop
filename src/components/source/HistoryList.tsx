@@ -1,0 +1,80 @@
+import { Button } from '@heroui/react'
+import { useMemo, useState } from 'react'
+import { useT } from '../../lib/i18n'
+import { connectVisible, layoutGraph } from '../../lib/source/graph'
+import type { GitCommit } from '../../lib/source/types'
+import { useWorkspace } from '../../store/workspace'
+import { HistoryGraph } from './HistoryGraph'
+
+function formatWhen(timestamp: number, language: string) {
+  return new Intl.DateTimeFormat(language, {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(timestamp * 1000)
+}
+
+export function HistoryList({
+  commits,
+  selected,
+  onSelect,
+}: {
+  commits: GitCommit[]
+  selected: string | null
+  onSelect: (hash: string) => void
+}) {
+  const t = useT()
+  const language = useWorkspace((state) => state.language)
+  const [query, setQuery] = useState('')
+  const visible = useMemo(() => {
+    const needle = query.trim().toLowerCase()
+    const matched = needle
+      ? commits.filter((commit) =>
+          `${commit.subject} ${commit.author} ${commit.hash} ${commit.refs}`
+            .toLowerCase()
+            .includes(needle),
+        )
+      : commits
+    return connectVisible(matched, new Set(matched.map((commit) => commit.hash)))
+  }, [commits, query])
+  const rows = useMemo(() => layoutGraph(visible), [visible])
+  return (
+    <div className="history-list">
+      <label className="source-filter-field">
+        <input
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder={t('source.filterCommits')}
+          aria-label={t('source.filterCommits')}
+        />
+      </label>
+      <div className="source-scroll" role="list">
+        {visible.length === 0 && <p className="source-note">{t('source.emptyFilter')}</p>}
+        {visible.map((commit, index) => {
+          const row = rows[index]
+          return (
+            <Button
+              key={commit.hash}
+              variant="ghost"
+              className="source-row history-row"
+              aria-pressed={selected === commit.hash}
+              onPress={() => onSelect(commit.hash)}
+            >
+              {row && <HistoryGraph row={row} />}
+              <span className="history-copy">
+                <span className="source-name">{commit.subject}</span>
+                <span className="source-subpath">
+                  {commit.author}
+                  {' · '}
+                  {formatWhen(commit.timestamp, language)}
+                  {commit.refs ? ` · ${commit.refs}` : ''}
+                </span>
+              </span>
+            </Button>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
