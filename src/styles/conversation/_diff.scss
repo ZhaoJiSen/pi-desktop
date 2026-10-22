@@ -1,0 +1,113 @@
+.diff {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg, var(--radius));
+  overflow: hidden;
+  margin: 10px 0 15px;
+  min-width: 0;
+  max-width: 100%;
+}
+.diff-header {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  height: 35px;
+  padding: 0 12px;
+  background: var(--code-head);
+  font-size: 12.5px;
+}
+.diff-header svg {
+  width: 14px;
+  height: 14px;
+  color: var(--muted);
+}
+.diff-file {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.diff-stats {
+  display: inline-flex;
+  gap: 6px;
+  margin-left: 8px;
+  font-family: var(--font-code);
+  font-size: calc(var(--font-code-size) * 11 / 13);
+  font-variant-ligatures: var(--font-code-ligatures);
+  font-feature-settings: var(--font-code-features);
+}
+.positive {
+  color: var(--mint);
+}
+.negative {
+  color: var(--danger);
+}
+.language {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 11px;
+}
+.code {
+  overflow-x: auto;
+  min-width: 0;
+  max-width: 100%;
+  padding: 6px 0;
+  font-family: var(--font-code);
+  font-size: var(--font-code-size);
+  line-height: var(--font-code-leading);
+  font-variant-ligatures: var(--font-code-ligatures);
+  font-feature-settings: var(--font-code-features);
+}
+.code-line {
+  display: flex;
+  white-space: pre;
+  min-width: max-content;
+}
+.line-no {
+  width: 39px;
+  padding-right: 9px;
+  color: var(--muted);
+  text-align: right;
+  background: var(--paper);
+  flex: none;
+  border-right: 1px solid var(--line);
+}
+.source {
+  position: relative;
+  padding: 0 16px 0 25px;
+  min-width: 0;
+  flex: 1;
+  font: inherit;
+  color: var(--ink);
+}
+.change {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: inline-block;
+  width: 25px;
+  text-align: center;
+  color: var(--mint);
+}
+.code-line.add .source {
+  background: var(--added);
+}
+.code-line.remove .source {
+  background: var(--removed);
+}
+.code-line.remove .change {
+  color: var(--danger);
+}
+.syntax-keyword {
+  color: var(--syntax-keyword);
+}
+.syntax-string,
+.syntax-attr-value {
+  color: var(--syntax-string);
+}
+.syntax-function,
+.syntax-class-name {
+  color: var(--syntax-function);
+}
+.syntax-comment {
+  color: var(--muted);
+}

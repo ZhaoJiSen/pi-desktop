@@ -79,6 +79,7 @@ function CopyButton({ text }: { text: string }) {
       isIconOnly
       variant="ghost"
       className="copy-button"
+      data-copied={copied || undefined}
       aria-label={t(copied ? 'common.copied' : 'common.copy')}
       onPress={() => void copy()}
     >
@@ -94,11 +95,13 @@ function codeText(value: unknown): string {
 }
 const CodeBlock = memo(function CodeBlock({ language, text }: { language: string; text: string }) {
   return (
-    <div className="markdown-code">
-      <div className="markdown-code-bar">
-        {language ? <span className="markdown-code-lang">{language.toUpperCase()}</span> : <span />}
-        <CopyButton text={text} />
-      </div>
+    <div className="markdown-code" data-language={language || undefined}>
+      {language && (
+        <div className="markdown-code-bar">
+          <span className="markdown-code-lang">{language.toUpperCase()}</span>
+        </div>
+      )}
+      <CopyButton text={text} />
       <ScrollShadow className="markdown-code-scroll" orientation="horizontal" size={32}>
         <pre tabIndex={0}>
           <code>

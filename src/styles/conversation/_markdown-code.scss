@@ -1,0 +1,139 @@
+.markdown-code {
+  position: relative;
+  margin: 14px 0;
+  border-radius: var(--radius-xl);
+  background: var(--code-head);
+  overflow: hidden;
+  min-width: 0;
+  max-width: 100%;
+}
+.markdown-code-scroll {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+.markdown-code-bar {
+  display: flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 6px 42px 0 14px;
+}
+.markdown-code-lang {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 16px;
+}
+.markdown-code pre {
+  margin: 0;
+  padding: 8px 14px 14px;
+  width: max-content;
+  min-width: 100%;
+  overflow: visible;
+  background: transparent;
+  white-space: pre;
+  font-family: var(--font-code);
+  font-size: var(--font-code-size);
+  line-height: var(--font-code-leading);
+  font-variant-ligatures: var(--font-code-ligatures);
+  font-feature-settings: var(--font-code-features);
+}
+.markdown-code:not([data-language]) .markdown-code-scroll {
+  margin-right: 36px;
+}
+.markdown-code:not([data-language]) pre {
+  padding: 12px 14px;
+}
+.conversation.is-wrap .reply-text {
+  overflow-wrap: anywhere;
+}
+.conversation.is-wrap .markdown-code pre,
+.conversation.is-wrap .tool-text,
+.conversation.is-wrap .code-line {
+  width: auto;
+  min-width: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.tool-scroll,
+.markdown-code-scroll,
+.code {
+  scrollbar-width: thin;
+  scrollbar-color: #949ba64d transparent;
+}
+.tool-scroll::-webkit-scrollbar,
+.markdown-code-scroll::-webkit-scrollbar,
+.code::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.tool-scroll::-webkit-scrollbar-thumb,
+.markdown-code-scroll::-webkit-scrollbar-thumb,
+.code::-webkit-scrollbar-thumb {
+  background: #949ba680;
+  border-radius: 999px;
+}
+.markdown-code .copy-button {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 1;
+  min-width: 24px;
+  width: 24px;
+  height: 24px;
+  min-height: 24px;
+  padding: 0;
+  color: var(--muted);
+  background: transparent;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease;
+}
+.markdown-code:not([data-language]) .copy-button {
+  top: 11px;
+}
+.markdown-code:is(:hover, :focus-within) .copy-button,
+.markdown-code .copy-button[data-copied='true'] {
+  opacity: 1;
+  pointer-events: auto;
+}
+.markdown-code .copy-button:is(:hover, [data-hovered='true'], :focus-visible) {
+  color: var(--ink);
+  background: var(--hover);
+}
+@media (hover: none) {
+  .markdown-code .copy-button {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+// Streamdown owns the active caret. Completed replies have no extra marker.
+.reply-markdown > :last-child::after {
+  color: var(--ink);
+  font-size: 0.85em;
+}
+@media (prefers-reduced-motion: reduce) {
+  .markdown-code .copy-button {
+    transition: none;
+  }
+  .reply-markdown [data-sd-animate],
+  .reply-markdown [data-sd-animate-marker]::marker {
+    animation: none;
+  }
+}
+.copy-button svg {
+  width: 13px;
+  height: 13px;
+}
+.message-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px;
+  background: var(--removed);
+  color: var(--danger);
+  font-size: 13px;
+  border-radius: var(--radius-md, calc(var(--radius) * 0.75));
+}

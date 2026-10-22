@@ -1,13 +1,13 @@
-import { Disclosure } from '@heroui/react'
-import { Brain, ChevronRight, Paperclip, TriangleAlert } from 'lucide-react'
+import { Brain, Paperclip, TriangleAlert } from 'lucide-react'
 import { motion } from 'motion/react'
-import { memo } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { useT } from '../../lib/i18n'
 import type { Message, MessageBlock, ToolBlock } from '../../types'
-import { Tool, ToolGroup } from './ToolCall'
+import { Tool, ToolGroup, toolStartsOpen } from './ToolCall'
 import { ReplyContent } from './ReplyContent'
 import { CapabilityIcon } from '../capabilities/CapabilityIcon'
 import { TextShimmer } from '../TextShimmer'
+import { ChatDisclosure } from './ChatDisclosure'
 
 // Group only adjacent tool blocks; prose and thinking keep their original order.
 function messageParts(blocks: MessageBlock[]) {
@@ -29,15 +29,20 @@ function messageParts(blocks: MessageBlock[]) {
 export const MessageView = memo(function MessageView({
   message,
   streaming,
-  toolOpen,
-  onToggleTool,
 }: {
   message: Message
   streaming: boolean
-  toolOpen: (tool: ToolBlock) => boolean
-  onToggleTool: (id: string, open: boolean) => void
 }) {
   const t = useT()
+  const [toolChoice, setToolChoice] = useState<Record<string, boolean>>({})
+  const toolOpen = useCallback(
+    (tool: ToolBlock) => toolChoice[tool.id] ?? toolStartsOpen(tool),
+    [toolChoice],
+  )
+  const onToggleTool = useCallback((id: string, open: boolean) => {
+    setToolChoice((current) => ({ ...current, [id]: open }))
+  }, [])
+  const parts = useMemo(() => messageParts(message.blocks), [message.blocks])
   if (message.role === 'user')
     return (
       <motion.div
@@ -71,7 +76,7 @@ export const MessageView = memo(function MessageView({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.18 }}
     >
-      {messageParts(message.blocks).map(({ block, index, tools, key }) => {
+      {parts.map(({ block, index, tools, key }) => {
         if (tools && tools.length > 1)
           return <ToolGroup key={key} tools={tools} toolOpen={toolOpen} onToggle={onToggleTool} />
         if (block.type === 'tool')
@@ -81,22 +86,22 @@ export const MessageView = memo(function MessageView({
         const live = streaming && index === message.blocks.length - 1
         if (block.type === 'thinking')
           return block.text ? (
-            <Disclosure className="chat-disclosure thinking-block" key={`thinking-${index}`}>
-              <Disclosure.Heading className="chat-disclosure-heading">
-                <Disclosure.Trigger className="chat-disclosure-trigger thinking-trigger">
-                  <Disclosure.Indicator className="chevron">
-                    <ChevronRight />
-                  </Disclosure.Indicator>
+            <ChatDisclosure
+              className="thinking-block"
+              triggerClassName="thinking-trigger"
+              key={`thinking-${index}`}
+              leadingIndicator
+              label={
+                <>
                   <Brain className="thinking-icon" />
                   <TextShimmer active={live}>{t('conversation.thinking')}</TextShimmer>
-                </Disclosure.Trigger>
-              </Disclosure.Heading>
-              <Disclosure.Content>
-                <div className="reply-text thinking-text">
-                  <ReplyContent text={block.text} streaming={live} />
-                </div>
-              </Disclosure.Content>
-            </Disclosure>
+                </>
+              }
+            >
+              <div className="reply-text thinking-text">
+                <ReplyContent text={block.text} streaming={live} />
+              </div>
+            </ChatDisclosure>
           ) : null
         return block.text ? (
           <div className={`reply-text${live ? ' is-streaming' : ''}`} key={`text-${index}`}>

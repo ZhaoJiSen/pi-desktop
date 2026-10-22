@@ -1,13 +1,12 @@
 import { Button, ScrollShadow, Spinner } from '@heroui/react'
 import { motion } from 'motion/react'
-import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useWorkspace } from '../store/workspace'
 import { useT } from '../lib/i18n'
-import type { Message, ToolBlock } from '../types'
+import type { Message } from '../types'
 import { PiLogo } from './PiLogo'
 import { TextShimmer } from './TextShimmer'
 import { MessageView } from './conversation/MessageView'
-import { toolStartsOpen } from './conversation/ToolCall'
 
 import { useQuestions } from './conversation/QuestionContext'
 import { QuestionCard } from './conversation/QuestionCard'
@@ -80,18 +79,11 @@ function SessionConversation({
         <QuestionCard key={item.key} question={item} queued={item.key !== pendingKey} />
       ))
   const wrapLines = useWorkspace((state) => state.wrapLines)
-  const [toolChoice, setToolChoice] = useState<Record<string, boolean>>({})
-  const toolOpen = useCallback(
-    (tool: ToolBlock) => {
-      return tool.id in toolChoice ? toolChoice[tool.id]! : toolStartsOpen(tool)
-    },
-    [toolChoice],
-  )
-  const onToggleTool = useCallback((id: string, open: boolean) => {
-    setToolChoice((current) => ({ ...current, [id]: open }))
-  }, [])
+  const hasContent = Boolean(messages.length || visibleQuestions.length)
   const scroll = useRef<HTMLDivElement>(null)
+  const content = useRef<HTMLDivElement>(null)
   const nearBottom = useRef(true)
+  const scrollSize = useRef({ height: 0, viewport: 0 })
   const t = useT()
   useLayoutEffect(() => {
     const element = scroll.current
@@ -108,27 +100,63 @@ function SessionConversation({
     nearBottom.current = true
     if (scroll.current) scroll.current.scrollTop = scroll.current.scrollHeight
   }, [sessionId])
+  useLayoutEffect(() => {
+    const element = scroll.current
+    const body = content.current
+    if (!element || !body) return
+    // Local disclosures, images and wrapping can change height without new messages.
+    // Follow only while the reader is already at the bottom; history stays anchored.
+    const observer = new ResizeObserver(() => {
+      const height = element.scrollHeight
+      const viewport = element.clientHeight
+      scrollSize.current = { height, viewport }
+      if (
+        prependAnchor.current === null &&
+        (nearBottom.current || height - viewport - element.scrollTop < 100)
+      ) {
+        nearBottom.current = true
+        element.scrollTop = height
+      }
+    })
+    observer.observe(body)
+    observer.observe(element)
+    return () => observer.disconnect()
+  }, [hasContent])
   return (
     <MotionScrollShadow
       className={wrapLines ? 'conversation is-wrap' : 'conversation'}
       ref={scroll}
       orientation="vertical"
       size={24}
-      isEnabled={Boolean(messages.length || visibleQuestions.length)}
-      visibility={messages.length || visibleQuestions.length ? 'auto' : 'none'}
+      isEnabled={hasContent}
+      visibility={hasContent ? 'auto' : 'none'}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.25 }}
+      onWheelCapture={(event) => {
+        // Honor an upward reading gesture even if a streamed resize happens
+        // before its scroll event reaches the conversation.
+        if (event.deltaY < 0 && Math.abs(event.deltaY) > Math.abs(event.deltaX)) {
+          nearBottom.current = false
+          if (historyStart === null) setHistoryStart(start)
+        }
+      }}
       onScroll={() => {
         const element = scroll.current
         if (element) {
+          // Delayed scroll events from layout changes must not cancel bottom-follow.
+          if (
+            element.scrollHeight !== scrollSize.current.height ||
+            element.clientHeight !== scrollSize.current.viewport
+          )
+            return
           nearBottom.current = element.scrollHeight - element.scrollTop - element.clientHeight < 100
           if (!nearBottom.current && historyStart === null) setHistoryStart(start)
         }
       }}
     >
-      {messages.length || visibleQuestions.length ? (
-        <div className="conversation-content">
+      {hasContent ? (
+        <div className="conversation-content" ref={content}>
           {start > 0 && (
             <div className="conversation-history">
               <Button
@@ -155,8 +183,6 @@ function SessionConversation({
                   message.role === 'assistant' &&
                   message.id === messages.at(-1)?.id
                 }
-                toolOpen={toolOpen}
-                onToggleTool={onToggleTool}
               />
               {questionCards(message.id)}
             </Fragment>

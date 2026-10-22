@@ -1,0 +1,62 @@
+.chat-page {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.chat-page.is-empty {
+  justify-content: center;
+  // Above the geometric center, so the room below is where the thread arrives.
+  padding-bottom: 72px;
+}
+.chat-page.is-empty .conversation {
+  flex: none;
+  overflow: visible;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.chat-page.is-empty .empty-conversation {
+  height: auto;
+  min-height: 0;
+  padding: 0;
+}
+.empty-conversation {
+  height: 100%;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+  padding: 20px;
+}
+.empty-conversation h2 {
+  font-size: 20px;
+  font-weight: 500;
+}
+.empty-conversation p {
+  font-size: 14px;
+  color: var(--muted);
+  margin: 0 0 8px;
+}
+.run-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  margin: 0 0 16px;
+}
+
+.user-capability-request {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.user-capability-request svg {
+  width: 16px;
+  height: 16px;
+  color: var(--muted);
+}

@@ -1,5 +1,6 @@
 import { Button } from '@heroui/react'
 import { GitCompare } from 'lucide-react'
+import { memo } from 'react'
 import { useT } from '../../lib/i18n'
 import { toolFilePath } from '../../lib/source/paths'
 import type { ToolBlock } from '../../types'
@@ -8,7 +9,7 @@ import { useProjectSource } from './useProjectSource'
 
 const CHANGING = new Set(['edit', 'write', 'apply_patch'])
 
-export function OpenSourceButton({ tool }: { tool: ToolBlock }) {
+export const OpenSourceButton = memo(function OpenSourceButton({ tool }: { tool: ToolBlock }) {
   const source = useSource()
   const { path: projectPath } = useProjectSource()
   const t = useT()
@@ -34,4 +35,4 @@ export function OpenSourceButton({ tool }: { tool: ToolBlock }) {
       <GitCompare />
     </Button>
   )
-}
+})

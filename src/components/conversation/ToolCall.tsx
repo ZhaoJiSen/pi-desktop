@@ -1,5 +1,5 @@
-import { Disclosure, Spinner } from '@heroui/react'
-import { CircleCheck, CircleX, CirclePause, ChevronDown } from 'lucide-react'
+import { Spinner } from '@heroui/react'
+import { CircleCheck, CircleX, CirclePause } from 'lucide-react'
 import { memo, useState } from 'react'
 import { useT } from '../../lib/i18n'
 import type { MessageKey } from '../../lib/locale'
@@ -9,6 +9,7 @@ import { Diff } from './Diff'
 import { ToolCode } from './ToolCode'
 import { fileLanguage } from './Highlight'
 import { TextShimmer } from '../TextShimmer'
+import { ChatDisclosure } from './ChatDisclosure'
 
 function outputLanguage(tool: ToolBlock) {
   if (tool.name !== 'read' || tool.status === 'error') return ''
@@ -68,13 +69,13 @@ export const Tool = memo(function Tool({
   const t = useT()
   const hasArgs = Object.keys(tool.args).length > 0
   return (
-    <Disclosure
-      className={`chat-disclosure tool-block ${tool.status}`}
-      isExpanded={expanded}
+    <ChatDisclosure
+      className={`tool-block ${tool.status}`}
+      triggerClassName={`tool ${tool.status}`}
+      expanded={expanded}
       onExpandedChange={(open) => onToggle(tool.id, open)}
-    >
-      <Disclosure.Heading className="chat-disclosure-heading">
-        <Disclosure.Trigger className={`chat-disclosure-trigger tool ${tool.status}`}>
+      label={
+        <>
           <ToolStatus status={tool.status} />
           <TextShimmer className="verb" active={tool.status === 'running'}>
             {t(toolVerb(tool))}
@@ -82,48 +83,44 @@ export const Tool = memo(function Tool({
           <span className="filename" title={tool.label}>
             {tool.label}
           </span>
-          <Disclosure.Indicator className="tool-chevron">
-            <ChevronDown />
-          </Disclosure.Indicator>
-        </Disclosure.Trigger>
-        <OpenSourceButton tool={tool} />
-      </Disclosure.Heading>
-      <Disclosure.Content>
-        <div className="tool-output">
-          {hasArgs && (
-            <section className="tool-section" aria-label={t('tools.input')}>
-              <div className="tool-section-label">{t('tools.input')}</div>
-              <ToolCode text={JSON.stringify(tool.args, null, 2)} language="json" />
-            </section>
-          )}
-          <section
-            className="tool-section"
-            aria-label={t(tool.status === 'error' ? 'tools.errorDetails' : 'tools.output')}
-          >
-            <div className="tool-section-label">
-              {t(tool.status === 'error' ? 'tools.errorDetails' : 'tools.output')}
-            </div>
-            {tool.diff ? (
-              <Diff label={tool.label} lines={tool.diff} />
-            ) : tool.output ? (
-              <ToolCode text={tool.output} language={outputLanguage(tool)} />
-            ) : (
-              <div className="tool-pending" role={tool.status === 'running' ? 'status' : undefined}>
-                {t(
-                  tool.status === 'running'
-                    ? 'tools.running'
-                    : tool.status === 'error'
-                      ? 'tools.noErrorDetails'
-                      : tool.status === 'interrupted'
-                        ? 'tools.interrupted'
-                        : 'tools.noOutput',
-                )}
-              </div>
-            )}
+        </>
+      }
+      action={<OpenSourceButton tool={tool} />}
+    >
+      <div className="tool-output">
+        {hasArgs && (
+          <section className="tool-section" aria-label={t('tools.input')}>
+            <div className="tool-section-label">{t('tools.input')}</div>
+            <ToolCode text={JSON.stringify(tool.args, null, 2)} language="json" />
           </section>
-        </div>
-      </Disclosure.Content>
-    </Disclosure>
+        )}
+        <section
+          className="tool-section"
+          aria-label={t(tool.status === 'error' ? 'tools.errorDetails' : 'tools.output')}
+        >
+          <div className="tool-section-label">
+            {t(tool.status === 'error' ? 'tools.errorDetails' : 'tools.output')}
+          </div>
+          {tool.diff ? (
+            <Diff label={tool.label} lines={tool.diff} />
+          ) : tool.output ? (
+            <ToolCode text={tool.output} language={outputLanguage(tool)} />
+          ) : (
+            <div className="tool-pending" role={tool.status === 'running' ? 'status' : undefined}>
+              {t(
+                tool.status === 'running'
+                  ? 'tools.running'
+                  : tool.status === 'error'
+                    ? 'tools.noErrorDetails'
+                    : tool.status === 'interrupted'
+                      ? 'tools.interrupted'
+                      : 'tools.noOutput',
+              )}
+            </div>
+          )}
+        </section>
+      </div>
+    </ChatDisclosure>
   )
 })
 
@@ -145,17 +142,16 @@ export const ToolGroup = memo(function ToolGroup({
 }) {
   const t = useT()
   const status = groupStatus(tools)
-  const [expanded, setExpanded] = useState(
-    () => status !== 'done' || tools.some((tool) => Boolean(tool.diff)),
-  )
+  const [choice, setChoice] = useState<boolean | null>(null)
+  const expanded = choice ?? status !== 'done'
   return (
-    <Disclosure
-      className={`chat-disclosure tool-group ${status}`}
-      isExpanded={expanded}
-      onExpandedChange={setExpanded}
-    >
-      <Disclosure.Heading className="chat-disclosure-heading">
-        <Disclosure.Trigger className={`chat-disclosure-trigger tool tool-group-trigger ${status}`}>
+    <ChatDisclosure
+      className={`tool-group ${status}`}
+      triggerClassName={`tool tool-group-trigger ${status}`}
+      expanded={expanded}
+      onExpandedChange={setChoice}
+      label={
+        <>
           <ToolStatus status={status} />
           <span>{t('tools.group', { count: tools.length })}</span>
           <TextShimmer className="tool-group-state" active={status === 'running'}>
@@ -169,24 +165,21 @@ export const ToolGroup = memo(function ToolGroup({
                     : 'tools.completed',
             )}
           </TextShimmer>
-          <Disclosure.Indicator className="tool-chevron">
-            <ChevronDown />
-          </Disclosure.Indicator>
-        </Disclosure.Trigger>
-      </Disclosure.Heading>
-      <Disclosure.Content>
-        <div className="tool-group-items">
-          {tools.map((tool) => (
-            <Tool key={tool.id} tool={tool} expanded={toolOpen(tool)} onToggle={onToggle} />
-          ))}
-        </div>
-      </Disclosure.Content>
-    </Disclosure>
+        </>
+      }
+    >
+      <div className="tool-group-items">
+        {tools.map((tool) => (
+          <Tool key={tool.id} tool={tool} expanded={toolOpen(tool)} onToggle={onToggle} />
+        ))}
+      </div>
+    </ChatDisclosure>
   )
 })
 
 export function toolStartsOpen(tool: ToolBlock) {
   // A running call stays a single row. Opening it only because it is in
   // progress, then remounting it shut when the turn ends, jumps the thread.
-  return Boolean(tool.diff) || tool.status === 'error'
+  // Completed diffs follow the same collapsed default as other tool output.
+  return tool.status === 'error'
 }

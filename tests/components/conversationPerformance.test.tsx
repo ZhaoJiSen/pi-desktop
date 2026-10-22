@@ -16,13 +16,15 @@ vi.mock('@heroui/react', async (original) => ({
     children,
     ref,
     onScroll,
+    onWheelCapture,
     className,
   }: {
     children?: ReactNode
     ref: React.Ref<HTMLDivElement>
     onScroll?: () => void
+    onWheelCapture?: React.WheelEventHandler<HTMLDivElement>
     className?: string
-  }) => h('div', { ref, onScroll, className }, children),
+  }) => h('div', { ref, onScroll, onWheelCapture, className }, children),
   Spinner: () => null,
 }))
 vi.mock('../../src/components/TextShimmer', () => ({
@@ -76,6 +78,159 @@ afterEach(async () => {
   useWorkspace.flushPersistence()
   container.remove()
   vi.unstubAllGlobals()
+})
+
+function watchResizes() {
+  const callbacks: (() => void)[] = []
+  const observed: Element[] = []
+  const disconnect = vi.fn()
+  vi.stubGlobal(
+    'ResizeObserver',
+    class {
+      constructor(callback: () => void) {
+        callbacks.push(callback)
+      }
+      observe(element: Element) {
+        observed.push(element)
+      }
+      disconnect = disconnect
+    },
+  )
+  return {
+    observed,
+    disconnect,
+    resize: () => act(async () => callbacks.forEach((callback) => callback())),
+  }
+}
+
+function scrollGeometry(element: HTMLDivElement, height = 1200, viewport = 400) {
+  const geometry = { height, viewport, offset: 0 }
+  Object.defineProperties(element, {
+    scrollHeight: { configurable: true, get: () => geometry.height },
+    clientHeight: { configurable: true, get: () => geometry.viewport },
+    scrollTop: {
+      configurable: true,
+      get: () => geometry.offset,
+      set: (value: number) => {
+        geometry.offset = Math.max(0, Math.min(geometry.height - geometry.viewport, value))
+      },
+    },
+  })
+  return geometry
+}
+
+it('keeps the bottom visible across local body and viewport resizes without moving a history reader', async () => {
+  const watcher = watchResizes()
+  await act(async () => root.render(h(Conversation, { onProject: () => {} })))
+  const scroll = container.querySelector<HTMLDivElement>('.conversation')!
+  const geometry = scrollGeometry(scroll)
+  expect(watcher.observed).toContain(scroll)
+  expect(watcher.observed).toContain(container.querySelector('.conversation-content'))
+  await watcher.resize()
+  await act(async () => {
+    scroll.scrollTop = 800
+    scroll.dispatchEvent(new Event('scroll'))
+  })
+  geometry.height = 1800
+  await watcher.resize()
+  expect(scroll.scrollTop).toBe(1400)
+  await act(async () => {
+    scroll.scrollTop = 900
+    scroll.dispatchEvent(new Event('scroll'))
+  })
+  geometry.height = 2400
+  await watcher.resize()
+  expect(scroll.scrollTop).toBe(900)
+  await act(async () => {
+    scroll.scrollTop = 2000
+    scroll.dispatchEvent(new Event('scroll'))
+  })
+  geometry.viewport = 450
+  await watcher.resize()
+  expect(scroll.scrollTop).toBe(1950)
+})
+
+it('continues following the bottom after a disclosure shrinks a thread below viewport height and grows again', async () => {
+  const watcher = watchResizes()
+  await act(async () => root.render(h(Conversation, { onProject: () => {} })))
+  const scroll = container.querySelector<HTMLDivElement>('.conversation')!
+  const geometry = scrollGeometry(scroll, 200, 400)
+  await watcher.resize()
+  await act(async () => scroll.dispatchEvent(new Event('scroll')))
+  geometry.height = 900
+  await watcher.resize()
+  expect(scroll.scrollTop).toBe(500)
+  geometry.height = 200
+  await watcher.resize()
+  expect(scroll.scrollTop).toBe(0)
+  geometry.height = 1000
+  await watcher.resize()
+  expect(scroll.scrollTop).toBe(600)
+})
+
+it('does not treat delayed layout scroll events as a request to leave the bottom', async () => {
+  const watcher = watchResizes()
+  await act(async () => root.render(h(Conversation, { onProject: () => {} })))
+  const scroll = container.querySelector<HTMLDivElement>('.conversation')!
+  const geometry = scrollGeometry(scroll)
+  await watcher.resize()
+  geometry.height = 800
+  scroll.scrollTop = 400
+  await act(async () => scroll.dispatchEvent(new Event('scroll')))
+  await watcher.resize()
+  geometry.height = 1400
+  // Delivered late from the preceding collapse, before the expansion observer.
+  await act(async () => scroll.dispatchEvent(new Event('scroll')))
+  await watcher.resize()
+  expect(scroll.scrollTop).toBe(1000)
+  geometry.viewport = 250
+  await act(async () => scroll.dispatchEvent(new Event('scroll')))
+  await watcher.resize()
+  expect(scroll.scrollTop).toBe(1150)
+})
+
+it('resumes bottom-follow when a collapse naturally brings a history reader to the end', async () => {
+  const watcher = watchResizes()
+  await act(async () => root.render(h(Conversation, { onProject: () => {} })))
+  const scroll = container.querySelector<HTMLDivElement>('.conversation')!
+  const geometry = scrollGeometry(scroll)
+  await watcher.resize()
+  await act(async () => {
+    scroll.scrollTop = 400
+    scroll.dispatchEvent(new Event('scroll'))
+  })
+  geometry.height = 600
+  scroll.scrollTop = 200
+  await act(async () => scroll.dispatchEvent(new Event('scroll')))
+  await watcher.resize()
+  geometry.height = 1200
+  await watcher.resize()
+  expect(scroll.scrollTop).toBe(800)
+})
+
+it('honors an upward wheel gesture before a simultaneous streamed resize is delivered', async () => {
+  const watcher = watchResizes()
+  await act(async () => root.render(h(Conversation, { onProject: () => {} })))
+  const scroll = container.querySelector<HTMLDivElement>('.conversation')!
+  const geometry = scrollGeometry(scroll)
+  await watcher.resize()
+  await act(async () =>
+    scroll.dispatchEvent(new WheelEvent('wheel', { deltaY: -240, bubbles: true })),
+  )
+  geometry.height = 1800
+  await watcher.resize()
+  expect(scroll.scrollTop).toBe(800)
+})
+
+it('starts observing asynchronously restored content and cleans up when it is removed', async () => {
+  const watcher = watchResizes()
+  useWorkspace.getState().updateSession('active', { messages: [] })
+  await act(async () => root.render(h(Conversation, { onProject: () => {} })))
+  expect(watcher.observed).toHaveLength(0)
+  await act(async () => useWorkspace.getState().updateSession('active', { messages: history(2) }))
+  expect(watcher.observed).toHaveLength(2)
+  await act(async () => useWorkspace.getState().updateSession('active', { messages: [] }))
+  expect(watcher.disconnect).toHaveBeenCalledOnce()
 })
 
 it('opens a 2,000-message conversation by rendering only the latest 80, then loads history without moving the reading position', async () => {

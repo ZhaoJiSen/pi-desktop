@@ -1,0 +1,78 @@
+// Keep the disclosure and source action on one continuous header surface.
+.tool-block > .chat-disclosure-heading {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-right: 6px;
+  transition: background-color 120ms ease;
+
+  &:hover,
+  &:has(> .chat-disclosure-trigger:is([data-hovered='true'], [data-pressed='true'])) {
+    background: var(--hover);
+  }
+
+  &:has(> .chat-disclosure-trigger[aria-expanded='true']) {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+}
+.tool-block > .chat-disclosure-heading > .chat-disclosure-trigger {
+  flex: 1;
+  min-width: 0;
+  width: auto;
+  padding: 5px 0 5px 12px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+
+  &:is(:hover, :active, [data-hovered='true'], [data-pressed='true']) {
+    background: transparent;
+  }
+
+  .tool-chevron {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    padding: 7px;
+    border-radius: var(--radius-md, calc(var(--radius) * 0.75));
+    transition:
+      background-color 120ms ease,
+      color 120ms ease;
+  }
+
+  &:is(:hover, [data-hovered='true'], :focus-visible, [data-focus-visible='true']) .tool-chevron {
+    color: var(--ink);
+  }
+}
+.button.icon-button.tool-open-source {
+  position: relative;
+  flex: none;
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  min-height: 28px;
+  margin: 0;
+  border-radius: var(--radius-md, calc(var(--radius) * 0.75));
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: -3px;
+    top: 7px;
+    width: 1px;
+    height: 14px;
+    background: var(--chat-line);
+    pointer-events: none;
+  }
+
+  &:is(:hover, [data-hovered='true']) {
+    color: var(--ink);
+    background: var(--hover);
+  }
+
+  svg {
+    width: 14px;
+    height: 14px;
+    flex: none;
+  }
+}

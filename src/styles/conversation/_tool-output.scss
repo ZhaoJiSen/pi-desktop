@@ -1,0 +1,64 @@
+.tool-output-surface {
+  margin: 10px 0 15px;
+  border-radius: var(--radius-lg, var(--radius));
+  background: var(--code-head);
+  overflow: hidden;
+  min-width: 0;
+  max-width: 100%;
+}
+.tool-scroll {
+  max-height: 300px;
+  background: transparent;
+  min-width: 0;
+  max-width: 100%;
+  overflow: auto;
+}
+.tool-text {
+  margin: 0;
+  padding: 12px 14px;
+  width: max-content;
+  min-width: 100%;
+  overflow: visible;
+  background: transparent;
+  white-space: pre;
+  font-family: var(--font-code);
+  font-size: var(--font-code-size);
+  line-height: var(--font-code-leading);
+  font-variant-ligatures: var(--font-code-ligatures);
+  font-feature-settings: var(--font-code-features);
+}
+.tool-pending {
+  color: var(--muted);
+  padding: 8px 0;
+  font-size: 12px;
+}
+.thinking-block {
+  color: var(--muted);
+  margin: 4px 0;
+}
+.thinking-text {
+  margin: 0;
+  padding: 4px 0 8px;
+  font-size: var(--font-reading-size);
+  line-height: var(--font-reading-leading);
+}
+.thinking-text p,
+.thinking-text ul,
+.thinking-text ol,
+.thinking-text blockquote {
+  margin-bottom: 8px;
+}
+.thinking-text :is(h1, h2, h3, h4, h5, h6) {
+  font-size: 1em;
+  font-weight: 500;
+  line-height: 1.5;
+  margin: 12px 0 6px;
+}
+.thinking-text > :first-child,
+.thinking-text .reply-markdown > :first-child {
+  margin-top: 0;
+}
+.thinking-text > :last-child,
+.thinking-text .reply-markdown > :last-child {
+  margin-bottom: 0;
+}

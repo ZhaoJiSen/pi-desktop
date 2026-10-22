@@ -1,0 +1,237 @@
+.chat-disclosure {
+  min-width: 0;
+  max-width: 100%;
+}
+.chat-disclosure-heading {
+  margin: 0;
+  font: inherit;
+}
+.chat-disclosure-trigger {
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 400;
+  width: fit-content;
+  max-width: calc(100% + 6px);
+  min-width: 0;
+  text-align: left;
+  margin-left: -6px;
+  padding: 4px 6px;
+  line-height: 20px;
+  color: var(--muted);
+  border: 0;
+  border-radius: var(--radius-md, calc(var(--radius) * 0.75));
+  background: transparent;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+.chat-disclosure-trigger:is(:hover, [data-hovered='true']) {
+  background: var(--hover);
+}
+.chat-disclosure-trigger:is(:active, [data-pressed='true']) {
+  transform: none;
+  background: var(--hover);
+}
+.chat-disclosure-trigger:is(:focus-visible, [data-focus-visible='true']) {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.chat-disclosure-trigger svg {
+  margin: 0;
+}
+.chat-disclosure-trigger .chevron {
+  width: 12px;
+  height: 12px;
+  color: var(--muted);
+  flex: none;
+  rotate: none;
+  transform: rotate(0deg);
+  transition: transform 160ms ease;
+}
+.chat-disclosure-trigger .chevron[data-expanded='true'] {
+  transform: rotate(90deg);
+}
+.chat-disclosure-trigger .chevron svg {
+  width: 100%;
+  height: 100%;
+}
+.chat-disclosure-content {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 160ms cubic-bezier(0.4, 0, 1, 1);
+}
+.chat-disclosure-content[data-expanded='true'] {
+  grid-template-rows: 1fr;
+  transition-duration: 220ms;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+.chat-disclosure-body {
+  min-height: 0;
+  overflow: clip;
+  contain: layout paint;
+}
+.chat-disclosure-content[hidden='until-found'] {
+  height: 0;
+  overflow: clip;
+}
+.chat-disclosure-content[data-instant='true'] {
+  transition: none;
+}
+.tool-block,
+.tool-group {
+  border: 1px solid var(--chat-line);
+  border-radius: var(--radius-lg, var(--radius));
+  margin: 8px 0;
+  // Keep the focus ring visible; Disclosure owns content clipping.
+  background: var(--chat-tool-fill);
+}
+.chat-disclosure-trigger.tool {
+  min-height: 38px;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: inherit;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease,
+    border-bottom-left-radius 200ms var(--ease-out-quad),
+    border-bottom-right-radius 200ms var(--ease-out-quad);
+}
+.tool-block > .chat-disclosure-heading,
+.tool-group > .chat-disclosure-heading {
+  border-radius: inherit;
+}
+.chat-disclosure-trigger.tool[aria-expanded='true'] {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.chat-disclosure-trigger .tool-chevron {
+  display: flex;
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin-left: auto;
+  color: var(--muted);
+}
+.tool-chevron svg {
+  width: 14px;
+  height: 14px;
+  transition: transform 160ms ease;
+}
+.tool-chevron[data-expanded='true'] svg {
+  transform: rotate(-180deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .chat-disclosure-content {
+    transition: none;
+  }
+  .chat-disclosure-trigger :is(.chevron, .tool-chevron svg) {
+    transition: none;
+  }
+}
+.tool-output {
+  padding: 0 12px 12px;
+  min-width: 0;
+}
+.tool-section + .tool-section {
+  margin-top: 12px;
+}
+.tool-section-label {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 20px;
+  margin: 4px 0 6px;
+}
+.tool-output :is(.tool-output-surface, .diff) {
+  margin: 0;
+}
+.tool-block.error {
+  border-color: color-mix(in srgb, var(--danger) 35%, var(--chat-line));
+}
+.tool-block.error .tool-section-label,
+.tool.error .verb {
+  color: color-mix(in srgb, var(--danger) 60%, var(--ink));
+}
+.tool-group-items {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px 10px 10px;
+  min-width: 0;
+}
+.tool-group-items > .tool-block {
+  margin: 0;
+}
+.tool-group-state {
+  color: var(--muted);
+  font-size: 12px;
+  margin-left: auto;
+  white-space: nowrap;
+}
+.chat-disclosure-trigger.tool-group-trigger .tool-chevron {
+  margin-left: 0;
+}
+.tool-group.running .tool-group-state {
+  color: var(--status);
+}
+.tool-group.error .tool-group-state {
+  color: color-mix(in srgb, var(--danger) 60%, var(--ink));
+}
+.tool > svg {
+  flex-shrink: 0;
+}
+.tool .check {
+  color: var(--mint);
+  width: 14px;
+  height: 14px;
+}
+.tool .tool-spinner,
+.run-status .run-spinner {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  flex: none;
+  align-self: center;
+}
+.tool .tool-spinner {
+  color: var(--status);
+}
+.tool-error-icon {
+  color: var(--danger);
+  width: 14px;
+  height: 14px;
+}
+.tool-interrupted-icon,
+.thinking-icon {
+  color: var(--muted);
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+.tool .verb {
+  color: var(--muted);
+  white-space: nowrap;
+}
+.tool.running .verb {
+  color: var(--ink);
+}
+.tool.running .verb.text-shimmer {
+  color: var(--muted);
+}
+.filename {
+  font-family: var(--font-code);
+  font-size: var(--font-code-size);
+  line-height: 1.4;
+  font-variant-ligatures: var(--font-code-ligatures);
+  font-feature-settings: var(--font-code-features);
+  color: var(--ink);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
