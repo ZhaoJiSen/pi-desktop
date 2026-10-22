@@ -75,6 +75,7 @@ beforeEach(() => {
   available = 1200
   source.setOpen.mockClear()
   localStorage.clear()
+  localStorage.setItem('pi.source-panel-width', '420')
   vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(
     () => ({ width: available }) as DOMRect,
   )
@@ -101,6 +102,13 @@ afterEach(async () => {
 })
 
 describe('source workspace layout', () => {
+  it('defaults to enough width for a persistent tree and content pane', async () => {
+    localStorage.removeItem('pi.source-panel-width')
+    await mount()
+    expect(width()).toBe('760px')
+    expect(expanded()).toBe(false)
+  })
+
   it('can reverse an expansion during the same drag without getting stuck or oscillating', async () => {
     await mount()
     await pointer('pointerdown', 780)
@@ -246,15 +254,15 @@ describe('source workspace layout', () => {
   })
 
   it('continues resizing if reading or saving the preference fails', async () => {
-    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+    vi.spyOn(localStorage, 'getItem').mockImplementation(() => {
       throw new Error('Storage unavailable')
     })
-    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+    vi.spyOn(localStorage, 'setItem').mockImplementation(() => {
       throw new Error('Storage unavailable')
     })
     await mount()
-    expect(width()).toBe('420px')
-    await pointer('pointerdown', 780)
+    expect(width()).toBe('760px')
+    await pointer('pointerdown', 440)
     await pointer('pointermove', 400)
     await pointer('pointerup', 400)
     expect(width()).toBe('800px')

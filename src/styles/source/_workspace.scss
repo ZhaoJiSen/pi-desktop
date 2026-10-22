@@ -1,0 +1,206 @@
+.source-panel {
+  container-name: source-panel;
+  container-type: inline-size;
+}
+.source-panel[hidden] {
+  display: none;
+}
+.source-workspace-pane {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+}
+.source-workspace-pane[hidden] {
+  display: none;
+}
+.source-browser {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+}
+.source-browser.is-history {
+  grid-template-columns: 260px minmax(0, 1fr);
+}
+.source-browser-navigation,
+.source-browser-content {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+.source-browser-navigation {
+  padding-block: 4px 8px;
+}
+.source-browser-content {
+  margin-top: 8px;
+  overflow: hidden;
+  border-left: 1px solid var(--line);
+  background: var(--paper);
+}
+.source-browser-content > .source-notice {
+  margin-block: auto;
+}
+.source-nav-heading {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 34px;
+  padding: 6px 16px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.source-nav-heading code {
+  font-size: 11px;
+}
+.source-tree-scroll,
+.source-preview-scroll {
+  flex: 1;
+}
+.source-preview-scroll > .hover-scroll-viewport {
+  padding-right: 0;
+}
+.source-preview-bar,
+.source-browser-content .source-detail-bar {
+  flex: none;
+  min-height: 42px;
+  padding: 6px 10px;
+  background: color-mix(in srgb, var(--code-head) 35%, var(--paper));
+  flex-wrap: wrap;
+}
+.source-preview-bar .source-detail-path {
+  flex-basis: 100px;
+  font-size: 12px;
+}
+.source-preview-bar .icon-button {
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+}
+.source-preview-bar svg {
+  width: 14px;
+  height: 14px;
+}
+.source-file-find {
+  flex: none;
+}
+.source-file-find .source-find {
+  max-width: none;
+  border: 0;
+}
+.source-browser .source-tree-item.is-current {
+  background: color-mix(in srgb, var(--ink) 10%, transparent);
+  color: var(--ink);
+}
+.source-browser .source-detail {
+  animation: none;
+}
+.source-browser .diff-stats {
+  flex: none;
+  gap: 5px;
+  font-size: 11px;
+}
+.source-branch > .source-commit {
+  height: 28px;
+  min-height: 28px;
+  gap: 6px;
+  padding: 0 8px;
+  font-size: 12px;
+}
+.source-changes > .source-branch {
+  flex: none;
+  padding-bottom: 6px;
+  border-bottom: 0;
+  padding: 8px 12px 2px 16px;
+  margin: 0;
+}
+.source-browser.is-history .history-list {
+  flex: 1;
+  min-height: 100px;
+}
+.source-browser.is-history .history-copy {
+  flex: 1;
+}
+.source-browser.is-history .history-copy .source-name,
+.source-browser.is-history .history-copy .source-subpath {
+  width: 100%;
+  flex: none;
+  text-align: left;
+}
+.source-commit-files {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 100px;
+  border-top: 1px solid var(--line);
+}
+@container source-panel (max-width: 600px) {
+  .source-browser,
+  .source-browser.is-history {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(130px, 38%) minmax(0, 1fr);
+  }
+  .source-browser-navigation {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 4px;
+  }
+  .source-browser-content {
+    margin: 0;
+    border-left: 0;
+  }
+  .source-browser.is-history > .source-browser-navigation {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .source-browser.is-history .history-list {
+    border-right: 1px solid var(--line);
+  }
+  .source-commit-files {
+    border-top: 0;
+  }
+}
+
+.source-browser-navigation .source-agent {
+  width: 5px;
+  height: 5px;
+  flex: none;
+  overflow: hidden;
+  margin-left: 0;
+  border-radius: 50%;
+  background: var(--muted);
+  font-size: 0;
+}
+
+.source-file-content {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+@container source-panel (max-width: 420px) {
+  .source-toolbar .source-show-chat {
+    width: 28px;
+    min-width: 28px;
+    padding: 0;
+    font-size: 0;
+  }
+}
+.source-file-content,
+.source-browser .history-list .source-scroll {
+  scrollbar-gutter: stable;
+  scrollbar-color: transparent transparent;
+}
+.source-browser-content:is(:hover, :has(:focus-visible)) .source-file-content,
+.source-browser .history-list:is(:hover, :has(:focus-visible)) .source-scroll {
+  scrollbar-color: color-mix(in srgb, var(--muted) 35%, transparent) transparent;
+}
+@media (hover: none) {
+  .source-file-content,
+  .source-browser .history-list .source-scroll {
+    scrollbar-color: color-mix(in srgb, var(--muted) 35%, transparent) transparent;
+  }
+}

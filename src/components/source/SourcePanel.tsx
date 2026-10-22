@@ -1,5 +1,6 @@
-import { Button, Separator, Toolbar } from '@heroui/react'
-import { FolderTree, GitCompare, History, PanelsLeftRight, RotateCw, X } from 'lucide-react'
+import { Button, Toolbar } from '@heroui/react'
+import { SourceAction } from './SourceAction'
+import { FolderTree, GitBranch, PanelsLeftRight, RotateCw, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useT } from '../../lib/i18n'
 import { ChangesPane } from './ChangesView'
@@ -7,6 +8,7 @@ import { useSource, type SourceRequest, type SourceTab } from './context'
 import { FilesPane } from './FilesPane'
 import { HistoryPane } from './HistoryPane'
 import { PanelResize } from './PanelResize'
+import { SourceViewTabs } from './SourceViewTabs'
 import { useProjectSource } from './useProjectSource'
 
 export function SourcePanel({
@@ -23,12 +25,15 @@ export function SourcePanel({
   onShowConversation: () => void
 }) {
   const source = useSource()
+  const { path: projectPath } = useProjectSource()
   const t = useT()
   const open = Boolean(source?.open)
   const [rendered, setRendered] = useState(open)
+  const [openedOnce, setOpenedOnce] = useState(open)
   const [visible, setVisible] = useState(false)
   const [resizing, setResizing] = useState(false)
   if (open && !rendered) setRendered(true)
+  if (open && !openedOnce) setOpenedOnce(true)
   useEffect(() => {
     if (!rendered) return
     if (open) {
@@ -41,15 +46,18 @@ export function SourcePanel({
         cancelAnimationFrame(inner)
       }
     }
-    setVisible(false)
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      setRendered(false)
-      return
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const frame = requestAnimationFrame(() => {
+      setVisible(false)
+      if (reduced) setRendered(false)
+    })
+    const timer = reduced ? undefined : window.setTimeout(() => setRendered(false), 280)
+    return () => {
+      cancelAnimationFrame(frame)
+      window.clearTimeout(timer)
     }
-    const timer = window.setTimeout(() => setRendered(false), 280)
-    return () => window.clearTimeout(timer)
   }, [open, rendered])
-  if (!rendered || !source) return null
+  if (!openedOnce || !source) return null
   return (
     <aside
       className={
@@ -60,6 +68,8 @@ export function SourcePanel({
           : 'source-panel'
       }
       style={{ width: visible ? width : 0 }}
+      hidden={!rendered}
+      inert={!open}
       aria-label={t('source.panel')}
       aria-hidden={!visible}
       onTransitionEnd={(event) => {
@@ -75,7 +85,7 @@ export function SourcePanel({
         onReset={onShowConversation}
       />
       <PanelBody
-        key={source.request.nonce}
+        key={projectPath}
         request={source.request}
         expanded={expanded}
         onShowConversation={onShowConversation}
@@ -97,10 +107,32 @@ function PanelBody({
   onClose: () => void
 }) {
   const t = useT()
+  const source = useSource()
   const { path, revision } = useProjectSource()
-  const [tab, setTab] = useState<SourceTab>(request.tab ?? 'changes')
+  const initialTab = request.tab ?? 'changes'
+  const [tab, setTab] = useState<SourceTab>(initialTab)
+  const [gitTab, setGitTab] = useState<'changes' | 'history'>(
+    initialTab === 'history' ? 'history' : 'changes',
+  )
+  const [visited, setVisited] = useState(() => new Set<SourceTab>([initialTab]))
+  const [requests, setRequests] = useState<Partial<Record<SourceTab, SourceRequest>>>(() => ({
+    [initialTab]: request,
+  }))
   const [tick, setTick] = useState(0)
-  const [historyPath, setHistoryPath] = useState<string | null>(request.historyPath ?? null)
+  const [refreshes, setRefreshes] = useState({ changes: 0, files: 0, history: 0 })
+  const [handledRequest, setHandledRequest] = useState(request.nonce)
+  if (handledRequest !== request.nonce) {
+    setHandledRequest(request.nonce)
+    setTab(initialTab)
+    if (initialTab !== 'files') setGitTab(initialTab)
+    setVisited((current) => new Set([...current, initialTab]))
+    setRequests((current) => ({ ...current, [initialTab]: request }))
+  }
+  function select(next: SourceTab) {
+    setTab(next)
+    if (next !== 'files') setGitTab(next)
+    setVisited((current) => (current.has(next) ? current : new Set([...current, next])))
+  }
   const skipRefresh = useRef(true)
   useEffect(() => {
     if (skipRefresh.current) {
@@ -110,103 +142,89 @@ function PanelBody({
     const timer = window.setTimeout(() => setTick((value) => value + 1), 300)
     return () => window.clearTimeout(timer)
   }, [revision])
-  const title =
-    tab === 'files'
-      ? t('source.files')
-      : tab === 'history'
-        ? t('source.history')
-        : t('source.changes')
+  const changesRequest = requests.changes
+  const filesRequest = requests.files
+  const historyRequest = requests.history
   return (
     <>
       <div className="source-toolbar">
-        <h2 className="source-heading">{title}</h2>
-        {expanded && (
-          <Button variant="ghost" className="source-show-chat" onPress={onShowConversation}>
-            <PanelsLeftRight />
-            {t('source.showConversation')}
-          </Button>
-        )}
+        <h2 className="sr-only">{t('source.panel')}</h2>
+        <SourceViewTabs
+          label={t('source.panel')}
+          selected={tab === 'files' ? 'files' : 'git'}
+          onSelect={(next) => select(next === 'files' ? 'files' : gitTab)}
+          items={[
+            { id: 'git', label: t('source.git'), icon: <GitBranch /> },
+            { id: 'files', label: t('source.files'), icon: <FolderTree /> },
+          ]}
+        />
         <Toolbar aria-label={t('source.panel')} className="source-modes">
-          <Button
-            isIconOnly
-            variant="ghost"
-            className="icon-button source-mode"
-            aria-label={t('source.changes')}
-            aria-pressed={tab === 'changes'}
-            onPress={() => setTab('changes')}
-          >
-            <GitCompare />
-          </Button>
-          <Button
-            isIconOnly
-            variant="ghost"
-            className="icon-button source-mode"
-            aria-label={t('source.files')}
-            aria-pressed={tab === 'files'}
-            onPress={() => setTab('files')}
-          >
-            <FolderTree />
-          </Button>
-          <Button
-            isIconOnly
-            variant="ghost"
-            className="icon-button source-mode"
-            aria-label={t('source.history')}
-            aria-pressed={tab === 'history'}
-            onPress={() => setTab('history')}
-          >
-            <History />
-          </Button>
-          <Separator />
-          <Button
-            isIconOnly
-            variant="ghost"
-            className="icon-button"
-            aria-label={t('source.refresh')}
-            onPress={() => setTick((value) => value + 1)}
+          {expanded && (
+            <Button
+              variant="ghost"
+              className="source-show-chat"
+              aria-label={t('source.showConversation')}
+              onPress={onShowConversation}
+            >
+              <PanelsLeftRight />
+              {t('source.showConversation')}
+            </Button>
+          )}
+          <SourceAction
+            label={t('source.refresh')}
+            onPress={() => setRefreshes((current) => ({ ...current, [tab]: current[tab] + 1 }))}
           >
             <RotateCw />
-          </Button>
-          <Button
-            isIconOnly
-            variant="ghost"
-            className="icon-button"
-            aria-label={t('source.close')}
-            onPress={onClose}
-          >
+          </SourceAction>
+          <SourceAction label={t('source.close')} onPress={onClose}>
             <X />
-          </Button>
+          </SourceAction>
         </Toolbar>
       </div>
-      <Separator orientation="horizontal" className="source-toolbar-separator" />
-      <div className="source-body" key={tab}>
-        {tab === 'changes' && (
-          <ChangesPane
-            tick={tick}
-            initialPath={request.mode === 'diff' ? (request.path ?? null) : null}
-            fallback={request.fallback}
-            fallbackLabel={request.label ?? request.path ?? ''}
-          />
+      {tab !== 'files' && (
+        <SourceViewTabs
+          secondary
+          label={t('source.gitViews')}
+          selected={tab === 'history' ? 'history' : 'changes'}
+          onSelect={select}
+          items={[
+            { id: 'changes', label: t('source.changes') },
+            { id: 'history', label: t('source.history') },
+          ]}
+        />
+      )}
+      <div className="source-body">
+        {visited.has('changes') && (
+          <div className="source-workspace-pane" hidden={tab !== 'changes'}>
+            <ChangesPane
+              tick={tick + refreshes.changes}
+              requestNonce={changesRequest?.nonce ?? 0}
+              initialPath={changesRequest?.path ?? null}
+              fallback={changesRequest?.fallback}
+              fallbackLabel={changesRequest?.label ?? changesRequest?.path ?? ''}
+            />
+          </div>
         )}
-        {tab === 'files' && (
-          <FilesPane
-            tick={tick}
-            initialPath={request.tab === 'files' ? (request.path ?? null) : null}
-            initialDiff={request.tab === 'files' && request.mode === 'diff'}
-            onHistory={(next) => {
-              setHistoryPath(next)
-              setTab('history')
-            }}
-          />
+        {visited.has('files') && (
+          <div className="source-workspace-pane" hidden={tab !== 'files'}>
+            <FilesPane
+              tick={tick + refreshes.files}
+              requestNonce={filesRequest?.nonce ?? 0}
+              initialPath={filesRequest?.path ?? null}
+              initialDiff={filesRequest?.mode === 'diff'}
+              onHistory={(next) => source?.show({ tab: 'history', historyPath: next })}
+            />
+          </div>
         )}
-        {tab === 'history' && (
-          <HistoryPane
-            key={historyPath ?? '*'}
-            projectPath={path}
-            tick={tick}
-            historyPath={historyPath}
-            onClear={() => setHistoryPath(null)}
-          />
+        {visited.has('history') && (
+          <div className="source-workspace-pane" hidden={tab !== 'history'}>
+            <HistoryPane
+              projectPath={path}
+              tick={tick + refreshes.history}
+              historyPath={historyRequest?.historyPath ?? null}
+              onClear={() => source?.show({ tab: 'history', historyPath: null })}
+            />
+          </div>
         )}
       </div>
     </>

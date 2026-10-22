@@ -1,0 +1,156 @@
+.diff.diff-panel {
+  --source-diff-muted: var(--muted);
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.diff.diff-panel .source-git-diff,
+.source-file {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+.diff.diff-panel .source-git-diff,
+.diff.diff-panel .diff-tailwindcss-wrapper .overflow-x-auto {
+  scrollbar-width: none;
+}
+.diff.diff-panel .source-git-diff::-webkit-scrollbar,
+.diff.diff-panel .diff-tailwindcss-wrapper .overflow-x-auto::-webkit-scrollbar {
+  height: 0;
+  display: none;
+}
+.source-detail.is-embedded,
+.source-detail.is-embedded .diff.diff-panel,
+.source-detail.is-embedded .source-git-diff {
+  margin: 0;
+  padding: 0;
+}
+.diff.diff-panel .source-git-diff {
+  background: var(--paper);
+}
+.source-change-list .source-detail.is-embedded .diff.diff-panel {
+  padding-bottom: 6px;
+  background: var(--paper);
+}
+.diff.diff-panel .diff-tailwindcss-wrapper {
+  width: 100%;
+  min-width: 0;
+  color: var(--ink);
+  background: var(--paper);
+  font-family: var(--font-code);
+  font-variant-ligatures: var(--font-code-ligatures);
+  font-feature-settings: var(--font-code-features);
+}
+// All files share the same 50/50 split, independent of their longest code line.
+.diff.diff-panel .split-diff-view-normal > :is(.old-diff-table-wrapper, .new-diff-table-wrapper) {
+  flex: 1 1 0;
+  width: 0;
+  min-width: 0;
+}
+.diff.diff-panel .split-diff-view-normal > .diff-split-line {
+  flex: 0 0 1px;
+}
+.diff.diff-panel .diff-tailwindcss-wrapper tr[data-state='hunk'] {
+  display: none;
+}
+.diff.diff-panel
+  .diff-tailwindcss-wrapper
+  :is(.diff-line-num, .diff-line-old-num, .diff-line-new-num) {
+  width: 3.2em !important;
+  min-width: 3.2em !important;
+  max-width: 3.2em !important;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+.diff.diff-panel
+  .diff-tailwindcss-wrapper
+  .diff-line-num
+  .flex
+  > span:not([data-line-old-num]):not([data-line-new-num]) {
+  display: none;
+}
+.diff.diff-panel
+  .diff-tailwindcss-wrapper
+  .diff-line-num:has([data-line-new-num])
+  [data-line-old-num] {
+  display: none;
+}
+.diff.diff-panel
+  .diff-tailwindcss-wrapper
+  .diff-line-num
+  :is([data-line-old-num], [data-line-new-num]) {
+  width: 100%;
+}
+.diff.diff-panel .diff-tailwindcss-wrapper :is(.diff-line-old-num, .diff-line-new-num) {
+  padding-left: 4px;
+  padding-right: 4px;
+}
+.diff.diff-panel .diff-tailwindcss-wrapper .diff-line-content-item {
+  padding-left: 14px;
+}
+.diff.diff-panel .diff-tailwindcss-wrapper .diff-line-content-operator {
+  width: 14px;
+  margin-left: -14px;
+}
+.diff.diff-panel .diff-tailwindcss-wrapper[data-theme] .diff-style-root {
+  --diff-border--: var(--line);
+  --diff-add-content--: var(--added);
+  --diff-del-content--: var(--removed);
+  --diff-add-lineNumber--: var(--added);
+  --diff-del-lineNumber--: var(--removed);
+  --diff-plain-content--: var(--paper);
+  --diff-expand-content--: var(--paper);
+  --diff-plain-lineNumber--: var(--paper);
+  --diff-expand-lineNumber--: var(--paper);
+  --diff-plain-lineNumber-color--: var(--source-diff-muted);
+  --diff-expand-lineNumber-color--: var(--source-diff-muted);
+  --diff-hunk-content--: var(--code-head);
+  --diff-hunk-lineNumber--: var(--code-head);
+  --diff-hunk-lineNumber-hover--: var(--link);
+  --diff-add-content-highlight--: color-mix(in srgb, var(--mint) 28%, var(--added));
+  --diff-del-content-highlight--: color-mix(in srgb, var(--danger) 22%, var(--removed));
+  --diff-empty-content--: var(--hover);
+  --diff-hunk-content-color--: var(--muted);
+}
+.diff.diff-panel
+  .diff-tailwindcss-wrapper
+  :is(.diff-line-num, .diff-line-old-num, .diff-line-new-num)
+  > div {
+  opacity: 1;
+}
+.diff.diff-panel
+  .diff-tailwindcss-wrapper[data-theme]
+  .diff-line-syntax-raw
+  :is(pre code.hljs, code.hljs) {
+  padding: 0;
+  background: transparent;
+  color: var(--ink);
+}
+.diff.diff-panel
+  .diff-tailwindcss-wrapper[data-theme]
+  .diff-line-syntax-raw
+  :is(.hljs-keyword, .hljs-doctag, .hljs-type) {
+  color: var(--syntax-keyword);
+}
+.diff.diff-panel
+  .diff-tailwindcss-wrapper[data-theme]
+  .diff-line-syntax-raw
+  :is(.hljs-title, .hljs-title.class_, .hljs-title.function_) {
+  color: var(--syntax-function);
+}
+.diff.diff-panel
+  .diff-tailwindcss-wrapper[data-theme]
+  .diff-line-syntax-raw
+  :is(.hljs-string, .hljs-regexp) {
+  color: var(--syntax-string);
+}
+.diff.diff-panel
+  .diff-tailwindcss-wrapper[data-theme]
+  .diff-line-syntax-raw
+  :is(.hljs-comment, .hljs-code) {
+  color: var(--muted);
+}

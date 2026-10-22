@@ -66,3 +66,84 @@
   padding-right: 12px;
   color: var(--muted);
 }
+
+.source-virtual-diff {
+  position: relative;
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  overflow-anchor: none;
+  font-family: var(--font-code);
+  font-variant-ligatures: var(--font-code-ligatures);
+  font-feature-settings: var(--font-code-features);
+}
+
+.source-diff-vside {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  overscroll-behavior-x: none;
+}
+
+.source-diff-vside + .source-diff-vside {
+  border-left: 1px solid var(--line);
+}
+
+.source-virtual-diff[data-selection-side='old'] [data-side='new'],
+.source-virtual-diff[data-selection-side='new'] [data-side='old'] {
+  user-select: none;
+}
+
+.source-diff-vcontent {
+  position: relative;
+}
+
+.source-diff-vrow {
+  position: absolute;
+  display: flex;
+  width: 100%;
+  white-space: pre;
+  background: var(--paper);
+}
+
+.source-diff-vrow[data-state='add'] {
+  background: var(--added);
+}
+
+.source-diff-vrow[data-state='del'] {
+  background: var(--removed);
+}
+
+.source-diff-vrow[data-state='empty'] {
+  background: var(--hover);
+}
+
+.source-diff-vnum {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  flex: 0 0 3.2em;
+  padding-inline: 8px;
+  text-align: right;
+  color: var(--muted);
+  background: inherit;
+  user-select: none;
+}
+
+.source-diff-vrow .diff-line-content-item {
+  flex: 1;
+  padding-right: 10px;
+}
+
+.source-diff-vrow .diff-line-content-operator {
+  display: inline-block;
+  user-select: none;
+}
+
+.source-diff-no-newline {
+  margin-left: 4px;
+  color: var(--danger);
+  user-select: none;
+}

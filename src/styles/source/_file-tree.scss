@@ -1,0 +1,116 @@
+// With Icons: quiet outline icons, compact rows, and continuous nesting guides.
+.source-tree {
+  display: flex;
+  flex-direction: column;
+  padding: 6px 8px;
+  outline: none;
+}
+.source-tree-item {
+  position: relative;
+  min-width: 0;
+  border-radius: var(--radius-md, calc(var(--radius) * 0.75));
+  color: var(--ink);
+  cursor: pointer;
+  outline: none;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+.source-tree-item[data-hovered],
+.source-tree-item[data-selected] {
+  background: color-mix(in srgb, var(--ink) 5%, transparent);
+}
+.source-tree-item[data-pressed] {
+  background: color-mix(in srgb, var(--ink) 12%, transparent);
+}
+.source-tree-item[data-focus-visible] {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+}
+.source-tree-item[aria-disabled='true'] {
+  color: var(--muted);
+  cursor: default;
+}
+.source-tree-content {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  min-height: 28px;
+  padding-block: 4px;
+  padding-right: 8px;
+  font-size: 13px;
+  line-height: 20px;
+}
+.source-tree-guide {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: color-mix(in srgb, var(--ink) 10%, transparent);
+  pointer-events: none;
+}
+.source-tree-chevron,
+.source-tree-chevron-space {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 12px;
+  height: 20px;
+}
+.source-tree-chevron {
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+.source-tree-chevron svg {
+  width: 12px;
+  height: 12px;
+  transition: transform 140ms ease;
+}
+.source-tree-item[data-expanded] .source-tree-chevron svg {
+  transform: rotate(90deg);
+}
+.source-tree-chevron[data-focus-visible] {
+  outline: 2px solid var(--focus);
+}
+.source-tree-icon {
+  flex: none;
+  width: 15px;
+  height: 15px;
+  color: var(--muted);
+  stroke-width: 1.5;
+}
+.source-tree-icon.is-loading {
+  animation: source-tree-loading 800ms linear infinite;
+}
+.source-tree-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.source-tree .source-agent {
+  flex: none;
+  font-size: 11px;
+}
+.source-tree-notice {
+  color: var(--muted);
+}
+@keyframes source-tree-loading {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .source-tree-item,
+  .source-tree-chevron svg,
+  .source-tree-icon.is-loading {
+    animation: none;
+    transition: none;
+  }
+}

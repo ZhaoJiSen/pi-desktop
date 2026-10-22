@@ -1,51 +1,31 @@
-import { Accordion, Button, Chip, Tooltip } from '@heroui/react'
+import { Button, Chip } from '@heroui/react'
+import { SourceAction } from './SourceAction'
 import { Columns2, FileSymlink, GitBranch, GitCommitHorizontal, Rows3, Undo2 } from 'lucide-react'
-import { useState, type ReactNode } from 'react'
+import { useState } from 'react'
 import { useT } from '../../lib/i18n'
-import { fileIconUrl } from '../../lib/source/fileIcon'
 import { gitRestoreFile, gitStatus } from '../../lib/source/api'
-import { pathTouched } from '../../lib/source/paths'
 import type { DiffLine } from '../../types'
-import type { GitFileStatus } from '../../lib/source/types'
+import { HoverScrollArea } from '../HoverScrollArea'
 import { CommitBranchDialog } from './CommitBranchDialog'
 import { useSource } from './context'
 import { FileDiff } from './FileDiff'
+import { FilePathTree } from './FilePathTree'
 import { LoadedDiff } from './LoadedDiff'
+import { SourceBrowser } from './SourceBrowser'
 import { SourceNotice } from './SourceNotice'
 import { useProjectSource } from './useProjectSource'
 import { useDiffLayout } from './useDiffLayout'
 import { useSourceQuery } from './useSourceQuery'
 
-function IconTip({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <Tooltip delay={450}>
-      <Tooltip.Trigger role="presentation" tabIndex={-1}>
-        {children}
-      </Tooltip.Trigger>
-      <Tooltip.Content placement="top" offset={6}>
-        {label}
-      </Tooltip.Content>
-    </Tooltip>
-  )
-}
-
-function SourceFileIcon({ path }: { path: string }) {
-  const src = fileIconUrl(path)
-  if (!src) return null
-  return (
-    <span className="source-type-icon" aria-hidden="true">
-      <img src={src} alt="" />
-    </span>
-  )
-}
-
 export function ChangesPane({
   tick,
+  requestNonce,
   initialPath,
   fallback,
   fallbackLabel,
 }: {
   tick: number
+  requestNonce: number
   initialPath: string | null
   fallback?: DiffLine[]
   fallbackLabel: string
@@ -53,50 +33,64 @@ export function ChangesPane({
   const t = useT()
   const source = useSource()
   const { path: projectPath, revision, agent } = useProjectSource()
-  const [openPaths, setOpenPaths] = useState<Set<string>>(
-    () => new Set(initialPath ? [initialPath] : []),
-  )
-  const { ref: layoutRef, layout, setLayout } = useDiffLayout()
+  const [selected, setSelected] = useState(initialPath)
   const [commitOpen, setCommitOpen] = useState(false)
   const [confirmPath, setConfirmPath] = useState<string | null>(null)
-  const [restoreError, setRestoreError] = useState('')
+  const [restoring, setRestoring] = useState(false)
+  const [restoreError, setRestoreError] = useState<{ path: string; message: string } | null>(null)
   const [localTick, setLocalTick] = useState(0)
   const [showFallback, setShowFallback] = useState(!initialPath && Boolean(fallback?.length))
+  const [handledRequest, setHandledRequest] = useState(requestNonce)
+  if (handledRequest !== requestNonce) {
+    setHandledRequest(requestNonce)
+    if (initialPath) setSelected(initialPath)
+    setShowFallback(!initialPath && Boolean(fallback?.length))
+    setConfirmPath(null)
+    setRestoreError(null)
+  }
   const status = useSourceQuery(
     projectPath ? `status:${projectPath}` : null,
     () => gitStatus(projectPath),
     `${revision}:${tick}:${localTick}`,
   )
-  const files = status.data && status.data.repo ? status.data.files : []
-  async function restore(path: string) {
-    setRestoreError('')
+  const files = status.data?.repo ? status.data.files : []
+  const path = selected ?? files[0]?.path ?? null
+  const file = files.find((item) => item.path === path)
+  const treeFiles =
+    path && !file ? [...files, { path, code: '', staged: false, unstaged: false }] : files
+  const { ref: layoutRef, layout, setLayout } = useDiffLayout()
+  function choose(next: string) {
+    setSelected(next)
+    setShowFallback(false)
+    setConfirmPath(null)
+    setRestoreError(null)
+  }
+  async function restore(target: string) {
+    setRestoring(true)
+    setRestoreError(null)
     try {
-      await gitRestoreFile(projectPath, path)
+      await gitRestoreFile(projectPath, target)
       setConfirmPath(null)
-      setOpenPaths((current) => {
-        if (!current.has(path)) return current
-        const next = new Set(current)
-        next.delete(path)
-        return next
-      })
+      setSelected((current) => (current === target ? null : current))
       setLocalTick((value) => value + 1)
     } catch (error) {
-      setRestoreError(error instanceof Error ? error.message : t('source.missingDiff'))
+      setRestoreError({
+        path: target,
+        message: error instanceof Error ? error.message : t('source.missingDiff'),
+      })
+    } finally {
+      setRestoring(false)
     }
   }
   if (!projectPath) return <SourceNotice kind="empty" text={t('source.noProject')} />
   if (status.loading && !status.data)
     return <SourceNotice kind="loading" text={t('source.loading')} />
-  if (status.error || !status.data) {
+  if (status.error || !status.data)
     return <SourceNotice kind="error" text={status.error || t('source.missingDiff')} />
-  }
   if (!status.data.available) return <SourceNotice kind="empty" text={t('source.gitMissing')} />
   if (!status.data.repo) return <SourceNotice kind="empty" text={t('source.notRepository')} />
-  if (!status.data.files.length && !showFallback) {
-    return <SourceNotice kind="empty" text={t('source.emptyChanges')} />
-  }
   return (
-    <div className="source-changes" ref={layoutRef}>
+    <div className="source-changes">
       <div className="source-branch">
         <span className="source-branch-info">
           <GitBranch aria-hidden="true" />
@@ -112,226 +106,155 @@ export function ChangesPane({
             {files.length}
           </Chip>
         </span>
-        <span className="source-branch-actions">
-          <IconTip label={layout === 'split' ? t('source.unified') : t('source.split')}>
-            <Button
-              isIconOnly
-              variant="ghost"
-              className="icon-button source-diff-layout"
-              aria-label={layout === 'split' ? t('source.unified') : t('source.split')}
-              aria-pressed={layout === 'split'}
-              onPress={() => setLayout(layout === 'split' ? 'unified' : 'split')}
-            >
-              {layout === 'split' ? <Columns2 /> : <Rows3 />}
-            </Button>
-          </IconTip>
-          <Button
-            variant="secondary"
-            className="source-commit"
-            isDisabled={!files.length}
-            onPress={() => setCommitOpen(true)}
-          >
-            <GitCommitHorizontal aria-hidden="true" />
-            {t('source.commitBranch')}
-          </Button>
-        </span>
+        <Button
+          variant="secondary"
+          className="source-commit"
+          isDisabled={!files.length}
+          onPress={() => setCommitOpen(true)}
+        >
+          <GitCommitHorizontal aria-hidden="true" />
+          {t('source.commitBranch')}
+        </Button>
       </div>
       <CommitBranchDialog
         open={commitOpen}
         projectPath={projectPath}
-        fromBranch={status.data.branch}
-        files={files.map((file) => file.path)}
+        fromBranch={status.data.branch ?? undefined}
+        files={files.map((item) => item.path)}
         onClose={() => setCommitOpen(false)}
         onCommitted={() => {
-          setOpenPaths(new Set())
+          setSelected(null)
+          setShowFallback(false)
           setLocalTick((value) => value + 1)
         }}
       />
-      {status.data.truncated && <p className="source-note">{t('source.truncatedList')}</p>}
-      {restoreError && <p className="source-note">{restoreError}</p>}
-      <div className="source-scroll">
-        {[...openPaths]
-          .filter((path) => !files.some((file) => file.path === path))
-          .map((path) => (
-            <LoadedDiff
-              key={path}
-              projectPath={projectPath}
-              path={path}
-              tick={tick + localTick}
-              embedded
-              fallback={path === initialPath ? fallback : undefined}
-              layout={layout}
-              onBack={() =>
-                setOpenPaths((current) => {
-                  const next = new Set(current)
-                  next.delete(path)
-                  return next
-                })
-              }
-            />
-          ))}
-        {showFallback && fallback?.length ? (
-          <div className="source-change is-open">
-            <div className="source-change-head">
-              <span className="source-file">
-                <span className="source-name">{fallbackLabel || t('source.changes')}</span>
-              </span>
-              <Button
-                variant="ghost"
-                className="source-back"
-                onPress={() => setShowFallback(false)}
-              >
-                {t('common.cancel')}
-              </Button>
-            </div>
-            <FileDiff
-              path={fallbackLabel || 'diff'}
-              text=""
-              binary={false}
-              truncated={false}
-              missing
-              embedded
-              layout={layout}
-              fallback={fallback}
-            />
-          </div>
-        ) : null}
-        <Accordion
-          variant="surface"
-          allowsMultipleExpanded
-          className="source-change-list"
-          expandedKeys={openPaths}
-          onExpandedChange={(keys) => {
-            setConfirmPath(null)
-            setOpenPaths(new Set([...keys].map(String)))
-          }}
-        >
-          {files.map((file) => (
-            <ChangeRow
-              key={file.path}
-              file={file}
-              open={openPaths.has(file.path)}
-              confirming={confirmPath === file.path}
-              agent={pathTouched(agent, file.path)}
-              projectPath={projectPath}
-              tick={tick + localTick}
-              layout={layout}
-              fallback={file.path === initialPath ? fallback : undefined}
-              onOpenFile={() => source?.show({ tab: 'files', path: file.path, mode: 'view' })}
-              onAskRestore={() => {
-                setRestoreError('')
-                setConfirmPath(file.path)
-              }}
-              onCancelRestore={() => setConfirmPath(null)}
-              onRestore={() => void restore(file.path)}
-            />
-          ))}
-        </Accordion>
-      </div>
-    </div>
-  )
-}
-
-function ChangeRow({
-  file,
-  open,
-  confirming,
-  agent,
-  projectPath,
-  tick,
-  layout,
-  fallback,
-  onOpenFile,
-  onAskRestore,
-  onCancelRestore,
-  onRestore,
-}: {
-  file: GitFileStatus
-  open: boolean
-  confirming: boolean
-  agent: boolean
-  projectPath: string
-  tick: number
-  layout: 'unified' | 'split'
-  fallback?: DiffLine[]
-  onOpenFile: () => void
-  onAskRestore: () => void
-  onCancelRestore: () => void
-  onRestore: () => void
-}) {
-  const t = useT()
-  const [shown, setShown] = useState(open)
-  if (open && !shown) setShown(true)
-  const tracked = file.code !== '?'
-  const additions = file.additions ?? 0
-  const deletions = file.deletions ?? 0
-  return (
-    <Accordion.Item id={file.path} className="source-change">
-      <Accordion.Heading className="source-change-head">
-        <Accordion.Trigger className="source-change-toggle">
-          <SourceFileIcon path={file.path} />
-          <span className="source-file" title={file.path}>
-            <span className="source-name">{file.path}</span>
-            {(additions > 0 || deletions > 0) && (
-              <span className="diff-stats">
-                {additions > 0 && <span className="positive">+{additions}</span>}
-                {deletions > 0 && <span className="negative">−{deletions}</span>}
-              </span>
-            )}
-          </span>
-          {agent && <span className="source-agent">{t('source.agent')}</span>}
-        </Accordion.Trigger>
-        <span className="source-change-actions">
-          <IconTip label={t('source.openFile')}>
-            <Button
-              isIconOnly
-              variant="ghost"
-              className="icon-button"
-              aria-label={t('source.openFile')}
-              onPress={onOpenFile}
+      <SourceBrowser
+        navigation={
+          <>
+            <div className="source-nav-heading">{t('source.changedFiles')}</div>
+            <HoverScrollArea
+              shadowSize={0}
+              className="source-tree-scroll"
+              label={t('source.changedFiles')}
             >
-              <FileSymlink />
-            </Button>
-          </IconTip>
-          {tracked && (
-            <IconTip label={t('source.restore')}>
-              <Button
-                isIconOnly
-                variant="ghost"
-                className="icon-button"
-                aria-label={t('source.restore')}
-                onPress={onAskRestore}
+              {treeFiles.length ? (
+                <FilePathTree
+                  files={treeFiles}
+                  selected={path}
+                  agent={agent}
+                  onSelect={choose}
+                  revealKey={requestNonce}
+                />
+              ) : (
+                <SourceNotice kind="empty" text={t('source.emptyChanges')} />
+              )}
+              {status.data.truncated && <p className="source-note">{t('source.truncatedList')}</p>}
+            </HoverScrollArea>
+          </>
+        }
+      >
+        {path || showFallback ? (
+          <>
+            <div className="source-detail-bar source-preview-bar" ref={layoutRef}>
+              <span className="source-detail-path" title={path ?? fallbackLabel}>
+                {path ?? fallbackLabel}
+              </span>
+              {file && (
+                <span className="diff-stats">
+                  <span className="positive">+{file.additions ?? 0}</span>
+                  <span className="negative">−{file.deletions ?? 0}</span>
+                </span>
+              )}
+              <SourceAction
+                label={layout === 'split' ? t('source.unified') : t('source.split')}
+                pressed={layout === 'split'}
+                onPress={() => setLayout(layout === 'split' ? 'unified' : 'split')}
               >
-                <Undo2 />
-              </Button>
-            </IconTip>
-          )}
-        </span>
-        <Accordion.Indicator />
-      </Accordion.Heading>
-      {confirming && (
-        <div className="source-restore">
-          <p>{t('source.restoreConfirm')}</p>
-          <Button size="sm" variant="danger" onPress={onRestore}>
-            {t('source.restore')}
-          </Button>
-          <Button size="sm" variant="ghost" onPress={onCancelRestore}>
-            {t('common.cancel')}
-          </Button>
-        </div>
-      )}
-      <Accordion.Panel>
-        {shown && (
-          <LoadedDiff
-            projectPath={projectPath}
-            path={file.path}
-            tick={tick}
-            embedded
-            layout={layout}
-            fallback={fallback}
-          />
+                {layout === 'split' ? <Columns2 /> : <Rows3 />}
+              </SourceAction>
+              {path && (
+                <SourceAction
+                  label={t('source.openFile')}
+                  onPress={() => source?.show({ tab: 'files', path, mode: 'view' })}
+                >
+                  <FileSymlink />
+                </SourceAction>
+              )}
+              {file && file.code !== '?' && (
+                <SourceAction
+                  label={t('source.restore')}
+                  isDisabled={restoring}
+                  onPress={() => {
+                    setRestoreError(null)
+                    setConfirmPath(path)
+                  }}
+                >
+                  <Undo2 />
+                </SourceAction>
+              )}
+            </div>
+            {confirmPath === path && path && (
+              <div className="source-restore">
+                <p>{t('source.restoreConfirm')}</p>
+                <span className="source-restore-actions">
+                  <Button
+                    size="sm"
+                    variant="danger"
+                    isPending={restoring}
+                    onPress={() => void restore(path)}
+                  >
+                    {t('source.restore')}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    isDisabled={restoring}
+                    onPress={() => setConfirmPath(null)}
+                  >
+                    {t('common.cancel')}
+                  </Button>
+                </span>
+              </div>
+            )}
+            {restoreError?.path === path && (
+              <p className="source-note" role="alert">
+                {restoreError?.message}
+              </p>
+            )}
+            <HoverScrollArea
+              className="source-preview-scroll"
+              viewportClassName="source-scroll"
+              label={path ?? fallbackLabel}
+            >
+              {showFallback && fallback?.length ? (
+                <FileDiff
+                  path={fallbackLabel || 'diff'}
+                  text=""
+                  binary={false}
+                  truncated={false}
+                  missing
+                  embedded
+                  layout={layout}
+                  fallback={fallback}
+                />
+              ) : (
+                path && (
+                  <LoadedDiff
+                    projectPath={projectPath}
+                    path={path}
+                    tick={tick + localTick}
+                    embedded
+                    layout={layout}
+                    fallback={path === initialPath ? fallback : undefined}
+                  />
+                )
+              )}
+            </HoverScrollArea>
+          </>
+        ) : (
+          <SourceNotice kind="empty" text={t('source.emptyChanges')} />
         )}
-      </Accordion.Panel>
-    </Accordion.Item>
+      </SourceBrowser>
+    </div>
   )
 }

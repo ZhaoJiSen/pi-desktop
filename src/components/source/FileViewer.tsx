@@ -1,4 +1,6 @@
 import { Button } from '@heroui/react'
+import { SourceAction } from './SourceAction'
+import { ChevronLeft, Copy, GitCompare, History, Search } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useT } from '../../lib/i18n'
 import { readProjectFile } from '../../lib/source/api'
@@ -24,7 +26,7 @@ export function FileViewer({
   path: string
   tick: number
   changed: boolean
-  onBack: () => void
+  onBack?: () => void
   onDiff: () => void
   onHistory: () => void
 }) {
@@ -97,46 +99,64 @@ export function FileViewer({
   }
   return (
     <div className="source-detail">
-      <div className="source-detail-bar">
-        <Button variant="ghost" className="source-back" onPress={onBack}>
-          {t('source.back')}
-        </Button>
+      <div className="source-detail-bar source-preview-bar">
+        {onBack && (
+          <Button
+            isIconOnly
+            variant="ghost"
+            className="icon-button source-back"
+            aria-label={t('source.back')}
+            onPress={onBack}
+          >
+            <ChevronLeft />
+          </Button>
+        )}
         <span className="source-detail-path" title={path}>
           {path}
         </span>
         {changed && (
-          <Button variant="ghost" className="source-back" onPress={onDiff}>
-            {t('source.showDiff')}
-          </Button>
+          <SourceAction label={t('source.showDiff')} onPress={onDiff}>
+            <GitCompare />
+          </SourceAction>
         )}
-        <Button variant="ghost" className="source-back" onPress={onHistory}>
-          {t('source.fileHistory')}
-        </Button>
+        <SourceAction label={t('source.fileHistory')} onPress={onHistory}>
+          <History />
+        </SourceAction>
         {readable && (
-          <input
-            ref={findRef}
-            className="source-find"
-            value={query}
-            placeholder={t('source.find')}
-            aria-label={t('source.find')}
-            onChange={(event) => {
-              setQuery(event.target.value)
-              setHit(0)
-            }}
-            onKeyDown={(event) => {
-              if (event.key === 'Escape') {
-                event.preventDefault()
-                setQuery('')
+          <SourceAction label={t(truncated ? 'source.copyPartial' : 'source.copy')} onPress={copy}>
+            <Copy />
+          </SourceAction>
+        )}
+      </div>
+      <div className="source-filter source-file-find">
+        {readable && (
+          <label className="source-search-field">
+            <Search aria-hidden="true" />
+            <input
+              ref={findRef}
+              className="source-find"
+              value={query}
+              placeholder={t('source.find')}
+              aria-label={t('source.find')}
+              onChange={(event) => {
+                setQuery(event.target.value)
                 setHit(0)
-                codeRef.current?.focus()
-                return
-              }
-              if (event.key !== 'Enter' || !hits.length) return
-              event.preventDefault()
-              const step = event.shiftKey ? hits.length - 1 : 1
-              setHit((index) => (index + step) % hits.length)
-            }}
-          />
+              }}
+              onKeyDown={(event) => {
+                if (event.key === 'Escape') {
+                  event.preventDefault()
+                  setQuery('')
+                  setHit(0)
+                  codeRef.current?.focus()
+                  return
+                }
+                if (event.key !== 'Enter' || !hits.length) return
+                event.preventDefault()
+                const step = event.shiftKey ? hits.length - 1 : 1
+                setHit((index) => (index + step) % hits.length)
+              }}
+            />
+          </label>
         )}
         {readable && query && (
           <span className="source-find-status" role="status" aria-live="polite">
@@ -147,11 +167,6 @@ export function FileViewer({
                 })
               : t('source.findNone')}
           </span>
-        )}
-        {readable && (
-          <Button variant="ghost" className="source-back" onPress={copy}>
-            {t(truncated ? 'source.copyPartial' : 'source.copy')}
-          </Button>
         )}
         {copyNote && (
           <span className="source-find-status" role="status">
@@ -172,7 +187,7 @@ export function FileViewer({
         <>
           {truncated && <p className="source-note">{t('source.truncatedFile')}</p>}
           <div
-            className="code source-file"
+            className="code source-file-content"
             tabIndex={0}
             aria-label={fileNameOf(path)}
             ref={bindCode}

@@ -2,6 +2,7 @@
 import { act, createElement } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import * as api from '../../../src/lib/source/api'
 import { FileViewer } from '../../../src/components/source/FileViewer'
 import { useWorkspace } from '../../../src/store/workspace'
 
@@ -51,6 +52,7 @@ afterEach(async () => {
   await act(async () => root.unmount())
   container.remove()
   vi.unstubAllGlobals()
+  vi.restoreAllMocks()
 })
 
 describe('file viewer find and copy', () => {
@@ -66,7 +68,7 @@ describe('file viewer find and copy', () => {
       input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
     })
     expect(input.value).toBe('')
-    expect(document.activeElement).toBe(document.querySelector('.source-file'))
+    expect(document.activeElement).toBe(document.querySelector('.source-file-content'))
 
     const writeText = vi.fn().mockResolvedValue(undefined)
     Object.defineProperty(navigator, 'clipboard', {
@@ -75,7 +77,7 @@ describe('file viewer find and copy', () => {
     })
     await act(async () => {
       ;[...document.querySelectorAll('button')]
-        .find((item) => item.textContent === 'Copy')
+        .find((item) => item.getAttribute('aria-label') === 'Copy')
         ?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
       await Promise.resolve()
     })
@@ -91,8 +93,8 @@ describe('file viewer find and copy', () => {
     expect(ignored.defaultPrevented).toBe(false)
     expect(document.activeElement).toBe(outside)
 
-    document.querySelector('.source-file')?.dispatchEvent(new FocusEvent('focus'))
-    ;(document.querySelector('.source-file') as HTMLElement).focus()
+    document.querySelector('.source-file-content')?.dispatchEvent(new FocusEvent('focus'))
+    ;(document.querySelector('.source-file-content') as HTMLElement).focus()
     const handled = key({ key: 'f', ctrlKey: true })
     expect(handled.defaultPrevented).toBe(true)
     expect(document.activeElement).toBe(document.querySelector('.source-find'))
@@ -105,4 +107,42 @@ describe('file viewer find and copy', () => {
     expect(alt.defaultPrevented).toBe(false)
     outside.remove()
   })
+})
+
+it('starts a newly selected file at its first line after reading deep into a large file', async () => {
+  const read = vi.spyOn(api, 'readProjectFile').mockResolvedValue({
+    path: 'long.ts',
+    binary: false,
+    truncated: false,
+    size: 10000,
+    text: Array.from({ length: 500 }, (_, index) => `line ${index + 1}`).join('\n'),
+  })
+  const show = (path: string) =>
+    root.render(
+      createElement(FileViewer, {
+        projectPath: '/project',
+        path,
+        tick: 0,
+        changed: false,
+        onDiff: () => {},
+        onHistory: () => {},
+      }),
+    )
+  await act(async () => show('long.ts'))
+  const viewport = document.querySelector<HTMLElement>('.source-file-content')!
+  await act(async () => {
+    viewport.scrollTop = 6000
+    viewport.dispatchEvent(new Event('scroll'))
+  })
+  expect(document.querySelector('.line-no')?.textContent).not.toBe('1')
+  read.mockResolvedValue({
+    path: 'short.ts',
+    binary: false,
+    truncated: false,
+    size: 10,
+    text: 'first\nsecond',
+  })
+  await act(async () => show('short.ts'))
+  expect(document.querySelector('.line-no')?.textContent).toBe('1')
+  expect(document.querySelector<HTMLElement>('.source-file-content')?.scrollTop).toBe(0)
 })

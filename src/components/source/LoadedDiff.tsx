@@ -1,11 +1,13 @@
 import { gitFileDiff } from '../../lib/source/api'
+import { memo } from 'react'
 import type { DiffLine } from '../../types'
 import { useT } from '../../lib/i18n'
 import { FileDiff } from './FileDiff'
+import { DiffSkeleton } from './DiffSkeleton'
 import { SourceNotice } from './SourceNotice'
 import { useSourceQuery } from './useSourceQuery'
 
-export function LoadedDiff({
+export const LoadedDiff = memo(function LoadedDiff({
   projectPath,
   path,
   revision,
@@ -30,7 +32,7 @@ export function LoadedDiff({
     () => gitFileDiff(projectPath, path, revision),
     tick,
   )
-  if (diff.loading) return <SourceNotice kind="loading" text={t('source.loading')} />
+  if (diff.loading) return <DiffSkeleton layout={layout} />
   if (diff.error || !diff.data) {
     return <SourceNotice kind="error" text={diff.error || t('source.missingDiff')} />
   }
@@ -48,4 +50,4 @@ export function LoadedDiff({
       onBack={onBack}
     />
   )
-}
+})

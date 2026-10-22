@@ -15,6 +15,7 @@ export function useVirtualWindow(count: number, rowHeight: number, overscan = 8)
     cleanup.current = null
     node.current = element
     if (!element) return
+    setScrollTop(element.scrollTop)
     const onScroll = () => setScrollTop(element.scrollTop)
     element.addEventListener('scroll', onScroll, { passive: true })
     const observer = new ResizeObserver((entries) => {

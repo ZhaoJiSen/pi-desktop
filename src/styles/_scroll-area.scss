@@ -4,6 +4,7 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  min-height: 0;
   overflow: hidden;
   padding: 0;
 }
@@ -16,6 +17,7 @@
   overscroll-behavior: contain;
   padding-right: 10px;
   scrollbar-width: none;
+  scrollbar-gutter: auto;
   &::-webkit-scrollbar {
     display: none;
     width: 0;
@@ -33,7 +35,9 @@
   pointer-events: none;
   transition: opacity 100ms;
 }
-.hover-scroll-area:is(:hover, :focus-within, .is-dragging) > .hover-scroll-track {
+.hover-scroll-area:hover > .hover-scroll-track,
+.hover-scroll-area:has(:focus-visible) > .hover-scroll-track,
+.hover-scroll-area.is-dragging > .hover-scroll-track {
   opacity: 1;
 }
 .hover-scroll-thumb {
@@ -45,6 +49,14 @@
   touch-action: none;
   &:hover {
     background: color-mix(in srgb, var(--muted) 60%, transparent);
+  }
+}
+.source-files-scroll {
+  flex: 1;
+}
+@media (hover: none) {
+  .hover-scroll-area > .hover-scroll-track {
+    opacity: 1;
   }
 }
 @media (prefers-reduced-motion: reduce) {

@@ -1,85 +1,90 @@
 import { useMemo, useState } from 'react'
+import { HoverScrollArea } from '../HoverScrollArea'
 import { useT } from '../../lib/i18n'
 import { gitStatus } from '../../lib/source/api'
+import { useSource } from './context'
 import { FileTree } from './FileTree'
 import { FileViewer } from './FileViewer'
 import { LoadedDiff } from './LoadedDiff'
+import { SourceBrowser } from './SourceBrowser'
 import { SourceNotice } from './SourceNotice'
 import { useProjectSource } from './useProjectSource'
 import { useSourceQuery } from './useSourceQuery'
 
 export function FilesPane({
   tick,
+  requestNonce,
   initialPath,
   initialDiff,
   onHistory,
 }: {
   tick: number
+  requestNonce: number
   initialPath: string | null
   initialDiff: boolean
   onHistory: (path: string) => void
 }) {
   const t = useT()
+  const source = useSource()
   const { path: projectPath, revision, agent } = useProjectSource()
-  const expand = initialPath?.endsWith('/') ? initialPath.replace(/\/+$/, '') : null
-  const [selected, setSelected] = useState<string | null>(expand ? null : initialPath)
+  const directory = initialPath?.endsWith('/') ? initialPath.replace(/\/+$/, '') : null
+  const [selected, setSelected] = useState<string | null>(directory ? null : initialPath)
   const [mode, setMode] = useState<'view' | 'diff'>(initialDiff ? 'diff' : 'view')
-  const [trackedPath, setTrackedPath] = useState(initialPath)
-  if (trackedPath !== initialPath) {
-    setTrackedPath(initialPath)
-    setSelected(expand ? null : initialPath)
-    setMode(initialDiff && !expand ? 'diff' : 'view')
+  const [handledRequest, setHandledRequest] = useState(requestNonce)
+  if (handledRequest !== requestNonce) {
+    setHandledRequest(requestNonce)
+    setSelected(directory ? null : initialPath)
+    setMode(initialDiff && !directory ? 'diff' : 'view')
   }
   const status = useSourceQuery(
     projectPath ? `files-status:${projectPath}` : null,
     () => gitStatus(projectPath),
     `${revision}:${tick}`,
   )
-  const marks = useMemo(() => {
-    const map = new Map<string, string>()
-    for (const file of status.data?.files ?? []) map.set(file.path, file.code)
-    return map
-  }, [status.data])
+  const marks = useMemo(
+    () => new Map((status.data?.files ?? []).map((file) => [file.path, file.code])),
+    [status.data],
+  )
+  const expand = selected?.includes('/') ? selected.slice(0, selected.lastIndexOf('/')) : directory
   if (!projectPath) return <SourceNotice kind="empty" text={t('source.noProject')} />
-  if (selected && mode === 'diff') {
-    return (
-      <LoadedDiff
-        projectPath={projectPath}
-        path={selected}
-        tick={tick}
-        onBack={() => setMode('view')}
-      />
-    )
-  }
-  if (selected) {
-    return (
-      <FileViewer
-        projectPath={projectPath}
-        path={selected}
-        tick={tick}
-        changed={marks.has(selected)}
-        onBack={() => setSelected(null)}
-        onDiff={() => setMode('diff')}
-        onHistory={() => onHistory(selected)}
-      />
-    )
-  }
   return (
-    <div className="source-scroll">
-      {status.data && !status.data.available && (
-        <p className="source-note">{t('source.gitMissing')}</p>
+    <SourceBrowser
+      navigation={
+        <>
+          <div className="source-nav-heading">{t('source.allFiles')}</div>
+          <HoverScrollArea shadowSize={0} className="source-files-scroll" label={t('source.files')}>
+            <FileTree
+              projectPath={projectPath}
+              tick={tick}
+              expand={expand}
+              selected={selected}
+              marks={marks}
+              agent={agent}
+              onOpen={(path) => {
+                setSelected(path)
+                setMode('view')
+              }}
+            />
+          </HoverScrollArea>
+        </>
+      }
+    >
+      {selected ? (
+        mode === 'diff' ? (
+          <LoadedDiff projectPath={projectPath} path={selected} tick={tick} />
+        ) : (
+          <FileViewer
+            projectPath={projectPath}
+            path={selected}
+            tick={tick}
+            changed={marks.has(selected)}
+            onDiff={() => source?.show({ tab: 'changes', path: selected, mode: 'diff' })}
+            onHistory={() => onHistory(selected)}
+          />
+        )
+      ) : (
+        <SourceNotice kind="empty" text={t('source.selectFile')} />
       )}
-      <FileTree
-        projectPath={projectPath}
-        tick={tick}
-        expand={expand}
-        marks={marks}
-        agent={agent}
-        onOpen={(path) => {
-          setSelected(path)
-          setMode('view')
-        }}
-      />
-    </div>
+    </SourceBrowser>
   )
 }

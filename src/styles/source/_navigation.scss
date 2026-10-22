@@ -1,0 +1,46 @@
+.source-notice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 28px 16px;
+  color: var(--muted);
+  text-align: center;
+}
+.source-notice p {
+  margin: 0;
+}
+.source-notice.error {
+  color: var(--danger);
+}
+.source-filter-field {
+  display: block;
+  padding: 8px 12px 0;
+}
+.source-filter-field input {
+  width: 100%;
+  min-height: 28px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  outline: none;
+  font: inherit;
+}
+.history-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+.history-graph {
+  flex: none;
+}
+.history-graph line,
+.history-graph path {
+  fill: none;
+  stroke-width: 1.5;
+}
+.search-result.is-active {
+  background: var(--hover);
+}

@@ -1,4 +1,5 @@
 import { Button } from '@heroui/react'
+import { Search } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useT } from '../../lib/i18n'
 import { connectVisible, layoutGraph } from '../../lib/source/graph'
@@ -40,16 +41,20 @@ export function HistoryList({
     return connectVisible(matched, new Set(matched.map((commit) => commit.hash)))
   }, [commits, query])
   const rows = useMemo(() => layoutGraph(visible), [visible])
-  const { scroller, start, end, paddingTop, paddingBottom } = useVirtualWindow(
+  const { scroller, scrollTo, start, end, paddingTop, paddingBottom } = useVirtualWindow(
     visible.length,
     historyRowHeight,
   )
   return (
     <div className="history-list">
-      <label className="source-filter-field">
+      <label className="source-filter-field source-search-field">
+        <Search aria-hidden="true" />
         <input
           value={query}
-          onChange={(event) => setQuery(event.target.value)}
+          onChange={(event) => {
+            setQuery(event.target.value)
+            scrollTo(0)
+          }}
           placeholder={t('source.filterCommits')}
           aria-label={t('source.filterCommits')}
         />
@@ -70,7 +75,10 @@ export function HistoryList({
               onPress={() => onSelect(commit.hash)}
             >
               {row && <HistoryGraph row={row} />}
-              <span className="history-copy">
+              <span
+                className="history-copy"
+                title={`${commit.subject}\n${commit.author} · ${commit.hash.slice(0, 7)}`}
+              >
                 <span className="source-name">{commit.subject}</span>
                 <span className="source-subpath">
                   {commit.author}

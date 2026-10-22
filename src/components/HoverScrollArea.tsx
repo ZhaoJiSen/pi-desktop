@@ -8,11 +8,13 @@ export function HoverScrollArea({
   label,
   children,
   shadowSize,
+  viewportClassName,
 }: {
   className: string
   label: string
   children: ReactNode
   shadowSize?: number
+  viewportClassName?: string
 }) {
   const viewport = useRef<HTMLDivElement>(null)
   const content = useRef<HTMLDivElement>(null)
@@ -51,7 +53,7 @@ export function HoverScrollArea({
     <div className={`${className} hover-scroll-area${dragging ? ' is-dragging' : ''}`}>
       <ScrollShadow
         ref={viewport}
-        className="hover-scroll-viewport"
+        className={['hover-scroll-viewport', viewportClassName].filter(Boolean).join(' ')}
         hideScrollBar
         size={shadowSize}
         tabIndex={0}

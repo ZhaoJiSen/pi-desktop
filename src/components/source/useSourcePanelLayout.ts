@@ -2,7 +2,7 @@ import { useLayoutEffect, useRef, useState } from 'react'
 
 const WIDTH_KEY = 'pi.source-panel-width'
 const SPLIT_WIDTH_KEY = 'pi.source-panel-split-width'
-const DEFAULT_WIDTH = 420
+const DEFAULT_WIDTH = 760
 const MIN_PANEL_WIDTH = 320
 const MIN_CHAT_WIDTH = 320
 type WidthPreference = number | 'expanded'

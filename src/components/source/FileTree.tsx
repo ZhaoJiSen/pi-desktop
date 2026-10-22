@@ -1,215 +1,164 @@
-import { Button } from '@heroui/react'
-import { ChevronDown, ChevronRight } from 'lucide-react'
 import { useState } from 'react'
+import { Tree, TreeItem, TreeItemContent, type Key } from 'react-aria-components'
 import { useT } from '../../lib/i18n'
 import { listProjectDirectory } from '../../lib/source/api'
 import { pathTouched } from '../../lib/source/paths'
-import type { DirectoryEntry } from '../../lib/source/types'
+import type { DirectoryEntry, DirectoryListing } from '../../lib/source/types'
+import { SourceTreeItem } from './SourceTreeItem'
 import { SourceNotice } from './SourceNotice'
 import { useSourceQuery } from './useSourceQuery'
 
-function opens(expand: string | null | undefined, path: string) {
-  return Boolean(expand && (expand === path || expand.startsWith(`${path}/`)))
-}
-
-export function FileTree({
-  projectPath,
-  tick,
-  expand,
-  marks,
-  agent,
-  onOpen,
-}: {
+interface FileTreeProps {
   projectPath: string
   tick: number
   expand?: string | null
+  selected?: string | null
   marks: Map<string, string>
   agent: Set<string>
   onOpen: (path: string) => void
-}) {
-  return (
-    <div className="source-tree" role="tree">
-      <TreeDir
-        projectPath={projectPath}
-        tick={tick}
-        relative=""
-        depth={0}
-        expand={expand}
-        marks={marks}
-        agent={agent}
-        onOpen={onOpen}
-      />
-    </div>
-  )
 }
 
-function TreeDir({
-  projectPath,
-  tick,
-  relative,
-  depth,
-  expand,
-  marks,
-  agent,
-  onOpen,
-}: {
-  projectPath: string
-  tick: number
-  relative: string
-  depth: number
-  expand?: string | null
-  marks: Map<string, string>
-  agent: Set<string>
-  onOpen: (path: string) => void
-}) {
+function ancestors(path: string | null | undefined) {
+  const parts = path?.split('/').filter(Boolean) ?? []
+  return parts.map((_, index) => parts.slice(0, index + 1).join('/'))
+}
+
+export function FileTree(props: FileTreeProps) {
   const t = useT()
-  const listing = useSourceQuery(
-    `dir:${projectPath}:${relative}`,
-    () => listProjectDirectory(projectPath, relative),
-    tick,
-  )
-  if (listing.loading) {
-    return depth === 0 ? <SourceNotice kind="loading" text={t('source.loading')} /> : null
-  }
-  if (listing.error || !listing.data) {
-    return depth === 0 ? (
-      <SourceNotice kind="error" text={listing.error || t('source.emptyDirectory')} />
-    ) : null
-  }
-  if (depth === 0 && listing.data.entries.length === 0) {
-    return <SourceNotice kind="empty" text={t('source.emptyDirectory')} />
-  }
-  return (
-    <div role="group">
-      {listing.data.entries.map((entry) =>
-        entry.kind === 'dir' ? (
-          <TreeBranch
-            key={entry.path}
-            entry={entry}
-            depth={depth}
-            projectPath={projectPath}
-            tick={tick}
-            expand={expand}
-            marks={marks}
-            agent={agent}
-            onOpen={onOpen}
-          />
-        ) : entry.kind === 'link' ? (
-          <TreeLink key={entry.path} entry={entry} depth={depth} />
-        ) : (
-          <TreeFile
-            key={entry.path}
-            entry={entry}
-            depth={depth}
-            code={marks.get(entry.path)}
-            agent={pathTouched(agent, entry.path)}
-            onOpen={onOpen}
-          />
-        ),
-      )}
-      {listing.data.truncated && <p className="source-note">{t('source.truncatedList')}</p>}
-      {listing.data.ignorePartial && <p className="source-note">{t('source.ignorePartial')}</p>}
-    </div>
-  )
-}
-
-function TreeBranch({
-  entry,
-  depth,
-  projectPath,
-  tick,
-  expand,
-  marks,
-  agent,
-  onOpen,
-}: {
-  entry: DirectoryEntry
-  depth: number
-  projectPath: string
-  tick: number
-  expand?: string | null
-  marks: Map<string, string>
-  agent: Set<string>
-  onOpen: (path: string) => void
-}) {
-  const t = useT()
-  const [open, setOpen] = useState(() => opens(expand, entry.path))
+  const { projectPath, tick, expand } = props
+  const [expanded, setExpanded] = useState<Set<Key>>(() => new Set(ancestors(expand)))
   const [trackedExpand, setTrackedExpand] = useState(expand)
   if (trackedExpand !== expand) {
     setTrackedExpand(expand)
-    if (opens(expand, entry.path)) setOpen(true)
+    setExpanded((current) => new Set([...current, ...ancestors(expand)]))
+  }
+  const listing = useSourceQuery(
+    `dir:${projectPath}:`,
+    () => listProjectDirectory(projectPath),
+    tick,
+  )
+  if (listing.loading) return <SourceNotice kind="loading" text={t('source.loading')} />
+  if (listing.error || !listing.data) {
+    return <SourceNotice kind="error" text={listing.error || t('source.emptyDirectory')} />
+  }
+  if (!listing.data.entries.length) {
+    return <SourceNotice kind="empty" text={t('source.emptyDirectory')} />
   }
   return (
-    <div>
-      <Button
-        variant="ghost"
-        className="source-row"
-        style={{ paddingLeft: 12 + depth * 14 }}
-        aria-expanded={open}
-        onPress={() => setOpen((value) => !value)}
+    <>
+      <Tree
+        aria-label={t('source.files')}
+        className="source-tree"
+        expandedKeys={expanded}
+        onExpandedChange={setExpanded}
       >
-        {open ? <ChevronDown /> : <ChevronRight />}
-        <span className="source-name">{entry.name}</span>
-        {pathTouched(agent, entry.path) && (
-          <span className="source-agent">{t('source.agent')}</span>
-        )}
-      </Button>
-      {open && (
-        <TreeDir
-          projectPath={projectPath}
-          tick={tick}
-          relative={entry.path}
-          depth={depth + 1}
-          expand={expand}
-          marks={marks}
-          agent={agent}
-          onOpen={onOpen}
-        />
-      )}
-    </div>
+        {listing.data.entries.map((entry) => (
+          <TreeEntry
+            key={entry.path}
+            {...props}
+            entry={entry}
+            expanded={expanded}
+            onExpand={setExpanded}
+          />
+        ))}
+      </Tree>
+      <DirectoryNotes listing={listing.data} />
+    </>
   )
 }
 
-function TreeLink({ entry, depth }: { entry: DirectoryEntry; depth: number }) {
-  return (
-    <div className="source-link" style={{ paddingLeft: 28 + depth * 14 }} role="treeitem">
-      <span className="source-name" title={entry.path}>
-        {entry.name}
-      </span>
-    </div>
-  )
-}
-
-function TreeFile({
+function TreeEntry({
   entry,
-  depth,
-  code,
-  agent,
-  onOpen,
-}: {
+  expanded,
+  onExpand,
+  ...props
+}: FileTreeProps & {
   entry: DirectoryEntry
-  depth: number
-  code?: string
-  agent: boolean
-  onOpen: (path: string) => void
+  expanded: Set<Key>
+  onExpand: (keys: Set<Key>) => void
 }) {
   const t = useT()
+  const isDirectory = entry.kind === 'dir'
+  const isOpen = expanded.has(entry.path)
+  const listing = useSourceQuery(
+    isDirectory && isOpen ? `dir:${props.projectPath}:${entry.path}` : null,
+    () => listProjectDirectory(props.projectPath, entry.path),
+    props.tick,
+  )
+  const code = props.marks.get(entry.path)
+  const touched = pathTouched(props.agent, entry.path)
+  const toggle = () => {
+    const keys = new Set(expanded)
+    if (isOpen) keys.delete(entry.path)
+    else keys.add(entry.path)
+    onExpand(keys)
+  }
   return (
-    <Button
-      variant="ghost"
-      className="source-row"
-      style={{ paddingLeft: 28 + depth * 14 }}
-      onPress={() => onOpen(entry.path)}
+    <SourceTreeItem
+      path={entry.path}
+      name={entry.name}
+      kind={entry.kind}
+      selected={props.selected === entry.path}
+      loading={listing.loading}
+      code={code}
+      agent={touched}
+      onAction={isDirectory ? toggle : () => props.onOpen(entry.path)}
     >
-      <span className="source-name" title={entry.path}>
-        {entry.name}
-      </span>
-      {code && (
-        <span className="source-code" data-code={code}>
-          {code}
-        </span>
+      {/* Keep a child node before loading so arrow keys can expand lazy directories. */}
+      {isDirectory && (!isOpen || listing.loading) && (
+        <TreeItem id={`\0loading:${entry.path}`} textValue={t('source.loading')} isDisabled>
+          <TreeItemContent>
+            <p className="source-note">{t('source.loading')}</p>
+          </TreeItemContent>
+        </TreeItem>
       )}
-      {agent && <span className="source-agent">{t('source.agent')}</span>}
-    </Button>
+      {isOpen &&
+        listing.data?.entries.map((child) => (
+          <TreeEntry
+            key={child.path}
+            {...props}
+            entry={child}
+            expanded={expanded}
+            onExpand={onExpand}
+          />
+        ))}
+      {isOpen &&
+        !listing.loading &&
+        (listing.error ||
+          (listing.data &&
+            (!listing.data.entries.length ||
+              listing.data.truncated ||
+              listing.data.ignorePartial))) && (
+          <TreeItem
+            id={`\0notice:${entry.path}`}
+            textValue={listing.error || t('source.emptyDirectory')}
+            isDisabled
+            className="source-tree-notice"
+          >
+            <TreeItemContent>
+              {listing.error ? (
+                <p className="source-note">{listing.error}</p>
+              ) : (
+                listing.data &&
+                (listing.data.entries.length ? (
+                  <DirectoryNotes listing={listing.data} />
+                ) : (
+                  <p className="source-note">{t('source.emptyDirectory')}</p>
+                ))
+              )}
+            </TreeItemContent>
+          </TreeItem>
+        )}
+    </SourceTreeItem>
+  )
+}
+
+function DirectoryNotes({ listing }: { listing: DirectoryListing }) {
+  const t = useT()
+  return (
+    <>
+      {listing.truncated && <p className="source-note">{t('source.truncatedList')}</p>}
+      {listing.ignorePartial && <p className="source-note">{t('source.ignorePartial')}</p>}
+    </>
   )
 }

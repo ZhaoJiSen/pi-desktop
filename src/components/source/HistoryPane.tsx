@@ -4,7 +4,6 @@ import { useT } from '../../lib/i18n'
 import { gitLog } from '../../lib/source/api'
 import { fileNameOf } from '../../lib/source/paths'
 import { HistoryDetail } from './HistoryDetail'
-import { HistoryList } from './HistoryList'
 import { SourceNotice } from './SourceNotice'
 import { useSourceQuery } from './useSourceQuery'
 
@@ -26,15 +25,19 @@ export function HistoryPane({
     tick,
   )
   const [commit, setCommit] = useState<string | null>(null)
-  const [file, setFile] = useState<string | null>(null)
-  if (!projectPath) return <SourceNotice kind="empty" text={t('source.noProject')} />
-  if (log.loading) return <SourceNotice kind="loading" text={t('source.loading')} />
-  if (log.error || !log.data) {
-    return <SourceNotice kind="error" text={log.error || t('source.emptyHistory')} />
+  const [trackedPath, setTrackedPath] = useState(historyPath)
+  if (trackedPath !== historyPath) {
+    setTrackedPath(historyPath)
+    setCommit(null)
   }
-  if (!log.data.available) return <SourceNotice kind="empty" text={t('source.gitMissing')} />
-  if (!log.data.repo) return <SourceNotice kind="empty" text={t('source.notRepository')} />
-  if (!log.data.commits.length) return <SourceNotice kind="empty" text={t('source.emptyHistory')} />
+  let notice: { kind: 'loading' | 'empty' | 'error'; text: string } | null = null
+  if (!projectPath) notice = { kind: 'empty', text: t('source.noProject') }
+  else if (log.loading) notice = { kind: 'loading', text: t('source.loading') }
+  else if (log.error || !log.data)
+    notice = { kind: 'error', text: log.error || t('source.emptyHistory') }
+  else if (!log.data.available) notice = { kind: 'empty', text: t('source.gitMissing') }
+  else if (!log.data.repo) notice = { kind: 'empty', text: t('source.notRepository') }
+  else if (!log.data.commits.length) notice = { kind: 'empty', text: t('source.emptyHistory') }
   return (
     <div className="history-pane">
       {historyPath && (
@@ -45,23 +48,22 @@ export function HistoryPane({
           </Button>
         </div>
       )}
-      <HistoryList
-        commits={log.data.commits}
-        selected={commit}
-        onSelect={(hash) => {
-          setCommit(hash)
-          setFile(null)
-        }}
-      />
-      {commit && (
-        <HistoryDetail
-          projectPath={projectPath}
-          tick={tick}
-          revision={commit}
-          file={file}
-          onFile={setFile}
-          onBack={() => setFile(null)}
-        />
+      {notice ? (
+        <SourceNotice kind={notice.kind} text={notice.text} />
+      ) : (
+        log.data && (
+          <HistoryDetail
+            projectPath={projectPath}
+            tick={tick}
+            revision={
+              log.data.commits.find((item) => item.hash === commit)?.hash ??
+              log.data.commits[0]!.hash
+            }
+            commits={log.data.commits}
+            historyPath={historyPath}
+            onCommit={setCommit}
+          />
+        )
       )}
     </div>
   )

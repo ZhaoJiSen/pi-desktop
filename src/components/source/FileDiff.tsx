@@ -16,6 +16,7 @@ import type { DiffLine } from '../../types'
 import { fileLanguage } from '../conversation/Highlight'
 import { SourceNotice } from './SourceNotice'
 import { useDiffLayout } from './useDiffLayout'
+import { VirtualDiff } from './VirtualDiff'
 import '@git-diff-view/react/styles/diff-view-pure.css'
 
 const highlightLang: Record<string, string> = { markup: 'xml' }
@@ -58,7 +59,18 @@ export function FileDiff({
     return null
   }, [binary, fallback, missing, path, text])
   const stats = useMemo(() => (patch ? countPatch(patch) : null), [patch])
+  const virtual = useMemo(() => (patch?.split('\n').length ?? 0) > 240, [patch])
   const lang = highlightLang[fileLanguage(path)] ?? fileLanguage(path)
+  // DiffView creates a new parser and replaces its entire code tree when data
+  // changes identity, even if the patch is unchanged (e.g. another file opens).
+  const data = useMemo(
+    () => ({
+      oldFile: { fileName: path, fileLang: lang || null },
+      newFile: { fileName: path, fileLang: lang || null },
+      hunks: patch ? [patch] : [],
+    }),
+    [lang, patch, path],
+  )
   const name = fileNameOf(path)
   const showBar = Boolean(onBack) || !embedded || layout === undefined
   return (
@@ -114,18 +126,18 @@ export function FileDiff({
       ) : (
         <div className="diff diff-panel">
           <div className="source-git-diff" data-layout={layoutMode}>
-            <DiffView
-              data={{
-                oldFile: { fileName: path, fileLang: lang || null },
-                newFile: { fileName: path, fileLang: lang || null },
-                hunks: [patch],
-              }}
-              diffViewMode={layoutMode === 'split' ? DiffModeEnum.Split : DiffModeEnum.Unified}
-              diffViewTheme={mode}
-              diffViewFontSize={codeSize}
-              diffViewHighlight
-              diffViewWrap={false}
-            />
+            {virtual ? (
+              <VirtualDiff data={data} layout={layoutMode} mode={mode} codeSize={codeSize} />
+            ) : (
+              <DiffView
+                data={data}
+                diffViewMode={layoutMode === 'split' ? DiffModeEnum.Split : DiffModeEnum.Unified}
+                diffViewTheme={mode}
+                diffViewFontSize={codeSize}
+                diffViewHighlight
+                diffViewWrap={false}
+              />
+            )}
           </div>
         </div>
       )}
