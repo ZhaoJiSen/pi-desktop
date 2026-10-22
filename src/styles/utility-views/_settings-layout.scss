@@ -1,0 +1,142 @@
+// Keep settings layout local; HeroUI owns control geometry and interaction states.
+.app-shell:has(.settings-view) {
+  min-height: 0;
+}
+.settings-view {
+  --settings-divider: color-mix(in srgb, var(--ink) 9%, var(--paper));
+  --settings-control-border: color-mix(in srgb, var(--ink) 18%, var(--paper));
+  width: 100%;
+  padding-block: 20px 48px;
+}
+.settings-content {
+  container-type: inline-size;
+  width: 100%;
+  max-width: 820px;
+  margin-inline: auto;
+}
+.settings-heading {
+  display: flex;
+  align-items: center;
+  min-height: 28px;
+  margin-bottom: 10px;
+}
+.settings-section {
+  padding-block: 28px 8px;
+}
+.settings-section + .settings-section {
+  border-top: 1px solid var(--settings-divider);
+}
+.settings-section:first-of-type {
+  padding-top: 0;
+}
+.settings-section h2 {
+  margin: 0 0 4px;
+  color: var(--muted);
+  font-size: calc(var(--font-ui-size) * 13 / 14 * 1px);
+  font-weight: 500;
+  line-height: 1.4;
+}
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  min-height: 64px;
+  padding-block: 12px;
+}
+.settings-row-text {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+.settings-row-text > span,
+.settings-row > span {
+  font-size: calc(var(--font-ui-size) * 14 / 14 * 1px);
+  font-weight: 500;
+  line-height: 1.4;
+}
+.settings-rows .settings-row + .settings-row,
+.settings-switches .settings-switch + .settings-switch,
+.settings-switches .settings-row {
+  border-top: 1px solid var(--settings-divider);
+}
+.settings-themes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.settings-theme {
+  min-width: 0;
+}
+.settings-theme-content {
+  width: 100%;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  padding: 8px 8px 12px;
+  border: 2px solid var(--settings-control-border);
+  border-radius: var(--radius-xl);
+  transition:
+    border-color 180ms ease,
+    background-color 180ms ease;
+}
+.settings-theme[data-selected='true'] .settings-theme-content {
+  border-color: var(--ink);
+  background: var(--code-head);
+}
+.settings-theme[data-hovered='true']:not([data-selected='true']) .settings-theme-content {
+  background: var(--code-head);
+}
+.settings-theme-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding-inline: 3px;
+}
+.settings-theme-label .radio__control {
+  margin-left: auto;
+}
+.settings-theme:not([data-selected='true']) .radio__control {
+  border: 1px solid color-mix(in srgb, var(--ink) 42%, var(--paper));
+}
+.settings-theme-label svg {
+  width: 15px;
+  height: 15px;
+}
+.settings-theme-label .label {
+  font-size: calc(var(--font-ui-size) * 14 / 14 * 1px);
+  font-weight: 500;
+}
+.settings-row .settings-language {
+  flex: none;
+  width: 168px;
+}
+.settings-language .toggle-button {
+  flex: 1;
+  height: 32px;
+  min-height: 32px;
+  min-width: 0;
+  padding: 0 10px;
+  font-size: calc(var(--font-ui-size) * 13 / 14 * 1px);
+  font-weight: 400;
+  line-height: 1;
+}
+.settings-language .toggle-button[data-selected='true'] {
+  font-weight: 500;
+}
+.settings-row .toggle-button {
+  --toggle-button-bg-selected: var(--accent);
+  --toggle-button-bg-selected-hover: var(--accent);
+  --toggle-button-fg-selected: var(--accent-foreground);
+}
+.settings-row .toggle-button[data-selected='true'] {
+  color: var(--accent-foreground);
+}
+.settings-row .button {
+  flex-shrink: 0;
+}
+.settings-inline-switch {
+  flex: none;
+  width: auto;
+  padding: 0;
+}

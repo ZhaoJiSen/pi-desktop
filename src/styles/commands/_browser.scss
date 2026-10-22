@@ -1,0 +1,231 @@
+.commands-view {
+  --command-mono: var(--font-code);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+}
+
+.commands-view.is-empty {
+  overflow: auto;
+  padding: 36px var(--body-inset);
+}
+
+.commands-workspace {
+  flex: 1;
+  min-height: 0;
+}
+
+.commands-browser {
+  container: command-browser / inline-size;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  padding: 20px 12px 0;
+}
+
+.commands-browser-heading {
+  margin-inline: 4px;
+}
+
+.commands-browser-identity {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 8px;
+}
+
+.commands-search-reveal {
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.commands-view .chip {
+  color: var(--muted);
+  background: var(--code-head);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.commands-count {
+  font-variant-numeric: tabular-nums;
+}
+
+.commands-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 4px 10px;
+
+  .commands-search {
+    flex: 1;
+    width: auto;
+    min-width: 0;
+    align-items: stretch;
+    padding: 0;
+    gap: 0;
+    border: 0;
+  }
+
+  .search-field__group {
+    width: 100%;
+    min-height: 34px;
+    height: 34px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg, var(--radius));
+    color: var(--ink);
+    background: var(--code-head);
+    box-shadow: none;
+
+    &:hover {
+      border-color: var(--frame);
+      background: var(--code-head);
+    }
+
+    &:focus-within {
+      border-color: var(--focus);
+      background: var(--paper);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--focus) 18%, transparent);
+    }
+  }
+
+  .search-field__search-icon {
+    color: var(--muted);
+  }
+
+  input {
+    min-width: 0;
+    padding-block: 0;
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.5;
+
+    &::placeholder {
+      color: var(--muted);
+      opacity: 1;
+    }
+
+    &:focus-visible {
+      outline: none;
+    }
+  }
+}
+
+.commands-filters {
+  display: flex;
+  flex-shrink: 0;
+  flex-wrap: nowrap;
+  align-self: flex-start;
+  justify-content: flex-start;
+  gap: 4px;
+  margin: 0 4px 12px;
+  overflow: visible;
+
+  .toggle-button {
+    --toggle-button-bg-hover: var(--code-head);
+    --toggle-button-bg-selected-hover: var(--selection);
+    flex: none;
+    width: auto;
+    height: 26px;
+    min-height: 26px;
+    padding: 0 8px;
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--muted);
+    background: transparent;
+    white-space: nowrap;
+  }
+
+  .toggle-button[data-selected='true'] {
+    color: var(--ink);
+    background: var(--selection);
+    font-weight: 500;
+  }
+}
+
+.commands-source-select {
+  display: none;
+  flex-shrink: 0;
+  margin: 0 4px 12px;
+
+  .select__trigger {
+    align-items: center;
+    gap: 12px;
+    min-height: 34px;
+    padding-block: 6px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg, var(--radius));
+    color: var(--ink);
+    background: var(--code-head);
+    box-shadow: none;
+  }
+
+  .select__value {
+    font-size: 13px;
+    text-align: right;
+    white-space: nowrap;
+  }
+}
+
+.commands-source-label {
+  flex-shrink: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+@container command-browser (max-width: 339px) {
+  .commands-filters {
+    display: none;
+  }
+
+  .commands-source-select {
+    display: flex;
+  }
+}
+
+.commands-scroll {
+  min-height: 0;
+  flex: 1;
+  overscroll-behavior: contain;
+}
+
+.commands-list {
+  padding: 0 0 16px;
+}
+
+.command-row {
+  scroll-margin-block: 8px;
+
+  &[data-selected='true'] .sidebar-option-copy small {
+    color: color-mix(in srgb, var(--ink) 75%, var(--paper));
+  }
+}
+
+.commands-source-group {
+  padding: 0;
+
+  & + & {
+    margin-top: 16px;
+  }
+}
+
+.commands-group-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 10px 8px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.commands-group-count {
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}

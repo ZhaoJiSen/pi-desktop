@@ -1,0 +1,135 @@
+.onboarding-project-options {
+  display: grid;
+  gap: 12px;
+}
+.onboarding-project-options.radio-group .radio {
+  margin-top: 0;
+}
+.onboarding-project-option-content {
+  width: 100%;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--onboarding-border);
+  border-radius: var(--field-radius);
+  background: var(--onboarding-fill);
+  text-align: left;
+  white-space: normal;
+  transition:
+    border-color 160ms,
+    background-color 160ms;
+}
+.onboarding-project-option[data-selected='true'] .onboarding-project-option-content,
+.onboarding-project-option-content[data-hovered='true'] {
+  border-color: var(--onboarding-border-strong);
+  background: var(--onboarding-fill);
+}
+.onboarding-project-option-copy {
+  flex: 1;
+  min-width: 0;
+}
+.onboarding-project-option strong {
+  display: block;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.onboarding-project-option small {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+  margin-top: 4px;
+  overflow-wrap: anywhere;
+}
+.onboarding-project-option-content > svg {
+  margin-top: 2px;
+  color: var(--muted);
+}
+.onboarding-project-option .radio__control {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  margin-left: auto;
+  box-shadow: none;
+}
+.onboarding-project-option:not([data-selected='true']) .radio__control {
+  border: 1px solid var(--onboarding-border-strong);
+  background: var(--onboarding-fill);
+}
+.onboarding-offline {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.onboarding-error {
+  color: var(--danger);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.onboarding-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding-top: 20px;
+  margin-top: 16px;
+  border-top: 1px solid var(--line);
+}
+.onboarding-actions > div {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.onboarding-panel .onboarding-primary {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+.onboarding-actions svg {
+  width: 14px;
+  height: 14px;
+}
+@media (max-width: 760px) {
+  .onboarding-body {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    padding: 28px 24px;
+  }
+  .onboarding-intro > p {
+    display: none;
+  }
+  .onboarding-intro > .pi-logo {
+    display: none;
+  }
+  .onboarding-product {
+    margin: 0 0 20px;
+  }
+  .onboarding-steps {
+    --onboarding-step-gap: 8px;
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .onboarding-steps li:not(:last-child)::after {
+    display: none;
+  }
+  .onboarding-steps li {
+    gap: 6px;
+    font-size: 12px;
+  }
+  .onboarding-step-content {
+    min-height: 0;
+  }
+  .onboarding-actions {
+    flex-wrap: wrap;
+  }
+  .onboarding-panel h1 {
+    font-size: 22px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .onboarding-step-mark,
+  .onboarding-project-option-content {
+    transition: none;
+  }
+}

@@ -1,0 +1,102 @@
+.popover-search {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 8px;
+  padding: 12px 8px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+}
+.popover-search svg {
+  width: 15px;
+  height: 15px;
+}
+.popover-search input {
+  width: 100%;
+  min-width: 0;
+  background: none;
+  outline: none;
+  font-size: 12px;
+}
+.popover-search input::placeholder {
+  color: var(--muted);
+  opacity: 1;
+}
+.model-options {
+  min-height: 0;
+  isolation: isolate;
+  padding: 0 6px 6px;
+  max-height: 310px;
+  scrollbar-gutter: stable;
+}
+.option-label {
+  padding: 6px 10px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.model-group {
+  padding-bottom: 4px;
+}
+/* No top inset: the opaque sticky header must meet the scroll viewport edge. */
+.model-group-label {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  margin-inline: -6px;
+  padding: 7px 16px;
+  background: var(--paper);
+  box-shadow: 0 -1px 0 var(--paper);
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 500;
+}
+.button.model-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: calc(100% - 8px);
+  margin-left: 8px;
+  min-width: 0;
+  height: auto;
+  min-height: 52px;
+  padding: 8px 10px;
+  border-radius: var(--radius-lg, var(--radius));
+  font-weight: 400;
+  text-align: left;
+  background: transparent;
+  gap: 12px;
+}
+.button.model-row:is(:hover, [data-hovered='true']):not(:disabled) {
+  background: var(--hover);
+}
+.model-row-copy {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  gap: 2px;
+  font-size: 13px;
+}
+.model-row-copy > span {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 20px;
+}
+.model-row-copy .model-description {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 16px;
+}
+.model-row svg {
+  width: 15px;
+  height: 15px;
+}
+.popover-empty {
+  padding: 24px 12px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+}

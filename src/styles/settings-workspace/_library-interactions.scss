@@ -1,0 +1,148 @@
+.capability-settings-row {
+  min-height: 76px;
+}
+.capability-settings-row .capability-row-main {
+  align-items: flex-start;
+}
+.capability-row-main > svg {
+  align-self: flex-start;
+}
+.capability-settings-copy {
+  flex: 1;
+  gap: 4px;
+}
+.capability-settings-copy > .capability-name-line {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--ink);
+}
+.capability-name-line strong {
+  min-width: 0;
+}
+.capability-name-line small {
+  flex-shrink: 0;
+  max-width: 48%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 400;
+}
+.capability-group-heading {
+  padding: 16px 8px 4px;
+}
+.capability-group-heading h3 {
+  font-size: calc(var(--font-ui-size) * 13 / 14 * 1px);
+  color: var(--muted);
+  font-weight: 500;
+  margin: 0;
+}
+.capability-inspector-actions {
+  margin: 0 0 18px;
+}
+.capability-inspector .capability-instructions {
+  max-height: 180px;
+}
+@container (max-width: 500px) {
+  .settings-navigation .list-box-item {
+    width: auto;
+    white-space: nowrap;
+  }
+  .capability-settings-row .button.capability-row-main {
+    flex: 1 0 100%;
+  }
+}
+@container (max-width: 500px) {
+  .capability-library-toolbar {
+    flex-wrap: nowrap;
+  }
+  .capability-library-toolbar .capability-search {
+    flex-basis: auto;
+  }
+  .capability-library-toolbar .button.capability-new {
+    width: 38px;
+    min-width: 38px;
+    padding: 0;
+  }
+  .capability-new > span {
+    display: none;
+  }
+}
+.capability-inspector-heading > span {
+  font-size: calc(var(--font-ui-size) * 15 / 14 * 1px);
+  font-weight: 500;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.capability-inspector .capability-details > strong {
+  display: none;
+}
+@container (max-width: 760px) {
+  .capability-inspector .capability-details > strong {
+    display: block;
+  }
+}
+.capability-pinned-list li {
+  position: relative;
+  background: transparent;
+}
+.capability-drag-handle {
+  touch-action: none;
+  cursor: grab;
+  flex: none;
+  color: var(--muted);
+}
+.capability-drag-handle:active {
+  cursor: grabbing;
+}
+.capability-pinned-list li > .button:last-child {
+  margin-left: auto;
+}
+.capability-pinned-list ~ [role='status'],
+#pinned-reorder-help {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.settings-workspace .capability-settings-footer {
+  margin-top: 12px;
+  padding-block: 12px;
+}
+
+.settings-workspace .capability-pinned-card .capability-empty {
+  margin: 0;
+  padding: 16px 0;
+}
+.capability-autosave-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 32px;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: calc(var(--font-ui-size) * 13 / 14 * 1px);
+  > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+  [role='alert'] {
+    color: var(--danger);
+  }
+}
+.connection-form .input.settings-path:is(:focus-visible, [data-focus-visible='true']) {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+  border-color: transparent;
+  box-shadow: none;
+}

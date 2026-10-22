@@ -1,0 +1,147 @@
+.pi-environment-note {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.onboarding-check a {
+  color: var(--ink);
+  text-decoration: underline;
+}
+.pi-install-entry {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+  line-height: 1.6;
+  p {
+    color: var(--muted);
+  }
+  a {
+    color: var(--ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+}
+.pi-install-entry-actions,
+.pi-install-help {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+.pi-install-dialog {
+  max-height: calc(100dvh - 80px);
+  padding: 24px;
+  background: var(--paper);
+  color: var(--ink);
+  .alert-dialog__header {
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    flex: none;
+  }
+  .alert-dialog__heading {
+    font-size: 16px;
+    font-weight: 500;
+  }
+  .alert-dialog__body {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    margin-top: 16px;
+  }
+  .alert-dialog__footer {
+    flex: none;
+  }
+}
+.pi-install-panel {
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+  h2 {
+    margin: 0 0 8px;
+    font-size: 16px;
+    font-weight: 600;
+  }
+  p {
+    margin: 8px 0;
+    color: var(--muted);
+  }
+  .onboarding-error {
+    color: var(--danger);
+  }
+  a {
+    color: var(--ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  dl {
+    margin: 16px 0;
+  }
+  dl > div {
+    display: grid;
+    grid-template-columns: 84px minmax(0, 1fr);
+    gap: 12px;
+    margin: 8px 0;
+  }
+  dt {
+    color: var(--muted);
+  }
+  dd {
+    margin: 0;
+    min-width: 0;
+  }
+  pre {
+    margin: 12px 0;
+    padding: 12px;
+    background: var(--code-head);
+    border: 1px solid var(--line);
+    border-radius: var(--field-radius);
+    font-size: 12px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+}
+.pi-install-plan {
+  margin-top: 16px;
+  summary {
+    cursor: pointer;
+    color: var(--ink);
+  }
+}
+.pi-install-progress {
+  margin-top: 16px;
+}
+.pi-install-output {
+  margin-top: 16px;
+  summary {
+    cursor: pointer;
+    color: var(--muted);
+  }
+  pre {
+    max-height: 160px;
+    overflow: auto;
+  }
+}
+.pi-install-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 20px;
+  .button {
+    color: var(--ink);
+    font-size: 13px;
+  }
+  .button--primary {
+    background: var(--accent);
+    color: var(--accent-foreground);
+  }
+}
+.pi-install-actions .button[data-pending='true'] {
+  opacity: 1;
+  cursor: progress;
+}

@@ -1,0 +1,94 @@
+.capability-icon-field {
+  display: grid;
+  gap: 8px;
+}
+.capability-icon-trigger {
+  justify-content: flex-start;
+  gap: 10px;
+  width: 100%;
+}
+.capability-icon-trigger span {
+  flex: 1;
+  text-align: start;
+}
+.capability-icon-trigger svg {
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+.capability-icon-picker {
+  width: min(380px, calc(100vw - 32px));
+  padding: 12px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  border-radius: 14px;
+  box-shadow: var(--composer-shadow);
+}
+.capability-icon-picker .popover__dialog {
+  padding: 0;
+}
+.capability-icon-grid {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 4px;
+  margin-block: 12px;
+}
+.capability-icon-grid .button {
+  width: 100%;
+  min-width: 0;
+  height: 36px;
+  color: var(--ink);
+}
+.capability-icon-grid .button[aria-pressed='true'] {
+  background: var(--selection);
+  outline: 1px solid var(--focus);
+}
+.capability-icon-grid svg {
+  width: 19px;
+  height: 19px;
+}
+.capability-icon-pagination {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.capability-icon-pagination > span:first-child {
+  margin-right: auto;
+}
+.capability-editor .settings-switch {
+  display: block;
+  padding-block: 0;
+}
+.capability-editor .settings-switch > .description {
+  display: block;
+  margin: 6px 0 0;
+  padding: 0;
+  text-align: left;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.capability-icon-picker {
+  height: 368px;
+  overflow: hidden;
+  .popover__dialog {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+  }
+  .capability-search,
+  .capability-icon-pagination {
+    flex: none;
+  }
+  .capability-icon-grid {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    align-content: start;
+    padding: 2px;
+  }
+}

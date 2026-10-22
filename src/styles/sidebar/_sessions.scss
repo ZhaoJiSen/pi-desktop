@@ -1,0 +1,116 @@
+.session-list {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 2px;
+}
+.session-row.list-box-item {
+  height: 32px;
+  min-height: 32px;
+  flex: none;
+  padding: 0;
+}
+.session-row:not(.selected):is(:hover, :focus-within) {
+  background: var(--selection);
+}
+.button.session {
+  --button-bg-hover: transparent;
+  --button-bg-pressed: transparent;
+  border-radius: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  position: relative;
+  height: 32px;
+  min-height: 32px;
+  padding: 0 54px 0 29px;
+  width: 100%;
+  min-width: 0;
+  text-align: left;
+  font-size: calc(var(--font-ui-size) * 13 / 14 * 1px);
+  font-weight: 400;
+  background: transparent;
+  color: var(--ink);
+}
+.button.session:is(:hover, [data-hovered='true'], [data-pressed='true']) {
+  background: transparent;
+}
+.session .session-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  position: relative;
+}
+.session-title {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.session-actions {
+  position: absolute;
+  right: 6px;
+  top: 4px;
+  display: flex;
+  gap: 4px;
+}
+.session-actions .sidebar-action {
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 140ms ease-out,
+    color 120ms ease-out;
+}
+.session-row:is(:hover, :focus-within) .sidebar-action,
+.session-actions .is-pinned {
+  opacity: 1;
+  pointer-events: auto;
+}
+.session-actions .is-pinned {
+  color: var(--ink);
+}
+.sidebar .session-remove:hover:not(:disabled) {
+  color: var(--danger);
+}
+.session-selection {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--selection);
+  pointer-events: none;
+}
+.button.folder-row:hover {
+  background: transparent;
+}
+@media (hover: none) {
+  .sidebar .section-label :is(.project-picker-trigger, .section-action) {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .sidebar
+    .section-label
+    :is(.project-picker-trigger, .section-action):is(:disabled, [aria-disabled='true']) {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+  .projects-toggle .projects-indicator {
+    opacity: 1;
+  }
+  .project-actions,
+  .session-actions .sidebar-action {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .projects-toggle .projects-indicator,
+  .project-actions,
+  .sidebar .sidebar-action,
+  .session-actions .sidebar-action {
+    transition: none;
+  }
+}

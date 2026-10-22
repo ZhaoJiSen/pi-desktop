@@ -1,0 +1,242 @@
+.commands-detail {
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+}
+
+.command-inspector {
+  display: flex;
+  gap: 0;
+  width: 100%;
+  padding: 22px 24px;
+  background: transparent;
+  box-shadow: none;
+  border: 0;
+
+  .card__header {
+    gap: 18px;
+    padding: 0 0 18px;
+  }
+
+  .card__content {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 0 0 20px;
+  }
+
+  h3 {
+    margin: 0 0 5px;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 1.5;
+  }
+
+  .card__title {
+    margin: 0;
+    color: var(--ink);
+    overflow-wrap: anywhere;
+    font-family: var(--command-mono);
+    font-size: calc(var(--font-code-size) * 19 / 13);
+    font-variant-ligatures: var(--font-code-ligatures);
+    font-feature-settings: var(--font-code-features);
+    font-weight: 550;
+    line-height: 1.35;
+    letter-spacing: -0.3px;
+  }
+
+  .button {
+    --button-bg: var(--accent);
+    --button-bg-hover: var(--accent-hover);
+    --button-bg-pressed: var(--accent-hover);
+    --button-fg: var(--accent-foreground);
+    width: fit-content;
+    max-width: 100%;
+    height: 32px;
+    min-height: 32px;
+    gap: 7px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: calc(infinity * 1px);
+    box-shadow: none;
+    color: var(--accent-foreground);
+    background-color: var(--button-bg);
+    font-size: 12px;
+    font-weight: 400;
+    white-space: nowrap;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    &:is(:hover, [data-hovered='true']):not(:disabled, [aria-disabled='true']) {
+      background-color: var(--button-bg-hover);
+    }
+
+    &:is(:active, [data-pressed='true']):not(:disabled, [aria-disabled='true']) {
+      background-color: var(--button-bg-pressed);
+    }
+  }
+
+  .button.model-trigger {
+    max-width: 260px;
+
+    .chevron {
+      width: 12px;
+      height: 12px;
+      color: inherit;
+    }
+  }
+}
+
+.command-inspector .chip.command-source {
+  height: 24px;
+  padding-inline: 8px;
+  color: var(--muted);
+  background: var(--sidebar);
+  font-size: 11px;
+}
+
+.command-inspector-heading {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.command-summary {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+
+.command-syntax {
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg, var(--radius));
+  background: var(--code-head);
+
+  code {
+    display: block;
+    color: var(--ink);
+    overflow-wrap: anywhere;
+    font: 12px/1.7 var(--command-mono);
+  }
+}
+
+.command-origin p {
+  margin: 0;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+  font: 11px/1.7 var(--command-mono);
+}
+
+.command-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 18px 0 0;
+  border-top: 1px solid var(--line);
+}
+
+.commands-hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.commands-alert {
+  margin: 0 4px 14px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.command-inspector .commands-alert {
+  width: 100%;
+  margin: 0;
+}
+
+.commands-view .utility-empty {
+  align-items: flex-start;
+  gap: 8px;
+  padding: 24px 12px;
+  text-align: left;
+
+  p,
+  span {
+    margin: 0;
+  }
+
+  p {
+    color: var(--ink);
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  span {
+    max-width: 36em;
+    font-size: 14px;
+    line-height: 1.65;
+  }
+}
+
+.commands-empty-icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 8px;
+  border-radius: var(--radius-lg, var(--radius));
+  color: var(--muted);
+  background: var(--code-head);
+
+  > svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+@media (max-width: 780px) {
+  .commands-view:not(.is-empty) {
+    overflow: auto;
+  }
+
+  .commands-workspace {
+    display: block;
+    flex: none;
+    overflow: visible;
+  }
+
+  .commands-browser {
+    height: auto;
+    padding-top: 16px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .commands-filters {
+    margin-bottom: 12px;
+  }
+
+  .commands-scroll {
+    flex: none;
+    max-height: 280px;
+  }
+
+  .commands-detail {
+    height: auto;
+  }
+}
+
+@media (max-width: 950px) {
+  .command-inspector {
+    padding: 20px;
+  }
+}

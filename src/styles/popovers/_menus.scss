@@ -1,0 +1,131 @@
+.action-popover {
+  padding: 0;
+  min-width: 180px;
+  max-width: calc(100vw - 32px);
+  border: 1px solid var(--line);
+  box-shadow:
+    0 8px 24px #00000014,
+    0 2px 6px #00000008;
+  background: var(--paper);
+  color: var(--ink);
+  overflow: hidden;
+}
+.action-popover .dropdown__menu {
+  padding: 6px;
+  gap: 2px;
+}
+.action-popover .menu-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 34px;
+  padding: 7px 10px;
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 400;
+  color: var(--ink);
+  background: transparent;
+}
+.action-popover .menu-row:is(:hover, [data-focused='true']):not([data-disabled='true']) {
+  background: var(--hover);
+}
+.action-popover .menu-row:focus-visible:not([data-focus-visible='true']) {
+  outline: none;
+}
+.action-popover .menu-row[data-disabled='true'] {
+  opacity: 0.45;
+}
+.action-popover .menu-row svg {
+  color: var(--muted);
+}
+.thinking-popover {
+  width: 296px;
+  max-width: calc(100vw - 32px);
+  padding: 0;
+  border: 1px solid var(--line);
+  box-shadow:
+    0 8px 24px #00000014,
+    0 2px 6px #00000008;
+  background: var(--paper);
+  overflow: hidden;
+}
+.thinking-popover .popover__dialog {
+  padding: 0;
+  max-height: inherit;
+  overflow-y: auto;
+}
+.thinking-popover .model-thinking-control {
+  padding: 14px 16px 16px;
+  border-top: 0;
+}
+.model-options {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--muted) 35%, transparent) transparent;
+}
+.model-options::-webkit-scrollbar {
+  width: 6px;
+}
+.model-options::-webkit-scrollbar-track {
+  background: transparent;
+  margin-block: 6px;
+}
+.model-options::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--muted) 35%, transparent);
+}
+.model-options::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--muted) 55%, transparent);
+}
+.button.menu-row {
+  padding: 0 10px;
+}
+.thinking-popover .menu-row > span {
+  flex: 1;
+  text-align: left;
+}
+.model-options,
+.thinking-popover .popover__dialog {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--muted) 35%, transparent) transparent;
+}
+.model-options::-webkit-scrollbar,
+.thinking-popover .popover__dialog::-webkit-scrollbar {
+  width: 6px;
+}
+.model-options::-webkit-scrollbar-track,
+.thinking-popover .popover__dialog::-webkit-scrollbar-track {
+  background: transparent;
+  margin-block: 6px;
+}
+.model-options::-webkit-scrollbar-thumb,
+.thinking-popover .popover__dialog::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--muted) 35%, transparent);
+}
+.model-options::-webkit-scrollbar-thumb:hover,
+.thinking-popover .popover__dialog::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--muted) 55%, transparent);
+}
+.button.menu-row {
+  width: 100%;
+  min-width: 0;
+  height: 34px;
+  min-height: 34px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 9px;
+  font-size: 13px;
+  font-weight: 400;
+  padding: 0 9px;
+  background: transparent;
+}
+.menu-row:hover {
+  background: var(--hover);
+}
+.menu-row svg {
+  width: 14px;
+  height: 14px;
+}
+
+.model-popover-content {
+  max-height: min(480px, calc(100dvh - 48px));
+}

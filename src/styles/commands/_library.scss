@@ -1,0 +1,243 @@
+/* The unified library uses the same sidebar and inspector as peer library pages. */
+.library-filter-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0 4px 12px;
+  flex: none;
+  .select__trigger {
+    height: 34px;
+    min-height: 34px;
+    align-items: center;
+    padding: 0 28px 0 10px;
+    line-height: 20px;
+    background: var(--code-head);
+    color: var(--muted);
+    box-shadow: none;
+    border: 1px solid var(--line);
+    font-size: 13px;
+    gap: 4px;
+  }
+  .select__value {
+    min-width: 0;
+    line-height: 20px;
+    font-size: 13px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+.library-browser .library-status-filters {
+  display: flex;
+  gap: 2px;
+}
+.library-status-filters .toggle-button {
+  padding-inline: 7px;
+  font-size: 12px;
+}
+.library-row-state {
+  flex: none;
+  font-size: 11px;
+  color: var(--muted);
+  margin-left: 4px;
+}
+.library-inspector {
+  max-width: 960px;
+  .card__header {
+    gap: 12px;
+  }
+  .card__title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: inherit;
+    font-size: 20px;
+  }
+  .card__title svg {
+    width: 20px;
+    height: 20px;
+  }
+  h3 {
+    font-size: 13px;
+  }
+  .button {
+    --button-bg: var(--hover);
+    --button-bg-hover: var(--selection);
+    --button-bg-pressed: var(--selection);
+    color: var(--ink);
+    font-size: 13px;
+  }
+  .button.library-primary {
+    --button-bg: var(--accent);
+    --button-bg-hover: var(--accent-hover);
+    color: var(--accent-foreground);
+  }
+  .button.library-back {
+    display: none;
+  }
+  .button.library-delete {
+    color: var(--danger);
+  }
+}
+.library-entry-options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  .switch {
+    margin-right: auto;
+  }
+}
+.library-metadata {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  font-size: 14px;
+  div {
+    display: grid;
+    grid-template-columns: 100px minmax(0, 1fr);
+    gap: 12px;
+  }
+  dt {
+    color: var(--muted);
+  }
+  dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+}
+.library-readonly,
+.library-instructions {
+  border-top: 1px solid var(--line);
+  padding-top: 18px;
+  p {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+}
+.library-readonly {
+  display: grid;
+  gap: 8px;
+  code {
+    font: 13px/1.7 var(--command-mono);
+    overflow-wrap: anywhere;
+  }
+  p,
+  small {
+    color: var(--muted);
+  }
+}
+.library-status {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--muted);
+}
+.library-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 8px;
+}
+.library-feedback {
+  margin: 16px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+.library-feedback.is-error {
+  color: var(--danger);
+}
+.library-view {
+  container: capability-library / inline-size;
+}
+@mixin library-single-column {
+  display: block;
+  height: 100%;
+  overflow: hidden;
+  .resizable-handle {
+    display: none;
+  }
+  .library-browser {
+    height: 100%;
+    border: 0;
+  }
+  .commands-scroll {
+    flex: 1;
+    max-height: none;
+  }
+  .library-detail {
+    display: none;
+    height: 100%;
+  }
+  &.is-detail-open {
+    .library-browser {
+      display: none;
+    }
+    .library-detail {
+      display: block;
+    }
+    .button.library-back {
+      display: inline-flex;
+    }
+  }
+}
+.library-workspace:not([data-split-active='true']) {
+  @include library-single-column;
+}
+@container capability-library (max-width: 780px) {
+  .library-workspace {
+    @include library-single-column;
+  }
+}
+
+@media (max-width: 780px) {
+  .library-view {
+    overflow: hidden !important;
+  }
+  .library-workspace {
+    height: 100%;
+    flex: 1;
+  }
+  .library-editor,
+  .library-inspector {
+    padding: 20px;
+  }
+}
+
+.library-list-empty {
+  display: grid;
+  height: 100%;
+  min-height: 100%;
+  place-items: center;
+}
+.library-detail-empty {
+  display: grid;
+  place-items: center;
+  min-height: 100%;
+  padding: 32px;
+  .utility-empty {
+    align-items: center;
+    text-align: center;
+    padding: 0;
+    max-width: 360px;
+  }
+}
+.library-browser .commands-source-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.library-browser .commands-source-group > .commands-group-heading {
+  margin-bottom: 4px;
+}
+.library-list-empty .utility-empty {
+  align-items: center;
+  text-align: center;
+  padding: 24px;
+}
+.library-list-empty .utility-empty p {
+  font-size: 13px;
+}

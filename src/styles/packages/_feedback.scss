@@ -1,0 +1,238 @@
+.package-list-skeleton {
+  padding-top: 2px;
+  .skeleton {
+    background: var(--line);
+  }
+}
+.package-skeleton-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 8px 10px;
+  margin-bottom: 4px;
+}
+.package-skeleton-icon {
+  width: 18px;
+  height: 18px;
+  margin-inline: 1px;
+  flex: none;
+}
+.package-skeleton-copy {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.package-skeleton-title {
+  height: 12px;
+}
+.package-skeleton-subtitle {
+  width: 42%;
+  height: 9px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .package-list-skeleton .skeleton {
+    animation: none;
+  }
+}
+.package-update-progress {
+  gap: 7px;
+  margin: -3px 0 18px;
+  width: 100%;
+  .package-progress-label {
+    grid-area: label;
+    color: var(--muted);
+    font-size: 11px;
+  }
+  .progress-bar__track {
+    height: 4px;
+    background: var(--selection);
+  }
+  .progress-bar__fill {
+    background: var(--accent);
+  }
+}
+.package-update-summary .package-batch-progress {
+  margin: 2px 0 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .package-update-progress .progress-bar__fill {
+    transition: none;
+  }
+}
+.package-manager .button.package-primary[data-pending='true'] {
+  opacity: 1;
+  cursor: progress;
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+.package-manager .package-actions .package-primary {
+  min-width: 120px;
+}
+.package-library > .package-feedback {
+  margin: 2px 4px 10px;
+}
+.package-manager .button.package-reload {
+  height: 26px;
+  min-height: 26px;
+  padding: 0 7px;
+  font-size: 11px;
+  color: var(--ink);
+}
+.package-mobile-feedback {
+  display: none;
+}
+.package-manager .package-source .package-documentation {
+  gap: 6px;
+  margin-top: 9px;
+  font-size: 12px;
+  font-weight: 400;
+  background: transparent;
+  color: var(--muted);
+  &:is(:hover, [data-hovered='true']) {
+    color: var(--ink);
+  }
+  svg {
+    width: 12px;
+    height: 12px;
+  }
+}
+@media (max-width: 780px) {
+  .package-mobile-feedback {
+    display: block;
+    .package-feedback {
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+  }
+}
+.package-empty,
+.package-detail-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 36px 12px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+}
+.package-empty p,
+.package-detail-empty p {
+  margin: 0;
+}
+.package-detail-empty {
+  flex: 1;
+  min-height: 0;
+  svg {
+    width: 20px;
+    height: 20px;
+    stroke-width: 1.5;
+  }
+}
+.package-feedback {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  align-items: center;
+  gap: 4px 8px;
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  background: var(--paper);
+  font-size: 12px;
+  color: var(--ink);
+  .alert__indicator {
+    padding: 0;
+  }
+}
+.package-feedback-actions {
+  grid-column: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  &:empty {
+    display: none;
+  }
+}
+.package-feedback span {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.package-feedback.is-error {
+  background: var(--removed);
+  color: var(--danger);
+}
+.package-feedback.alert,
+.package-check-error.alert,
+.package-detail-error.alert {
+  box-shadow: none;
+
+  .alert__content {
+    height: auto;
+    min-width: 0;
+  }
+  .alert__description {
+    color: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    overflow-wrap: anywhere;
+  }
+}
+.package-remove-name {
+  color: var(--ink);
+  font-weight: 500;
+  overflow-wrap: anywhere;
+  margin: 0 0 8px;
+}
+@media (max-width: 950px) {
+  .package-heading {
+    gap: 12px;
+  }
+  .package-detail {
+    padding: 22px 20px;
+  }
+  .package-search {
+    width: 200px;
+  }
+}
+@media (max-width: 780px) {
+  .packages-view {
+    overflow-y: auto;
+  }
+  .package-manager {
+    flex: none;
+  }
+  .package-heading {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .package-heading h2 {
+    font-size: 20px;
+  }
+  .package-toolbar {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .package-search {
+    width: 100%;
+  }
+  .package-workspace {
+    display: flex;
+    flex-direction: column;
+    flex: none;
+  }
+  .package-library {
+    border-bottom: 1px solid var(--line);
+  }
+  .package-scroll {
+    max-height: 250px;
+    flex: none;
+  }
+  .package-detail-scroll {
+    overflow: visible;
+  }
+}

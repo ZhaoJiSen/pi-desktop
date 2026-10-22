@@ -1,0 +1,89 @@
+@container (max-width: 760px) {
+  .capability-library[data-detail='true'] {
+    display: block;
+  }
+  .capability-library[data-detail='true'] .capability-library-results {
+    display: none;
+  }
+  .capability-inspector {
+    border: 0;
+    padding: 12px 0;
+    position: static;
+  }
+  .capability-inspector .capability-detail-back {
+    display: inline-flex;
+  }
+  .capability-inspector-heading > span {
+    display: none;
+  }
+}
+@container (max-width: 680px) {
+  .settings-navigation {
+    width: 200px;
+  }
+  .settings-navigation .list-box-item {
+    padding-inline: 8px;
+  }
+  .capability-library-filters {
+    flex-wrap: wrap;
+  }
+}
+@container (max-width: 500px) {
+  .settings-split {
+    flex-direction: column;
+  }
+  .settings-navigation {
+    width: auto;
+    height: auto;
+    padding: 12px 12px 4px;
+    border-right: 0;
+    border-bottom: 1px solid var(--shell-line);
+  }
+  .settings-navigation .list-box {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 4px;
+  }
+  .settings-navigation .list-box-item {
+    flex: none;
+    min-height: 36px;
+    padding: 8px 10px;
+  }
+  .settings-workspace .settings-content {
+    flex: 1;
+    padding-right: 0;
+  }
+  .settings-navigation .list-box-item svg {
+    display: none;
+  }
+  .capability-settings-row {
+    align-items: start;
+    flex-wrap: wrap;
+  }
+  .capability-settings-row .capability-row-main {
+    flex-basis: 100%;
+  }
+  .capability-settings-controls {
+    padding: 0 6px 6px 36px;
+  }
+  .capability-library-toolbar {
+    align-items: stretch;
+    flex-wrap: wrap;
+  }
+  .capability-library-toolbar .capability-search {
+    flex-basis: 100%;
+  }
+  .capability-count-row {
+    align-items: center;
+    flex-direction: row;
+  }
+  .capability-list-heading {
+    flex-wrap: wrap;
+  }
+}
+@media (max-width: 600px) {
+  .utility-view.settings-workspace {
+    padding: 16px 12px 0;
+  }
+}

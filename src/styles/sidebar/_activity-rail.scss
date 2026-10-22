@@ -1,0 +1,52 @@
+// Global navigation sits outside the workspace surface.
+.activity-rail {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 0 12px;
+}
+.rail-primary,
+.rail-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.rail-bottom {
+  margin-top: auto;
+  padding-top: 12px;
+}
+.button.rail-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  min-height: 36px;
+  padding: 0;
+  color: var(--muted);
+  isolation: isolate;
+}
+.rail-item > svg {
+  width: 19px;
+  height: 19px;
+  stroke-width: 1.65;
+}
+.button.rail-item:is(:hover, [data-hovered='true'], [aria-current='page']) {
+  color: var(--ink);
+  background: transparent;
+}
+.rail-selection {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--selection);
+}
+.sidebar-title {
+  font-size: calc(var(--font-ui-size) * 15 / 14 * 1px);
+  font-weight: 600;
+  line-height: 26px;
+}

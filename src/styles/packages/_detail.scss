@@ -1,0 +1,154 @@
+.package-detail-scroll {
+  min-height: 0;
+  overscroll-behavior: contain;
+}
+.package-detail {
+  padding: 27px 30px 24px;
+}
+.package-detail.card {
+  gap: 0;
+}
+.package-detail-content.card__content {
+  gap: 0;
+}
+.package-detail-heading {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 19px;
+  gap: 12px;
+}
+.package-emblem {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-xl);
+  background: var(--selection);
+  color: var(--ink);
+}
+.package-emblem svg {
+  width: 23px;
+  height: 23px;
+}
+.package-manager .chip {
+  height: 24px;
+  padding-inline: 8px;
+  background: var(--sidebar);
+  color: var(--muted);
+  font-size: 11px;
+}
+.package-detail h3 {
+  font-size: 23px;
+  line-height: 1.3;
+  font-weight: 550;
+  margin: 0 0 12px;
+  overflow-wrap: anywhere;
+  letter-spacing: -0.3px;
+}
+.package-description {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.75;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+.package-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin: 21px 0 10px;
+}
+.package-manager .button.package-primary {
+  background: var(--accent);
+  color: var(--accent-foreground);
+  --button-bg-hover: color-mix(in srgb, var(--accent) 90%, var(--paper));
+}
+.package-manager
+  .button.package-primary:is(:hover, [data-hovered='true']):not(:disabled, [aria-disabled='true']) {
+  background: var(--button-bg-hover);
+}
+.package-manager .button.package-primary:is(:disabled, [aria-disabled='true']) {
+  opacity: 0.5;
+}
+.package-manager .button.package-remove {
+  color: var(--muted);
+}
+.package-manager .button.package-remove:is(:hover, [data-hovered='true']) {
+  background: var(--removed);
+  color: var(--danger);
+}
+.package-action-note {
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 0 0 24px;
+}
+.package-facts {
+  margin: 0;
+  padding: 18px 0;
+  display: grid;
+  gap: 12px;
+}
+.package-facts > div {
+  display: grid;
+  grid-template-columns: 100px minmax(0, 1fr);
+  gap: 12px;
+  font-size: 12px;
+}
+.package-facts dt {
+  color: var(--muted);
+}
+.package-facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.package-version-note {
+  margin-left: 9px;
+  font-size: 11px;
+  color: var(--mint);
+}
+.package-resources,
+.package-source {
+  margin-top: 24px;
+}
+.package-detail h4 {
+  font-size: 12px;
+  font-weight: 500;
+  margin: 0 0 10px;
+}
+.package-resources > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.package-source code {
+  display: block;
+  font:
+    11px/1.7 'SF Mono',
+    Menlo,
+    monospace;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+/* HeroUI owns the spinner animation; only its compact dimensions are local. */
+.package-manager .package-loading-icon.spinner {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  opacity: 1;
+
+  svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+}
+.package-detail-scroll .hover-scroll-viewport {
+  padding-right: 8px;
+}
+.package-detail-scroll .hover-scroll-content {
+  display: flex;
+  flex-direction: column;
+}

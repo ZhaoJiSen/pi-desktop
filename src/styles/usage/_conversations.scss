@@ -1,0 +1,122 @@
+.usage-list-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding-block: 24px 14px;
+}
+.usage-list-toolbar h2 {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+.usage-list-toolbar h2 > span {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+.usage-search {
+  width: 280px;
+  max-width: 100%;
+}
+.usage-search .search-field__group {
+  min-height: 34px;
+  height: 34px;
+  padding-inline: 10px;
+  gap: 7px;
+  border: 1px solid var(--line);
+  background: var(--code-head);
+  box-shadow: none;
+}
+.usage-search .search-field__input {
+  font-size: 13px;
+}
+.usage-search svg {
+  width: 15px;
+  height: 15px;
+}
+.usage-view .usage-table {
+  table-layout: fixed;
+  font-size: 13px;
+  white-space: normal;
+}
+.usage-view .usage-table th {
+  padding-block: 10px;
+  font-size: 12px;
+}
+.usage-view .usage-table th:first-child {
+  width: 42%;
+}
+.usage-view .usage-table td {
+  padding-block: 13px;
+  overflow-wrap: anywhere;
+}
+.usage-view .usage-table .usage-number {
+  text-align: right;
+  white-space: nowrap;
+}
+.usage-view .usage-table th:last-child,
+.usage-view .usage-table td:last-child {
+  padding-right: 0;
+}
+.usage-view .usage-table .usage-model-column {
+  width: 25%;
+  color: var(--muted);
+}
+.usage-model-column > span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.usage-view .usage-table .usage-session-link {
+  display: flex;
+  justify-content: flex-start;
+  gap: 7px;
+  max-width: 100%;
+  width: fit-content;
+  height: auto;
+  min-height: 24px;
+  font-size: 13px;
+  text-align: left;
+  white-space: normal;
+  line-height: 1.5;
+}
+.usage-session-link span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.usage-session-link svg {
+  flex: none;
+  transition: transform 120ms ease;
+}
+.usage-session-link:hover svg {
+  transform: translateX(2px);
+}
+.usage-project-name {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 3px;
+  line-height: 18px;
+  overflow-wrap: anywhere;
+}
+.usage-view .usage-table .usage-sort {
+  display: inline-flex;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.usage-view th[aria-sort='ascending'] .usage-sort,
+.usage-view th[aria-sort='descending'] .usage-sort {
+  color: var(--ink);
+}
+.usage-sort-placeholder {
+  width: 12px;
+  height: 12px;
+}

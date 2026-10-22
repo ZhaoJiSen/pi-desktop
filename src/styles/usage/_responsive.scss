@@ -1,0 +1,95 @@
+@container (max-width: 620px) {
+  .usage-overview {
+    column-gap: 32px;
+  }
+  .usage-view .usage-table .usage-model-column {
+    display: none;
+  }
+  .usage-view .usage-table th:first-child {
+    width: 50%;
+  }
+}
+@container (max-width: 400px) {
+  .usage-toolbar {
+    flex-wrap: wrap;
+    margin-bottom: 26px;
+  }
+  .usage-project-select {
+    max-width: 100%;
+  }
+  .usage-overview {
+    column-gap: 28px;
+  }
+  .usage-overview .usage-primary {
+    flex-basis: 100%;
+  }
+  .usage-session-heading {
+    align-items: flex-start;
+    gap: 12px;
+    flex-direction: column;
+  }
+  .usage-parts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 20px;
+  }
+  .usage-search {
+    width: 100%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .usage-view *,
+  .usage-view *::before,
+  .usage-view *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+// Shared dialog search styles must not add their wrapper padding here.
+.usage-search.search-field {
+  padding: 0;
+  border: 0;
+  gap: 0;
+  min-width: 0;
+}
+.usage-search .search-field__group {
+  width: 100%;
+}
+.usage-search .search-field__search-icon,
+.usage-search .search-field__clear-button {
+  margin: 0;
+}
+.usage-search .search-field__input {
+  padding-block: 0;
+  min-width: 0;
+}
+.usage-view .usage-table .usage-sort {
+  width: max-content;
+}
+.usage-view .usage-table .usage-sort svg {
+  margin: 0;
+}
+.usage-search .search-field__group:focus-within {
+  border-color: var(--focus);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--focus) 18%, transparent);
+}
+.usage-project-select .select__trigger {
+  padding-block: 0;
+  align-items: center;
+}
+.usage-project-select .select__value {
+  font-size: 13px;
+  line-height: 20px;
+  min-height: 20px;
+  padding-right: 22px;
+}
+@container (max-width: 400px) {
+  .usage-view .usage-table th:first-child {
+    width: auto;
+  }
+  .usage-view .usage-table th:nth-last-child(2) {
+    width: 64px;
+  }
+  .usage-view .usage-table th:last-child {
+    width: 84px;
+  }
+}

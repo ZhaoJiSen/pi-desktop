@@ -1,0 +1,180 @@
+.composer .composer-shell:has(.capability-tags) {
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  grid-template-areas: 'input input input' 'attach capabilities toolbar';
+}
+.composer .composer-shell:has(.attachments):has(.capability-tags) {
+  grid-template-areas: 'attachments attachments attachments' 'input input input' 'attach capabilities toolbar';
+}
+.capability-tags {
+  grid-area: capabilities;
+  min-width: 0;
+  align-self: center;
+}
+.capability-tags .tag-group__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.capability-tags .tag.capability-tag {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  max-width: 100%;
+  height: 28px;
+  padding: 0;
+  gap: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--composer-control);
+  color: var(--ink);
+  box-shadow: none;
+}
+.capability-tag[data-plan='true'] {
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
+}
+.capability-tag-content {
+  display: flex;
+  min-width: 0;
+}
+.capability-tag .button.capability-tag-label {
+  min-width: 0;
+  height: 26px;
+  gap: 6px;
+  padding: 0 4px 0 7px;
+  border-radius: 7px;
+  font-size: 13px;
+  background: transparent;
+}
+.capability-tag-label span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.capability-tag svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+.capability-tag .capability-tag-remove {
+  height: 24px;
+  width: 24px;
+  min-width: 24px;
+  margin: 0;
+  padding: 5px;
+  color: var(--muted);
+}
+.capability-tag .capability-tag-remove:hover {
+  background: var(--hover);
+  color: var(--ink);
+}
+.capability-details-popover {
+  width: min(380px, calc(100vw - 32px));
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--composer-shadow);
+  padding: 0;
+  overflow: hidden;
+}
+.capability-details-popover .popover__dialog {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  max-height: inherit;
+}
+.capability-details {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  max-height: inherit;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.capability-details > strong {
+  font-size: 15px;
+  padding: 16px 16px 10px;
+  flex: none;
+}
+.capability-details-body {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  gap: 12px;
+  padding: 0 16px 14px;
+  overflow-wrap: anywhere;
+}
+.capability-details-body > :not(.capability-instructions) {
+  flex: none;
+}
+.capability-details-footer {
+  padding: 10px 12px;
+  border-top: 1px solid var(--line);
+  flex: none;
+}
+.capability-details .button.capability-details-manage {
+  width: 100%;
+  height: 34px;
+  justify-content: start;
+  gap: 8px;
+  border-radius: 8px;
+  background: var(--hover);
+  color: var(--ink);
+  svg {
+    width: 16px;
+    height: 16px;
+    flex: none;
+  }
+  svg:last-child {
+    margin-left: auto;
+    color: var(--muted);
+  }
+  &:hover {
+    background: var(--composer-control);
+  }
+}
+.capability-details p {
+  margin: 0;
+  color: var(--muted);
+}
+.capability-details dl {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+.capability-details dl > div {
+  display: grid;
+  grid-template-columns: 80px minmax(0, 1fr);
+  gap: 8px;
+}
+.capability-details dt {
+  color: var(--muted);
+}
+.capability-details dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.capability-instructions {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  gap: 4px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+.capability-instructions > span {
+  flex: none;
+}
+.capability-instructions-scroll {
+  min-height: 0;
+  max-height: 220px;
+  white-space: pre-wrap;
+}
+.capability-instructions-scroll .hover-scroll-viewport {
+  padding-right: 10px;
+}
+.capability-origin {
+  display: block;
+  overflow-wrap: anywhere;
+  color: var(--muted);
+}

@@ -1,0 +1,122 @@
+.attachments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-bottom: 10px;
+}
+.attachment {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: min(240px, 100%);
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg, var(--radius));
+  padding: 6px 8px;
+  background: var(--composer-control);
+  font-size: calc(var(--font-ui-size) * 12 / 14 * 1px);
+}
+.attachment > svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  color: var(--muted);
+}
+.attachment span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.button.attachment-remove {
+  min-width: 20px;
+  width: 20px;
+  flex: none;
+  height: 20px;
+  min-height: 20px;
+  padding: 0;
+  background: transparent;
+}
+.attachment-remove svg {
+  width: 12px;
+  height: 12px;
+}
+
+.composer .button.composer-select {
+  background: transparent;
+  padding-inline: 8px;
+}
+.composer .button.composer-select:hover {
+  background: var(--composer-control-hover);
+}
+.composer .model-trigger {
+  max-width: 190px;
+}
+.composer .button.reasoning {
+  max-width: 120px;
+}
+.composer .attachments {
+  grid-area: attachments;
+  padding-bottom: 0;
+}
+.composer-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+  padding-inline: 12px;
+  min-height: 22px;
+  color: var(--muted);
+  font-size: calc(var(--font-ui-size) * 12 / 14 * 1px);
+}
+.composer-branch {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.composer-branch span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.composer-branch svg {
+  width: 13px;
+  height: 13px;
+  flex: none;
+}
+.button.composer-usage {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  min-height: 22px;
+  height: auto;
+  padding: 0;
+  font-size: calc(var(--font-ui-size) * 12 / 14 * 1px);
+  font-weight: 400;
+  color: var(--muted);
+  background: transparent;
+  white-space: nowrap;
+}
+.composer-usage-popover {
+  padding: 12px;
+  min-width: 210px;
+}
+.composer-usage-popover [role='dialog'] {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: calc(var(--font-ui-size) * 13 / 14 * 1px);
+}
+.composer-usage-popover [role='dialog'] > span {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  color: var(--muted);
+}
+.composer-usage-popover strong {
+  color: var(--ink);
+  font-weight: 500;
+}

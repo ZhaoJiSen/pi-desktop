@@ -1,0 +1,142 @@
+.usage-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 40px 16px;
+}
+.usage-empty > svg {
+  width: 24px;
+  height: 24px;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+.usage-empty h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+.usage-empty p {
+  margin: 8px 0 0;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+.usage-empty .button {
+  margin-top: 12px;
+  min-height: 32px;
+  height: 32px;
+  font-size: 13px;
+}
+.usage-cost-notice.alert {
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 26px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--code-head);
+  box-shadow: none;
+}
+.usage-cost-notice .alert__indicator {
+  padding: 0;
+  color: var(--muted);
+}
+.usage-cost-notice .alert__description {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink);
+}
+.usage-view .usage-notice-close.button,
+.usage-view .usage-cost-help.button {
+  flex: none;
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  min-height: 28px;
+  padding: 0;
+  color: var(--muted);
+  background: transparent;
+}
+.usage-notice-close svg,
+.usage-cost-help svg {
+  width: 15px;
+  height: 15px;
+}
+.usage-view .usage-cost-help.button {
+  width: 24px;
+  min-width: 24px;
+  height: 24px;
+  min-height: 24px;
+  margin-left: -5px;
+}
+.usage-cost-popover {
+  max-width: min(340px, calc(100vw - 32px));
+}
+.usage-cost-popover .popover__dialog {
+  padding: 16px;
+}
+.usage-cost-popover .popover__heading {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.usage-cost-popover p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+.usage-view.is-empty {
+  display: flex;
+  flex-direction: column;
+}
+.usage-view.is-empty .usage-content {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  max-width: none;
+}
+.usage-view.is-empty .usage-heading,
+.usage-view.is-empty .usage-toolbar,
+.usage-view.is-empty .usage-list-toolbar {
+  flex-shrink: 0;
+}
+.usage-view.is-empty .usage-toolbar {
+  margin-bottom: 0;
+}
+.usage-view.is-empty .tabs__panel,
+.usage-view.is-empty .usage-body,
+.usage-view.is-empty .usage-conversations {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+.usage-view.is-empty .usage-empty {
+  flex: 1;
+  justify-content: center;
+  min-height: 260px;
+  padding: 32px 16px;
+}
+.usage-empty p {
+  max-width: 440px;
+  overflow-wrap: anywhere;
+}
+.usage-empty .usage-empty-context {
+  margin-top: 12px;
+}
+.usage-empty .button svg {
+  width: 15px;
+  height: 15px;
+}
+.usage-footnote {
+  padding-top: 22px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+  max-width: 640px;
+}
+.usage-footnote p {
+  margin: 0 0 5px;
+}

@@ -1,0 +1,27 @@
+.command-title {
+  font-size: calc(var(--font-ui-size) * 20 / 14 * 1px);
+  margin: 20px 0 12px;
+}
+.command-details {
+  display: grid;
+  grid-template-columns: 60px 1fr;
+  gap: 12px;
+  padding: 20px 0;
+  margin: 20px 0;
+  border-block: 1px solid var(--line);
+  font-size: calc(var(--font-ui-size) * 12 / 14 * 1px);
+}
+.command-details dt {
+  color: var(--muted);
+}
+.command-details dd {
+  overflow-wrap: anywhere;
+}
+.button.back-button {
+  padding: 0;
+  min-height: 26px;
+  height: 26px;
+  font-size: calc(var(--font-ui-size) * 12 / 14 * 1px);
+  color: var(--muted);
+  background: transparent;
+}

@@ -1,0 +1,75 @@
+@container (max-width: 520px) {
+  .composer .model-trigger {
+    max-width: 150px;
+  }
+  .composer .button.composer-select {
+    padding-inline: 6px;
+    gap: 4px;
+    font-size: calc(var(--font-ui-size) * 12 / 14 * 1px);
+  }
+  .reasoning > svg:not(.chevron) {
+    display: none;
+  }
+  .composer-status .optional-token {
+    display: none;
+  }
+}
+@container (max-width: 360px) {
+  .composer .model-trigger {
+    max-width: 105px;
+  }
+  .composer-toolbar {
+    gap: 4px;
+  }
+  .composer-toolbar-start {
+    gap: 0;
+  }
+  .composer-prompt-secondary {
+    display: none;
+  }
+  .button.composer-prompt-button {
+    font-size: calc(var(--font-ui-size) * 12 / 14 * 1px);
+    padding-inline: 8px;
+    gap: 4px;
+  }
+  .composer-status {
+    gap: 6px;
+    padding-inline: 4px;
+  }
+  .button.composer-usage {
+    font-size: calc(var(--font-ui-size) * 11 / 14 * 1px);
+    gap: 4px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .composer-shell,
+  .button.composer-select,
+  .button.composer-prompt-button {
+    transition: none;
+  }
+  .composer-prompt-preview {
+    animation: none;
+  }
+}
+
+// Reserve the longest effort label so changing levels never moves either entry.
+.composer .thinking-selector-trigger {
+  flex: none;
+  max-width: none;
+}
+.thinking-selector-trigger .thinking-trigger-label,
+.thinking-selector-trigger .thinking-trigger-sizer {
+  display: grid;
+  overflow: visible;
+}
+.thinking-trigger-label > span,
+.thinking-trigger-sizer > span {
+  grid-area: 1 / 1;
+}
+.thinking-selector-trigger .thinking-trigger-sizer {
+  visibility: hidden;
+  pointer-events: none;
+}
+.thinking-selector-trigger[data-saving-thinking='true'] {
+  opacity: 1;
+}

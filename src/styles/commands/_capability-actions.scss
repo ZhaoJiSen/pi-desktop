@@ -1,0 +1,143 @@
+.command-workspace-navigation {
+  display: flex;
+  gap: 4px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+  flex: none;
+}
+.command-workspace-navigation .button {
+  height: 32px;
+  font-size: 14px;
+  color: var(--muted);
+  padding: 0 12px;
+}
+.command-workspace-navigation .button[aria-pressed='true'] {
+  background: var(--hover);
+  color: var(--ink);
+}
+.command-workspace-navigation svg {
+  width: 16px;
+  height: 16px;
+}
+.commands-view > .capability-settings-footer {
+  position: static;
+  margin: 0;
+  padding: 12px 24px;
+  flex: none;
+  min-height: 58px;
+}
+.capability-command-browser > .capability-search {
+  margin: 0 4px 12px;
+}
+.capability-command-browser .capability-new {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  padding: 0;
+}
+.capability-command-browser .capability-new svg {
+  width: 16px;
+  height: 16px;
+}
+.capability-command-detail .card__title {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.capability-command-detail .card__title > svg {
+  width: 20px;
+  height: 20px;
+  flex: none;
+}
+.capability-command-detail .capability-details > strong {
+  display: none;
+}
+.capability-command-options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+.capability-command-options .switch {
+  margin-right: auto;
+}
+.capability-command-options .button,
+.capability-command-actions .button {
+  height: 32px;
+  font-size: 13px;
+}
+.capability-command-options svg,
+.capability-command-actions svg {
+  width: 15px;
+  height: 15px;
+}
+.capability-command-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 16px;
+}
+.capability-alias {
+  font-family: var(--command-mono);
+  font-variant-ligatures: var(--font-code-ligatures);
+  font-feature-settings: var(--font-code-features);
+}
+.command-capability-link {
+  padding-block: 20px;
+  border-top: 1px solid var(--line);
+}
+.command-capability-link h3 {
+  font-size: 14px;
+  font-weight: 500;
+}
+.command-capability-link p {
+  color: var(--muted);
+  font-size: 14px;
+  margin-block: 8px 14px;
+}
+.capability-command-detail .card__title {
+  font-family: inherit;
+  font-size: 20px;
+  font-weight: 600;
+}
+.capability-command-detail .capability-command-options {
+  margin-bottom: 6px;
+}
+.command-inspector .capability-command-options .button,
+.command-inspector .capability-command-actions .button {
+  --button-bg: var(--hover);
+  --button-bg-hover: var(--selection);
+  --button-bg-pressed: var(--selection);
+  --button-fg: var(--ink);
+  background: var(--hover);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  box-shadow: none;
+}
+.command-inspector .capability-command-actions .button {
+  background: transparent;
+  border-color: transparent;
+}
+.command-inspector .capability-command-actions .button--danger-soft {
+  color: var(--danger);
+}
+.capability-native-entry {
+  flex: none;
+  padding: 12px 4px;
+  border-top: 1px solid var(--line);
+}
+.capability-native-entry p {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 0 0 6px;
+}
+.capability-native-entry .button {
+  font-size: 13px;
+  height: 30px;
+  padding-inline: 8px;
+}
+.command-capability-link .capability-command-options {
+  margin: 12px 0 0;
+}

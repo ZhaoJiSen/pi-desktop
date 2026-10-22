@@ -1,0 +1,170 @@
+.projects {
+  flex: 1;
+  min-height: 0;
+  padding: 12px;
+  overflow-y: auto;
+}
+.recent-section {
+  margin-bottom: 8px;
+}
+.recent-toggle {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+}
+.recent-sessions .button.session {
+  padding-left: 7px;
+}
+.recent-error {
+  padding-left: 7px;
+}
+.projects-empty {
+  margin: 0;
+  padding: 4px 7px 6px;
+  color: var(--muted);
+  font-size: calc(var(--font-ui-size) * 12 / 14 * 1px);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.session-list-empty {
+  margin: 0;
+  padding: 4px 7px 6px 29px;
+  color: var(--muted);
+  font-size: calc(var(--font-ui-size) * 12 / 14 * 1px);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.section-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 24px;
+  min-height: 24px;
+  gap: 0;
+  padding: 0 7px 0 0;
+  margin: 0 0 4px;
+  color: var(--muted);
+  font-size: calc(var(--font-ui-size) * 12 / 14 * 1px);
+}
+.section-label svg {
+  width: 15px;
+  height: 15px;
+}
+.projects-heading {
+  flex: 1;
+  min-width: 0;
+  align-self: stretch;
+  border-radius: inherit;
+}
+.projects .projects-toggle {
+  min-width: 0;
+  justify-content: flex-start;
+  padding: 0 7px;
+  gap: 6px;
+  border-radius: inherit;
+  background: transparent;
+  color: var(--ink);
+  font-weight: 400;
+}
+.projects-toggle .projects-indicator {
+  margin-inline-start: 0;
+  rotate: 0deg;
+  opacity: 0;
+  transition: opacity 120ms ease-out;
+}
+.projects-toggle:is(:hover, :focus-visible, [data-focus-visible='true']) .projects-indicator {
+  opacity: 1;
+}
+.projects-toggle .projects-indicator[data-expanded='true'] {
+  rotate: 90deg;
+}
+.sidebar .sidebar-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 20px;
+  min-width: 20px;
+  height: 24px;
+  min-height: 24px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  box-shadow: none;
+  transition: color 120ms ease-out;
+}
+.sidebar .sidebar-action svg {
+  width: 12px;
+  height: 12px;
+}
+.sidebar .section-label .sidebar-action {
+  color: var(--ink);
+}
+.sidebar .section-label :is(.project-picker-trigger, .section-action) {
+  width: 24px;
+  min-width: 24px;
+  height: 24px;
+  min-height: 24px;
+  border-radius: var(--radius);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 120ms ease-out,
+    background-color 120ms ease-out;
+}
+.sidebar .section-label:hover :is(.project-picker-trigger, .section-action),
+.sidebar
+  .section-label
+  :is(.project-picker-trigger, .section-action):is(
+    :focus-visible,
+    [data-focus-visible='true'],
+    [aria-expanded='true']
+  ) {
+  opacity: 1;
+  pointer-events: auto;
+}
+.sidebar
+  .section-label:hover
+  :is(.project-picker-trigger, .section-action):is(:disabled, [aria-disabled='true']) {
+  opacity: 0.4;
+  pointer-events: none;
+}
+.sidebar
+  .section-label
+  :is(.project-picker-trigger, .section-action):is(
+    :hover,
+    [data-hovered='true'],
+    [aria-expanded='true']
+  ):not(:disabled, [aria-disabled='true']) {
+  background: var(--hover);
+}
+.sidebar .sidebar-search {
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  min-height: 28px;
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+.sidebar
+  .sidebar-action:is(:hover, [data-hovered='true'], [aria-expanded='true']):not(
+    :disabled,
+    [aria-disabled='true']
+  ) {
+  background: transparent;
+  color: var(--ink);
+}
+.sidebar .sidebar-action:active:not(:disabled, [aria-disabled='true']) {
+  background: transparent;
+  color: var(--ink);
+}
+.sidebar .sidebar-action:disabled {
+  opacity: 0.4;
+}

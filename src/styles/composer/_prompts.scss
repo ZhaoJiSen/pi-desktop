@@ -1,0 +1,141 @@
+.composer-prompts {
+  min-width: 0;
+}
+.composer-prompt-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.button.composer-prompt-button {
+  min-height: 30px;
+  height: 30px;
+  min-width: 0;
+  padding: 0 10px;
+  gap: 6px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  font-size: calc(var(--font-ui-size) * 12 / 14 * 1px);
+  font-weight: 400;
+  transition:
+    background-color 120ms ease,
+    transform 80ms ease;
+}
+.button.composer-prompt-button:hover {
+  background: var(--composer-control);
+}
+.button.composer-prompt-button[data-pressed='true'] {
+  transform: scale(0.98);
+}
+.composer-prompt-button svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  color: var(--muted);
+}
+.button.composer-prompt-more {
+  width: 30px;
+  padding: 0;
+}
+.composer-prompts-menu {
+  padding: 6px;
+  width: 300px;
+  max-width: calc(100vw - 32px);
+}
+.composer-prompts-options {
+  max-height: 300px;
+}
+.composer-prompts-menu .button.menu-row {
+  width: 100%;
+  justify-content: flex-start;
+  gap: 8px;
+  font-size: calc(var(--font-ui-size) * 13 / 14 * 1px);
+}
+.composer-prompts-menu .menu-row svg {
+  width: 15px;
+  height: 15px;
+  flex: none;
+}
+.composer-template-heading {
+  border-top: 1px solid var(--line);
+  margin-top: 6px;
+  padding: 10px 8px 4px;
+  color: var(--muted);
+  font-size: calc(var(--font-ui-size) * 12 / 14 * 1px);
+}
+.composer-prompts-menu .button.composer-template {
+  height: auto;
+  flex: none;
+  padding-block: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  white-space: normal;
+}
+.composer-template small {
+  font-size: calc(var(--font-ui-size) * 12 / 14 * 1px);
+  line-height: 18px;
+  color: var(--muted);
+  text-align: left;
+}
+.composer-prompt-preview {
+  margin-top: 8px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--paper);
+  animation: composer-preview-in 160ms ease-out;
+}
+.composer-prompt-preview-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.composer-prompt-preview-heading strong {
+  font-size: calc(var(--font-ui-size) * 13 / 14 * 1px);
+  font-weight: 500;
+}
+.composer-prompt-preview-heading .button {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  min-height: 24px;
+  padding: 0;
+}
+.composer-prompt-preview-heading svg {
+  width: 14px;
+  height: 14px;
+}
+.composer-prompt-description {
+  font-size: calc(var(--font-ui-size) * 13 / 14 * 1px);
+  color: var(--muted);
+  line-height: 20px;
+  margin: 6px 0;
+}
+.composer-prompt-text {
+  margin-top: 6px;
+  max-height: 120px;
+  font-size: calc(var(--font-ui-size) * 13 / 14 * 1px);
+  line-height: 21px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.composer-prompt-preview-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 10px;
+}
+@keyframes composer-preview-in {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

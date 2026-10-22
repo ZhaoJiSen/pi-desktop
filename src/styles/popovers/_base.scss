@@ -1,0 +1,31 @@
+/* HeroUI supplies focus, keyboard navigation, portals, and dismissal. */
+.popover {
+  background: var(--paper);
+  color: var(--ink);
+}
+.model-popover {
+  width: 344px;
+  max-width: calc(100vw - 32px);
+  padding: 0;
+  border: 1px solid var(--line);
+  box-shadow:
+    0 8px 24px #00000014,
+    0 2px 6px #00000008;
+  background: var(--paper);
+  overflow: hidden;
+}
+.model-popover .popover__dialog {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  max-height: inherit;
+}
+.model-popover-content {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-height: inherit;
+}
+.model-popover .popover-search {
+  flex: none;
+}
