@@ -2,6 +2,7 @@
   flex: 1;
 }
 .utility-view.settings-workspace {
+  --settings-content-gutter: 24px;
   display: flex;
   flex-direction: column;
   padding: 0;
@@ -67,7 +68,7 @@
   height: auto;
 }
 .settings-scroll .hover-scroll-viewport {
-  padding-right: 0;
+  padding-inline: var(--settings-content-gutter);
 }
 .settings-scroll .hover-scroll-track {
   inset: 0 0 0 auto;

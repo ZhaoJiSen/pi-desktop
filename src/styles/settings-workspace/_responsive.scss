@@ -18,6 +18,9 @@
   }
 }
 @container (max-width: 680px) {
+  .settings-scroll {
+    --settings-content-gutter: 16px;
+  }
   .settings-navigation {
     width: 200px;
   }
@@ -52,7 +55,6 @@
   }
   .settings-workspace .settings-content {
     flex: 1;
-    padding-right: 0;
   }
   .settings-navigation .list-box-item svg {
     display: none;
