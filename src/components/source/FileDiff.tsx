@@ -10,11 +10,11 @@ import {
   isBinaryPatch,
   toolDiffToUnified,
 } from '../../lib/source/diff'
-import { fileNameOf } from '../../lib/source/paths'
 import { useWorkspace } from '../../store/workspace'
 import type { DiffLine } from '../../types'
 import { fileLanguage } from '../conversation/Highlight'
 import { SourceNotice } from './SourceNotice'
+import { SourceFilePath } from './SourceFilePath'
 import { useDiffLayout } from './useDiffLayout'
 import { VirtualDiff } from './VirtualDiff'
 import '@git-diff-view/react/styles/diff-view-pure.css'
@@ -71,7 +71,6 @@ export function FileDiff({
     }),
     [lang, patch, path],
   )
-  const name = fileNameOf(path)
   const showBar = Boolean(onBack) || !embedded || layout === undefined
   return (
     <div className={embedded ? 'source-detail is-embedded' : 'source-detail'} ref={layoutRef}>
@@ -88,11 +87,7 @@ export function FileDiff({
               <ChevronLeft />
             </Button>
           )}
-          {!embedded && (
-            <span className="source-detail-path" title={path}>
-              {name}
-            </span>
-          )}
+          {!embedded && <SourceFilePath path={path} />}
           {!embedded && stats && (
             <span className="diff-stats">
               <span className="positive">+{stats.additions}</span>
@@ -102,16 +97,25 @@ export function FileDiff({
           {layout === undefined && patch && (
             <ToggleButtonGroup
               className="source-layout"
+              size="sm"
               aria-label={t('source.diffLayout')}
               selectionMode="single"
               disallowEmptySelection
               selectedKeys={[layoutMode]}
               onSelectionChange={(keys) => setOwnLayout(keys.has('split') ? 'split' : 'unified')}
             >
-              <ToggleButton id="unified" aria-label={t('source.unified')} className="icon-button">
+              <ToggleButton
+                id="unified"
+                aria-label={t('source.unified')}
+                className="source-layout-button"
+              >
                 <Rows3 />
               </ToggleButton>
-              <ToggleButton id="split" aria-label={t('source.split')} className="icon-button">
+              <ToggleButton
+                id="split"
+                aria-label={t('source.split')}
+                className="source-layout-button"
+              >
                 <Columns2 />
               </ToggleButton>
             </ToggleButtonGroup>

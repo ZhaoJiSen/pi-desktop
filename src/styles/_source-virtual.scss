@@ -1,5 +1,5 @@
 .code-line.source-vrow {
-  line-height: 24px;
+  line-height: 28px;
 }
 
 .source-changes {
@@ -13,19 +13,6 @@
   color: var(--muted);
   font-size: 12px;
   white-space: nowrap;
-}
-
-.source-find {
-  flex: 1;
-  min-width: 72px;
-  max-width: 180px;
-  height: 28px;
-  border: 0;
-  border-bottom: 1px solid var(--line);
-  background: transparent;
-  color: var(--ink);
-  outline: none;
-  font: inherit;
 }
 
 .code-line.is-current {

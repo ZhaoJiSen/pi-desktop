@@ -170,6 +170,28 @@ afterEach(async () => {
   vi.unstubAllGlobals()
 })
 describe('source workspace navigation', () => {
+  it('keeps the selected file and reading position when the changed-files tree is hidden', async () => {
+    await click('.tool-a button')
+    await click(row('src/b.ts'))
+    const tree = active().querySelector('.source-tree')
+    const diff = currentDiff()
+    const scroll = active().querySelector<HTMLElement>('.source-scroll')!
+    const navigation = active().querySelector<HTMLElement>('.source-browser-navigation')!
+    scroll.scrollTop = 120
+    const action = (label: string) =>
+      active().querySelector<HTMLElement>(`button[aria-label="${label}"]`)!
+    await click(action('Hide changed files'))
+    expect(navigation.hidden).toBe(true)
+    expect(currentDiff()).toBe(diff)
+    expect(scroll.scrollTop).toBe(120)
+    await click(action('Show changed files'))
+    expect(navigation.hidden).toBe(false)
+    expect(active().querySelector('.source-tree')).toBe(tree)
+    expect(row('src/b.ts').classList.contains('is-current')).toBe(true)
+    expect(currentDiff().dataset.path).toBe('src/b.ts')
+    expect(scroll.scrollTop).toBe(120)
+  })
+
   it('keeps loaded diff, navigation, and scroll position on repeated tool requests', async () => {
     await click('.tool-a button')
     const scroll = active().querySelector<HTMLElement>('.source-scroll')!
@@ -224,8 +246,8 @@ describe('source workspace navigation', () => {
     expect(active().querySelector('.test-file')?.getAttribute('data-path')).toBe('src/b.ts')
     expect(active().querySelector('.source-tree')).toBe(tree)
     expect(row('src/unchanged.ts')).toBeTruthy()
-    await click('button[aria-label="Git"]')
-    await click('button[aria-label="Files"]')
+    await click('[role="tab"][aria-label="Git"]')
+    await click('[role="tab"][aria-label="Files"]')
     expect(active().querySelector('.source-tree')).toBe(tree)
     expect(viewport.scrollTop).toBe(90)
     expect(active().querySelector('.test-file')?.getAttribute('data-path')).toBe('src/b.ts')
@@ -236,14 +258,14 @@ describe('source workspace navigation', () => {
   it('routes a file diff to Git while retaining the file browser selection', async () => {
     await clickText('view-a')
     await clickText('show-file-diff')
-    expect(node('button[aria-label="Git"]').getAttribute('aria-checked')).toBe('true')
+    expect(node('[role="tab"][aria-label="Git"]').getAttribute('aria-selected')).toBe('true')
     expect(currentDiff().dataset.path).toBe('src/a.ts')
-    await click('button[aria-label="Files"]')
+    await click('[role="tab"][aria-label="Files"]')
     expect(active().querySelector('.test-file')?.getAttribute('data-path')).toBe('src/a.ts')
   })
   it('keeps Changes and History under Git and remembers the previous Git view', async () => {
     await click('.tool-a button')
-    await click('button[aria-label="History"]')
+    await click('[role="tab"][aria-label="History"]')
     const list = active().querySelector('.history-list')
     expect(currentDiff().dataset.revision).toBe('first')
     const button = [...active().querySelectorAll<HTMLButtonElement>('.history-row')].find((el) =>
@@ -252,9 +274,9 @@ describe('source workspace navigation', () => {
     await click(button)
     expect(currentDiff().dataset.path).toBe('src/b.ts')
     expect(active().querySelector('.history-list')).toBe(list)
-    await click('button[aria-label="Files"]')
-    expect(container.querySelector('button[aria-label="History"]')).toBeNull()
-    await click('button[aria-label="Git"]')
+    await click('[role="tab"][aria-label="Files"]')
+    expect(container.querySelector('[role="tab"][aria-label="History"]')).toBeNull()
+    await click('[role="tab"][aria-label="Git"]')
     expect(currentDiff().dataset.revision).toBe('second')
     expect(active().querySelector('.history-list')).toBe(list)
     expect(api.gitLog).toHaveBeenCalledTimes(1)
@@ -263,7 +285,7 @@ describe('source workspace navigation', () => {
     await clickText('view-a')
     await clickText('show-file-history')
     expect(api.gitLog).toHaveBeenLastCalledWith('/project', 'src/a.ts')
-    expect(node('button[aria-label="History"]').getAttribute('aria-checked')).toBe('true')
+    expect(node('[role="tab"][aria-label="History"]').getAttribute('aria-selected')).toBe('true')
     await clickText('All commits')
     expect(api.gitLog).toHaveBeenLastCalledWith('/project', null)
   })
@@ -292,9 +314,9 @@ describe('source workspace navigation', () => {
     await clickText('view-a')
     expect(row('src/unchanged.ts')).toBeTruthy()
     expect(active().querySelector('.test-file')?.getAttribute('data-path')).toBe('src/a.ts')
-    await click('button[aria-label="Git"]')
+    await click('[role="tab"][aria-label="Git"]')
     expect(active().textContent).toContain('not a Git repository')
-    await click('button[aria-label="Files"]')
+    await click('[role="tab"][aria-label="Files"]')
     expect(row('src/unchanged.ts')).toBeTruthy()
   })
   it('can leave empty file history without losing the file selection', async () => {
@@ -308,7 +330,7 @@ describe('source workspace navigation', () => {
     expect(active().textContent).toContain('No commits yet')
     await clickText('All commits')
     expect(currentDiff().dataset.revision).toBe('first')
-    await click('button[aria-label="Files"]')
+    await click('[role="tab"][aria-label="Files"]')
     expect(active().querySelector('.test-file')?.getAttribute('data-path')).toBe('src/a.ts')
   })
   it('refreshes explicitly and resets the workspace when changing projects', async () => {

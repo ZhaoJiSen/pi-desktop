@@ -15,14 +15,23 @@
   display: none;
 }
 .source-browser {
+  --source-workspace-radius: var(--radius-2xl, calc(var(--radius) * 2));
   display: grid;
-  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 12px;
+  padding: 4px 12px 12px;
+  grid-template-columns: clamp(220px, 28%, 240px) minmax(0, 1fr);
   flex: 1;
   min-height: 0;
   min-width: 0;
 }
 .source-browser.is-history {
   grid-template-columns: 260px minmax(0, 1fr);
+}
+.source-browser[data-navigation-collapsed='true'] {
+  grid-template-columns: minmax(0, 1fr);
+}
+.source-browser-navigation[hidden] {
+  display: none;
 }
 .source-browser-navigation,
 .source-browser-content {
@@ -32,12 +41,16 @@
   min-height: 0;
 }
 .source-browser-navigation {
-  padding-block: 4px 8px;
+  padding-block: 8px;
+  overflow: hidden;
+  border-radius: var(--source-workspace-radius);
+  background: var(--sidebar);
 }
 .source-browser-content {
-  margin-top: 8px;
+  margin-top: 0;
   overflow: hidden;
-  border-left: 1px solid var(--line);
+  border: 1px solid var(--line);
+  border-radius: var(--source-workspace-radius);
   background: var(--paper);
 }
 .source-browser-content > .source-notice {
@@ -67,10 +80,20 @@
 .source-preview-bar,
 .source-browser-content .source-detail-bar {
   flex: none;
-  min-height: 42px;
-  padding: 6px 10px;
-  background: color-mix(in srgb, var(--code-head) 35%, var(--paper));
+  min-height: 52px;
+  padding: 8px 12px;
+  background: var(--paper);
   flex-wrap: wrap;
+}
+.source-changes .source-preview-bar {
+  flex-wrap: nowrap;
+  gap: 4px;
+}
+.source-preview-file-actions {
+  display: flex;
+  flex: none;
+  gap: 4px;
+  margin-left: 4px;
 }
 .source-preview-bar .source-detail-path {
   flex-basis: 100px;
@@ -88,12 +111,8 @@
 .source-file-find {
   flex: none;
 }
-.source-file-find .source-find {
-  max-width: none;
-  border: 0;
-}
 .source-browser .source-tree-item.is-current {
-  background: color-mix(in srgb, var(--ink) 10%, transparent);
+  background: var(--selection);
   color: var(--ink);
 }
 .source-browser .source-detail {
@@ -103,20 +122,6 @@
   flex: none;
   gap: 5px;
   font-size: 11px;
-}
-.source-branch > .source-commit {
-  height: 28px;
-  min-height: 28px;
-  gap: 6px;
-  padding: 0 8px;
-  font-size: 12px;
-}
-.source-changes > .source-branch {
-  flex: none;
-  padding-bottom: 6px;
-  border-bottom: 0;
-  padding: 8px 12px 2px 16px;
-  margin: 0;
 }
 .source-browser.is-history .history-list {
   flex: 1;
@@ -142,16 +147,13 @@
   .source-browser,
   .source-browser.is-history {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: minmax(130px, 38%) minmax(0, 1fr);
+    grid-template-rows: minmax(110px, min(26%, 200px)) minmax(0, 1fr);
+  }
+  .source-browser[data-navigation-collapsed='true'] {
+    grid-template-rows: minmax(0, 1fr);
   }
   .source-browser-navigation {
-    border-right: 0;
-    border-bottom: 1px solid var(--line);
     padding-bottom: 4px;
-  }
-  .source-browser-content {
-    margin: 0;
-    border-left: 0;
   }
   .source-browser.is-history > .source-browser-navigation {
     display: grid;

@@ -113,7 +113,6 @@
   min-width: 0;
   overflow: hidden;
   color: var(--ink);
-  font-family: var(--font-code);
   font-size: 13px;
   line-height: 20px;
   text-overflow: ellipsis;
@@ -143,25 +142,9 @@
   height: 15px;
 }
 .source-branch .button.source-commit {
-  height: 28px;
-  min-height: 28px;
+  flex: none;
   gap: 6px;
-  padding: 0 10px;
-  border: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
-  border-radius: 6px;
-  background: color-mix(in srgb, var(--ink) 6%, transparent);
-  box-shadow: none;
-  color: var(--ink);
-  font-size: 12px;
-  font-weight: 500;
   white-space: nowrap;
-  transition:
-    background-color 120ms ease,
-    border-color 120ms ease;
-}
-.source-branch .button.source-commit:is(:hover, [data-hovered='true']) {
-  border-color: color-mix(in srgb, var(--ink) 20%, transparent);
-  background: color-mix(in srgb, var(--ink) 10%, transparent);
 }
 .source-restore {
   display: flex;
@@ -182,20 +165,6 @@
   align-items: center;
   gap: 8px;
   margin-left: auto;
-}
-.source-restore .button {
-  height: 28px;
-  min-height: 28px;
-  padding: 0 10px;
-  border-radius: 6px;
-  color: var(--ink);
-  font-size: 12px;
-  font-weight: 500;
-  white-space: nowrap;
-}
-.source-restore .button--danger {
-  --button-fg: var(--paper);
-  color: var(--button-fg);
 }
 .source-detail.is-embedded {
   animation: source-fade 140ms ease-out;

@@ -1,5 +1,5 @@
 import { Button } from '@heroui/react'
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { useT } from '../../lib/i18n'
 import { gitLog } from '../../lib/source/api'
 import { fileNameOf } from '../../lib/source/paths'
@@ -8,11 +8,13 @@ import { SourceNotice } from './SourceNotice'
 import { useSourceQuery } from './useSourceQuery'
 
 export function HistoryPane({
+  navigation,
   projectPath,
   tick,
   historyPath,
   onClear,
 }: {
+  navigation?: ReactNode
   projectPath: string
   tick: number
   historyPath: string | null
@@ -40,6 +42,7 @@ export function HistoryPane({
   else if (!log.data.commits.length) notice = { kind: 'empty', text: t('source.emptyHistory') }
   return (
     <div className="history-pane">
+      {navigation && <div className="source-git-context">{navigation}</div>}
       {historyPath && (
         <div className="source-filter">
           <span>{t('source.historyForFile', { file: fileNameOf(historyPath) })}</span>

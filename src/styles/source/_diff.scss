@@ -16,12 +16,11 @@
 }
 .diff.diff-panel .source-git-diff,
 .diff.diff-panel .diff-tailwindcss-wrapper .overflow-x-auto {
-  scrollbar-width: none;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--muted) 35%, transparent) transparent;
 }
-.diff.diff-panel .source-git-diff::-webkit-scrollbar,
 .diff.diff-panel .diff-tailwindcss-wrapper .overflow-x-auto::-webkit-scrollbar {
-  height: 0;
-  display: none;
+  height: 6px;
 }
 .source-detail.is-embedded,
 .source-detail.is-embedded .diff.diff-panel,
@@ -97,6 +96,7 @@
   margin-left: -14px;
 }
 .diff.diff-panel .diff-tailwindcss-wrapper[data-theme] .diff-style-root {
+  color: var(--ink);
   --diff-border--: var(--line);
   --diff-add-content--: var(--added);
   --diff-del-content--: var(--removed);
@@ -124,8 +124,13 @@
 }
 .diff.diff-panel
   .diff-tailwindcss-wrapper[data-theme]
-  .diff-line-syntax-raw
-  :is(pre code.hljs, code.hljs) {
+  :is(.diff-line-content-item, .diff-line-syntax-raw) {
+  color: var(--ink);
+}
+.diff.diff-panel .diff-tailwindcss-wrapper[data-theme] .diff-line-syntax-raw [class] {
+  color: inherit;
+}
+.diff.diff-panel .diff-tailwindcss-wrapper[data-theme] .diff-line-syntax-raw code.hljs {
   padding: 0;
   background: transparent;
   color: var(--ink);
@@ -133,19 +138,19 @@
 .diff.diff-panel
   .diff-tailwindcss-wrapper[data-theme]
   .diff-line-syntax-raw
-  :is(.hljs-keyword, .hljs-doctag, .hljs-type) {
+  :is(.hljs-keyword, .hljs-doctag, .hljs-type, .hljs-literal, .hljs-selector-tag) {
   color: var(--syntax-keyword);
 }
 .diff.diff-panel
   .diff-tailwindcss-wrapper[data-theme]
   .diff-line-syntax-raw
-  :is(.hljs-title, .hljs-title.class_, .hljs-title.function_) {
+  :is(.hljs-title, .hljs-title.class_, .hljs-title.function_, .hljs-number, .hljs-built_in) {
   color: var(--syntax-function);
 }
 .diff.diff-panel
   .diff-tailwindcss-wrapper[data-theme]
   .diff-line-syntax-raw
-  :is(.hljs-string, .hljs-regexp) {
+  :is(.hljs-string, .hljs-regexp, .hljs-attr, .hljs-attribute, .hljs-symbol, .hljs-bullet) {
   color: var(--syntax-string);
 }
 .diff.diff-panel
@@ -153,4 +158,9 @@
   .diff-line-syntax-raw
   :is(.hljs-comment, .hljs-code) {
   color: var(--muted);
+}
+
+// Match the workspace code rhythm, including the third-party normal renderer.
+.diff.diff-panel .diff-tailwindcss-wrapper .leading-\[1\.6\] {
+  line-height: max(28px, 1.6em);
 }

@@ -144,7 +144,7 @@ export function VirtualDiff({
   // parsed model during React StrictMode's effect replay.
   useEffect(() => () => model.file._destroy(), [model])
   const rows = layout === 'split' ? model.split : model.unified
-  const height = codeSize * 1.6
+  const height = Math.max(28, codeSize * 1.6)
   const anchor = useMemo(() => {
     const keys = new Map<string, number>()
     rows.forEach((row, index) => {

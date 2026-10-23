@@ -1,4 +1,4 @@
-import { Button, Toolbar } from '@heroui/react'
+import { Button, Chip, Toolbar } from '@heroui/react'
 import { SourceAction } from './SourceAction'
 import { FolderTree, GitBranch, PanelsLeftRight, RotateCw, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
@@ -145,6 +145,34 @@ function PanelBody({
   const changesRequest = requests.changes
   const filesRequest = requests.files
   const historyRequest = requests.history
+  function navigation(count?: number) {
+    return (
+      <SourceViewTabs
+        secondary
+        label={t('source.gitViews')}
+        selected={tab === 'history' ? 'history' : 'changes'}
+        onSelect={select}
+        items={[
+          {
+            id: 'changes',
+            label: t('source.changes'),
+            badge:
+              count === undefined ? undefined : (
+                <Chip
+                  size="sm"
+                  variant="secondary"
+                  className="source-count"
+                  aria-label={t('source.commitMany', { count })}
+                >
+                  {count}
+                </Chip>
+              ),
+          },
+          { id: 'history', label: t('source.history') },
+        ]}
+      />
+    )
+  }
   return (
     <>
       <div className="source-toolbar">
@@ -161,6 +189,7 @@ function PanelBody({
         <Toolbar aria-label={t('source.panel')} className="source-modes">
           {expanded && (
             <Button
+              size="sm"
               variant="ghost"
               className="source-show-chat"
               aria-label={t('source.showConversation')}
@@ -181,22 +210,11 @@ function PanelBody({
           </SourceAction>
         </Toolbar>
       </div>
-      {tab !== 'files' && (
-        <SourceViewTabs
-          secondary
-          label={t('source.gitViews')}
-          selected={tab === 'history' ? 'history' : 'changes'}
-          onSelect={select}
-          items={[
-            { id: 'changes', label: t('source.changes') },
-            { id: 'history', label: t('source.history') },
-          ]}
-        />
-      )}
       <div className="source-body">
         {visited.has('changes') && (
           <div className="source-workspace-pane" hidden={tab !== 'changes'}>
             <ChangesPane
+              navigation={tab === 'changes' ? navigation : undefined}
               tick={tick + refreshes.changes}
               requestNonce={changesRequest?.nonce ?? 0}
               initialPath={changesRequest?.path ?? null}
@@ -219,6 +237,7 @@ function PanelBody({
         {visited.has('history') && (
           <div className="source-workspace-pane" hidden={tab !== 'history'}>
             <HistoryPane
+              navigation={tab === 'history' ? navigation() : undefined}
               projectPath={path}
               tick={tick + refreshes.history}
               historyPath={historyRequest?.historyPath ?? null}

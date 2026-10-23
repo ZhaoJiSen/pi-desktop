@@ -1,6 +1,6 @@
-import { Button } from '@heroui/react'
+import { Button, SearchField } from '@heroui/react'
 import { SourceAction } from './SourceAction'
-import { ChevronLeft, Copy, GitCompare, History, Search } from 'lucide-react'
+import { ChevronLeft, Copy, GitCompare, History } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useT } from '../../lib/i18n'
 import { readProjectFile } from '../../lib/source/api'
@@ -130,33 +130,38 @@ export function FileViewer({
       </div>
       <div className="source-filter source-file-find">
         {readable && (
-          <label className="source-search-field">
-            <Search aria-hidden="true" />
-            <input
-              ref={findRef}
-              className="source-find"
-              value={query}
-              placeholder={t('source.find')}
-              aria-label={t('source.find')}
-              onChange={(event) => {
-                setQuery(event.target.value)
-                setHit(0)
-              }}
-              onKeyDown={(event) => {
-                if (event.key === 'Escape') {
+          <SearchField
+            className="source-file-search"
+            variant="secondary"
+            value={query}
+            aria-label={t('source.find')}
+            onChange={(value) => {
+              setQuery(value)
+              setHit(0)
+            }}
+          >
+            <SearchField.Group>
+              <SearchField.SearchIcon />
+              <SearchField.Input
+                ref={findRef}
+                className="source-find"
+                placeholder={t('source.find')}
+                onKeyDown={(event) => {
+                  if (event.key === 'Escape') {
+                    event.preventDefault()
+                    setQuery('')
+                    setHit(0)
+                    codeRef.current?.focus()
+                    return
+                  }
+                  if (event.key !== 'Enter' || !hits.length) return
                   event.preventDefault()
-                  setQuery('')
-                  setHit(0)
-                  codeRef.current?.focus()
-                  return
-                }
-                if (event.key !== 'Enter' || !hits.length) return
-                event.preventDefault()
-                const step = event.shiftKey ? hits.length - 1 : 1
-                setHit((index) => (index + step) % hits.length)
-              }}
-            />
-          </label>
+                  const step = event.shiftKey ? hits.length - 1 : 1
+                  setHit((index) => (index + step) % hits.length)
+                }}
+              />
+            </SearchField.Group>
+          </SearchField>
         )}
         {readable && query && (
           <span className="source-find-status" role="status" aria-live="polite">

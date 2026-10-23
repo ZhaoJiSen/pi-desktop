@@ -1,7 +1,17 @@
-import { Button, Chip } from '@heroui/react'
+import { Button, Dropdown } from '@heroui/react'
 import { SourceAction } from './SourceAction'
-import { Columns2, FileSymlink, GitBranch, GitCommitHorizontal, Rows3, Undo2 } from 'lucide-react'
-import { useState } from 'react'
+import {
+  Columns2,
+  Ellipsis,
+  FileSymlink,
+  GitBranch,
+  GitCommitHorizontal,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Rows3,
+  Undo2,
+} from 'lucide-react'
+import { useState, type ReactNode } from 'react'
 import { useT } from '../../lib/i18n'
 import { gitRestoreFile, gitStatus } from '../../lib/source/api'
 import type { DiffLine } from '../../types'
@@ -12,18 +22,21 @@ import { FileDiff } from './FileDiff'
 import { FilePathTree } from './FilePathTree'
 import { LoadedDiff } from './LoadedDiff'
 import { SourceBrowser } from './SourceBrowser'
+import { SourceFilePath } from './SourceFilePath'
 import { SourceNotice } from './SourceNotice'
 import { useProjectSource } from './useProjectSource'
 import { useDiffLayout } from './useDiffLayout'
 import { useSourceQuery } from './useSourceQuery'
 
 export function ChangesPane({
+  navigation,
   tick,
   requestNonce,
   initialPath,
   fallback,
   fallbackLabel,
 }: {
+  navigation?: (count?: number) => ReactNode
   tick: number
   requestNonce: number
   initialPath: string | null
@@ -35,6 +48,7 @@ export function ChangesPane({
   const { path: projectPath, revision, agent } = useProjectSource()
   const [selected, setSelected] = useState(initialPath)
   const [commitOpen, setCommitOpen] = useState(false)
+  const [navigationCollapsed, setNavigationCollapsed] = useState(false)
   const [confirmPath, setConfirmPath] = useState<string | null>(null)
   const [restoring, setRestoring] = useState(false)
   const [restoreError, setRestoreError] = useState<{ path: string; message: string } | null>(null)
@@ -65,6 +79,16 @@ export function ChangesPane({
     setConfirmPath(null)
     setRestoreError(null)
   }
+  function toggleLayout() {
+    setLayout(layout === 'split' ? 'unified' : 'split')
+  }
+  function openFile() {
+    if (path) source?.show({ tab: 'files', path, mode: 'view' })
+  }
+  function confirmRestore() {
+    setRestoreError(null)
+    setConfirmPath(path)
+  }
   async function restore(target: string) {
     setRestoring(true)
     setRestoreError(null)
@@ -82,31 +106,31 @@ export function ChangesPane({
       setRestoring(false)
     }
   }
-  if (!projectPath) return <SourceNotice kind="empty" text={t('source.noProject')} />
-  if (status.loading && !status.data)
-    return <SourceNotice kind="loading" text={t('source.loading')} />
-  if (status.error || !status.data)
-    return <SourceNotice kind="error" text={status.error || t('source.missingDiff')} />
-  if (!status.data.available) return <SourceNotice kind="empty" text={t('source.gitMissing')} />
-  if (!status.data.repo) return <SourceNotice kind="empty" text={t('source.notRepository')} />
+  function notice(kind: 'empty' | 'loading' | 'error', text: string) {
+    return (
+      <div className="source-changes">
+        {navigation && <div className="source-git-context">{navigation()}</div>}
+        <SourceNotice kind={kind} text={text} />
+      </div>
+    )
+  }
+  if (!projectPath) return notice('empty', t('source.noProject'))
+  if (status.loading && !status.data) return notice('loading', t('source.loading'))
+  if (status.error || !status.data) return notice('error', status.error || t('source.missingDiff'))
+  if (!status.data.available) return notice('empty', t('source.gitMissing'))
+  if (!status.data.repo) return notice('empty', t('source.notRepository'))
   return (
     <div className="source-changes">
-      <div className="source-branch">
+      <div className="source-git-context">
+        {navigation?.(files.length)}
         <span className="source-branch-info">
           <GitBranch aria-hidden="true" />
           <span className="source-branch-name" title={status.data.branch || t('source.changes')}>
             {status.data.branch || t('source.changes')}
           </span>
-          <Chip
-            size="sm"
-            variant="secondary"
-            className="source-count"
-            aria-label={t('source.commitMany', { count: files.length })}
-          >
-            {files.length}
-          </Chip>
         </span>
         <Button
+          size="sm"
           variant="secondary"
           className="source-commit"
           isDisabled={!files.length}
@@ -129,9 +153,9 @@ export function ChangesPane({
         }}
       />
       <SourceBrowser
+        navigationCollapsed={Boolean(path || showFallback) && navigationCollapsed}
         navigation={
           <>
-            <div className="source-nav-heading">{t('source.changedFiles')}</div>
             <HoverScrollArea
               shadowSize={0}
               className="source-tree-scroll"
@@ -156,42 +180,98 @@ export function ChangesPane({
         {path || showFallback ? (
           <>
             <div className="source-detail-bar source-preview-bar" ref={layoutRef}>
-              <span className="source-detail-path" title={path ?? fallbackLabel}>
-                {path ?? fallbackLabel}
-              </span>
+              <SourceAction
+                label={t(
+                  navigationCollapsed ? 'source.showChangedFiles' : 'source.hideChangedFiles',
+                )}
+                pressed={!navigationCollapsed}
+                onPress={() => setNavigationCollapsed((value) => !value)}
+              >
+                {navigationCollapsed ? <PanelLeftOpen /> : <PanelLeftClose />}
+              </SourceAction>
+              <SourceFilePath path={path ?? fallbackLabel} />
               {file && (
                 <span className="diff-stats">
                   <span className="positive">+{file.additions ?? 0}</span>
                   <span className="negative">−{file.deletions ?? 0}</span>
                 </span>
               )}
-              <SourceAction
-                label={layout === 'split' ? t('source.unified') : t('source.split')}
-                pressed={layout === 'split'}
-                onPress={() => setLayout(layout === 'split' ? 'unified' : 'split')}
-              >
-                {layout === 'split' ? <Columns2 /> : <Rows3 />}
-              </SourceAction>
-              {path && (
+              <span className="source-preview-inline-actions">
                 <SourceAction
-                  label={t('source.openFile')}
-                  onPress={() => source?.show({ tab: 'files', path, mode: 'view' })}
+                  label={layout === 'split' ? t('source.unified') : t('source.split')}
+                  pressed={layout === 'split'}
+                  onPress={toggleLayout}
                 >
-                  <FileSymlink />
+                  {layout === 'split' ? <Columns2 /> : <Rows3 />}
                 </SourceAction>
-              )}
-              {file && file.code !== '?' && (
-                <SourceAction
-                  label={t('source.restore')}
-                  isDisabled={restoring}
-                  onPress={() => {
-                    setRestoreError(null)
-                    setConfirmPath(path)
-                  }}
+                <span className="source-preview-file-actions">
+                  {path && (
+                    <SourceAction label={t('source.openFile')} onPress={openFile}>
+                      <FileSymlink />
+                    </SourceAction>
+                  )}
+                  {file && file.code !== '?' && (
+                    <SourceAction
+                      label={t('source.restore')}
+                      isDisabled={restoring}
+                      onPress={confirmRestore}
+                    >
+                      <Undo2 />
+                    </SourceAction>
+                  )}
+                </span>
+              </span>
+              <Dropdown>
+                <Button
+                  isIconOnly
+                  size="sm"
+                  variant="ghost"
+                  className="source-action source-preview-overflow"
+                  aria-label={t('source.fileActions')}
                 >
-                  <Undo2 />
-                </SourceAction>
-              )}
+                  <Ellipsis />
+                </Button>
+                <Dropdown.Popover placement="bottom end" className="action-popover" offset={6}>
+                  <Dropdown.Menu
+                    aria-label={t('source.fileActions')}
+                    onAction={(key) => {
+                      if (key === 'layout') toggleLayout()
+                      else if (key === 'open') openFile()
+                      else if (key === 'restore') confirmRestore()
+                    }}
+                  >
+                    <Dropdown.Item
+                      id="layout"
+                      className="menu-row"
+                      textValue={layout === 'split' ? t('source.unified') : t('source.split')}
+                    >
+                      {layout === 'split' ? <Rows3 /> : <Columns2 />}
+                      {layout === 'split' ? t('source.unified') : t('source.split')}
+                    </Dropdown.Item>
+                    {path && (
+                      <Dropdown.Item
+                        id="open"
+                        className="menu-row"
+                        textValue={t('source.openFile')}
+                      >
+                        <FileSymlink />
+                        {t('source.openFile')}
+                      </Dropdown.Item>
+                    )}
+                    {file && file.code !== '?' && (
+                      <Dropdown.Item
+                        id="restore"
+                        className="menu-row source-discard-action"
+                        textValue={t('source.restore')}
+                        isDisabled={restoring}
+                      >
+                        <Undo2 />
+                        {t('source.restore')}
+                      </Dropdown.Item>
+                    )}
+                  </Dropdown.Menu>
+                </Dropdown.Popover>
+              </Dropdown>
             </div>
             {confirmPath === path && path && (
               <div className="source-restore">

@@ -88,18 +88,20 @@ export function SourceTreeItem({
               <FileTreeIcon name={name} kind={kind} expanded={isExpanded} />
             )}
             <span className="source-tree-name" title={path}>
-              {name}
+              <bdi>{name}</bdi>
             </span>
-            {code && (
-              <span className="source-code" data-code={code}>
-                {code}
-              </span>
-            )}
-            {agent && (
-              <span className="source-agent" title={t('source.agent')}>
-                {t('source.agent')}
-              </span>
-            )}
+            <span className="source-tree-marks">
+              {code && (
+                <span className="source-code" data-code={code}>
+                  {code}
+                </span>
+              )}
+              {agent && (
+                <span className="source-agent" title={t('source.agent')}>
+                  {t('source.agent')}
+                </span>
+              )}
+            </span>
           </div>
         )}
       </TreeItemContent>

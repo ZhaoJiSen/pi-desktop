@@ -1,5 +1,4 @@
-import { Button } from '@heroui/react'
-import { Search } from 'lucide-react'
+import { Button, SearchField } from '@heroui/react'
 import { useMemo, useState } from 'react'
 import { useT } from '../../lib/i18n'
 import { connectVisible, layoutGraph } from '../../lib/source/graph'
@@ -47,18 +46,21 @@ export function HistoryList({
   )
   return (
     <div className="history-list">
-      <label className="source-filter-field source-search-field">
-        <Search aria-hidden="true" />
-        <input
-          value={query}
-          onChange={(event) => {
-            setQuery(event.target.value)
-            scrollTo(0)
-          }}
-          placeholder={t('source.filterCommits')}
-          aria-label={t('source.filterCommits')}
-        />
-      </label>
+      <SearchField
+        className="source-history-search"
+        variant="secondary"
+        value={query}
+        onChange={(value) => {
+          setQuery(value)
+          scrollTo(0)
+        }}
+        aria-label={t('source.filterCommits')}
+      >
+        <SearchField.Group>
+          <SearchField.SearchIcon />
+          <SearchField.Input placeholder={t('source.filterCommits')} />
+        </SearchField.Group>
+      </SearchField>
       <div className="source-scroll" role="list" ref={scroller}>
         {visible.length === 0 && <p className="source-note">{t('source.emptyFilter')}</p>}
         <div className="source-vpad" style={{ height: paddingTop }} />

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-export const codeRowHeight = 24
+export const codeRowHeight = 28
 export const historyRowHeight = 48
 export const searchRowHeight = 56
 export const changeRowHeight = 36

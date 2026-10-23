@@ -19,8 +19,9 @@ export function SourceAction({
       <Tooltip.Trigger role="presentation" tabIndex={-1}>
         <Button
           isIconOnly
-          variant="ghost"
-          className="icon-button"
+          size="sm"
+          variant={pressed ? 'secondary' : 'ghost'}
+          className="source-action"
           aria-label={label}
           aria-pressed={pressed}
           isDisabled={isDisabled}

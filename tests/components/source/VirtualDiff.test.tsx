@@ -207,7 +207,7 @@ describe('virtual diff', () => {
       }),
     )
     expect(container.querySelector('[data-theme="dark"]')).not.toBeNull()
-    expect(viewer.style.height).toBe(`${500 * 16 * 1.6}px`)
+    expect(viewer.style.height).toBe(`${500 * 28}px`)
     await render(fixture(500).replace('item_0 = false', 'changed = false'))
     expect(container.querySelector('.source-virtual-diff')?.id).not.toBe(id)
     expect(container.textContent).toContain('const changed = false')
