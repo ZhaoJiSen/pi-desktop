@@ -92,9 +92,9 @@ export function GitChangesReview({
     getItemKey: keyOf,
     estimateSize: (index) => {
       const file = files[index]!
-      if (collapsed.has(file.path)) return 58
+      if (collapsed.has(file.path)) return 44
       return (
-        82 + Math.min(800, Math.max(140, ((file.additions ?? 0) + (file.deletions ?? 0) + 8) * 28))
+        68 + Math.min(800, Math.max(140, ((file.additions ?? 0) + (file.deletions ?? 0) + 8) * 28))
       )
     },
     overscan: 2,

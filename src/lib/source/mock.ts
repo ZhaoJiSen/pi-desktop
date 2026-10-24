@@ -217,3 +217,8 @@ export function mockCommit(path: string, revision: string): GitCommitDetail {
     files: repo.commitFiles[revision] ?? [],
   }
 }
+
+// Isolated design fixtures may supply a remote state machine; ordinary previews have no remote.
+export function mockSync(path: string) {
+  return repoFor(path).sync
+}

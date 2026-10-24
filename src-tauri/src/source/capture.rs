@@ -64,7 +64,7 @@ fn read_limit<R: Read>(pipe: Option<R>, limit: usize) -> (Vec<u8>, bool) {
     }
 }
 
-fn drain<R: Read>(pipe: Option<R>, limit: usize) -> Vec<u8> {
+pub(super) fn drain<R: Read>(pipe: Option<R>, limit: usize) -> Vec<u8> {
     let Some(mut pipe) = pipe else {
         return Vec::new();
     };
@@ -84,4 +84,45 @@ fn drain<R: Read>(pipe: Option<R>, limit: usize) -> Vec<u8> {
         }
     }
     buffer
+}
+
+/// Network and editor-capable operations must not leave the UI pending indefinitely.
+pub(crate) fn capture_timeout(
+    mut child: Child,
+    limit: usize,
+    timeout: std::time::Duration,
+) -> std::io::Result<Captured> {
+    let stdout = child.stdout.take();
+    let stderr = child.stderr.take();
+    let out = thread::spawn(move || read_limit(stdout, limit));
+    let err = thread::spawn(move || drain(stderr, STDERR_LIMIT));
+    let started = std::time::Instant::now();
+    let status = loop {
+        if let Some(status) = child.try_wait()? {
+            break status;
+        }
+        if started.elapsed() >= timeout {
+            // The sync runner creates a process group so SSH/helpers cannot retain pipes.
+            #[cfg(unix)]
+            unsafe {
+                libc::kill(-(child.id() as i32), libc::SIGKILL);
+            }
+            let _ = child.kill();
+            let _ = child.wait();
+            let _ = out.join();
+            let _ = err.join();
+            return Err(std::io::Error::new(
+                ErrorKind::TimedOut,
+                "Git operation timed out",
+            ));
+        }
+        thread::sleep(std::time::Duration::from_millis(20));
+    };
+    let (stdout, truncated) = out.join().unwrap_or_default();
+    Ok(Captured {
+        stdout,
+        stderr: err.join().unwrap_or_default(),
+        success: status.success(),
+        truncated,
+    })
 }

@@ -10,6 +10,7 @@ import {
   mockRestore,
   mockSearch,
   mockStatus,
+  mockSync,
 } from './mock'
 
 export type {
@@ -29,7 +30,7 @@ export type {
 async function call<T>(
   command: string,
   args: Record<string, unknown>,
-  preview: () => T,
+  preview: () => T | Promise<T>,
 ): Promise<T> {
   if (!isDesktop) return preview()
   return invoke<T>(command, args)
@@ -121,7 +122,11 @@ export function gitLogPage(path: string, relative: string | null, tip: string | 
 export function gitBranchState(path: string) {
   return call<import('./branches').BranchState>('git_branch_state', { path }, () => {
     const status = mockStatus(path)
-    const head = mockLog(path).commits[0]?.hash ?? null
+    const log = mockLog(path)
+    const head =
+      log.commits.find((commit) => /(?:^|,\s*)HEAD(?: -> |,|$)/.test(commit.refs))?.hash ??
+      log.commits[0]?.hash ??
+      null
     return { current: status.branch, head, operation: null, dirty: status.files.length > 0 }
   })
 }
@@ -129,5 +134,54 @@ export function gitBranchState(path: string) {
 export function gitBranchAction(path: string, request: import('./branches').BranchRequest) {
   return call<void>('git_branch_action', { path, request }, () => {
     throw new Error('Branch operations require the desktop app')
+  })
+}
+
+export function gitSyncState(path: string) {
+  return call<import('./types').GitSyncState>('git_sync_state', { path }, async () => {
+    const preview = mockSync(path)
+    if (preview) return preview.state()
+    const branch = await gitBranchState(path)
+    return {
+      branch,
+      remote: null,
+      upstream: null,
+      ahead: 0,
+      behind: 0,
+      lastFetch: null,
+      conflicts: [],
+    }
+  })
+}
+export function gitSyncAction(path: string, request: import('./types').GitSyncRequest) {
+  return call<void>('git_sync_action', { path, request }, () => {
+    const preview = mockSync(path)
+    if (preview) return preview.action(request)
+    throw new Error('Remote operations require the desktop app')
+  })
+}
+export function gitConflictWrite(path: string, relative: string, expected: string, text: string) {
+  return call<void>('git_conflict_write', { path, relative, expected, text }, () => {
+    const preview = mockSync(path)
+    if (preview) return preview.write(relative, expected, text)
+    throw new Error('Editing conflicts requires the desktop app')
+  })
+}
+
+export function gitLogHead(path: string) {
+  return call<import('./types').GitHeadLocation>('git_log_head', { path }, async () => {
+    const log = mockLog(path)
+    const state = await gitBranchState(path)
+    const index = log.commits.findIndex((commit) => commit.hash === state.head)
+    const offset = index < 0 ? 0 : Math.floor(index / 200) * 200
+    return {
+      head: state.head,
+      offset,
+      page: {
+        ...log,
+        commits: log.commits.slice(offset, offset + 200),
+        hasMore: log.commits.length > offset + 200,
+      },
+    }
   })
 }

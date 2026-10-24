@@ -2,17 +2,24 @@ import { errorText } from './utils'
 
 export type ActionNotice = { title: string; detail: string }
 
-const listeners = new Set<(message: string) => void>()
+type NoticeTone = 'warning' | 'success'
+const listeners = new Set<(message: string, tone: NoticeTone) => void>()
 
 // A finished action that failed. The session itself is unchanged, so this
 // stays out of the connection banner and its Reconnect action.
 export function reportActionNotice(error: unknown) {
   const message = errorText(error).trim()
   if (!message) return
-  for (const listener of listeners) listener(message)
+  for (const listener of listeners) listener(message, 'warning')
 }
 
-export function onActionNotice(listener: (message: string) => void) {
+export function reportSuccessNotice(message: string) {
+  const text = message.trim()
+  if (!text) return
+  for (const listener of listeners) listener(text, 'success')
+}
+
+export function onActionNotice(listener: (message: string, tone: NoticeTone) => void) {
   listeners.add(listener)
   return () => {
     listeners.delete(listener)

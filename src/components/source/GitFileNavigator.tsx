@@ -8,6 +8,7 @@ import { useT } from '../../lib/i18n'
 import { useWorkspace } from '../../store/workspace'
 import { fileNameOf } from '../../lib/source/paths'
 import type { CommitFile, GitFileStatus } from '../../lib/source/types'
+import { OverflowTooltip } from '../OverflowTooltip'
 import { HoverScrollArea } from '../HoverScrollArea'
 import { FilePathTree } from './FilePathTree'
 import { FileTreeIcon } from './FileTreeIcon'
@@ -63,6 +64,7 @@ export function GitFileList({
     count: files.length,
     getScrollElement: () => parent.current,
     estimateSize: () => 48,
+    gap: 4,
     overscan: 8,
   })
   const selectedIndex = files.findIndex((file) => file.path === selected)
@@ -115,12 +117,12 @@ export function GitFileList({
             >
               <FileTreeIcon name={fileNameOf(file.path)} kind="file" expanded={false} />
               <span className="git-file-label">
-                <span>
+                <OverflowTooltip text={fileNameOf(file.path)} tooltip={file.path}>
                   <MatchedText file={file} field="name" />
-                </span>
-                <small>
+                </OverflowTooltip>
+                <OverflowTooltip as="small" text={file.path}>
                   <MatchedText file={file} field="path" />
-                </small>
+                </OverflowTooltip>
               </span>
               <span className="source-code" data-code={file.code}>
                 {file.code}
@@ -138,6 +140,8 @@ export function GitFileNavigator({
   selected,
   onSelect,
   heading,
+  headingActions,
+  navigationHeader,
   footer,
   notice,
   basic = false,
@@ -152,6 +156,8 @@ export function GitFileNavigator({
   selected: string | null
   onSelect: (path: string) => void
   heading?: ReactNode
+  headingActions?: ReactNode
+  navigationHeader?: ReactNode
   footer?: ReactNode
   notice?: ReactNode
   basic?: boolean
@@ -191,6 +197,44 @@ export function GitFileNavigator({
       ),
     [matched, filter],
   )
+  const searchAction = (
+    <Tooltip delay={450}>
+      <Button
+        ref={searchToggle}
+        isIconOnly
+        variant="ghost"
+        size="sm"
+        className="source-action git-search-toggle"
+        aria-label={searchOpen ? t('source.closeFileSearch') : t('source.searchFiles')}
+        aria-expanded={searchOpen}
+        aria-controls={searchId}
+        onPress={() => (searchOpen ? closeSearch() : setSearchOpen(true))}
+      >
+        {searchOpen ? <X /> : <Search />}
+      </Button>
+      <Tooltip.Content placement="bottom">
+        {searchOpen ? t('source.closeFileSearch') : t('source.searchFiles')}
+      </Tooltip.Content>
+    </Tooltip>
+  )
+  const quickOpenAction = (
+    <Tooltip delay={450}>
+      <Tooltip.Trigger role="presentation" tabIndex={-1}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="git-quick-trigger"
+          aria-label={t('source.quickOpen')}
+          onPress={onQuickOpen}
+        >
+          <kbd>
+            ⌘P<span> / Ctrl P</span>
+          </kbd>
+        </Button>
+      </Tooltip.Trigger>
+      <Tooltip.Content placement="bottom">{t('source.quickOpen')} (⌘P / Ctrl P)</Tooltip.Content>
+    </Tooltip>
+  )
   const searchField = (
     <AnimatePresence initial={false}>
       {(!compactSearch || searchOpen) && (
@@ -225,122 +269,120 @@ export function GitFileNavigator({
                 <SearchField.ClearButton />
               </SearchField.Group>
             </SearchField>
-            {onQuickOpen && (
-              <Tooltip delay={450}>
-                <Tooltip.Trigger role="presentation" tabIndex={-1}>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="git-quick-trigger"
-                    aria-label={t('source.quickOpen')}
-                    onPress={onQuickOpen}
-                  >
-                    <kbd>
-                      ⌘P<span> / Ctrl P</span>
-                    </kbd>
-                  </Button>
-                </Tooltip.Trigger>
-                <Tooltip.Content placement="bottom">
-                  {t('source.quickOpen')} (⌘P / Ctrl P)
-                </Tooltip.Content>
-              </Tooltip>
-            )}
+            {onQuickOpen && quickOpenAction}
           </div>
         </motion.div>
       )}
     </AnimatePresence>
   )
-  return (
-    <div className="git-file-navigator">
-      {heading}
-      {!compactSearch && searchField}
-      {!basic && (
-        <div className="git-file-filters">
-          <div role="group" aria-label={t('source.fileStatus')}>
-            {['all', 'M', 'A', 'D'].map((value) => (
-              <Button
-                key={value}
-                size="sm"
-                variant="ghost"
-                aria-pressed={filter === value}
-                onPress={() => setFilter(value)}
-              >
-                {value === 'all' ? t('source.allFiles') : value}
-              </Button>
-            ))}
-          </div>
-          <div className="git-file-tools">
-            {compactSearch && (
-              <Tooltip delay={450}>
-                <Button
-                  ref={searchToggle}
-                  isIconOnly
-                  variant="ghost"
-                  size="sm"
-                  className="source-action git-search-toggle"
-                  aria-label={searchOpen ? t('source.closeFileSearch') : t('source.searchFiles')}
-                  aria-expanded={searchOpen}
-                  aria-controls={searchId}
-                  onPress={() => (searchOpen ? closeSearch() : setSearchOpen(true))}
-                >
-                  {searchOpen ? <X /> : <Search />}
-                </Button>
-                <Tooltip.Content placement="bottom">
-                  {searchOpen ? t('source.closeFileSearch') : t('source.searchFiles')}
-                </Tooltip.Content>
-              </Tooltip>
-            )}
-            <SourceAction
-              label={flat ? t('source.treeView') : t('source.listView')}
-              onPress={toggleView}
-            >
-              {flat ? <FolderTree /> : <List />}
-            </SourceAction>
-          </div>
-        </div>
-      )}
-      {compactSearch && searchField}
-      {compactSearch && (query.trim() || filter !== 'all') && (
-        <p className="git-navigation-filter-scope" role="status">
-          {t('source.navigationFilterScope', { count: filtered.length, total: files.length })}
-        </p>
-      )}
-      {!filtered.length ? (
-        <SourceNotice
-          kind="empty"
-          text={files.length ? t('source.emptySearch') : t('source.emptyChanges')}
-        />
-      ) : flat || query.trim() ? (
-        <GitFileList
-          files={filtered}
-          selected={selected}
-          onSelect={onSelect}
-          label={t('source.changedFiles')}
-        />
-      ) : (
-        <HoverScrollArea
-          shadowSize={0}
-          className="source-tree-scroll"
-          label={t('source.changedFiles')}
-        >
-          <FilePathTree
-            revealKey={revealKey}
-            files={filtered}
-            selected={selected}
-            onSelect={onSelect}
-            agent={agent}
-          />
-        </HoverScrollArea>
-      )}
+  const grouped = compactSearch && !basic
+  const navigationFooter =
+    grouped && !footer && !notice ? null : (
       <div className="git-navigator-footer">
         {footer}
         {notice}
-        {(!compactSearch || (!query.trim() && filter === 'all')) && (
+        {(!compactSearch || (basic && !query.trim() && filter === 'all')) && (
           <span className="git-result-count">
             {t('source.filteredFiles', { count: filtered.length, total: files.length })}
           </span>
         )}
       </div>
+    )
+  return (
+    <div className="git-file-navigator">
+      {basic && compactSearch ? (
+        <div className="git-file-compact-heading">
+          {heading}
+          <div className="git-file-tools">
+            {searchAction}
+            {headingActions}
+          </div>
+        </div>
+      ) : (
+        heading
+      )}
+      <div
+        className={
+          grouped
+            ? 'git-navigation-surface git-file-navigation-surface'
+            : 'git-file-navigation-content'
+        }
+      >
+        {navigationHeader}
+        {!compactSearch && searchField}
+        {!basic && (
+          <div className="git-file-filters">
+            <div role="group" aria-label={t('source.fileStatus')}>
+              {['all', 'M', 'A', 'D'].map((value) => (
+                <Button
+                  key={value}
+                  size="sm"
+                  variant="ghost"
+                  aria-pressed={filter === value}
+                  onPress={() => setFilter(value)}
+                >
+                  {value === 'all' ? t('source.allFiles') : value}
+                </Button>
+              ))}
+            </div>
+            {compactSearch && (
+              <small
+                className="git-navigation-result"
+                aria-label={t('source.filteredFiles', {
+                  count: filtered.length,
+                  total: files.length,
+                })}
+              >
+                {filtered.length} / {files.length}
+              </small>
+            )}
+            <div className="git-file-tools">
+              {compactSearch && searchAction}
+              <SourceAction
+                label={flat ? t('source.treeView') : t('source.listView')}
+                onPress={toggleView}
+              >
+                {flat ? <FolderTree /> : <List />}
+              </SourceAction>
+            </div>
+          </div>
+        )}
+        {compactSearch && searchField}
+        {compactSearch && (query.trim() || filter !== 'all') && (
+          <p className="git-navigation-filter-scope" role="status">
+            {t('source.navigationFilterScope', { count: filtered.length, total: files.length })}
+          </p>
+        )}
+        {!filtered.length ? (
+          <SourceNotice
+            kind="empty"
+            text={files.length ? t('source.emptySearch') : t('source.emptyChanges')}
+          />
+        ) : flat || query.trim() ? (
+          <GitFileList
+            files={filtered}
+            selected={selected}
+            onSelect={onSelect}
+            label={t('source.changedFiles')}
+          />
+        ) : (
+          <HoverScrollArea
+            shadowSize={compactSearch ? 18 : 0}
+            className="source-tree-scroll"
+            label={t('source.changedFiles')}
+          >
+            <FilePathTree
+              revealKey={revealKey}
+              files={filtered}
+              selected={selected}
+              onSelect={onSelect}
+              agent={agent}
+            />
+          </HoverScrollArea>
+        )}
+        {grouped && navigationFooter}
+      </div>
+      {!grouped && navigationFooter}
     </div>
   )
 }
@@ -466,12 +508,12 @@ export function GitQuickFind({
                     >
                       <FileTreeIcon name={fileNameOf(file.path)} kind="file" expanded={false} />
                       <span className="git-file-label">
-                        <span>
+                        <OverflowTooltip text={fileNameOf(file.path)} tooltip={file.path}>
                           <MatchedText file={file} field="name" />
-                        </span>
-                        <small>
+                        </OverflowTooltip>
+                        <OverflowTooltip as="small" text={file.path}>
                           <MatchedText file={file} field="path" />
-                        </small>
+                        </OverflowTooltip>
                       </span>
                       <span className="source-code" data-code={file.code}>
                         {file.code}

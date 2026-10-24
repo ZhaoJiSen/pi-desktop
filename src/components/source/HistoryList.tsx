@@ -1,3 +1,4 @@
+import { OverflowTooltip } from '../OverflowTooltip'
 import { Button, SearchField } from '@heroui/react'
 import { useMemo, useState } from 'react'
 import { useT } from '../../lib/i18n'
@@ -77,17 +78,12 @@ export function HistoryList({
               onPress={() => onSelect(commit.hash)}
             >
               {row && <HistoryGraph row={row} />}
-              <span
-                className="history-copy"
-                title={`${commit.subject}\n${commit.author} · ${commit.hash.slice(0, 7)}`}
-              >
-                <span className="source-name">{commit.subject}</span>
-                <span className="source-subpath">
-                  {commit.author}
-                  {' · '}
-                  {formatWhen(commit.timestamp, language)}
-                  {commit.refs ? ` · ${commit.refs}` : ''}
-                </span>
+              <span className="history-copy">
+                <OverflowTooltip className="source-name" text={commit.subject} />
+                <OverflowTooltip
+                  className="source-subpath"
+                  text={`${commit.author} · ${formatWhen(commit.timestamp, language)}${commit.refs ? ` · ${commit.refs}` : ''}`}
+                />
               </span>
             </Button>
           )

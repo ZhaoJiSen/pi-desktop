@@ -35,4 +35,34 @@ describe('commit graph', () => {
     expect(visible.map((commit) => commit.hash)).toEqual(['c', 'a'])
     expect(visible[0]?.parents).toEqual(['a'])
   })
+
+  it('handles a 100,000-commit gap without recursive stack overflow', () => {
+    const commits = Array.from({ length: 100_000 }, (_, index) => ({
+      hash: String(index),
+      parents: index < 99_999 ? [String(index + 1)] : [],
+    }))
+    const visible = connectVisible(commits, new Set(['0', '99999']))
+    expect(visible).toEqual([
+      { hash: '0', parents: ['99999'] },
+      { hash: '99999', parents: [] },
+    ])
+    const rows = layoutGraph(commits)
+    expect(rows).toHaveLength(100_000)
+    expect(rows[99_999]?.output).toEqual([])
+    expect(rows.every((row) => row.lane === 0 && row.columns === 1)).toBe(true)
+  })
+
+  it('preserves parent order and removes duplicates through hidden merges and cycles', () => {
+    const commits = [
+      { hash: 'head', parents: ['hidden-left', 'hidden-right', 'missing'] },
+      { hash: 'hidden-left', parents: ['left', 'hidden-right'] },
+      { hash: 'hidden-right', parents: ['right', 'hidden-left'] },
+      { hash: 'left', parents: [] },
+      { hash: 'right', parents: [] },
+    ]
+    expect(connectVisible(commits, new Set(['head', 'left', 'right']))[0]?.parents).toEqual([
+      'left',
+      'right',
+    ])
+  })
 })

@@ -1,10 +1,23 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import { actionNotice, onActionNotice, reportActionNotice } from '../../src/lib/notices'
+import {
+  actionNotice,
+  onActionNotice,
+  reportActionNotice,
+  reportSuccessNotice,
+} from '../../src/lib/notices'
 
 describe('action notices', () => {
   const heard: string[] = []
   let unsubscribe = () => {}
   afterEach(() => unsubscribe())
+
+  it('publishes a trimmed success message with its tone and ignores blanks', () => {
+    const notices: unknown[] = []
+    unsubscribe = onActionNotice((message, tone) => notices.push({ message, tone }))
+    reportSuccessNotice('  Pull completed  ')
+    reportSuccessNotice(' ')
+    expect(notices).toEqual([{ message: 'Pull completed', tone: 'success' }])
+  })
 
   it('splits a product sentence from the operating-system cause', () => {
     expect(

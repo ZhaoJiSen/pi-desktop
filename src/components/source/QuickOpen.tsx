@@ -1,3 +1,4 @@
+import { OverflowTooltip } from '../OverflowTooltip'
 import { ListBox, Modal } from '@heroui/react'
 import { File, Search } from 'lucide-react'
 import { useMemo, useState } from 'react'
@@ -130,8 +131,8 @@ function QuickOpenContent({ onOpen }: { onOpen: (path: string) => void }) {
               >
                 <File />
                 <span>
-                  <span>{fileNameOf(path)}</span>
-                  <small>{path}</small>
+                  <OverflowTooltip text={fileNameOf(path)} tooltip={path} />
+                  <OverflowTooltip as="small" text={path} />
                 </span>
               </ListBox.Item>
             )

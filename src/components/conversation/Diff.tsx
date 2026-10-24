@@ -1,3 +1,4 @@
+import { OverflowTooltip } from '../OverflowTooltip'
 import { memo } from 'react'
 import { FileText } from 'lucide-react'
 import { useT } from '../../lib/i18n'
@@ -12,9 +13,7 @@ export const Diff = memo(function Diff({ label, lines }: { label: string; lines:
     <div className="diff">
       <div className="diff-header">
         <FileText />
-        <span className="diff-file" title={label}>
-          {label}
-        </span>
+        <OverflowTooltip className="diff-file" text={label} />
         <span className="diff-stats">
           <span className="positive">+{adds}</span>
           {removes > 0 && <span className="negative">−{removes}</span>}

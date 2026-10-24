@@ -88,3 +88,29 @@ export interface GitBranch {
 export interface GitLogPage extends GitLog {
   hasMore: boolean
 }
+
+export interface GitSyncState {
+  branch: import('./branches').BranchState
+  remote: string | null
+  upstream: string | null
+  ahead: number
+  behind: number
+  lastFetch: number | null
+  conflicts: string[]
+}
+export type GitSyncAction = 'fetch' | 'pull' | 'resolve' | 'continue' | 'abort'
+export type GitPullMode = 'ffOnly' | 'merge' | 'rebase'
+export interface GitSyncRequest {
+  action: GitSyncAction
+  mode?: GitPullMode
+  relative?: string
+  expectedHead: string | null
+  expectedBranch: string | null
+  expectedUpstream: string | null
+}
+
+export interface GitHeadLocation {
+  head: string | null
+  offset: number
+  page: GitLogPage
+}

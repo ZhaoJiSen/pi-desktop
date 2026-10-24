@@ -1,3 +1,4 @@
+import { OverflowTooltip } from './OverflowTooltip'
 import { Button, Dropdown } from '@heroui/react'
 import { Download, Ellipsis, GitCompare, Pencil } from 'lucide-react'
 import { useState } from 'react'
@@ -24,7 +25,9 @@ export function Header({ onRename }: { onRename: () => void }) {
   const title = view === 'chat' ? session?.title || t('sessions.new') : t(`navigation.${view}`)
   return (
     <header className="main-header" data-tauri-drag-region="deep">
-      <h1 title={title}>{title}</h1>
+      <h1>
+        <OverflowTooltip text={title} />
+      </h1>
       {session && view === 'chat' && (
         <div className="header-actions" data-tauri-drag-region="false">
           <Button

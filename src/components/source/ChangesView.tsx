@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { navigateToPage } from '../../router/navigation'
+import { OverflowTooltip } from '../OverflowTooltip'
 import { useT } from '../../lib/i18n'
 import { gitRestoreFile, gitStatus } from '../../lib/source/api'
 import { orderFilesByTree } from '../../lib/source/fileTree'
@@ -27,12 +28,16 @@ import { LoadedDiff } from './LoadedDiff'
 import { SourceBrowser } from './SourceBrowser'
 import { SourceFilePath } from './SourceFilePath'
 import { SourceNotice } from './SourceNotice'
+import { GitWorkspaceLoading } from './GitWorkspaceSkeleton'
 import { useProjectSource } from './useProjectSource'
 import { useDiffLayout } from './useDiffLayout'
 import { useSourceQuery } from './useSourceQuery'
+import { useGitRepositoryStatus } from './GitRepositoryStatus'
+import { useGitOperationPending } from './GitOperationContext'
 
 export function ChangesPane({
   navigation,
+  navigationTabs,
   tick,
   requestNonce,
   initialPath,
@@ -46,6 +51,7 @@ export function ChangesPane({
   basic?: boolean
   onSelectionChange?: (path: string | null) => void
   navigation?: (count?: number) => ReactNode
+  navigationTabs?: ReactNode
   tick: number
   requestNonce: number
   initialPath: string | null
@@ -76,11 +82,18 @@ export function ChangesPane({
     setConfirmPath(null)
     setRestoreError(null)
   }
-  const status = useSourceQuery(
-    projectPath ? `status:${projectPath}` : null,
+  const operationPending = useGitOperationPending()
+  const repository = useGitRepositoryStatus()
+  const ownStatus = useSourceQuery(
+    !repository && projectPath ? `status:${projectPath}` : null,
     () => gitStatus(projectPath),
     `${revision}:${tick}:${localTick}`,
   )
+  const status = repository?.status ?? ownStatus
+  function refreshStatus() {
+    setLocalTick((value) => value + 1)
+    repository?.refresh()
+  }
   const files = useMemo(() => {
     const files = status.data?.repo ? status.data.files : []
     return workspace ? orderFilesByTree(files) : files
@@ -131,7 +144,7 @@ export function ChangesPane({
       await gitRestoreFile(projectPath, target)
       setConfirmPath(null)
       setSelected((current) => (current === target ? null : current))
-      setLocalTick((value) => value + 1)
+      refreshStatus()
     } catch (error) {
       setRestoreError({
         path: target,
@@ -144,7 +157,10 @@ export function ChangesPane({
   function notice(kind: 'empty' | 'loading' | 'error', text: string) {
     return workspace ? (
       <div className="git-workspace-notice">
-        <aside>{navigation?.()}</aside>
+        <aside>
+          {navigation?.()}
+          <div className="git-navigation-surface">{navigationTabs}</div>
+        </aside>
         <div className="git-review-surface">
           <SourceNotice kind={kind} text={text} />
         </div>
@@ -156,7 +172,12 @@ export function ChangesPane({
     )
   }
   if (!projectPath) return notice('empty', t('source.noProject'))
-  if (status.loading && !status.data) return notice('loading', t('source.loading'))
+  if (status.loading && !status.data)
+    return workspace ? (
+      <GitWorkspaceLoading navigation={navigation?.()} navigationTabs={navigationTabs} />
+    ) : (
+      notice('loading', t('source.loading'))
+    )
   if (status.error || !status.data) return notice('error', status.error || t('source.missingDiff'))
   if (!status.data.available) return notice('empty', t('source.gitMissing'))
   if (!status.data.repo) return notice('empty', t('source.notRepository'))
@@ -166,15 +187,16 @@ export function ChangesPane({
         {!workspace && navigation?.(files.length)}
         <span className="source-branch-info">
           <GitBranch aria-hidden="true" />
-          <span className="source-branch-name" title={status.data.branch || t('source.changes')}>
-            {status.data.branch || t('source.changes')}
-          </span>
+          <OverflowTooltip
+            className="source-branch-name"
+            text={status.data.branch || t('source.changes')}
+          />
         </span>
         <Button
           size="sm"
           variant="secondary"
           className="source-commit"
-          isDisabled={!files.length}
+          isDisabled={!files.length || operationPending || files.some((file) => file.code === 'U')}
           hidden={basic || workspace}
           onPress={() => setCommitOpen(true)}
         >
@@ -199,7 +221,7 @@ export function ChangesPane({
         onCommitted={() => {
           setSelected(null)
           setShowFallback(false)
-          setLocalTick((value) => value + 1)
+          refreshStatus()
         }}
       />
       <SourceBrowser
@@ -222,13 +244,16 @@ export function ChangesPane({
             heading={workspace ? <>{navigation?.(files.length)}</> : undefined}
             onQuickOpen={workspace ? () => setQuickFind(true) : undefined}
             compactSearch={workspace}
+            navigationHeader={navigationTabs}
             footer={
               workspace ? (
                 <>
                   <Button
                     variant="secondary"
                     className="git-commit-button"
-                    isDisabled={!files.length}
+                    isDisabled={
+                      !files.length || operationPending || files.some((file) => file.code === 'U')
+                    }
                     onPress={() => setCommitOpen(true)}
                   >
                     <GitCommitHorizontal />
@@ -249,7 +274,7 @@ export function ChangesPane({
             onActiveChange={setSelected}
             onRestored={(target) => {
               setSelected((current) => (current === target ? null : current))
-              setLocalTick((value) => value + 1)
+              refreshStatus()
             }}
             fallback={
               fallback?.length ? { path: initialPath ?? fallbackLabel, lines: fallback } : undefined

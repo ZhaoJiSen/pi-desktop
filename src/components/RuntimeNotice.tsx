@@ -32,8 +32,8 @@ export function RuntimeNotice({
       if (message.trim()) queue.add({ message, tone: 'info' }, { timeout: 5000 })
     })
     // Eight seconds is long enough to read the cause, then the notice leaves.
-    const unsubscribeActions = onActionNotice((message) => {
-      queue.add({ message, tone: 'warning' }, { timeout: 8000 })
+    const unsubscribeActions = onActionNotice((message, tone) => {
+      queue.add({ message, tone }, { timeout: tone === 'success' ? 5000 : 8000 })
     })
     const unsubscribePackages = onPackageBatchNotice((notice) => {
       queue.add(
@@ -57,7 +57,7 @@ export function RuntimeNotice({
   return (
     <Toast.Provider
       queue={queue}
-      placement="top end"
+      placement="bottom end"
       width={320}
       className="runtime-notice-region"
       aria-label={t('notifications.label')}

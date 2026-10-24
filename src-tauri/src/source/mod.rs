@@ -1,4 +1,4 @@
-//! Local project files and Git. Commands never touch the network.
+//! Project files and Git. Only explicit sync commands can access configured remotes.
 
 mod branches;
 mod capture;
@@ -9,6 +9,7 @@ mod git;
 mod history;
 mod paths;
 mod status;
+mod sync;
 mod types;
 
 use crate::i18n::Message;
@@ -219,4 +220,41 @@ pub async fn git_branch_action(
     request: branches::BranchRequest,
 ) -> Result<(), String> {
     blocking(move || branches::execute(&root_of(&app, &path)?, &request)).await
+}
+
+#[tauri::command]
+pub async fn git_sync_state(
+    app: tauri::AppHandle,
+    path: String,
+) -> Result<sync::SyncState, String> {
+    blocking(move || sync::state(&root_of(&app, &path)?)).await
+}
+
+#[tauri::command]
+pub async fn git_sync_action(
+    app: tauri::AppHandle,
+    path: String,
+    request: sync::SyncRequest,
+) -> Result<(), String> {
+    blocking(move || sync::execute(&root_of(&app, &path)?, &request)).await
+}
+
+#[tauri::command]
+pub async fn git_conflict_write(
+    app: tauri::AppHandle,
+    path: String,
+    relative: String,
+    expected: String,
+    text: String,
+) -> Result<(), String> {
+    blocking(move || sync::write_resolution(&root_of(&app, &path)?, &relative, &expected, &text))
+        .await
+}
+
+#[tauri::command]
+pub async fn git_log_head(
+    app: tauri::AppHandle,
+    path: String,
+) -> Result<types::GitHeadLocation, String> {
+    blocking(move || history::locate_head(&root_of(&app, &path)?)).await
 }

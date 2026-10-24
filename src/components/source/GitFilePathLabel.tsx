@@ -5,6 +5,7 @@ import jsIcon from 'material-icon-theme/icons/javascript.svg?url'
 import sassIcon from 'material-icon-theme/icons/sass.svg?url'
 import cssIcon from 'material-icon-theme/icons/css.svg?url'
 import fileIcon from 'material-icon-theme/icons/file.svg?url'
+import { OverflowTooltip } from '../OverflowTooltip'
 import { SourceFilePath } from './SourceFilePath'
 
 const icons: Record<string, string> = {
@@ -21,11 +22,11 @@ const icons: Record<string, string> = {
 export function GitFilePathLabel({ path }: { path: string }) {
   const extension = path.split('.').pop()?.toLowerCase() ?? ''
   return (
-    <span className="git-file-path-label" title={path}>
+    <OverflowTooltip className="git-file-path-label" text={path}>
       <img src={icons[extension] ?? fileIcon} alt="" aria-hidden="true" draggable={false} />
       <span className="git-file-chip-label">
-        <SourceFilePath path={path} preserveExtension />
+        <SourceFilePath path={path} preserveExtension tooltip={false} />
       </span>
-    </span>
+    </OverflowTooltip>
   )
 }

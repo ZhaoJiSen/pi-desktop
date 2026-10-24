@@ -1,10 +1,11 @@
 import { ListBox } from '@heroui/react'
 import { motion, useReducedMotion } from 'motion/react'
-import { SlidersHorizontal, Palette, Zap, Blocks, Plug } from 'lucide-react'
+import { SlidersHorizontal, Palette, Zap, Blocks, Plug, GitBranch } from 'lucide-react'
 import { HoverScrollArea } from '../components/HoverScrollArea'
 import { useT } from '../lib/i18n'
 import { useWorkspace, type SettingsSectionId } from '../store/workspace'
 import { AppearanceSettings } from './settings/AppearanceSettings'
+import { GitSettings } from './settings/GitSettings'
 import { GeneralSettings } from './settings/GeneralSettings'
 import { ExtensionSettings } from './settings/ExtensionSettings'
 import { ConnectionSettings } from './settings/ConnectionSettings'
@@ -12,6 +13,7 @@ import { CapabilitySettings } from './settings/CapabilitySettings'
 
 const sections = [
   { id: 'general', label: 'settings.general', icon: SlidersHorizontal },
+  { id: 'git', label: 'source.gitSettings', icon: GitBranch },
   { id: 'appearance', label: 'settings.appearance', icon: Palette },
   { id: 'shortcuts', label: 'capability.shortcutSettings', icon: Zap },
   { id: 'extensions', label: 'settings.extensions', icon: Blocks },
@@ -77,6 +79,9 @@ export function SettingsPage() {
             </motion.div>
             <div hidden={section !== 'general'}>
               <GeneralSettings />
+            </div>
+            <div hidden={section !== 'git'}>
+              <GitSettings />
             </div>
             <div hidden={section !== 'appearance'}>
               <AppearanceSettings />

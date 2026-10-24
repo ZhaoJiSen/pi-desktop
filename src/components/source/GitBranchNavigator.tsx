@@ -1,16 +1,20 @@
 import { Button, SearchField, Tooltip } from '@heroui/react'
 import { ChevronDown, GitBranch, Search, X } from 'lucide-react'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
-import { useId, useRef, useState } from 'react'
+import { useId, useRef, useState, type ReactNode } from 'react'
 import { useT } from '../../lib/i18n'
 import { branchReference } from '../../lib/source/branches'
 import type { GitBranch as Branch } from '../../lib/source/types'
 import { HoverScrollArea } from '../HoverScrollArea'
 import { GitBranchActions } from './GitBranchActions'
 import { SourceNotice } from './SourceNotice'
+import { OverflowTooltip } from '../OverflowTooltip'
+import { branchKind } from '../../lib/source/historyLabels'
+import { GitNavigationSkeleton } from './GitWorkspaceSkeleton'
 
 export function GitBranchNavigator({
   branches,
+  navigationHeader,
   loading,
   error,
   selected,
@@ -20,6 +24,7 @@ export function GitBranchNavigator({
   onChanged,
 }: {
   branches: Branch[]
+  navigationHeader?: ReactNode
   loading?: boolean
   error?: string
   selected: string | null
@@ -47,7 +52,11 @@ export function GitBranchNavigator({
     toggle.current?.focus()
   }
   return (
-    <section className="git-branch-navigator" aria-labelledby={`${id}-heading`}>
+    <section
+      className="git-navigation-surface git-branch-navigator"
+      aria-labelledby={`${id}-heading`}
+    >
+      {navigationHeader}
       <div className="git-branch-navigator-toolbar">
         <h2 id={`${id}-heading`}>
           <GitBranch />
@@ -110,7 +119,7 @@ export function GitBranchNavigator({
         label={t('source.branches')}
         shadowSize={18}
       >
-        {loading && <SourceNotice kind="loading" text={t('source.loading')} />}
+        {loading && !branches.length && <GitNavigationSkeleton />}
         {error && <SourceNotice kind="error" text={error} />}
         {[false, true].map((remote) => {
           const group = String(remote)
@@ -148,8 +157,8 @@ export function GitBranchNavigator({
                         aria-pressed={selected === branchReference(item)}
                         onPress={() => onSelect(branchReference(item))}
                       >
-                        <GitBranch />
-                        <span>{item.name}</span>
+                        <GitBranch className="git-kind" data-kind={branchKind(item.name)} />
+                        <OverflowTooltip text={item.name} />
                         {item.current && (
                           <span
                             className="git-current-dot"

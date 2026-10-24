@@ -15,12 +15,54 @@
   overflow: auto;
 }
 .diff.diff-panel .source-git-diff,
-.diff.diff-panel .diff-tailwindcss-wrapper .overflow-x-auto {
+.diff.diff-panel .diff-tailwindcss-wrapper :is(.overflow-x-auto, .source-diff-vside) {
   scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+.diff.diff-panel .source-git-diff:hover,
+.diff.diff-panel .diff-tailwindcss-wrapper :is(.overflow-x-auto, .source-diff-vside):hover {
   scrollbar-color: color-mix(in srgb, var(--muted) 35%, transparent) transparent;
 }
-.diff.diff-panel .diff-tailwindcss-wrapper .overflow-x-auto::-webkit-scrollbar {
-  height: 6px;
+// Use explicit dimensions where available: standard `thin` overrides WebKit's
+// dimensions and can produce a wide system thumb on macOS.
+@supports selector(::-webkit-scrollbar) {
+  .diff.diff-panel .source-virtual-diff {
+    box-sizing: content-box;
+    padding-bottom: 8px;
+  }
+  .diff.diff-panel .source-diff-vside {
+    height: calc(100% + 8px);
+  }
+  .diff.diff-panel .source-git-diff,
+  .diff.diff-panel .diff-tailwindcss-wrapper :is(.overflow-x-auto, .source-diff-vside) {
+    scrollbar-width: auto;
+    scrollbar-color: auto;
+    &:hover {
+      scrollbar-color: auto;
+    }
+    &::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+      background: transparent;
+    }
+    &::-webkit-scrollbar-thumb {
+      border: 2px solid transparent;
+      border-radius: 8px;
+      background: transparent;
+      background-clip: padding-box;
+    }
+    &:hover::-webkit-scrollbar-thumb {
+      background-color: color-mix(in srgb, var(--muted) 35%, transparent);
+    }
+  }
+}
+@media (hover: none) {
+  .diff.diff-panel .diff-tailwindcss-wrapper :is(.overflow-x-auto, .source-diff-vside) {
+    scrollbar-color: color-mix(in srgb, var(--muted) 35%, transparent) transparent;
+    &::-webkit-scrollbar-thumb {
+      background-color: color-mix(in srgb, var(--muted) 35%, transparent);
+    }
+  }
 }
 .source-detail.is-embedded,
 .source-detail.is-embedded .diff.diff-panel,
@@ -62,6 +104,7 @@
   width: 3.2em !important;
   min-width: 3.2em !important;
   max-width: 3.2em !important;
+  // Keep the number anchor identical in split, unified and virtual diffs.
   padding-left: 8px;
   padding-right: 8px;
 }
@@ -83,10 +126,6 @@
   .diff-line-num
   :is([data-line-old-num], [data-line-new-num]) {
   width: 100%;
-}
-.diff.diff-panel .diff-tailwindcss-wrapper :is(.diff-line-old-num, .diff-line-new-num) {
-  padding-left: 4px;
-  padding-right: 4px;
 }
 .diff.diff-panel .diff-tailwindcss-wrapper .diff-line-content-item {
   padding-left: 14px;

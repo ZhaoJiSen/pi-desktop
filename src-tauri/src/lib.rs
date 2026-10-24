@@ -217,8 +217,12 @@ pub fn run() {
             source::git_log,
             source::git_branches,
             source::git_log_page,
+            source::git_log_head,
             source::git_branch_state,
             source::git_branch_action,
+            source::git_sync_state,
+            source::git_sync_action,
+            source::git_conflict_write,
             source::git_commit_files
         ])
         .build(tauri::generate_context!())

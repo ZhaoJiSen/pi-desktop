@@ -1,6 +1,8 @@
 import { Button, Dropdown, Modal } from '@heroui/react'
 import { Ellipsis, GitBranch, X } from 'lucide-react'
 import { useRef, useState } from 'react'
+import { OverflowTooltip } from '../OverflowTooltip'
+import { branchKind } from '../../lib/source/historyLabels'
 import { useT } from '../../lib/i18n'
 import { gitBranchAction, gitBranchState } from '../../lib/source/api'
 import { branchReference, type BranchAction } from '../../lib/source/branches'
@@ -100,8 +102,8 @@ export function GitBranchActions({
         >
           {trigger ? (
             <>
-              <GitBranch />
-              <span>{branch.name}</span>
+              <GitBranch className="git-kind" data-kind={branchKind(branch.name)} />
+              <OverflowTooltip text={branch.name} />
               <Ellipsis />
             </>
           ) : (

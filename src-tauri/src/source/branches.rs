@@ -5,15 +5,15 @@ use serde::{Deserialize, Serialize};
 use std::{path::Path, sync::Mutex};
 
 // Prevent two application branch operations from interleaving their preflight and mutation.
-static OPERATION: Mutex<()> = Mutex::new(());
+pub(super) static OPERATION: Mutex<()> = Mutex::new(());
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct BranchState {
-    current: Option<String>,
-    head: Option<String>,
-    operation: Option<String>,
-    dirty: bool,
+    pub(super) current: Option<String>,
+    pub(super) head: Option<String>,
+    pub(super) operation: Option<String>,
+    pub(super) dirty: bool,
 }
 
 #[derive(Debug, Deserialize)]

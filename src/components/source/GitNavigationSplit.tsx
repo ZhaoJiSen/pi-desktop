@@ -3,9 +3,11 @@ import {
   useCallback,
   useContext,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
   type ReactNode,
+  type CSSProperties,
 } from 'react'
 import { Group, Panel, Separator, useDefaultLayout } from 'react-resizable-panels'
 import type { GroupImperativeHandle, Layout, LayoutChangedMeta } from 'react-resizable-panels'
@@ -33,10 +35,12 @@ export function GitNavigationLayoutProvider({ children }: { children: ReactNode 
     },
     [saveLayout],
   )
+  const value = useMemo(
+    () => ({ layout: layout ?? defaultLayout, onLayoutChanged }),
+    [layout, defaultLayout, onLayoutChanged],
+  )
   return (
-    <NavigationLayoutContext.Provider value={{ layout: layout ?? defaultLayout, onLayoutChanged }}>
-      {children}
-    </NavigationLayoutContext.Provider>
+    <NavigationLayoutContext.Provider value={value}>{children}</NavigationLayoutContext.Provider>
   )
 }
 
@@ -53,6 +57,23 @@ export function GitNavigationSplit({
   const t = useT()
   const shared = useContext(NavigationLayoutContext)
   const group = useRef<GroupImperativeHandle | null>(null)
+  const navigationElement = useRef<HTMLDivElement | null>(null)
+  const [headingSpace, setHeadingSpace] = useState(40)
+  useLayoutEffect(() => {
+    const heading = navigationElement.current?.querySelector<HTMLElement>('.git-browser-heading')
+    if (!heading) {
+      setHeadingSpace(0)
+      return
+    }
+    const measure = () => {
+      const style = getComputedStyle(heading)
+      setHeadingSpace(heading.offsetHeight + (parseFloat(style.marginBottom) || 0))
+    }
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(heading)
+    return () => observer.disconnect()
+  }, [navigation])
   const navigationId = `${id}-navigation`
   const reviewId = `${id}-review`
   const layout = shared?.layout
@@ -74,6 +95,8 @@ export function GitNavigationSplit({
       groupRef={group}
       orientation="horizontal"
       className="git-navigation-split"
+      data-git-view={id}
+      style={{ '--git-heading-space': `${headingSpace}px` } as CSSProperties}
       defaultLayout={defaultLayout}
       onLayoutChanged={(next, meta) => {
         const requested = meta.requestedLayout ?? next
@@ -90,6 +113,7 @@ export function GitNavigationSplit({
         maxSize="50%"
         groupResizeBehavior="preserve-pixel-size"
         className="git-navigation-panel"
+        elementRef={navigationElement}
       >
         {navigation}
       </Panel>
@@ -98,7 +122,7 @@ export function GitNavigationSplit({
         aria-label={t('source.resizeNavigation')}
       />
       <Panel id={reviewId} minSize={240} className="git-review-panel">
-        {children}
+        <div className="git-review-content">{children}</div>
       </Panel>
     </Group>
   )

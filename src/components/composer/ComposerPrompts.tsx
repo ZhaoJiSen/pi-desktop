@@ -1,3 +1,4 @@
+import { OverflowTooltip } from '../OverflowTooltip'
 import { Button, Description, Header, Label, ListBox, Popover, ScrollShadow } from '@heroui/react'
 import { Shapes, Settings2, Check, ChevronRight } from 'lucide-react'
 import { useRef, useState } from 'react'
@@ -150,19 +151,23 @@ export function ComposerPrompts({
                               <div className="capability-picker-copy">
                                 <div>
                                   <Label>{item.name}</Label>
-                                  <span className="capability-picker-alias">
-                                    {search.trim() && item.target
-                                      ? capabilitySource(item, t)
-                                      : `/${item.alias}`}
-                                  </span>
+                                  <OverflowTooltip
+                                    className="capability-picker-alias"
+                                    text={
+                                      search.trim() && item.target
+                                        ? capabilitySource(item, t)
+                                        : `/${item.alias}`
+                                    }
+                                  />
                                 </div>
                                 <Description>
                                   {unavailable(item) ? unavailableReason(item) : item.description}
                                 </Description>
                                 {item.target && !search.trim() && (
-                                  <span className="capability-picker-source">
-                                    {capabilitySource(item, t)}
-                                  </span>
+                                  <OverflowTooltip
+                                    className="capability-picker-source"
+                                    text={capabilitySource(item, t)}
+                                  />
                                 )}
                               </div>
                               {selected(item) && (

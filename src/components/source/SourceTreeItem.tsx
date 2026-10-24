@@ -2,6 +2,7 @@ import { ChevronRight, LoaderCircle } from 'lucide-react'
 import { Button, TreeItem, TreeItemContent } from 'react-aria-components'
 import { useCallback, type ReactNode } from 'react'
 import { useT } from '../../lib/i18n'
+import { OverflowTooltip } from '../OverflowTooltip'
 import { FileTreeIcon } from './FileTreeIcon'
 
 export function SourceTreeItem({
@@ -87,9 +88,14 @@ export function SourceTreeItem({
             ) : (
               <FileTreeIcon name={name} kind={kind} expanded={isExpanded} />
             )}
-            <span className="source-tree-name" title={path}>
+            <OverflowTooltip
+              className="source-tree-name"
+              text={name}
+              tooltip={path}
+              data-source-path={path}
+            >
               <bdi>{name}</bdi>
-            </span>
+            </OverflowTooltip>
             <span className="source-tree-marks">
               {code && (
                 <span className="source-code" data-code={code}>

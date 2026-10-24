@@ -3,7 +3,7 @@ import { act, createElement } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { RuntimeNotice } from '../../src/components/RuntimeNotice'
-import { reportActionNotice } from '../../src/lib/notices'
+import { reportActionNotice, reportSuccessNotice } from '../../src/lib/notices'
 import { reportPackageBatchNotice } from '../../src/lib/packageBatch'
 import { useWorkspace } from '../../src/store/workspace'
 
@@ -25,6 +25,19 @@ afterEach(async () => {
 })
 
 describe('action failure toast', () => {
+  it('renders successful actions using the existing success toast and allows dismissal', async () => {
+    await act(async () => root.render(createElement(RuntimeNotice)))
+    await act(async () => reportSuccessNotice('Fetch completed'))
+    const toast = document.querySelector('.runtime-notice')
+    expect(toast?.textContent).toContain('Fetch completed')
+    expect(toast?.className).not.toContain('is-warning')
+    expect(toast?.querySelector('.runtime-notice-icon.is-success')).not.toBeNull()
+    expect(toast?.getAttribute('data-placement')).toBe('bottom end')
+    const close = toast?.querySelector<HTMLButtonElement>('button[aria-label="Close"]')
+    await act(async () => close?.click())
+    expect(document.querySelector('.runtime-notice')?.getAttribute('data-exiting')).toBe('true')
+  })
+
   it('shows the sentence and the cause without treating it as a lost connection', async () => {
     await act(async () => root.render(createElement(RuntimeNotice)))
     await act(async () => {

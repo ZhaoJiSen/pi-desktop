@@ -2,6 +2,7 @@ import { Button, SearchField } from '@heroui/react'
 import { SourceAction } from './SourceAction'
 import { ChevronLeft, Copy, GitCompare, History } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { OverflowTooltip } from '../OverflowTooltip'
 import { useT } from '../../lib/i18n'
 import { readProjectFile } from '../../lib/source/api'
 import { findLineHits } from '../../lib/source/find'
@@ -111,9 +112,7 @@ export function FileViewer({
             <ChevronLeft />
           </Button>
         )}
-        <span className="source-detail-path" title={path}>
-          {path}
-        </span>
+        <OverflowTooltip className="source-detail-path" text={path} />
         {changed && (
           <SourceAction label={t('source.showDiff')} onPress={onDiff}>
             <GitCompare />

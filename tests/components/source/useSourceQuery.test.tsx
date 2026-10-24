@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { act, createElement, useState } from 'react'
+import { Activity, act, createElement, useState } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useSourceQuery } from '../../../src/components/source/useSourceQuery'
@@ -60,6 +60,31 @@ afterEach(async () => {
 })
 
 describe('useSourceQuery', () => {
+  it.each([false, true])(
+    'reuses a request across Activity reveal (resolved before hide: %s)',
+    async (resolved) => {
+      function ActivityHost({ visible }: { visible: boolean }) {
+        return (
+          <Activity mode={visible ? 'visible' : 'hidden'}>
+            <Probe scope="activity" refresh={0} />
+          </Activity>
+        )
+      }
+      await act(async () => root.render(<ActivityHost visible />))
+      pending.length = 0
+      // Start with a fresh hook instance after the shared Host setup.
+      await act(async () => root.render(<div />))
+      await act(async () => root.render(<ActivityHost visible />))
+      expect(pending).toHaveLength(1)
+      if (resolved) await act(async () => pending[0]!('activity:0'))
+      await act(async () => root.render(<ActivityHost visible={false} />))
+      if (!resolved) await act(async () => pending[0]!('activity:0'))
+      await act(async () => root.render(<ActivityHost visible />))
+      expect(pending).toHaveLength(1)
+      expect(view().dataset).toMatchObject({ loading: 'false', value: 'activity:0' })
+    },
+  )
+
   it('keeps the previous result visible while a refresh is in flight', async () => {
     expect(view().dataset.loading).toBe('true')
     await act(async () => pending.shift()?.('file:0'))

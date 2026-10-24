@@ -1,3 +1,4 @@
+import { OverflowTooltip } from '../OverflowTooltip'
 import { Popover } from '@heroui/react'
 import type { RefObject } from 'react'
 import type { DiscoverableCommand } from '../../lib/commands'
@@ -70,7 +71,7 @@ export function SlashCommandMenu({
           >
             <span className="slash-option-copy">
               <strong>/{command.name}</strong>
-              <span>{command.description || t('commands.noDescription')}</span>
+              <OverflowTooltip text={command.description || t('commands.noDescription')} />
             </span>
             <span className="slash-option-source">
               {command.capabilityId && command.source === 'builtin'

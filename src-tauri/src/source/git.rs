@@ -224,3 +224,78 @@ pub(crate) fn cap_text(text: String, limit: usize) -> (String, bool) {
     capped.truncate(end);
     (capped, true)
 }
+
+/// Only the explicit synchronization API opts into configured remote transports.
+pub(crate) fn run_sync(root: &Path, args: &[&str], network: bool) -> Result<Captured, String> {
+    let mut command = base_command(root);
+    if network {
+        command.args(["-c", "protocol.ext.allow=never"]);
+        for protocol in ["https", "http", "ssh", "git", "file"] {
+            command.args(["-c", &format!("protocol.{protocol}.allow=always")]);
+        }
+        command.env("GIT_SSH_COMMAND", "ssh -oBatchMode=yes -oConnectTimeout=10");
+        command
+            .env("GIT_ASKPASS", "false")
+            .env("SSH_ASKPASS", "false");
+    }
+    command
+        .args(["-c", "core.editor=true", "-c", "sequence.editor=true"])
+        .args(args)
+        .env("GIT_EDITOR", "true")
+        .env("GIT_SEQUENCE_EDITOR", "true");
+    #[cfg(unix)]
+    {
+        use std::os::unix::process::CommandExt;
+        command.process_group(0);
+    }
+    let child = capture::spawn(&mut command, Stdio::null())
+        .map_err(|error| Message::GitUnavailable.detail(error))?;
+    capture::capture_timeout(child, LIMIT_SMALL, Duration::from_secs(60))
+        .map_err(|error| Message::GitRead.detail(error))
+}
+
+/// Find a revision's exact date-order position without retaining the whole history.
+pub(crate) fn revision_position(root: &Path, revision: &str) -> Result<Option<u32>, String> {
+    use std::io::{BufRead, BufReader};
+    let mut child = match spawn(
+        root,
+        &["rev-list", "--date-order", "--all", revision, "--"],
+        Stdio::null(),
+    ) {
+        Ok(child) => child,
+        Err(Start::Missing) => return Err(Message::GitUnavailable.text()),
+        Err(Start::Error(message)) => return Err(message),
+    };
+    let stdout = child.stdout.take().ok_or_else(|| Message::GitRead.text())?;
+    let stderr = child.stderr.take();
+    let errors = thread::spawn(move || capture::drain(stderr, 16 * 1024));
+    let mut reader = BufReader::new(stdout);
+    let mut line = String::new();
+    let mut index = 0_u32;
+    let result = loop {
+        line.clear();
+        match reader.read_line(&mut line) {
+            Ok(0) => break Ok(None),
+            Ok(_) if line.trim() == revision => break Ok(Some(index)),
+            Ok(_) => match index.checked_add(1) {
+                Some(next) => index = next,
+                None => break Err(Message::GitRead.text()),
+            },
+            Err(error) => break Err(Message::GitRead.detail(error)),
+        }
+    };
+    let found = matches!(result, Ok(Some(_)));
+    // Stop as soon as HEAD is found; no need to walk its older ancestors.
+    if found || result.is_err() {
+        let _ = child.kill();
+    }
+    drop(reader);
+    let status = child
+        .wait()
+        .map_err(|error| Message::GitRead.detail(error))?;
+    let stderr = errors.join().unwrap_or_default();
+    if !found && !status.success() && result.is_ok() {
+        return Err(Message::GitRead.detail(String::from_utf8_lossy(&stderr).trim()));
+    }
+    result
+}

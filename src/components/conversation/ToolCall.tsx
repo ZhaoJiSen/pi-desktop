@@ -1,3 +1,4 @@
+import { OverflowTooltip } from '../OverflowTooltip'
 import { Spinner } from '@heroui/react'
 import { CircleCheck, CircleX, CirclePause } from 'lucide-react'
 import { memo, useState } from 'react'
@@ -80,9 +81,7 @@ export const Tool = memo(function Tool({
           <TextShimmer className="verb" active={tool.status === 'running'}>
             {t(toolVerb(tool))}
           </TextShimmer>
-          <span className="filename" title={tool.label}>
-            {tool.label}
-          </span>
+          <OverflowTooltip className="filename" text={tool.label} />
         </>
       }
       action={<OpenSourceButton tool={tool} />}

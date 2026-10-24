@@ -1,3 +1,4 @@
+import { OverflowTooltip } from './OverflowTooltip'
 import { Tooltip } from '@heroui/react'
 import { ChevronRight } from 'lucide-react'
 import type { ReactNode } from 'react'
@@ -43,7 +44,7 @@ export function SidebarOption({
         </Tooltip>
         {(subtitle || badge) && (
           <span className="sidebar-option-meta">
-            {subtitle && <small>{subtitle}</small>}
+            {subtitle && <OverflowTooltip as="small" text={subtitle} />}
             {badge}
           </span>
         )}

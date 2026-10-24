@@ -140,3 +140,42 @@
   width: auto;
   padding: 0;
 }
+
+.settings-git-select {
+  flex: none;
+  width: 210px;
+  max-width: 100%;
+}
+
+.settings-git-repositories {
+  width: min(360px, calc(100vw - 32px));
+}
+.settings-git-repository-option {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  gap: 3px;
+}
+.settings-git-repository-option small {
+  color: var(--muted);
+  font-size: 12px;
+}
+.settings-git-feedback {
+  margin: 4px 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+.settings-git-feedback.is-error {
+  color: var(--danger, #cf6679);
+}
+@container (max-width: 540px) {
+  .settings-git-rows .settings-row {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .settings-git-select {
+    width: 100%;
+  }
+}

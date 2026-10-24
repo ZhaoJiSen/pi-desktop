@@ -1,6 +1,6 @@
 //! Create a local branch and commit the listed paths. Nothing here talks to a remote.
 
-use super::{git, paths};
+use super::{branches, git, paths};
 use crate::i18n::Message;
 use std::path::Path;
 
@@ -24,9 +24,18 @@ pub(crate) fn commit_branch(
     message: &str,
     relatives: &[String],
 ) -> Result<(), String> {
+    let _guard = branches::OPERATION
+        .lock()
+        .map_err(|_| Message::GitOperationPending.text())?;
+    if branches::state(root)?.operation.is_some() {
+        return Err(Message::GitOperationPending.text());
+    }
     let branch = branch.trim();
     let message = message.trim();
-    if !valid_branch(branch) || message.is_empty() || message.len() > 2_000 || message.contains('\0')
+    if !valid_branch(branch)
+        || message.is_empty()
+        || message.len() > 2_000
+        || message.contains('\0')
     {
         return Err(Message::GitRead.text());
     }
@@ -58,11 +67,14 @@ pub(crate) fn commit_branch(
     if !added.success {
         return Err(Message::GitRead.detail(String::from_utf8_lossy(&added.stderr).trim()));
     }
-    let committed = git::run_stdin(root, &["commit", "-F", "-"], message.as_bytes(), git::LIMIT_SMALL)?;
+    let committed = git::run_stdin(
+        root,
+        &["commit", "-F", "-"],
+        message.as_bytes(),
+        git::LIMIT_SMALL,
+    )?;
     if !committed.success {
-        return Err(Message::GitRead.detail(
-            String::from_utf8_lossy(&committed.stderr).trim(),
-        ));
+        return Err(Message::GitRead.detail(String::from_utf8_lossy(&committed.stderr).trim()));
     }
     Ok(())
 }

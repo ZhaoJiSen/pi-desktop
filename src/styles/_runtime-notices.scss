@@ -53,7 +53,10 @@ body:has(.app-shell.browser) {
 }
 .toast-region.runtime-notice-region {
   position: fixed;
-  top: calc(var(--header-height) + 12px + var(--runtime-frame-inset, 0px));
+  top: auto;
+  bottom: calc(
+    var(--body-inset) + var(--runtime-frame-inset, 0px) + env(safe-area-inset-bottom, 0px)
+  );
   inset-inline-end: calc(var(--body-inset) + var(--runtime-frame-inset, 0px));
   inset-inline-start: auto;
   z-index: 30;

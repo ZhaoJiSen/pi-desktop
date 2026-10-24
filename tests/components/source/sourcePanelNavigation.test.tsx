@@ -119,7 +119,8 @@ const node = (selector: string) => container.querySelector<HTMLElement>(selector
 const currentDiff = () => active().querySelector<HTMLElement>('.test-diff')!
 function row(path: string) {
   return [...active().querySelectorAll<HTMLElement>('.source-tree-item')].find(
-    (element) => element.querySelector('.source-tree-name')?.getAttribute('title') === path,
+    (element) =>
+      element.querySelector('.source-tree-name')?.getAttribute('data-source-path') === path,
   )!
 }
 async function click(selector: string | HTMLElement) {

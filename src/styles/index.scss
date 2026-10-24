@@ -1,6 +1,7 @@
 // Load each module once; this order preserves the existing CSS cascade.
 @use 'themes';
 @use 'base';
+@use 'overflow-tooltip';
 @use 'resizable';
 @use 'sidebar-layout';
 @use 'startup';

@@ -42,6 +42,7 @@ import {
 
 export type SettingsSectionId =
   | 'general'
+  | 'git'
   | 'appearance'
   | 'notifications'
   | 'shortcuts'

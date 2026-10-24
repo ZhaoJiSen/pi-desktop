@@ -1,10 +1,11 @@
 // @vitest-environment happy-dom
-import { act } from 'react'
+import { Activity, act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { GitHistoryWorkspace } from '../../../src/components/source/GitHistoryWorkspace'
 import { GitBranchActions } from '../../../src/components/source/GitBranchActions'
 import { ChangesPane } from '../../../src/components/source/ChangesView'
+import { GitPage } from '../../../src/pages/GitPage'
 import { SourceProvider, useSource } from '../../../src/components/source/context'
 import { ProjectSourceContext } from '../../../src/components/source/useProjectSource'
 import { navigateToPage } from '../../../src/router/navigation'
@@ -50,30 +51,50 @@ vi.mock('motion/react', async () => {
 
 // Test application selection and requests independently of browser measurements.
 // The actual virtualizer, keyboard separator and persistence are checked in the browser.
-vi.mock('@tanstack/react-virtual', () => ({
-  useVirtualizer: ({
-    count,
-    estimateSize,
-  }: {
-    count: number
-    estimateSize: (index: number) => number
-  }) => ({
-    getVirtualItems: () =>
-      Array.from({ length: count }, (_, index) => ({
-        index,
-        start: index * estimateSize(index),
-        size: estimateSize(index),
-      })),
-    getTotalSize: () => (count ? count * estimateSize(0) : 0),
-    scrollToIndex: vi.fn(),
-    measureElement: vi.fn(),
-    getVirtualItemForOffset: () => ({ index: 0 }),
-    scrollOffset: 0,
-  }),
-}))
+const historyScrollToIndex = vi.hoisted(() => vi.fn())
+vi.mock('@tanstack/react-virtual', async () => {
+  const { useRef } = await import('react')
+  return {
+    useVirtualizer: (options: { count: number; estimateSize: (index: number) => number }) => {
+      const latest = useRef(options)
+      latest.current = options
+      // The real hook returns one stable instance while its options change.
+      const instance = useRef({
+        getVirtualItems: () =>
+          Array.from({ length: latest.current.count }, (_, index) => ({
+            index,
+            start: index * latest.current.estimateSize(index),
+            size: latest.current.estimateSize(index),
+          })),
+        getTotalSize: () => latest.current.count * latest.current.estimateSize(0),
+        scrollToIndex: (...args: unknown[]) => {
+          if (latest.current.estimateSize(0) === 34) historyScrollToIndex(...args)
+        },
+        measureElement: vi.fn(),
+        getVirtualItemForOffset: () => ({ index: 0 }),
+        scrollOffset: 0,
+      })
+      return instance.current
+    },
+  }
+})
 vi.mock('react-resizable-panels', () => ({
-  Group: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  Panel: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  Group: ({ children, className }: { children: React.ReactNode; className?: string }) => (
+    <div className={className}>{children}</div>
+  ),
+  Panel: ({
+    children,
+    className,
+    id,
+  }: {
+    children: React.ReactNode
+    className?: string
+    id?: string
+  }) => (
+    <div className={className} data-panel-id={id}>
+      {children}
+    </div>
+  ),
   Separator: () => <div />,
   useDefaultLayout: () => ({}),
 }))
@@ -132,6 +153,12 @@ beforeEach(() => {
   container = document.createElement('div')
   document.body.append(container)
   root = createRoot(container)
+  vi.spyOn(api, 'gitBranchState').mockResolvedValue({
+    current: 'main',
+    head: 'aaaa1111',
+    operation: null,
+    dirty: false,
+  })
   vi.spyOn(api, 'gitBranches').mockResolvedValue([
     { name: 'main', tip: 'aaaa1111', current: true, remote: false },
     { name: 'feature', tip: 'bbbb2222', current: false, remote: false },
@@ -164,6 +191,363 @@ const history = (path: string | null = null) => (
   />
 )
 describe('Git workspace', () => {
+  it('clears a search that excludes HEAD when locating the current commit', async () => {
+    vi.mocked(api.gitLogPage).mockResolvedValue({
+      available: true,
+      repo: true,
+      commits,
+      hasMore: false,
+    })
+    vi.spyOn(api, 'gitLogHead').mockResolvedValue({
+      head: commits[0]!.hash,
+      offset: 0,
+      page: { available: true, repo: true, commits, hasMore: false },
+    })
+    await mount(history())
+    await click(container.querySelector('[aria-label="Filter commits"]'))
+    const input = container.querySelector<HTMLInputElement>('.git-log-search input')!
+    await fill(input, 'Second')
+    expect(container.querySelector('.git-log-row[data-current="true"]')).toBeNull()
+    await click(container.querySelector('[aria-label="Locate current commit (HEAD)"]'))
+    expect(container.querySelector('.git-log-search input')).toBeNull()
+    expect(
+      container.querySelector('.git-log-row[data-current="true"]')?.getAttribute('aria-selected'),
+    ).toBe('true')
+  })
+
+  it('marks HEAD independently of selection and can return to it without reloading an existing page', async () => {
+    vi.mocked(api.gitLogPage).mockResolvedValue({
+      available: true,
+      repo: true,
+      commits,
+      hasMore: false,
+    })
+    await mount(history())
+    expect(container.querySelector('.git-log-row[data-current="true"]')?.textContent).toContain(
+      'First change',
+    )
+    await click(container.querySelectorAll('.git-log-row')[1])
+    expect(
+      container.querySelector('.git-log-row[data-current="true"]')?.getAttribute('aria-selected'),
+    ).toBe('false')
+    const requests = vi.mocked(api.gitLogPage).mock.calls.length
+    await click(container.querySelector('[aria-label="Locate current commit (HEAD)"]'))
+    expect(
+      container.querySelector('.git-log-row[data-current="true"]')?.getAttribute('aria-selected'),
+    ).toBe('true')
+    expect(api.gitLogPage).toHaveBeenCalledTimes(requests)
+    expect(historyScrollToIndex).toHaveBeenLastCalledWith(0, { align: 'center' })
+  })
+  it('seeks HEAD beyond the first page, loads older commits at the correct offset and returns to latest', async () => {
+    const head = { ...commits[1]!, hash: 'cccc3333', refs: 'HEAD -> main' }
+    vi.mocked(api.gitBranchState).mockResolvedValue({
+      current: 'main',
+      head: head.hash,
+      operation: null,
+      dirty: false,
+    })
+    const lookup = vi.spyOn(api, 'gitLogHead').mockResolvedValue({
+      head: head.hash,
+      offset: 200,
+      page: { available: true, repo: true, commits: [head], hasMore: true },
+    })
+    await mount(history())
+    expect(container.querySelector('.git-log-row[data-current="true"]')).toBeNull()
+    await click(container.querySelector('[aria-label="Locate current commit (HEAD)"]'))
+    expect(lookup).toHaveBeenCalledExactlyOnceWith('/project')
+    expect(
+      container.querySelector('.git-log-row[data-current="true"]')?.getAttribute('aria-selected'),
+    ).toBe('true')
+    expect(container.textContent).toContain('Commits 201–201')
+    expect(historyScrollToIndex).toHaveBeenLastCalledWith(0, { align: 'center' })
+    await click(button('Load more'))
+    expect(api.gitLogPage).toHaveBeenLastCalledWith('/project', null, null, 201)
+    await click(button('Back to latest'))
+    expect(container.querySelector('.git-log-row')?.textContent).toContain('First change')
+    expect(container.textContent).not.toContain('Commits 201–201')
+  })
+  it('keeps the existing history in place when HEAD lookup fails', async () => {
+    vi.mocked(api.gitBranchState).mockResolvedValue({
+      current: 'main',
+      head: 'cccc3333',
+      operation: null,
+      dirty: false,
+    })
+    vi.spyOn(api, 'gitLogHead').mockRejectedValue(new Error('Repository changed; retry'))
+    await mount(history())
+    await click(container.querySelector('[aria-label="Locate current commit (HEAD)"]'))
+    expect(container.querySelector('.git-log-row')?.textContent).toContain('First change')
+    expect(container.querySelector('.git-log-page-error')?.textContent).toContain(
+      'Repository changed; retry',
+    )
+  })
+
+  it('keeps loaded commits and the selected row when only remote refs refresh', async () => {
+    const page = (remoteTick: number) => (
+      <GitHistoryWorkspace
+        navigation={null}
+        projectPath="/project"
+        tick={0}
+        remoteTick={remoteTick}
+        historyPath={null}
+      />
+    )
+    await mount(page(0))
+    await click(button('Load more'))
+    await vi.waitFor(() => expect(container.querySelectorAll('.git-log-row')).toHaveLength(2))
+    await click(container.querySelectorAll('.git-log-row')[1])
+    const calls = vi.mocked(api.gitLogPage).mock.calls.length
+    await mount(page(1))
+    expect(container.querySelectorAll('.git-log-row')).toHaveLength(2)
+    expect(container.querySelector('.git-log-row[aria-selected="true"]')?.textContent).toContain(
+      'Second change',
+    )
+    expect(api.gitLogPage).toHaveBeenCalledTimes(calls)
+  })
+
+  it('keeps the Changes count in History and refreshes both views from one status request', async () => {
+    const previous = useWorkspace.getState().projects
+    useWorkspace.setState({
+      projects: [
+        { id: 'project', name: 'Project', path: '/project', branch: 'main', collapsed: false },
+      ],
+    })
+    let syncHead = 'aaaa1111'
+    vi.spyOn(api, 'gitSyncState').mockImplementation(async () => ({
+      branch: { current: 'main', head: syncHead, operation: null, dirty: false },
+      remote: 'origin',
+      upstream: 'origin/main',
+      ahead: 0,
+      behind: 1,
+      lastFetch: null,
+      conflicts: [],
+    }))
+    vi.spyOn(api, 'gitSyncAction').mockImplementation(async () => {
+      syncHead = 'bbbb2222'
+    })
+    const status = vi.spyOn(api, 'gitStatus').mockResolvedValue({
+      available: true,
+      repo: true,
+      branch: 'main',
+      truncated: false,
+      files: [{ path: 'a.ts', code: 'M', staged: false, unstaged: true }],
+    })
+    try {
+      await mount(
+        <SourceProvider>
+          <GitPage />
+        </SourceProvider>,
+      )
+      await vi.waitFor(() =>
+        expect(container.querySelector('.git-nav-count')?.textContent).toBe('1'),
+      )
+      expect(status).toHaveBeenCalledTimes(1)
+      expect(
+        container.querySelector('.git-workspace-header .git-repository-context'),
+      ).not.toBeNull()
+      expect(container.querySelector('.git-file-navigation-surface > .git-view-nav')).not.toBeNull()
+      await click(button('History'))
+      await vi.waitFor(() => expect(container.querySelector('.git-history-main')).not.toBeNull())
+      const historyNav = container.querySelector('.git-history-navigation .git-nav-count')
+      expect(historyNav?.textContent).toBe('1')
+      expect(container.querySelector('.git-branch-navigator > .git-view-nav')).not.toBeNull()
+      expect(status).toHaveBeenCalledTimes(1)
+      status.mockResolvedValue({
+        available: true,
+        repo: true,
+        branch: 'main',
+        truncated: false,
+        files: [],
+      })
+      expect(
+        container.querySelector('.git-workspace-header button[aria-label="Refresh"]'),
+      ).toBeNull()
+      await click(button('Pull'))
+      const confirm = [...document.querySelectorAll('[role="dialog"] button')].find(
+        (button) => button.textContent === 'Pull',
+      )
+      await click(confirm)
+      await vi.waitFor(() =>
+        expect(container.querySelector('.git-history-navigation .git-nav-count')?.textContent).toBe(
+          '0',
+        ),
+      )
+      expect(status).toHaveBeenCalledTimes(2)
+    } finally {
+      useWorkspace.setState({ projects: previous })
+    }
+  })
+  it('filters typed commits, combines text search and restores all types', async () => {
+    vi.mocked(api.gitLogPage).mockResolvedValue({
+      available: true,
+      repo: true,
+      hasMore: false,
+      commits: [
+        { ...commits[0]!, subject: 'feat : account import' },
+        { ...commits[1]!, subject: 'fix(api): retain account state' },
+        { ...commits[1]!, hash: 'cccc3333', subject: 'Merge account changes' },
+      ],
+    })
+    await mount(history())
+    await click(container.querySelector('button[aria-label="Commit type: All types"]'))
+    await click(document.querySelector('[role="menuitemradio"][data-key="feat"]'))
+    expect(container.querySelectorAll('.git-log-row')).toHaveLength(1)
+    expect(container.querySelector('.git-subject-kind')?.textContent).toBe('feat')
+    await click(container.querySelector('button[aria-label="Filter commits"]'))
+    await fill(container.querySelector<HTMLInputElement>('.git-log-search input')!, 'no matches')
+    expect(container.querySelectorAll('.git-log-row')).toHaveLength(0)
+    await fill(container.querySelector<HTMLInputElement>('.git-log-search input')!, '')
+    await click(container.querySelector('button[aria-label="Commit type: feat"]'))
+    await click(document.querySelector('[role="menuitemradio"][data-key="branch"]'))
+    expect(container.querySelectorAll('.git-log-row')).toHaveLength(1)
+    expect(container.querySelector('.git-log-row')?.textContent).toContain('Merge account changes')
+    await click(container.querySelector('button[aria-label="Commit type: Other"]'))
+    await click(document.querySelector('[role="menuitemradio"][data-key="all"]'))
+    expect(container.querySelectorAll('.git-log-row')).toHaveLength(3)
+    expect(api.gitLogPage).toHaveBeenCalledTimes(1)
+  })
+  it('copies the full hash without selecting its row and reports clipboard failure', async () => {
+    vi.mocked(api.gitLogPage).mockResolvedValue({
+      available: true,
+      repo: true,
+      hasMore: false,
+      commits,
+    })
+    const write = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue()
+    await mount(history())
+    const selected = container.querySelector('.git-log-row[aria-selected="true"]')
+    const hash = container.querySelectorAll<HTMLButtonElement>('.git-log-hash')[1]!
+    await click(hash)
+    expect(write).toHaveBeenCalledWith('bbbb2222')
+    expect(hash.getAttribute('aria-label')).toBe('Copied')
+    expect(container.querySelector('.git-log-row[aria-selected="true"]')).toBe(selected)
+    write.mockRejectedValueOnce(new Error('Clipboard unavailable'))
+    await click(hash)
+    expect(hash.getAttribute('aria-label')).toBe('Could not copy')
+    expect(container.querySelector('.git-log-row[aria-selected="true"]')).toBe(selected)
+    expect(api.gitCommitFiles).toHaveBeenCalledTimes(1)
+    await act(async () =>
+      selected!.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true })),
+    )
+    expect(container.querySelector('.git-log-row[aria-selected="true"]')?.textContent).toContain(
+      'Second change',
+    )
+  })
+  it('puts History filters before expanded search and keeps the log inside the shadow viewport', async () => {
+    await mount(history())
+    expect(container.querySelector('.git-log-search input')).toBeNull()
+    await click(container.querySelector('button[aria-label="Filter commits"]'))
+    expect(
+      container
+        .querySelector('.git-log-toolbar')
+        ?.lastElementChild?.classList.contains('git-log-search-reveal'),
+    ).toBe(true)
+    expect(
+      container.querySelector(
+        '.git-log-scroll .hover-scroll-viewport .git-log-rows [role="option"]',
+      ),
+    ).not.toBeNull()
+  })
+  it('hides and restores History panels while keeping the selected commit', async () => {
+    await mount(history())
+    const selectedRevision = container.querySelector('.test-diff')?.getAttribute('data-revision')
+    await click(
+      container.querySelector('.git-commit-column button[aria-label="Hide changed files"]'),
+    )
+    expect(container.querySelector('.git-commit-column')).toBeNull()
+    await vi.waitFor(() =>
+      expect(document.activeElement).toBe(
+        container.querySelector('.git-log-view-actions button[aria-label="Show changed files"]'),
+      ),
+    )
+    await click(
+      container.querySelector('.git-log-view-actions button[aria-label="Show changed files"]'),
+    )
+    expect(container.querySelector('.git-commit-column')).not.toBeNull()
+    await click(container.querySelector('.git-diff-heading button[aria-label="Hide diff"]'))
+    expect(container.querySelector('.git-log-bottom')).toBeNull()
+    await vi.waitFor(() =>
+      expect(document.activeElement).toBe(
+        container.querySelector('.git-log-view-actions button[aria-label="Show diff"]'),
+      ),
+    )
+    await click(container.querySelector('.git-log-view-actions button[aria-label="Show diff"]'))
+    expect(container.querySelector('.test-diff')?.getAttribute('data-revision')).toBe(
+      selectedRevision,
+    )
+  })
+  it('reveals both History searches and clears them on Escape with focus restored', async () => {
+    await mount(history())
+    const logSearch = container.querySelector<HTMLButtonElement>(
+      '.git-log-view-actions button[aria-label="Filter commits"]',
+    )!
+    await click(logSearch)
+    const input = container.querySelector<HTMLInputElement>('.git-log-search input')!
+    await fill(input, 'no-commit-matches')
+    expect(container.querySelectorAll('.git-log-row')).toHaveLength(0)
+    await act(async () =>
+      input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })),
+    )
+    expect(container.querySelector('.git-log-search input')).toBeNull()
+    expect(container.querySelectorAll('.git-log-row')).toHaveLength(1)
+    expect(document.activeElement).toBe(logSearch)
+    const fileSearch = container.querySelector<HTMLButtonElement>(
+      '.git-commit-column button[aria-label="Find file or path…"]',
+    )!
+    await click(fileSearch)
+    const fileInput = container.querySelector<HTMLInputElement>('.git-commit-column input')!
+    await fill(fileInput, 'no-file-matches')
+    expect(container.querySelector('.git-commit-column .git-file-option')).toBeNull()
+    await act(async () =>
+      fileInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })),
+    )
+    expect(container.querySelector('.git-commit-column input')).toBeNull()
+    expect(container.querySelector('.git-commit-column .git-file-option')).not.toBeNull()
+    expect(document.activeElement).toBe(fileSearch)
+  })
+  it('keeps navigation available while the Changes skeleton waits for status', async () => {
+    let resolve!: (value: Awaited<ReturnType<typeof api.gitStatus>>) => void
+    vi.spyOn(api, 'gitStatus').mockImplementation(
+      () =>
+        new Promise((done) => {
+          resolve = done
+        }),
+    )
+    await mount(
+      <ProjectSourceContext.Provider value={{ path: '/project', name: 'Project' }}>
+        <ChangesPane
+          workspace
+          tick={0}
+          requestNonce={0}
+          initialPath={null}
+          fallbackLabel=""
+          navigation={() => <nav>Git views</nav>}
+        />
+      </ProjectSourceContext.Provider>,
+    )
+    expect(container.querySelector('nav')?.textContent).toBe('Git views')
+    expect(container.querySelector('.git-review-skeleton')).not.toBeNull()
+    expect(container.querySelectorAll('.skeleton').length).toBeGreaterThan(10)
+    await act(async () =>
+      resolve({ available: true, repo: true, branch: 'main', truncated: false, files: [] }),
+    )
+    expect(container.querySelector('.git-review-skeleton')).toBeNull()
+    expect(container.textContent).toContain('Working tree is clean')
+  })
+  it('replaces the History skeleton with an error instead of leaving a permanent loading state', async () => {
+    let reject!: (reason: Error) => void
+    vi.mocked(api.gitLogPage).mockImplementation(
+      () =>
+        new Promise((_, fail) => {
+          reject = fail
+        }),
+    )
+    await mount(history())
+    expect(container.querySelector('.git-review-skeleton[data-view="history"]')).not.toBeNull()
+    await act(async () => reject(new Error('Repository unavailable')))
+    expect(container.querySelector('.git-review-skeleton')).toBeNull()
+    expect(container.textContent).toContain('Repository unavailable')
+  })
   it('uses the same directory-first order for the file tree, initial selection and continuous diffs', async () => {
     const paths = ['src/App.vue', 'src/settings.js', 'src/store/modules/table.js']
     vi.spyOn(api, 'gitStatus').mockResolvedValue({
@@ -180,7 +564,7 @@ describe('Git workspace', () => {
     )
     const expected = ['src/store/modules/table.js', 'src/App.vue', 'src/settings.js']
     const treePaths = [...container.querySelectorAll('.source-tree-name')]
-      .map((item) => item.getAttribute('title'))
+      .map((item) => item.getAttribute('data-source-path'))
       .filter((path) => paths.includes(path!))
     expect(treePaths).toEqual(expected)
     expect(
@@ -191,7 +575,7 @@ describe('Git workspace', () => {
     expect(
       container
         .querySelector('.source-tree-item.is-current .source-tree-name')
-        ?.getAttribute('title'),
+        ?.getAttribute('data-source-path'),
     ).toBe(expected[0])
   })
   it('opens the exposed discard action confirmation without mutating on selection', async () => {
@@ -234,7 +618,7 @@ describe('Git workspace', () => {
         <ChangesPane workspace tick={0} requestNonce={0} initialPath={null} fallbackLabel="" />
       </ProjectSourceContext.Provider>,
     )
-    await click(container.querySelector('.source-tree-name[title="src/b.ts"]'))
+    await click(container.querySelector('.source-tree-name[data-source-path="src/b.ts"]'))
     expect(
       [...container.querySelectorAll('.test-diff')].map((item) => item.getAttribute('data-path')),
     ).toEqual(['src/a.ts', 'src/b.ts', 'src/c.ts'])
@@ -266,7 +650,7 @@ describe('Git workspace', () => {
       true,
     )
     expect(toggle('src/a.ts').getAttribute('aria-expanded')).toBe('true')
-    await click(container.querySelector('.source-tree-name[title="src/b.ts"]'))
+    await click(container.querySelector('.source-tree-name[data-source-path="src/b.ts"]'))
     expect(toggle('src/b.ts').getAttribute('aria-expanded')).toBe('true')
     expect(document.getElementById(toggle('src/b.ts').getAttribute('aria-controls')!)?.hidden).toBe(
       false,
@@ -327,7 +711,10 @@ describe('Git workspace', () => {
       input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })),
     )
     expect(container.querySelector('button[aria-expanded="false"]')).not.toBeNull()
-    expect(container.querySelector('.git-result-count')?.textContent).toBe('2 of 2 files')
+    expect(container.querySelector('.git-file-filters .git-navigation-result')?.textContent).toBe(
+      '2 / 2',
+    )
+    expect(container.querySelector('.git-navigator-footer .git-result-count')).toBeNull()
     expect(document.activeElement).toBe(container.querySelector('button[aria-expanded="false"]'))
   })
   it('remembers the Changes file view across remounts without changing History defaults', async () => {
@@ -402,7 +789,9 @@ describe('Git workspace', () => {
   })
   it('loads the next page and selects a commit without losing previous rows', async () => {
     await mount(history())
+    historyScrollToIndex.mockClear()
     await click(button('Load more'))
+    expect(historyScrollToIndex).not.toHaveBeenCalled()
     expect(api.gitLogPage).toHaveBeenLastCalledWith('/project', null, null, 1)
     expect(container.querySelectorAll('.git-log-row')).toHaveLength(2)
     await click(
@@ -412,6 +801,133 @@ describe('Git workspace', () => {
     )
     expect(container.querySelector('.test-diff')?.getAttribute('data-path')).toBe('src/b.ts')
     expect(button('Load more')).toBeUndefined()
+  })
+  it('loads near the bottom once, retains rows, and stops when history ends', async () => {
+    let resolve!: (value: Awaited<ReturnType<typeof api.gitLogPage>>) => void
+    vi.mocked(api.gitLogPage)
+      .mockImplementationOnce(async () => ({
+        available: true,
+        repo: true,
+        commits: [commits[0]!],
+        hasMore: true,
+      }))
+      .mockImplementationOnce(
+        () =>
+          new Promise((done) => {
+            resolve = done
+          }),
+      )
+    await mount(history())
+    const pane = container.querySelector<HTMLElement>('.git-log-viewport')!
+    Object.defineProperties(pane, {
+      clientHeight: { configurable: true, value: 100 },
+      scrollHeight: { configurable: true, value: 1000 },
+      scrollTop: { configurable: true, writable: true, value: 850 },
+    })
+    await act(async () => {
+      pane.dispatchEvent(new Event('scroll'))
+      pane.dispatchEvent(new Event('scroll'))
+      pane.dispatchEvent(new Event('scroll'))
+    })
+    expect(api.gitLogPage).toHaveBeenCalledTimes(2)
+    expect(api.gitLogPage).toHaveBeenLastCalledWith('/project', null, null, 1)
+    await act(async () =>
+      resolve({ available: true, repo: true, commits: [commits[1]!], hasMore: false }),
+    )
+    expect(container.querySelectorAll('.git-log-row')).toHaveLength(2)
+    expect(container.querySelector('.git-log-count')?.textContent).toBe('Commits loaded: 2')
+    expect(container.querySelector('.git-log-status')?.textContent).toContain('All commits loaded')
+    await act(async () => pane.dispatchEvent(new Event('scroll')))
+    expect(api.gitLogPage).toHaveBeenCalledTimes(2)
+  })
+  it('keeps a completed page when Activity hides the log during loading', async () => {
+    let resolve!: (value: Awaited<ReturnType<typeof api.gitLogPage>>) => void
+    vi.mocked(api.gitLogPage)
+      .mockImplementationOnce(async () => ({
+        available: true,
+        repo: true,
+        commits: [commits[0]!],
+        hasMore: true,
+      }))
+      .mockImplementationOnce(
+        () =>
+          new Promise((done) => {
+            resolve = done
+          }),
+      )
+    const screen = (visible: boolean) => (
+      <Activity mode={visible ? 'visible' : 'hidden'}>{history()}</Activity>
+    )
+    await mount(screen(true))
+    await click(button('Load more'))
+    await mount(screen(false))
+    await act(async () =>
+      resolve({ available: true, repo: true, commits: [commits[1]!], hasMore: false }),
+    )
+    await mount(screen(true))
+    expect(container.querySelectorAll('.git-log-row')).toHaveLength(2)
+    expect(container.querySelector('.git-log-status')?.textContent).toContain('All commits loaded')
+    expect(api.gitLogPage).toHaveBeenCalledTimes(2)
+  })
+  it('pauses automatic loading on errors and retries the same page explicitly', async () => {
+    vi.mocked(api.gitLogPage)
+      .mockImplementationOnce(async () => ({
+        available: true,
+        repo: true,
+        commits: [commits[0]!],
+        hasMore: true,
+      }))
+      .mockRejectedValueOnce(new Error('Network busy'))
+    await mount(history())
+    const pane = container.querySelector<HTMLElement>('.git-log-viewport')!
+    Object.defineProperties(pane, {
+      clientHeight: { configurable: true, value: 100 },
+      scrollHeight: { configurable: true, value: 1000 },
+      scrollTop: { configurable: true, value: 850 },
+    })
+    await act(async () => pane.dispatchEvent(new Event('scroll')))
+    expect(container.querySelector('.git-log-page-error')?.textContent).toBe('Network busy')
+    await act(async () => pane.dispatchEvent(new Event('scroll')))
+    expect(api.gitLogPage).toHaveBeenCalledTimes(2)
+    await click(button('Retry loading'))
+    expect(api.gitLogPage).toHaveBeenLastCalledWith('/project', null, null, 1)
+    expect(container.querySelectorAll('.git-log-row')).toHaveLength(2)
+    expect(container.querySelector('.git-log-page-error')).toBeNull()
+  })
+  it('advances the raw page cursor when overlapping commits are deduplicated', async () => {
+    const third = { ...commits[1]!, hash: 'cccc3333', subject: 'Third change' }
+    vi.mocked(api.gitLogPage)
+      .mockResolvedValueOnce({ available: true, repo: true, commits: [commits[0]!], hasMore: true })
+      .mockResolvedValueOnce({
+        available: true,
+        repo: true,
+        commits: [commits[0]!, commits[1]!],
+        hasMore: true,
+      })
+      .mockResolvedValueOnce({ available: true, repo: true, commits: [third], hasMore: false })
+    await mount(history())
+    await click(button('Load more'))
+    expect(container.querySelectorAll('.git-log-row')).toHaveLength(2)
+    await click(button('Load more'))
+    expect(api.gitLogPage).toHaveBeenLastCalledWith('/project', null, null, 3)
+    expect(container.querySelectorAll('.git-log-row')).toHaveLength(3)
+  })
+  it('does not automatically scan more pages to fill an active filter', async () => {
+    await mount(history())
+    await click(container.querySelector('button[aria-label="Filter commits"]'))
+    await fill(container.querySelector<HTMLInputElement>('.git-log-search input')!, 'no-match')
+    const pane = container.querySelector<HTMLElement>('.git-log-viewport')!
+    Object.defineProperties(pane, {
+      clientHeight: { configurable: true, value: 100 },
+      scrollHeight: { configurable: true, value: 1000 },
+      scrollTop: { configurable: true, value: 850 },
+    })
+    await act(async () => pane.dispatchEvent(new Event('scroll')))
+    expect(api.gitLogPage).toHaveBeenCalledTimes(1)
+    expect(button('Load more')).toBeDefined()
+    expect(container.querySelector('.git-log-count')?.textContent).toBe(
+      'Commits loaded: 1·Matches: 0',
+    )
   })
   it('passes a file-history scope through the log API and can clear it', async () => {
     await mount(history('src/a.ts'))
@@ -474,6 +990,7 @@ describe('Git workspace', () => {
   it('searches loaded commit hashes without stale file details', async () => {
     await mount(history())
     await click(button('Load more'))
+    await click(container.querySelector('button[aria-label="Filter commits"]'))
     const input = container.querySelector<HTMLInputElement>('input[aria-label="Filter commits"]')!
     await fill(input, 'bbbb2222')
     expect(container.querySelectorAll('.git-log-row')).toHaveLength(1)

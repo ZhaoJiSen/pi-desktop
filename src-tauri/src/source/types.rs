@@ -126,3 +126,11 @@ pub struct GitLogPage {
     pub(crate) commits: Vec<GitCommit>,
     pub(crate) has_more: bool,
 }
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GitHeadLocation {
+    pub(crate) head: Option<String>,
+    pub(crate) offset: u32,
+    pub(crate) page: GitLogPage,
+}

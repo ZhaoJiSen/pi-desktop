@@ -72,15 +72,25 @@ export function layoutGraph(commits: GraphCommit[]): GraphRow[] {
 
 export function connectVisible<T extends GraphCommit>(commits: T[], visible: Set<string>): T[] {
   const byHash = new Map(commits.map((commit) => [commit.hash, commit]))
-  function ancestors(hash: string, seen: Set<string>): string[] {
+  function ancestors(hash: string): string[] {
     const commit = byHash.get(hash)
     if (!commit) return []
     const found: string[] = []
-    for (const parent of commit.parents) {
+    const seen = new Set([hash])
+    const pending = [...commit.parents].reverse()
+    // A sparse filter may hide tens of thousands of ancestors. Use an explicit
+    // stack so history depth cannot exhaust the JavaScript call stack.
+    while (pending.length) {
+      const parent = pending.pop()!
       if (seen.has(parent)) continue
       seen.add(parent)
       if (visible.has(parent)) found.push(parent)
-      else found.push(...ancestors(parent, seen))
+      else {
+        const hidden = byHash.get(parent)
+        if (hidden)
+          for (let index = hidden.parents.length - 1; index >= 0; index--)
+            pending.push(hidden.parents[index]!)
+      }
     }
     return found
   }
@@ -88,6 +98,6 @@ export function connectVisible<T extends GraphCommit>(commits: T[], visible: Set
     .filter((commit) => visible.has(commit.hash))
     .map((commit) => ({
       ...commit,
-      parents: [...new Set(ancestors(commit.hash, new Set([commit.hash])))],
+      parents: [...new Set(ancestors(commit.hash))],
     }))
 }

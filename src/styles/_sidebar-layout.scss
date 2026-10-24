@@ -26,6 +26,7 @@
 /* Peer library pages share their title row and compact HeroUI tools. */
 .commands-browser-heading,
 .package-library-heading,
+.git-browser-heading,
 .settings-browser-heading {
   display: flex;
   align-items: center;
@@ -36,6 +37,7 @@
 
 .commands-browser-title,
 .package-library-title,
+.git-browser-title,
 .settings-browser-title,
 .utility-page-title {
   margin: 0;

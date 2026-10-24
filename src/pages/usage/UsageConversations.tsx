@@ -1,3 +1,4 @@
+import { OverflowTooltip } from '../../components/OverflowTooltip'
 import { Button, SearchField } from '@heroui/react'
 import { ArrowDown, ArrowRight, ArrowUp, ChartNoAxesColumn, SearchX } from 'lucide-react'
 import { useT } from '../../lib/i18n'
@@ -107,9 +108,10 @@ export function UsageConversations({
                     <div className="usage-project-name">{projectName(item)}</div>
                   </td>
                   <td className="usage-model-column">
-                    <span title={item.modelKey}>
-                      {item.modelKey.split('/').slice(1).join('/') || '—'}
-                    </span>
+                    <OverflowTooltip
+                      text={item.modelKey.split('/').slice(1).join('/') || '—'}
+                      tooltip={item.modelKey}
+                    />
                   </td>
                   <td
                     className="usage-number"

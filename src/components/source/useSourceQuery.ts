@@ -26,6 +26,7 @@ export function useSourceQuery<T>(
 ): SourceQuery<T> {
   const refreshKey = String(refresh)
   const [state, setState] = useState<CachedQuery<T> | null>(null)
+  const request = useRef<{ scope: string; refresh: string; promise: Promise<T> } | null>(null)
   const loadRef = useRef(load)
   useEffect(() => {
     loadRef.current = load
@@ -35,9 +36,22 @@ export function useSourceQuery<T>(
     let live = true
     const requestScope = scope
     const requestRefresh = refreshKey
-    loadRef.current().then(
+    // Activity reconnects effects on reveal. Reuse this hook's request/result
+    // until its resource or revision changes, including an in-flight request.
+    if (request.current?.scope !== scope || request.current.refresh !== refreshKey) {
+      request.current = { scope, refresh: refreshKey, promise: loadRef.current() }
+    }
+    request.current.promise.then(
       (data) => {
-        if (live) setState({ scope: requestScope, refresh: requestRefresh, data })
+        if (live)
+          setState((current) =>
+            current?.scope === requestScope &&
+            current.refresh === requestRefresh &&
+            current.data === data &&
+            !current.error
+              ? current
+              : { scope: requestScope, refresh: requestRefresh, data },
+          )
       },
       (error: unknown) => {
         if (!live) return

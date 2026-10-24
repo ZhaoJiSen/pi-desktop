@@ -7,6 +7,11 @@ export interface MockFile {
 }
 
 export interface MockRepo {
+  sync?: {
+    state: () => import('./types').GitSyncState
+    action: (request: import('./types').GitSyncRequest) => void | Promise<void>
+    write: (relative: string, expected: string, text: string) => void | Promise<void>
+  }
   repo: boolean
   branch: string | null
   files: MockFile[]

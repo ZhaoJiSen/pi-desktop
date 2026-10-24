@@ -31,7 +31,11 @@ export function HistoryGraph({ row, height = 28 }: { row: GraphRow; height?: num
         ) : null,
       )}
       {row.output.map((hash, index) =>
-        hash && !continuing[index] ? (
+        // Curves already reach the row's bottom edge in their target lane.
+        // A second vertical segment would protrude above the curve.
+        hash &&
+        !continuing[index] &&
+        !row.links.some((link) => link.from === row.lane && link.to === index) ? (
           <line
             key={`out-${index}`}
             x1={laneX(index)}

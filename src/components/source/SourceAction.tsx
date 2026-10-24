@@ -1,5 +1,5 @@
 import { Button, Tooltip } from '@heroui/react'
-import type { ReactNode } from 'react'
+import type { ReactNode, Ref } from 'react'
 
 export function SourceAction({
   label,
@@ -7,17 +7,20 @@ export function SourceAction({
   onPress,
   isDisabled,
   pressed,
+  buttonRef,
 }: {
   label: string
   children: ReactNode
   onPress: () => void
   isDisabled?: boolean
   pressed?: boolean
+  buttonRef?: Ref<HTMLButtonElement>
 }) {
   return (
     <Tooltip delay={450}>
       <Tooltip.Trigger role="presentation" tabIndex={-1}>
         <Button
+          ref={buttonRef}
           isIconOnly
           size="sm"
           variant={pressed ? 'secondary' : 'ghost'}

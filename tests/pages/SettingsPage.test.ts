@@ -85,7 +85,14 @@ describe('SettingsPage', () => {
     const sections = [...container.querySelectorAll('.settings-navigation [role="option"]')].map(
       (item) => item.textContent,
     )
-    expect(sections).toEqual(['General', 'Appearance', 'Shortcuts', 'Extensions', 'Pi connection'])
+    expect(sections).toEqual([
+      'General',
+      'Git',
+      'Appearance',
+      'Shortcuts',
+      'Extensions',
+      'Pi connection',
+    ])
     expect(container.querySelector('.settings-panel-heading h2')?.textContent).toBe('General')
     expect(
       container.querySelector('.settings-navigation [aria-selected="true"]')?.textContent,
