@@ -133,6 +133,10 @@ messages! {
     SourceOutside => ("路径超出项目目录", "That path is outside the project"),
     SourceRead => ("无法读取项目文件", "Could not read the project file"),
     SourceList => ("无法读取项目目录", "Could not read the project folder"),
+    GitBranchChanged => ("分支状态已改变，请重新打开操作确认", "Branch state changed. Reopen the operation and confirm again"),
+    GitBranchDirty => ("请先提交或 stash 工作区改动", "Commit or stash working tree changes first"),
+    GitOperationPending => ("请先完成或中止正在进行的 Git 操作", "Finish or abort the Git operation in progress first"),
+    GitBranchName => ("分支名称无效", "Invalid branch name"),
     GitRead => ("无法读取 Git 仓库", "Could not read the Git repository"),
 }
 

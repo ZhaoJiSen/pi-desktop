@@ -78,3 +78,13 @@ export interface GitCommitDetail {
   hash: string
   files: CommitFile[]
 }
+
+export interface GitBranch {
+  name: string
+  tip: string
+  remote: boolean
+  current: boolean
+}
+export interface GitLogPage extends GitLog {
+  hasMore: boolean
+}

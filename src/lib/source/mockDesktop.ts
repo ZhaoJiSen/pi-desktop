@@ -153,7 +153,7 @@ export const desktop: MockRepo = {
       parents: ['c4a90d18bb3321aa90ee7712456cd091'],
       author: 'Mina Chen',
       timestamp: 1761004800,
-      refs: 'HEAD -> main',
+      refs: 'HEAD -> main, origin/main',
       subject: 'Tighten the model menu spacing',
     },
     {
@@ -177,7 +177,7 @@ export const desktop: MockRepo = {
       parents: ['a00aa11c55d290187766441290ab3318'],
       author: 'Mina Chen',
       timestamp: 1760659200,
-      refs: 'model-search',
+      refs: 'model-search, origin/model-search',
       subject: 'Add search to the model selector',
     },
     {

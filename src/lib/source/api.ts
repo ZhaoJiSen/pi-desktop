@@ -78,3 +78,56 @@ export function gitRestoreFile(path: string, relative: string) {
 export function gitCommitFiles(path: string, revision: string) {
   return call('git_commit_files', { path, revision }, () => mockCommit(path, revision))
 }
+
+export function gitBranches(path: string) {
+  return call<import('./types').GitBranch[]>('git_branches', { path }, () => {
+    const log = mockLog(path)
+    return log.commits.flatMap((commit) =>
+      commit.refs
+        .split(',')
+        .map((ref) => ref.trim())
+        .filter((ref) => ref && !ref.startsWith('tag:'))
+        .map((ref) => ({
+          name: ref.replace(/^HEAD -> /, ''),
+          tip: commit.hash,
+          remote: ref.startsWith('origin/'),
+          current: ref.startsWith('HEAD -> '),
+        })),
+    )
+  })
+}
+
+export function gitLogPage(path: string, relative: string | null, tip: string | null, skip = 0) {
+  return call<import('./types').GitLogPage>('git_log_page', { path, relative, tip, skip }, () => {
+    const log = mockLog(path, relative)
+    const byHash = new Map(log.commits.map((commit) => [commit.hash, commit]))
+    const reachable = new Set<string>()
+    const pending = tip ? [tip] : []
+    while (pending.length) {
+      const hash = pending.pop()!
+      if (reachable.has(hash)) continue
+      reachable.add(hash)
+      pending.push(...(byHash.get(hash)?.parents ?? []))
+    }
+    const commits = tip ? log.commits.filter((commit) => reachable.has(commit.hash)) : log.commits
+    return {
+      ...log,
+      commits: commits.slice(skip, skip + 200),
+      hasMore: commits.length > skip + 200,
+    }
+  })
+}
+
+export function gitBranchState(path: string) {
+  return call<import('./branches').BranchState>('git_branch_state', { path }, () => {
+    const status = mockStatus(path)
+    const head = mockLog(path).commits[0]?.hash ?? null
+    return { current: status.branch, head, operation: null, dirty: status.files.length > 0 }
+  })
+}
+
+export function gitBranchAction(path: string, request: import('./branches').BranchRequest) {
+  return call<void>('git_branch_action', { path, request }, () => {
+    throw new Error('Branch operations require the desktop app')
+  })
+}

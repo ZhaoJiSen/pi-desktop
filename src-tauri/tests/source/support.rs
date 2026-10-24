@@ -2,6 +2,7 @@ use std::{
     fs,
     path::PathBuf,
     process::Command,
+    sync::atomic::{AtomicU64, Ordering},
     time::{SystemTime, UNIX_EPOCH},
 };
 
@@ -14,15 +15,18 @@ impl Drop for TempDir {
 }
 
 pub(crate) fn temp_dir() -> TempDir {
+    // Clock resolution alone can collide across concurrent test threads.
+    static NEXT_DIRECTORY: AtomicU64 = AtomicU64::new(0);
     let path = std::env::temp_dir().join(format!(
-        "pi-source-{}-{}",
+        "pi-source-{}-{}-{}",
         std::process::id(),
         SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .unwrap()
-            .as_nanos()
+            .as_nanos(),
+        NEXT_DIRECTORY.fetch_add(1, Ordering::Relaxed)
     ));
-    fs::create_dir_all(&path).unwrap();
+    fs::create_dir(&path).unwrap();
     TempDir(path.canonicalize().unwrap())
 }
 

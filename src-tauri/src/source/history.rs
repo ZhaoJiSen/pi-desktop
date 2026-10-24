@@ -174,3 +174,105 @@ pub(crate) fn commit_files(root: &Path, revision: &str) -> Result<GitCommitDetai
         files: parse_name_status(git::drop_partial_z(&captured.stdout, captured.truncated)),
     })
 }
+
+pub(crate) fn branches(root: &Path) -> Result<Vec<GitBranch>, String> {
+    if !matches!(git::presence(root)?, git::GitPresence::Repo) {
+        return Ok(Vec::new());
+    }
+    let result = git::run(
+        root,
+        &[
+            "for-each-ref",
+            "--sort=refname",
+            "--format=%(refname)%00%(objectname)%00%(HEAD)%00%(symref)",
+            "refs/heads",
+            "refs/remotes",
+        ],
+        git::LIMIT_LOG,
+    )?;
+    if !result.success || result.truncated {
+        return Err(Message::GitRead.text());
+    }
+    Ok(String::from_utf8_lossy(&result.stdout)
+        .lines()
+        .filter_map(|line| {
+            let mut fields = line.split('\0');
+            let reference = fields.next()?;
+            let tip = fields.next()?.to_owned();
+            let current = fields.next()? == "*";
+            // Remote HEAD is an alias, not a second branch.
+            if !fields.next()?.is_empty() {
+                return None;
+            }
+            let remote = reference.starts_with("refs/remotes/");
+            let name = reference
+                .strip_prefix(if remote {
+                    "refs/remotes/"
+                } else {
+                    "refs/heads/"
+                })?
+                .to_owned();
+            Some(GitBranch {
+                name,
+                tip,
+                remote,
+                current,
+            })
+        })
+        .collect())
+}
+
+pub(crate) fn workspace_log(
+    root: &Path,
+    relative: Option<&str>,
+    tip: Option<&str>,
+    skip: u32,
+) -> Result<GitLogPage, String> {
+    let presence = git::presence(root)?;
+    if !matches!(presence, git::GitPresence::Repo) {
+        return Ok(GitLogPage {
+            available: !matches!(presence, git::GitPresence::Missing),
+            repo: false,
+            commits: Vec::new(),
+            has_more: false,
+        });
+    }
+    if tip.is_some_and(|value| !git::valid_revision(value)) {
+        return Err(Message::GitRead.text());
+    }
+    let offset = format!("--skip={}", skip);
+    let mut args = vec![
+        "log",
+        "--date-order",
+        "-z",
+        "-n",
+        "201",
+        &offset,
+        "--pretty=format:%H%x1f%P%x1f%an%x1f%at%x1f%D%x1f%s",
+    ];
+    match tip {
+        Some(tip) => args.push(tip),
+        None => args.push("--all"),
+    }
+    let normalized;
+    if let Some(relative) = relative.filter(|value| !value.is_empty()) {
+        normalized = paths::normalize_relative(relative)?;
+        args.extend(["--", &normalized]);
+    }
+    let result = git::run(root, &args, git::LIMIT_LOG)?;
+    if !result.success {
+        let error = String::from_utf8_lossy(&result.stderr);
+        if !error.contains("does not have any commits") {
+            return Err(Message::GitRead.detail(error.trim()));
+        }
+    }
+    let mut commits = parse_log(git::drop_partial_z(&result.stdout, result.truncated));
+    let has_more = commits.len() > 200 || result.truncated;
+    commits.truncate(200);
+    Ok(GitLogPage {
+        available: true,
+        repo: true,
+        commits,
+        has_more,
+    })
+}

@@ -111,3 +111,71 @@ fn missing_git_is_not_a_plain_folder() {
         output.status
     );
 }
+
+#[test]
+fn workspace_history_lists_and_filters_branches_without_checkout() {
+    let root = temp_dir();
+    init_repo(&root.0);
+    fs::write(root.0.join("base.txt"), "base\n").unwrap();
+    git_ok(&root.0, &["add", "."]);
+    git_ok(&root.0, &["commit", "-m", "base"]);
+    git_ok(&root.0, &["branch", "feature"]);
+    fs::write(root.0.join("main.txt"), "main\n").unwrap();
+    git_ok(&root.0, &["add", "."]);
+    git_ok(&root.0, &["commit", "-m", "main only"]);
+    let branches = history::branches(&root.0).unwrap();
+    let feature = branches
+        .iter()
+        .find(|branch| branch.name == "feature")
+        .unwrap();
+    let page = history::workspace_log(&root.0, None, Some(&feature.tip), 0).unwrap();
+    assert_eq!(page.commits.len(), 1);
+    assert_eq!(page.commits[0].subject, "base");
+    assert!(!page.has_more);
+    assert!(branches
+        .iter()
+        .any(|branch| branch.current && branch.name != "feature"));
+    let all = history::workspace_log(&root.0, None, None, 0).unwrap();
+    assert_eq!(all.commits.len(), 2);
+    let next = history::workspace_log(&root.0, None, None, 1).unwrap();
+    assert_eq!(next.commits[0].subject, "base");
+    let only_file = history::workspace_log(&root.0, Some("main.txt"), None, 0).unwrap();
+    assert_eq!(only_file.commits.len(), 1);
+    assert!(history::workspace_log(&root.0, None, Some("--all"), 0).is_err());
+}
+
+#[test]
+fn workspace_history_paginates_without_duplicates() {
+    let root = temp_dir();
+    init_repo(&root.0);
+    for index in 0..201 {
+        git_ok(
+            &root.0,
+            &["commit", "--allow-empty", "-m", &format!("commit {index}")],
+        );
+    }
+    let first = history::workspace_log(&root.0, None, None, 0).unwrap();
+    assert_eq!(first.commits.len(), 200);
+    assert!(first.has_more);
+    let second = history::workspace_log(&root.0, None, None, 200).unwrap();
+    assert_eq!(second.commits.len(), 1);
+    assert!(!second.has_more);
+    assert!(first
+        .commits
+        .iter()
+        .all(|commit| commit.hash != second.commits[0].hash));
+}
+
+#[test]
+fn workspace_history_handles_empty_and_plain_folders() {
+    let root = temp_dir();
+    let plain = history::workspace_log(&root.0, None, None, 0).unwrap();
+    assert!(!plain.repo);
+    let root = temp_dir();
+    init_repo(&root.0);
+    let empty = history::workspace_log(&root.0, None, None, 0).unwrap();
+    assert!(empty.repo);
+    assert!(empty.commits.is_empty());
+    assert!(!empty.has_more);
+    assert!(history::branches(&root.0).unwrap().is_empty());
+}

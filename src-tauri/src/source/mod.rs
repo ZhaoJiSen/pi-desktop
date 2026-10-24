@@ -1,5 +1,6 @@
 //! Local project files and Git. Commands never touch the network.
 
+mod branches;
 mod capture;
 mod commit;
 mod diff;
@@ -175,3 +176,47 @@ mod safety;
 #[cfg(test)]
 #[path = "../../tests/source/followup.rs"]
 mod followup;
+
+#[tauri::command]
+pub async fn git_branches(
+    app: tauri::AppHandle,
+    path: String,
+) -> Result<Vec<types::GitBranch>, String> {
+    blocking(move || history::branches(&root_of(&app, &path)?)).await
+}
+
+#[tauri::command]
+pub async fn git_log_page(
+    app: tauri::AppHandle,
+    path: String,
+    relative: Option<String>,
+    tip: Option<String>,
+    skip: Option<u32>,
+) -> Result<types::GitLogPage, String> {
+    blocking(move || {
+        history::workspace_log(
+            &root_of(&app, &path)?,
+            relative.as_deref(),
+            tip.as_deref(),
+            skip.unwrap_or(0),
+        )
+    })
+    .await
+}
+
+#[tauri::command]
+pub async fn git_branch_state(
+    app: tauri::AppHandle,
+    path: String,
+) -> Result<branches::BranchState, String> {
+    blocking(move || branches::state(&root_of(&app, &path)?)).await
+}
+
+#[tauri::command]
+pub async fn git_branch_action(
+    app: tauri::AppHandle,
+    path: String,
+    request: branches::BranchRequest,
+) -> Result<(), String> {
+    blocking(move || branches::execute(&root_of(&app, &path)?, &request)).await
+}

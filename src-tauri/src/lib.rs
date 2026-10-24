@@ -215,6 +215,10 @@ pub fn run() {
             source::git_restore_file,
             source::git_commit_branch,
             source::git_log,
+            source::git_branches,
+            source::git_log_page,
+            source::git_branch_state,
+            source::git_branch_action,
             source::git_commit_files
         ])
         .build(tauri::generate_context!())

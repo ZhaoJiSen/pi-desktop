@@ -108,3 +108,21 @@ pub struct GitCommitDetail {
     pub(crate) hash: String,
     pub(crate) files: Vec<CommitFile>,
 }
+
+#[derive(Debug, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct GitBranch {
+    pub(crate) name: String,
+    pub(crate) tip: String,
+    pub(crate) remote: bool,
+    pub(crate) current: bool,
+}
+
+#[derive(Debug, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct GitLogPage {
+    pub(crate) available: bool,
+    pub(crate) repo: bool,
+    pub(crate) commits: Vec<GitCommit>,
+    pub(crate) has_more: bool,
+}
