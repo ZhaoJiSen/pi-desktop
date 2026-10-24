@@ -16,6 +16,7 @@
     "tauri": "tauri",
     "desktop": "tauri dev",
     "package:mac": "tauri build --bundles app,dmg",
+    "icons:mac": "node --experimental-strip-types scripts/generate-macos-icon.ts",
     "verify": "vitest run",
     "verify:pi-v1": "vitest run tests/compat/pi-v1.test.ts"
   },

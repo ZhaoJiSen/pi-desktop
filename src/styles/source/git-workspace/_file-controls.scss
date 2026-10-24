@@ -161,9 +161,16 @@
   padding-bottom: 6px;
 }
 .git-file-navigation-surface .git-navigator-footer {
-  margin-top: 0;
+  margin-top: auto;
   padding: 10px 8px 8px;
   border-top: 1px solid var(--line);
+}
+.git-file-navigation-surface > .source-notice,
+.git-file-navigation-content > .source-notice,
+.git-changes-review > .source-notice {
+  flex: 1;
+  min-height: 0;
+  justify-content: center;
 }
 .git-file-navigation-surface
   .source-tree-scroll:not(:hover):not(.is-dragging)
