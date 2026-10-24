@@ -1,15 +1,14 @@
-import { Button, Chip, Toolbar } from '@heroui/react'
+import { Button, Toolbar } from '@heroui/react'
 import { SourceAction } from './SourceAction'
-import { FolderTree, GitBranch, PanelsLeftRight, RotateCw, X } from 'lucide-react'
+import { ArrowUpRight, FolderTree, GitBranch, PanelsLeftRight, RotateCw, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useT } from '../../lib/i18n'
 import { ChangesPane } from './ChangesView'
 import { useSource, type SourceRequest, type SourceTab } from './context'
 import { FilesPane } from './FilesPane'
-import { HistoryPane } from './HistoryPane'
 import { PanelResize } from './PanelResize'
 import { SourceViewTabs } from './SourceViewTabs'
-import { useProjectSource } from './useProjectSource'
+import { ProjectSourceContext, useProjectSource } from './useProjectSource'
 
 export function SourcePanel({
   width,
@@ -25,7 +24,8 @@ export function SourcePanel({
   onShowConversation: () => void
 }) {
   const source = useSource()
-  const { path: projectPath } = useProjectSource()
+  const { path: activeProjectPath, name } = useProjectSource()
+  const projectPath = source?.request.projectPath ?? activeProjectPath
   const t = useT()
   const open = Boolean(source?.open)
   const [rendered, setRendered] = useState(open)
@@ -84,13 +84,20 @@ export function SourcePanel({
         onDrag={setResizing}
         onReset={onShowConversation}
       />
-      <PanelBody
-        key={projectPath}
-        request={source.request}
-        expanded={expanded}
-        onShowConversation={onShowConversation}
-        onClose={() => source.setOpen(false)}
-      />
+      <ProjectSourceContext.Provider
+        value={{
+          path: projectPath,
+          name: projectPath === activeProjectPath ? name : (projectPath.split('/').at(-1) ?? ''),
+        }}
+      >
+        <PanelBody
+          key={projectPath}
+          request={source.request}
+          expanded={expanded}
+          onShowConversation={onShowConversation}
+          onClose={() => source.setOpen(false)}
+        />
+      </ProjectSourceContext.Provider>
     </aside>
   )
 }
@@ -108,12 +115,10 @@ function PanelBody({
 }) {
   const t = useT()
   const source = useSource()
-  const { path, revision } = useProjectSource()
-  const initialTab = request.tab ?? 'changes'
+  const { path: projectPath, revision } = useProjectSource()
+  const [selection, setSelection] = useState<string | null>(null)
+  const initialTab = request.tab === 'files' ? 'files' : 'changes'
   const [tab, setTab] = useState<SourceTab>(initialTab)
-  const [gitTab, setGitTab] = useState<'changes' | 'history'>(
-    initialTab === 'history' ? 'history' : 'changes',
-  )
   const [visited, setVisited] = useState(() => new Set<SourceTab>([initialTab]))
   const [requests, setRequests] = useState<Partial<Record<SourceTab, SourceRequest>>>(() => ({
     [initialTab]: request,
@@ -124,13 +129,11 @@ function PanelBody({
   if (handledRequest !== request.nonce) {
     setHandledRequest(request.nonce)
     setTab(initialTab)
-    if (initialTab !== 'files') setGitTab(initialTab)
     setVisited((current) => new Set([...current, initialTab]))
     setRequests((current) => ({ ...current, [initialTab]: request }))
   }
   function select(next: SourceTab) {
     setTab(next)
-    if (next !== 'files') setGitTab(next)
     setVisited((current) => (current.has(next) ? current : new Set([...current, next])))
   }
   const skipRefresh = useRef(true)
@@ -144,35 +147,7 @@ function PanelBody({
   }, [revision])
   const changesRequest = requests.changes
   const filesRequest = requests.files
-  const historyRequest = requests.history
-  function navigation(count?: number) {
-    return (
-      <SourceViewTabs
-        secondary
-        label={t('source.gitViews')}
-        selected={tab === 'history' ? 'history' : 'changes'}
-        onSelect={select}
-        items={[
-          {
-            id: 'changes',
-            label: t('source.changes'),
-            badge:
-              count === undefined ? undefined : (
-                <Chip
-                  size="sm"
-                  variant="secondary"
-                  className="source-count"
-                  aria-label={t('source.commitMany', { count })}
-                >
-                  {count}
-                </Chip>
-              ),
-          },
-          { id: 'history', label: t('source.history') },
-        ]}
-      />
-    )
-  }
+
   return (
     <>
       <div className="source-toolbar">
@@ -180,13 +155,19 @@ function PanelBody({
         <SourceViewTabs
           label={t('source.panel')}
           selected={tab === 'files' ? 'files' : 'git'}
-          onSelect={(next) => select(next === 'files' ? 'files' : gitTab)}
+          onSelect={(next) => select(next === 'files' ? 'files' : 'changes')}
           items={[
             { id: 'git', label: t('source.git'), icon: <GitBranch /> },
             { id: 'files', label: t('source.files'), icon: <FolderTree /> },
           ]}
         />
         <Toolbar aria-label={t('source.panel')} className="source-modes">
+          <SourceAction
+            label={t('source.openWorkspace')}
+            onPress={() => source?.showWorkspace({ tab: 'changes', path: selection, projectPath })}
+          >
+            <ArrowUpRight />
+          </SourceAction>
           {expanded && (
             <Button
               size="sm"
@@ -214,7 +195,8 @@ function PanelBody({
         {visited.has('changes') && (
           <div className="source-workspace-pane" hidden={tab !== 'changes'}>
             <ChangesPane
-              navigation={tab === 'changes' ? navigation : undefined}
+              basic
+              onSelectionChange={setSelection}
               tick={tick + refreshes.changes}
               requestNonce={changesRequest?.nonce ?? 0}
               initialPath={changesRequest?.path ?? null}
@@ -230,18 +212,9 @@ function PanelBody({
               requestNonce={filesRequest?.nonce ?? 0}
               initialPath={filesRequest?.path ?? null}
               initialDiff={filesRequest?.mode === 'diff'}
-              onHistory={(next) => source?.show({ tab: 'history', historyPath: next })}
-            />
-          </div>
-        )}
-        {visited.has('history') && (
-          <div className="source-workspace-pane" hidden={tab !== 'history'}>
-            <HistoryPane
-              navigation={tab === 'history' ? navigation() : undefined}
-              projectPath={path}
-              tick={tick + refreshes.history}
-              historyPath={historyRequest?.historyPath ?? null}
-              onClear={() => source?.show({ tab: 'history', historyPath: null })}
+              onHistory={(next) =>
+                source?.showWorkspace({ tab: 'history', historyPath: next, projectPath })
+              }
             />
           </div>
         )}

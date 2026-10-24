@@ -1,6 +1,7 @@
 import type { en } from './en'
 
 export const zh = {
+  'navigation.git': 'Git',
   'notification.settings': '通知',
   'notification.saveFailed': '未能保存通知设置，已保留你的选择，请重试。',
   'notification.soundSystemHelp': '此平台的通知提示音由系统通知设置管理。',

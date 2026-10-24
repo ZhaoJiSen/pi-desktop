@@ -1,5 +1,5 @@
 import { Button, Tooltip } from '@heroui/react'
-import { ChartNoAxesCombined, Grid2X2, House, Settings, Terminal } from 'lucide-react'
+import { ChartNoAxesCombined, Grid2X2, GitBranch, House, Settings, Terminal } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { motion } from 'motion/react'
 import { useT } from '../lib/i18n'
@@ -64,6 +64,7 @@ export function ActivityRail() {
     >
       <div className="rail-primary">
         {item('chat', House, t('navigation.home'))}
+        {item('git', GitBranch, t('source.workspace'))}
         {item('extensions', Grid2X2, t('navigation.extensions'))}
         {item('commands', Terminal, t('navigation.commands'))}
         {item('usage', ChartNoAxesCombined, t('navigation.usage'))}

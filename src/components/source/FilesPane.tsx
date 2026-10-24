@@ -78,7 +78,9 @@ export function FilesPane({
             path={selected}
             tick={tick}
             changed={marks.has(selected)}
-            onDiff={() => source?.show({ tab: 'changes', path: selected, mode: 'diff' })}
+            onDiff={() =>
+              source?.show({ tab: 'changes', path: selected, mode: 'diff', projectPath })
+            }
             onHistory={() => onHistory(selected)}
           />
         )

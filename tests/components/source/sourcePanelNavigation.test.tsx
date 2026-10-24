@@ -5,9 +5,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { SourcePanel } from '../../../src/components/source/SourcePanel'
 import { OpenSourceButton } from '../../../src/components/source/OpenSourceButton'
 import { SourceProvider, useSource } from '../../../src/components/source/context'
+import { navigateToPage } from '../../../src/router/navigation'
 import * as api from '../../../src/lib/source/api'
 import { useWorkspace } from '../../../src/store/workspace'
 import type { ToolBlock } from '../../../src/types'
+
+vi.mock('../../../src/router/navigation', () => ({ navigateToPage: vi.fn() }))
 
 const project = vi.hoisted(() => ({
   path: '/project',
@@ -15,7 +18,8 @@ const project = vi.hoisted(() => ({
   revision: '1',
   agent: new Set<string>(),
 }))
-vi.mock('../../../src/components/source/useProjectSource', () => ({
+vi.mock('../../../src/components/source/useProjectSource', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../../src/components/source/useProjectSource')>()),
   useProjectSource: () => project,
 }))
 vi.mock('../../../src/components/source/PanelResize', () => ({ PanelResize: () => null }))
@@ -78,6 +82,11 @@ function Controls() {
   const source = useSource()!
   return (
     <>
+      <output
+        className="workspace-request"
+        data-path={source.workspaceRequest.path ?? ''}
+        data-history={source.workspaceRequest.historyPath ?? ''}
+      />
       <span className="tool-a">
         <OpenSourceButton tool={tool('src/a.ts')} />
       </span>
@@ -263,41 +272,28 @@ describe('source workspace navigation', () => {
     await click('[role="tab"][aria-label="Files"]')
     expect(active().querySelector('.test-file')?.getAttribute('data-path')).toBe('src/a.ts')
   })
-  it('keeps Changes and History under Git and remembers the previous Git view', async () => {
+  it('offers basic Git viewing and opens the full workspace from its toolbar', async () => {
     await click('.tool-a button')
-    await click('[role="tab"][aria-label="History"]')
-    const list = active().querySelector('.history-list')
-    expect(currentDiff().dataset.revision).toBe('first')
-    const button = [...active().querySelectorAll<HTMLButtonElement>('.history-row')].find((el) =>
-      el.textContent?.includes('second commit'),
-    )!
-    await click(button)
-    expect(currentDiff().dataset.path).toBe('src/b.ts')
-    expect(active().querySelector('.history-list')).toBe(list)
-    await click('[role="tab"][aria-label="Files"]')
     expect(container.querySelector('[role="tab"][aria-label="History"]')).toBeNull()
-    await click('[role="tab"][aria-label="Git"]')
-    expect(currentDiff().dataset.revision).toBe('second')
-    expect(active().querySelector('.history-list')).toBe(list)
-    expect(api.gitLog).toHaveBeenCalledTimes(1)
+    expect(active().querySelector('button[aria-label="Discard changes"]')).toBeNull()
+    expect(
+      [...active().querySelectorAll('button')].some(
+        (el) => el.textContent === 'Create branch & commit' && !el.hidden,
+      ),
+    ).toBe(false)
+    await click(row('src/b.ts'))
+    await click('button[aria-label="Open Git workspace"]')
+    expect(node('.workspace-request').dataset.path).toBe('src/b.ts')
+    expect(navigateToPage).toHaveBeenLastCalledWith('git')
+    expect(api.gitLog).not.toHaveBeenCalled()
   })
-  it('opens filtered file history and can return to all commits', async () => {
+  it('opens file history in the full Git workspace while retaining the sidebar file', async () => {
     await clickText('view-a')
     await clickText('show-file-history')
-    expect(api.gitLog).toHaveBeenLastCalledWith('/project', 'src/a.ts')
-    expect(node('[role="tab"][aria-label="History"]').getAttribute('aria-selected')).toBe('true')
-    await clickText('All commits')
-    expect(api.gitLog).toHaveBeenLastCalledWith('/project', null)
-  })
-  it('keeps selection and navigation when discarding changes fails', async () => {
-    vi.mocked(api.gitRestoreFile).mockRejectedValue(new Error('Permission denied'))
-    await click('.tool-a button')
-    const tree = active().querySelector('.source-tree')
-    await click('.source-preview-bar button[aria-label="Discard changes"]')
-    await click('.source-restore-actions button')
-    expect(active().querySelector('[role="alert"]')?.textContent).toBe('Permission denied')
-    expect(currentDiff().dataset.path).toBe('src/a.ts')
-    expect(active().querySelector('.source-tree')).toBe(tree)
+    expect(navigateToPage).toHaveBeenLastCalledWith('git')
+    expect(api.gitLog).not.toHaveBeenCalled()
+    expect(node('.workspace-request').dataset.history).toBe('src/a.ts')
+    expect(active().querySelector('.test-file')?.getAttribute('data-path')).toBe('src/a.ts')
   })
   it('keeps the navigation mounted across closing and reopening the workspace', async () => {
     await click('.tool-a button')
@@ -318,20 +314,6 @@ describe('source workspace navigation', () => {
     expect(active().textContent).toContain('not a Git repository')
     await click('[role="tab"][aria-label="Files"]')
     expect(row('src/unchanged.ts')).toBeTruthy()
-  })
-  it('can leave empty file history without losing the file selection', async () => {
-    vi.mocked(api.gitLog).mockImplementation(async (_, historyPath) => ({
-      available: true,
-      repo: true,
-      commits: historyPath ? [] : commits,
-    }))
-    await clickText('view-a')
-    await clickText('show-file-history')
-    expect(active().textContent).toContain('No commits yet')
-    await clickText('All commits')
-    expect(currentDiff().dataset.revision).toBe('first')
-    await click('[role="tab"][aria-label="Files"]')
-    expect(active().querySelector('.test-file')?.getAttribute('data-path')).toBe('src/a.ts')
   })
   it('refreshes explicitly and resets the workspace when changing projects', async () => {
     await click('.tool-a button')

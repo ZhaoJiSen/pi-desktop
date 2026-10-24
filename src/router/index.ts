@@ -8,6 +8,7 @@ import { rootRoute } from '../routes/__root'
 import { chatRoute } from '../routes'
 import { commandsRoute } from '../routes/commands'
 import { extensionsRoute } from '../routes/extensions'
+import { gitRoute } from '../routes/git'
 import { usageRoute } from '../routes/usage'
 import { settingsRoute } from '../routes/settings'
 
@@ -16,6 +17,7 @@ const routeTree = rootRoute.addChildren([
   commandsRoute,
   extensionsRoute,
   usageRoute,
+  gitRoute,
   settingsRoute,
 ])
 

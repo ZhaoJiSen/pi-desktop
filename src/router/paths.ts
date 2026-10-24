@@ -1,5 +1,6 @@
 export const pagePaths = {
   chat: '/',
+  git: '/git',
   commands: '/commands',
   extensions: '/extensions',
   usage: '/usage',
@@ -10,6 +11,8 @@ export type Page = keyof typeof pagePaths
 
 export function pageFromPath(pathname: string): Page {
   switch (pathname.replace(/\/$/, '')) {
+    case '/git':
+      return 'git'
     case '/commands':
       return 'commands'
     case '/extensions':

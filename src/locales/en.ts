@@ -1,4 +1,5 @@
 export const en = {
+  'navigation.git': 'Git',
   'notification.settings': 'Notifications',
   'notification.saveFailed':
     'Could not save notification settings. Your choices are kept; try again.',
