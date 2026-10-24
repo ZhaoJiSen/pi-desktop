@@ -1,6 +1,7 @@
 import { gitFileDiff } from '../../lib/source/api'
 import { memo } from 'react'
 import type { DiffLine } from '../../types'
+import type { GitDiff } from '../../lib/source/types'
 import { useT } from '../../lib/i18n'
 import { FileDiff } from './FileDiff'
 import { DiffSkeleton } from './DiffSkeleton'
@@ -16,6 +17,8 @@ export const LoadedDiff = memo(function LoadedDiff({
   embedded,
   layout,
   onBack,
+  load,
+  onStats,
 }: {
   projectPath: string
   path: string
@@ -25,11 +28,13 @@ export const LoadedDiff = memo(function LoadedDiff({
   embedded?: boolean
   layout?: 'unified' | 'split'
   onBack?: () => void
+  load?: () => Promise<GitDiff>
+  onStats?: (path: string, stats: { additions: number; deletions: number } | null) => void
 }) {
   const t = useT()
   const diff = useSourceQuery(
     `diff:${projectPath}:${revision ?? ''}:${path}`,
-    () => gitFileDiff(projectPath, path, revision),
+    load ?? (() => gitFileDiff(projectPath, path, revision)),
     tick,
   )
   if (diff.loading) return <DiffSkeleton layout={layout} />
@@ -48,6 +53,7 @@ export const LoadedDiff = memo(function LoadedDiff({
       embedded={embedded}
       layout={layout}
       onBack={onBack}
+      onStats={onStats}
     />
   )
 })

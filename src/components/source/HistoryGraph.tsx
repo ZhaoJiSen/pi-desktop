@@ -6,13 +6,18 @@ function laneX(lane: number) {
   return 8 + lane * 14
 }
 
-export function HistoryGraph({ row }: { row: GraphRow }) {
-  const height = 28
+export function HistoryGraph({ row, height = 28 }: { row: GraphRow; height?: number }) {
   const mid = height / 2
   const width = Math.max(row.columns, 1) * 14 + 4
   const continuing = row.input.map((hash, index) => Boolean(hash) && row.output[index] === hash)
   return (
-    <svg className="history-graph" width={width} height={height} aria-hidden="true">
+    <svg
+      className="history-graph"
+      width={width}
+      height={height}
+      style={{ width, height }}
+      aria-hidden="true"
+    >
       {row.input.map((hash, index) =>
         hash ? (
           <line

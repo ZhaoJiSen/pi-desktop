@@ -66,6 +66,40 @@ afterEach(async () => {
 })
 
 describe('diff viewer reuse', () => {
+  it('reports actual new-file counts and does not report partial counts for a truncated patch', async () => {
+    const onStats = vi.fn()
+    const text = '@@ -0,0 +1,5 @@\n+one\n+two\n+three\n+four\n+five\n'
+    await act(async () =>
+      root.render(
+        <FileDiff
+          path="new.ts"
+          text={text}
+          binary={false}
+          missing={false}
+          truncated={false}
+          embedded
+          layout="unified"
+          onStats={onStats}
+        />,
+      ),
+    )
+    expect(onStats).toHaveBeenLastCalledWith('new.ts', { additions: 5, deletions: 0 })
+    await act(async () =>
+      root.render(
+        <FileDiff
+          path="new.ts"
+          text={text}
+          binary={false}
+          missing={false}
+          truncated
+          embedded
+          layout="unified"
+          onStats={onStats}
+        />,
+      ),
+    )
+    expect(onStats).toHaveBeenLastCalledWith('new.ts', null)
+  })
   it('shows an accessible skeleton until the requested diff arrives', async () => {
     let resolve!: (value: Awaited<ReturnType<typeof sourceApi.gitFileDiff>>) => void
     vi.spyOn(sourceApi, 'gitFileDiff').mockReturnValue(

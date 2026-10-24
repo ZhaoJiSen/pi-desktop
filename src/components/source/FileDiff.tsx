@@ -1,7 +1,7 @@
 import { Button, ToggleButton, ToggleButtonGroup } from '@heroui/react'
 import { DiffModeEnum, DiffView } from '@git-diff-view/react'
 import { ChevronLeft, Columns2, Rows3 } from 'lucide-react'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useColorMode } from '../../hooks/useColorMode'
 import { useT } from '../../lib/i18n'
 import {
@@ -31,6 +31,7 @@ export function FileDiff({
   embedded,
   layout,
   onBack,
+  onStats,
 }: {
   path: string
   text: string
@@ -41,6 +42,7 @@ export function FileDiff({
   embedded?: boolean
   layout?: 'unified' | 'split'
   onBack?: () => void
+  onStats?: (path: string, stats: { additions: number; deletions: number } | null) => void
 }) {
   const t = useT()
   const theme = useWorkspace((state) => state.theme)
@@ -59,6 +61,9 @@ export function FileDiff({
     return null
   }, [binary, fallback, missing, path, text])
   const stats = useMemo(() => (patch ? countPatch(patch) : null), [patch])
+  useEffect(() => {
+    onStats?.(path, truncated ? null : stats)
+  }, [onStats, path, stats, truncated])
   const virtual = useMemo(() => (patch?.split('\n').length ?? 0) > 240, [patch])
   const lang = highlightLang[fileLanguage(path)] ?? fileLanguage(path)
   // DiffView creates a new parser and replaces its entire code tree when data

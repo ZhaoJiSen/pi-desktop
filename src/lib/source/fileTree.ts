@@ -38,3 +38,18 @@ export function buildPathTree(paths: string[]) {
       .map((node) => node.path),
   }
 }
+
+/** Match the file tree's directory-first, depth-first reading order. */
+export function orderFilesByTree<T extends { path: string }>(files: readonly T[]): T[] {
+  const byPath = new Map(files.map((file) => [file.path, file]))
+  const ordered: T[] = []
+  const visit = (nodes: PathTreeNode[]) => {
+    for (const node of nodes) {
+      const file = byPath.get(node.path)
+      if (file) ordered.push(file)
+      visit(node.children)
+    }
+  }
+  visit(buildPathTree(files.map((file) => file.path)).nodes)
+  return ordered
+}

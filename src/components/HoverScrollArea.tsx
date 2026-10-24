@@ -1,5 +1,5 @@
 import { ScrollShadow } from '@heroui/react'
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useImperativeHandle, useRef, useState, type ReactNode, type Ref } from 'react'
 
 // macOS overlay scrollbars follow system scroll activity, not CSS hover state.
 // Keep ScrollShadow as the viewport and draw a hover-controlled thumb over it.
@@ -9,14 +9,17 @@ export function HoverScrollArea({
   children,
   shadowSize,
   viewportClassName,
+  viewportRef,
 }: {
   className: string
   label: string
   children: ReactNode
   shadowSize?: number
   viewportClassName?: string
+  viewportRef?: Ref<HTMLDivElement>
 }) {
   const viewport = useRef<HTMLDivElement>(null)
+  useImperativeHandle(viewportRef, () => viewport.current!, [])
   const content = useRef<HTMLDivElement>(null)
   const drag = useRef<{ y: number; scroll: number; ratio: number } | null>(null)
   const [dragging, setDragging] = useState(false)
