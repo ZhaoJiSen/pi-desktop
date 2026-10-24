@@ -17,6 +17,34 @@ function memoryStorage() {
 }
 
 describe('workspace persistence', () => {
+  it('restores the Changes file view and falls back safely for old or invalid preferences', () => {
+    const storage = memoryStorage()
+    const store = createWorkspaceStore(storage)
+    expect(store.getState().gitChangesView).toBe('tree')
+    store.getState().setPreference({ gitChangesView: 'list' })
+    const reopened = createWorkspaceStore(storage)
+    expect(reopened.getState().gitChangesView).toBe('list')
+    reopened.getState().setPreference({ gitChangesView: 'tree' })
+    expect(createWorkspaceStore(storage).getState().gitChangesView).toBe('tree')
+    const saved = JSON.parse(storage.getItem('pi-desktop-workspace-v1')!)
+    for (const value of [undefined, 'invalid']) {
+      saved.state.gitChangesView = value
+      storage.setItem('pi-desktop-workspace-v1', JSON.stringify(saved))
+      expect(createWorkspaceStore(storage).getState().gitChangesView).toBe('tree')
+    }
+  })
+  it('keeps the chosen Changes view usable when saving fails', async () => {
+    const storage = memoryStorage()
+    const store = createWorkspaceStore(storage)
+    storage.setItem = () => {
+      throw new Error('disk full')
+    }
+    store.getState().setPreference({ gitChangesView: 'list' })
+    await Promise.resolve()
+    expect(store.getState().gitChangesView).toBe('list')
+    expect(store.getState().storageError).not.toBeNull()
+    expect(createWorkspaceStore(storage).getState().gitChangesView).toBe('tree')
+  })
   it('shows setup for new installations and persists completion independently of projects', () => {
     const storage = memoryStorage()
     const store = createWorkspaceStore(storage)

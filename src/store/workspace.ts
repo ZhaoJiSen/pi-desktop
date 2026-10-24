@@ -72,6 +72,7 @@ interface WorkspaceState {
   autoReloadAfterToggle: boolean
   autoReloadAfterUpdate: boolean
   wrapLines: boolean
+  gitChangesView: 'tree' | 'list'
   notificationPreferences: NotificationPreferences
   piExecutable: string
   lastCustomPiExecutable: string
@@ -124,6 +125,7 @@ interface WorkspaceState {
         | 'autoReloadAfterUpdate'
         | 'autoReloadAfterToggle'
         | 'wrapLines'
+        | 'gitChangesView'
         | 'notificationPreferences'
         | 'capabilityPreferences'
       >
@@ -171,6 +173,7 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
         autoReloadAfterUpdate: true,
         autoReloadAfterToggle: true,
         wrapLines: false,
+        gitChangesView: 'tree',
         notificationPreferences: defaultNotificationPreferences,
         theme: 'system',
         windowMaterial: 'blur',
@@ -450,6 +453,7 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
           autoReloadAfterUpdate: state.autoReloadAfterUpdate,
           autoReloadAfterToggle: state.autoReloadAfterToggle,
           wrapLines: state.wrapLines,
+          gitChangesView: state.gitChangesView,
           notificationPreferences: state.notificationPreferences,
           onboardingCompleted: state.onboardingCompleted,
           capabilityPreferences: state.capabilityPreferences,
@@ -484,6 +488,7 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
           return {
             ...current,
             ...saved,
+            gitChangesView: saved?.gitChangesView === 'list' ? 'list' : 'tree',
             notificationPreferences: restoreNotificationPreferences(saved?.notificationPreferences),
             capabilityPreferences: saved?.capabilityPreferences || current.capabilityPreferences,
             palette:
