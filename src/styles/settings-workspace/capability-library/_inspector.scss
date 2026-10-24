@@ -1,0 +1,55 @@
+.capability-inspector-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--muted);
+  font-size: calc(var(--font-ui-size) * 13 / 14 * 1px);
+  margin-bottom: 16px;
+}
+.capability-inspector-heading .button {
+  flex: none;
+}
+.capability-inspector .capability-detail-back {
+  display: none;
+}
+.capability-inspector-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 20px;
+}
+.capability-inspector-actions .button {
+  font-size: calc(var(--font-ui-size) * 13 / 14 * 1px);
+}
+.capability-inspector svg {
+  width: 15px;
+  height: 15px;
+}
+.capability-settings-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  position: sticky;
+  bottom: -36px;
+  background: var(--paper);
+  padding: 16px 0;
+  margin-top: 20px;
+  border-top: 1px solid var(--line);
+  z-index: 2;
+}
+.capability-settings-footer > span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: calc(var(--font-ui-size) * 14 / 14 * 1px);
+}
+.capability-settings-footer [role='alert'] {
+  color: var(--danger);
+}
+.capability-settings-footer svg {
+  width: 15px;
+  height: 15px;
+}

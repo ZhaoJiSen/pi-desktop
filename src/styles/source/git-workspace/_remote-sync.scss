@@ -1,0 +1,218 @@
+.git-pull-mode-copy {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  align-items: flex-start;
+  text-align: left;
+  flex-direction: column;
+  gap: 4px;
+}
+.git-pull-modes strong {
+  font-weight: 500;
+  font-size: 13px;
+}
+.git-pull-modes small {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.git-conflict-list {
+  max-height: 40vh;
+}
+.git-conflict-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+.git-conflict-row > .overflow-tooltip-text {
+  flex: 1;
+  min-width: 0;
+}
+.git-conflict-row .button {
+  flex: none;
+  font-size: 12px;
+}
+.git-conflict-editor textarea {
+  display: block;
+  width: 100%;
+  min-height: 42vh;
+  resize: vertical;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--paper);
+  color: var(--ink);
+  font: 13px/1.7 var(--font-mono, monospace);
+  white-space: pre;
+  overflow: auto;
+}
+.git-conflict-editor-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
+}
+@container git-workspace (max-width: 650px) {
+  .git-workspace-header {
+    align-items: flex-start;
+  }
+  .git-workspace-action-bar {
+    margin-left: 0;
+  }
+  .git-workspace-tools {
+    width: fit-content;
+    max-width: 100%;
+    justify-content: flex-start;
+    margin-left: 0;
+    gap: 8px;
+    border-radius: 16px;
+  }
+  .git-workspace-tools .git-toolbar-divider {
+    display: none;
+  }
+  .git-sync-banner {
+    flex-wrap: wrap;
+  }
+  .git-sync-message {
+    flex-basis: calc(100% - 30px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .git-sync-banner {
+    animation: none;
+  }
+  .git-sync-dialog .git-pull-mode {
+    transition: none;
+  }
+}
+.git-sync-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+.git-sync-content > .git-page-body {
+  padding-top: 0;
+}
+
+.git-pull-mode:not([data-selected='true']) .radio__control {
+  background: transparent;
+  border: 1px solid var(--line);
+}
+
+.git-pull-mode-content {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+  gap: 10px;
+}
+.git-pull-mode:not([data-selected='true']) .radio__indicator:empty::before {
+  background: var(--paper);
+}
+
+.git-sync-counts {
+  gap: 5px;
+}
+.git-sync-trend {
+  --git-trend-tone: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  gap: 4px;
+  min-height: 22px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  color: var(--git-trend-tone);
+  background: color-mix(in srgb, var(--git-trend-tone) 12%, transparent);
+  font-size: 11px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.git-sync-trend[data-direction='down']:not([data-empty='true']) {
+  --git-trend-tone: var(--sand, #c4a66d);
+}
+.git-sync-trend[data-direction='up']:not([data-empty='true']) {
+  --git-trend-tone: var(--sky, #7ca4c4);
+}
+.git-sync-trend .chip__label {
+  line-height: 1;
+}
+.git-sync-trend svg {
+  display: block;
+  width: 12px;
+  height: 12px;
+}
+.git-log-head-action.button {
+  flex: none;
+  gap: 5px;
+  height: 28px;
+  min-height: 28px;
+  padding-inline: 7px;
+  font-size: 11px;
+}
+.git-log-head-action svg {
+  width: 13px;
+  height: 13px;
+}
+.git-head-badge.chip {
+  flex: none;
+  height: 19px;
+  min-height: 19px;
+  padding: 0 5px;
+  font-size: 10px;
+  line-height: 1;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 13%, transparent);
+}
+.git-log-row[data-current='true'] {
+  box-shadow: inset 2px 0 0 var(--accent);
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+}
+.git-log-row[data-current='true'][aria-selected='true'] {
+  background: color-mix(in srgb, var(--accent) 13%, var(--selection));
+}
+// History tools adapt to the actual log panel, including when the files panel is open.
+@container git-log (max-width: 620px) {
+  .git-log-filter {
+    position: relative;
+    flex: none;
+    justify-content: center;
+    width: 28px;
+    min-width: 28px;
+    height: 28px;
+    min-height: 28px;
+    padding: 0;
+  }
+  .git-log-filter .git-filter-value {
+    display: none;
+  }
+  .git-log-filter .git-filter-icon {
+    display: block;
+  }
+  .git-log-filter .git-filter-chevron {
+    display: none;
+  }
+  .git-log-filter[data-active='true']::after {
+    content: '';
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    top: 3px;
+    right: 3px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+}
+@container git-log (max-width: 400px) {
+  .git-log-head-action.button {
+    width: 28px;
+    padding: 0;
+  }
+  .git-log-head-action .git-log-head-label {
+    display: none;
+  }
+}

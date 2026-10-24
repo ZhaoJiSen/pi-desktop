@@ -1,0 +1,262 @@
+.git-branch-picker-popover .search-field {
+  align-items: stretch;
+  gap: 0;
+}
+.git-branch-picker-popover .search-field__group {
+  width: 100%;
+}
+.git-branch-dialog {
+  max-height: calc(100dvh - 48px);
+}
+.git-branch-dialog .modal__body {
+  flex: 1 1 auto;
+}
+.git-branch-dialog .modal__body > * {
+  flex-shrink: 0;
+}
+.git-branch-dialog .modal__body p {
+  margin: 0;
+}
+.git-branch-dialog .git-branch-error {
+  color: var(--danger);
+  font-size: 12px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+// At browser zoom or short windows, keep the review area reachable by scrolling.
+@media (max-height: 540px) {
+  .app-shell:has(.git-page) {
+    min-height: 0;
+  }
+  .app-shell:not(.native):has(.git-page) {
+    margin: 12px;
+    height: calc(100dvh - 24px);
+  }
+  .git-page-body {
+    overflow-y: auto;
+  }
+  .git-page-body > .git-view-pane {
+    min-height: 440px;
+    flex-shrink: 0;
+  }
+}
+.git-changes-workspace {
+  min-width: 0;
+  width: 100%;
+}
+.git-review-panel {
+  container: git-review / inline-size;
+}
+.git-changes-review,
+.git-diff-stream {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+.git-diff-stream .hover-scroll-viewport {
+  padding: 0;
+  overflow-anchor: none;
+}
+.git-diff-stage {
+  position: relative;
+  width: 100%;
+}
+.git-diff-stage.accordion--surface {
+  border-radius: 0;
+}
+.git-file-heading {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+}
+.git-diff-stage .git-file-trigger {
+  min-width: 0;
+  min-height: 44px;
+  padding: 8px 14px;
+  gap: 12px;
+  color: var(--ink);
+}
+// Surface rounds its first/last trigger; the outer review frame owns those corners.
+.git-diff-stage.accordion--surface .git-diff-section .git-file-trigger {
+  border-radius: 0;
+  background: transparent;
+}
+.git-diff-file-header:has(.git-file-trigger:hover, .git-file-trigger[data-focus-visible='true']) {
+  background: color-mix(in srgb, var(--selection) 24%, var(--surface));
+}
+.git-diff-stage .git-file-trigger .accordion__indicator {
+  width: 14px;
+  height: 14px;
+  color: var(--muted);
+}
+.git-changes-workspace .source-browser-content .git-diff-file-header {
+  min-height: 44px;
+  padding: 0 12px 0 0;
+  gap: 8px;
+}
+.git-diff-stage .git-diff-body {
+  padding: 0 0 16px;
+  color: var(--ink);
+}
+.git-diff-section > .accordion__panel {
+  overflow-anchor: none;
+}
+.git-diff-section {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding-bottom: 0;
+  box-shadow: inset 0 -1px var(--line);
+}
+.git-page .diff.diff-panel .source-git-diff {
+  overflow: visible;
+}
+.git-changes-workspace .git-diff-file-header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  border: 0;
+  background: var(--surface);
+  box-shadow: inset 0 -1px var(--line);
+  transition: background 140ms ease;
+}
+.git-diff-stage .git-diff-section::after {
+  content: none;
+}
+.git-diff-file-header .git-file-action-bar {
+  padding: 2px;
+  box-shadow: none;
+}
+.git-diff-file-header .git-file-action-bar .button {
+  min-width: 28px;
+  width: 28px;
+  min-height: 28px;
+  height: 28px;
+}
+.source-file-basename[data-preserve-extension] {
+  display: flex;
+  min-width: 0;
+  width: 100%;
+}
+.source-file-stem {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.source-file-extension {
+  flex: none;
+  max-width: 55%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@container git-review (max-width: 620px) {
+  .git-file-action-bar .git-action-label {
+    display: none;
+  }
+  .git-file-action-bar .button {
+    width: 30px;
+    padding: 0;
+  }
+  .git-file-identity {
+    gap: 8px;
+  }
+}
+@container git-review (max-width: 420px) {
+  .git-changes-workspace .source-browser-content .git-diff-file-header {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0 12px 10px;
+  }
+  .git-diff-file-header .git-file-heading {
+    flex-basis: 100%;
+  }
+  .git-diff-file-header .git-file-action-bar {
+    margin-left: auto;
+  }
+  .git-diff-file-header .git-file-path-label .source-file-directory {
+    display: flex;
+  }
+  .git-changes-workspace .source-preview-inline-actions {
+    display: none;
+  }
+  .git-changes-workspace .source-preview-overflow {
+    display: inline-flex;
+  }
+  .git-changes-workspace .source-file-directory {
+    display: none;
+  }
+}
+.action-popover.git-branch-menu {
+  width: max-content;
+  min-width: 240px;
+  max-width: calc(100vw - 32px);
+}
+.git-branch-dialog .button--primary {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+.git-branch-dialog
+  .button--primary:is(:hover, [data-hovered='true']):not(:disabled, [aria-disabled='true']) {
+  background: color-mix(in srgb, var(--accent) 90%, var(--paper));
+}
+.git-branch-dialog .button--primary:is(:disabled, [aria-disabled='true']) {
+  background: var(--hover);
+  color: var(--muted);
+  opacity: 1;
+}
+
+// Fade the shell without transforming the complete diff document.
+.git-page-enter {
+  animation: git-page-appear 140ms ease-out;
+}
+@keyframes git-page-appear {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.git-navigation-skeleton {
+  min-width: 0;
+  overflow: hidden;
+}
+.git-skeleton-bar {
+  flex-shrink: 1;
+  min-width: 0;
+  height: 10px;
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--muted) 13%, var(--paper));
+}
+.git-skeleton-tabs {
+  align-items: center;
+  height: 40px;
+  gap: 16px;
+  padding-inline: 8px;
+}
+.git-skeleton-tabs .git-skeleton-bar {
+  height: 24px;
+}
+.git-skeleton-tools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  height: 36px;
+  padding: 0 10px;
+}
+.git-skeleton-file {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 34px;
+  padding-right: 22px;
+}
+.git-skeleton-file .git-skeleton-icon {
+  flex: 0 0 14px;
+  height: 14px;
+  border-radius: 4px;
+}

@@ -32,7 +32,12 @@ export function useSourceQuery<T>(
     loadRef.current = load
   }, [load])
   useEffect(() => {
-    if (!scope) return
+    if (!scope) {
+      // Disabling a resource ends its request lifetime, allowing a fresh retry.
+      // Activity hide/reveal keeps the scope and still reuses its request.
+      request.current = null
+      return
+    }
     let live = true
     const requestScope = scope
     const requestRefresh = refreshKey

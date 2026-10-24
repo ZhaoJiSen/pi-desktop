@@ -1,0 +1,51 @@
+.commit-dialog .button.commit-save {
+  --button-bg: var(--accent);
+  --button-bg-hover: color-mix(in srgb, var(--accent) 90%, var(--paper));
+  --button-bg-pressed: color-mix(in srgb, var(--accent) 80%, var(--paper));
+  --button-fg: var(--accent-foreground);
+  background: var(--button-bg);
+  color: var(--button-fg);
+}
+.commit-dialog
+  .button.commit-save:is(:hover, [data-hovered='true']):not(:disabled, [aria-disabled='true']) {
+  background: var(--button-bg-hover);
+}
+.commit-dialog
+  .button.commit-save:is(:active, [data-pressed='true']):not(:disabled, [aria-disabled='true']) {
+  background: var(--button-bg-pressed);
+}
+.commit-dialog .button.commit-save:is(:disabled, [aria-disabled='true']) {
+  background: var(--hover);
+  color: var(--muted);
+  opacity: 1;
+}
+.commit-dialog .button.commit-cancel {
+  --button-bg-hover: var(--hover);
+  --button-bg-pressed: var(--selection);
+  color: var(--ink);
+}
+.field-label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.field-input {
+  width: 100%;
+  border: 1px solid var(--frame);
+  border-radius: var(--field-radius);
+  padding: 9px 11px;
+  font-size: 13px;
+  color: var(--ink);
+  background: var(--paper);
+}
+.field-error {
+  color: var(--danger);
+  font-size: 12px;
+  margin-top: 10px;
+}
+.extension-input {
+  min-height: 100px;
+  resize: vertical;
+}

@@ -48,3 +48,6 @@ pub(crate) fn init_repo(root: &std::path::Path) {
     git_ok(root, &["config", "user.email", "test@example.com"]);
     git_ok(root, &["config", "user.name", "Test"]);
 }
+
+// Serializes test scenarios that mutate Git, independently of the production lock.
+pub(crate) static MUTATION_TEST: std::sync::Mutex<()> = std::sync::Mutex::new(());

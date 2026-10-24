@@ -61,8 +61,12 @@ fn apply_numstat(files: &mut [GitFileStatus], bytes: &[u8]) {
     for line in String::from_utf8_lossy(bytes).lines() {
         let mut parts = line.split('\t');
         let Some(added) = parts.next() else { continue };
-        let Some(deleted) = parts.next() else { continue };
-        let Some(raw_path) = parts.next() else { continue };
+        let Some(deleted) = parts.next() else {
+            continue;
+        };
+        let Some(raw_path) = parts.next() else {
+            continue;
+        };
         let path = raw_path
             .replace('\\', "/")
             .rsplit(" => ")

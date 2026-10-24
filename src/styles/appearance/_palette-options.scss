@@ -1,0 +1,65 @@
+.settings-palette-option-label {
+  display: block;
+  flex: none;
+  font-size: calc(var(--font-ui-size) * 13 / 14 * 1px);
+  line-height: 20px;
+  white-space: nowrap;
+}
+.settings-accent-row {
+  padding-bottom: 20px;
+}
+.settings-accent-picker {
+  flex: none;
+  gap: 6px;
+  .color-swatch-picker__item {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+  }
+  .color-swatch-picker__swatch {
+    border-radius: 50%;
+  }
+}
+.settings-accent-default {
+  margin-right: 7px;
+  position: relative;
+  .color-swatch-picker__swatch {
+    display: block;
+    height: 100%;
+    background: var(--accent) !important;
+  }
+  &[data-selected='true'] {
+    border-color: var(--ink);
+  }
+  .color-swatch-picker__indicator svg {
+    color: var(--paper);
+  }
+  &::after {
+    content: '';
+    position: absolute;
+    right: -9px;
+    height: 18px;
+    width: 1px;
+    background: var(--line);
+  }
+}
+@media (max-width: 640px) {
+  .settings-palette-row,
+  .settings-accent-row {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .settings-palette-trigger {
+    width: 100%;
+  }
+  .settings-accent-picker {
+    flex-wrap: wrap;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .settings-palette-option,
+  .settings-theme-content {
+    transition: none;
+  }
+}

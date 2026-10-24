@@ -97,7 +97,10 @@ fn status_and_diff_cover_edits_untracked_and_deletes() {
     assert!(readme.additions >= 1, "{readme:?}");
 
     restore_worktree(&dir.0, "readme.md").unwrap();
-    assert_eq!(fs::read_to_string(dir.0.join("readme.md")).unwrap(), "one\n");
+    assert_eq!(
+        fs::read_to_string(dir.0.join("readme.md")).unwrap(),
+        "one\n"
+    );
     assert!(restore_worktree(&dir.0, "../readme.md").is_err());
 }
 
@@ -200,6 +203,7 @@ fn rename_status_keeps_both_paths() {
 
 #[test]
 fn commit_branch_records_the_change_on_a_new_branch() {
+    let _guard = super::support::MUTATION_TEST.lock().unwrap();
     let dir = temp_dir();
     init_repo(&dir.0);
     fs::write(dir.0.join("readme.md"), "one\n").unwrap();

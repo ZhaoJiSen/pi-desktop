@@ -1,29 +1,15 @@
-import {
-  Button,
-  ColorSwatchPicker,
-  Label,
-  ListBox,
-  Popover,
-  Radio,
-  RadioGroup,
-  Select,
-} from '@heroui/react'
+import { Button, Label, ListBox, Popover, Radio, RadioGroup, Select } from '@heroui/react'
 import { Check, ChevronDown, Monitor, Moon, Sun } from 'lucide-react'
 import { useState } from 'react'
-import type { Palette, Theme, WindowMaterial } from '../../types'
-import { useWorkspace } from '../../store/workspace'
-import { useT } from '../../lib/i18n'
-import {
-  accentColors,
-  accentKey,
-  palettesForMode,
-  type AccentColor,
-  type ColorMode,
-} from '../../lib/appearance'
 import { useColorMode } from '../../hooks/useColorMode'
-import { SettingsSection } from './SettingsSection'
-import { PalettePreview } from './PalettePreview'
+import { accentKey, palettesForMode, type ColorMode } from '../../lib/appearance'
+import { useT } from '../../lib/i18n'
+import { useWorkspace } from '../../store/workspace'
+import type { Palette, Theme, WindowMaterial } from '../../types'
+import { AccentSettings } from './AccentSettings'
 import { FontSettings } from './FontSettings'
+import { PalettePreview } from './PalettePreview'
+import { SettingsSection } from './SettingsSection'
 
 const paletteMessageNames = {
   ink: 'ink',
@@ -50,7 +36,6 @@ const themeOptions = [
   { mode: 'dark', icon: Moon },
   { mode: 'system', icon: Monitor },
 ] as const
-const accents = Object.keys(accentColors) as AccentColor[]
 const materials = ['off', 'blur', 'glass'] as const satisfies readonly WindowMaterial[]
 
 export function AppearanceSettings() {
@@ -153,11 +138,7 @@ export function AppearanceSettings() {
               <Select.Popover placement="bottom end">
                 <ListBox>
                   {materials.map((item) => (
-                    <ListBox.Item
-                      key={item}
-                      id={item}
-                      textValue={t(`settings.material.${item}`)}
-                    >
+                    <ListBox.Item key={item} id={item} textValue={t(`settings.material.${item}`)}>
                       {t(`settings.material.${item}`)}
                       <ListBox.ItemIndicator />
                     </ListBox.Item>
@@ -261,46 +242,15 @@ export function AppearanceSettings() {
                 {accent ? t(`settings.accent.${accent}`) : t('settings.accent.default')}
               </p>
             </div>
-            <ColorSwatchPicker
-              key={mode}
-              className="settings-accent-picker"
-              aria-labelledby="settings-accent-label"
-              value={accent ? accentColors[accent][mode] : '#00000000'}
-              onChange={(color) => {
-                const value = color.toString('hex').toLowerCase()
-                const selected = accents.find((id) => accentColors[id][mode] === value)
-                const next = { ...accentOverrides }
-                if (selected) next[key] = selected
-                else delete next[key]
-                setPreference({ accentOverrides: next })
-              }}
-            >
-              <ColorSwatchPicker.Item
-                color="#00000000"
-                aria-label={t('settings.accent.default')}
-                className="settings-accent-default"
-              >
-                <ColorSwatchPicker.Swatch
-                  aria-hidden="true"
-                  className="palette-preview"
-                  data-palette={palette}
-                  data-theme={mode}
-                />
-                <ColorSwatchPicker.Indicator>
-                  <Check />
-                </ColorSwatchPicker.Indicator>
-              </ColorSwatchPicker.Item>
-              {accents.map((id) => (
-                <ColorSwatchPicker.Item
-                  key={id}
-                  color={accentColors[id][mode]}
-                  aria-label={t(`settings.accent.${id}`)}
-                >
-                  <ColorSwatchPicker.Swatch aria-hidden="true" />
-                  <ColorSwatchPicker.Indicator />
-                </ColorSwatchPicker.Item>
-              ))}
-            </ColorSwatchPicker>
+            <AccentSettings
+              mode={mode}
+              accent={accent}
+              accentOverrides={accentOverrides}
+              accentKeyValue={key}
+              setPreference={setPreference}
+              t={t}
+              palette={palette}
+            />
           </div>
         </div>
       </SettingsSection>
