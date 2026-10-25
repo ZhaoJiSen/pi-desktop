@@ -46,7 +46,9 @@ present and creates `latest.json` with `darwin-aarch64` and `darwin-x86_64` entr
 pointing at the universal bundle. Release notes are generated once with the GitHub API, included in `latest.json`,
 and used as the GitHub Release body. A reviewed `docs/releases/<version>.md` takes
 precedence over automatic notes; the same text is used in both places. Empty reviewed
-notes stop publication. All four release assets are published together. Prereleases
+notes stop publication. Asset filenames are normalized before upload so GitHub's
+filename rewriting cannot invalidate updater URLs. Signed bundle bytes are unchanged,
+and filename collisions stop publication. All four release assets are published together. Prereleases
 remain outside the stable `latest` channel. This pipeline currently targets macOS;
 Windows/Linux release artifacts and manifest entries are not configured.
 

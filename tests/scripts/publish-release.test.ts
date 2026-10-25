@@ -91,9 +91,9 @@ describe('release publishing', () => {
       'release',
       'create',
       'v0.2.0',
-      join(directory, 'assets', 'pi desktop.app.tar.gz'),
-      join(directory, 'assets', 'pi desktop.app.tar.gz.sig'),
-      join(directory, 'assets', 'pi desktop.dmg'),
+      join(directory, 'assets', 'pi-desktop.app.tar.gz'),
+      join(directory, 'assets', 'pi-desktop.app.tar.gz.sig'),
+      join(directory, 'assets', 'pi-desktop.dmg'),
       join(directory, 'assets', 'latest.json'),
       '--repo',
       'test/pi-desktop',
@@ -113,7 +113,7 @@ describe('release publishing', () => {
     expect(manifest.notes).toBe(environment.RELEASE_TEST_NOTES)
     expect(readFileSync(join(directory, 'assets', 'release-notes.md'), 'utf8')).toBe(manifest.notes)
     expect(manifest.platforms['darwin-aarch64']).toEqual({
-      url: 'https://github.com/test/pi-desktop/releases/download/v0.2.0/pi%20desktop.app.tar.gz',
+      url: 'https://github.com/test/pi-desktop/releases/download/v0.2.0/pi-desktop.app.tar.gz',
       signature: 'test-signature',
     })
     expect(manifest.platforms['darwin-x86_64']).toEqual(manifest.platforms['darwin-aarch64'])
@@ -133,6 +133,25 @@ describe('release publishing', () => {
       '--jq',
       '.body',
     ])
+  })
+  it('normalizes public asset names without changing the signed bundle or signature', () => {
+    expect(run().status).toBe(0)
+    expect(readFileSync(join(directory, 'assets', 'pi-desktop.app.tar.gz'))).toEqual(
+      readFileSync(join(directory, 'assets', 'pi desktop.app.tar.gz')),
+    )
+    expect(readFileSync(join(directory, 'assets', 'pi-desktop.app.tar.gz.sig'))).toEqual(
+      readFileSync(join(directory, 'assets', 'pi desktop.app.tar.gz.sig')),
+    )
+  })
+  it('rejects colliding public filenames instead of overwriting another artifact', () => {
+    writeFileSync(join(directory, 'assets', 'pi-desktop.dmg'), 'different bundle')
+    const result = run()
+    expect(result.status).toBe(1)
+    expect(result.stderr).toContain('filenames collide')
+    expect(readFileSync(join(directory, 'assets', 'pi-desktop.dmg'), 'utf8')).toBe(
+      'different bundle',
+    )
+    expect(() => readFileSync(environment.RELEASE_TEST_LOG!)).toThrow()
   })
 
   it('does not publish if release notes cannot be generated', () => {

@@ -1,8 +1,20 @@
 import { execFileSync } from 'node:child_process'
-import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
+import {
+  constants,
+  copyFileSync,
+  existsSync,
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+} from 'node:fs'
 import { resolve } from 'node:path'
 import process from 'node:process'
 import { readBuildVersion } from './version.ts'
+
+function assetName(name: string) {
+  const normalized = name.replace(/[^a-zA-Z0-9._-]/g, '-')
+  return /^[a-zA-Z0-9]/.test(normalized) ? normalized : `asset-${normalized}`
+}
 
 function publishRelease() {
   const version = readBuildVersion()
@@ -24,7 +36,17 @@ function publishRelease() {
   const signatureFile = `${bundle}.sig`
   const signature = readFileSync(resolve(directory, signatureFile), 'utf8').trim()
   if (!signature) throw new Error('Updater bundle signature is empty')
-  const assets = [...dmgs, bundle, signatureFile].sort().map((name) => resolve(directory, name))
+  // GitHub rewrites spaces in asset names. Choose portable names before upload,
+  // so the manifest links exactly to the asset name that will be published.
+  const originals = [...dmgs, bundle, signatureFile].sort()
+  const names = originals.map(assetName)
+  if (
+    new Set(names).size !== names.length ||
+    originals.some((name, index) => name !== names[index] && files.includes(names[index]))
+  ) {
+    throw new Error('Release asset filenames collide after normalization')
+  }
+  const assets = names.map((name) => resolve(directory, name))
 
   const tag = `v${version}`
   const existingTag = execFileSync('git', ['tag', '--list', tag], { encoding: 'utf8' }).trim()
@@ -58,11 +80,15 @@ function publishRelease() {
         { encoding: 'utf8' },
       ).trim()
   if (!notes) throw new Error('Release notes are empty; refusing to publish')
+  originals.forEach((name, index) => {
+    if (name !== names[index])
+      copyFileSync(resolve(directory, name), assets[index], constants.COPYFILE_EXCL)
+  })
   const notesFile = resolve(directory, 'release-notes.md')
   writeFileSync(notesFile, notes)
 
   const platform = {
-    url: `https://github.com/${repository}/releases/download/${encodeURIComponent(tag)}/${encodeURIComponent(bundle)}`,
+    url: `https://github.com/${repository}/releases/download/${encodeURIComponent(tag)}/${encodeURIComponent(assetName(bundle))}`,
     signature,
   }
   const manifest = resolve(directory, 'latest.json')
