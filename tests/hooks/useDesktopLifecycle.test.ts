@@ -52,6 +52,21 @@ function Probe({ enabled }: { enabled: boolean }) {
 async function render(enabled: boolean) {
   await act(async () => root.render(createElement(Probe, { enabled })))
 }
+function systemAppearance(dark: boolean, override: 'light' | 'dark' | null = null) {
+  const media = new EventTarget()
+  Object.defineProperty(media, 'matches', {
+    get: () => (override === null ? dark : override === 'dark'),
+  })
+  vi.stubGlobal('matchMedia', () => media)
+  mocks.theme.mockImplementation(async (theme: 'light' | 'dark' | null) => {
+    override = theme
+    media.dispatchEvent(new Event('change'))
+  })
+  return (value: boolean) => {
+    dark = value
+    media.dispatchEvent(new Event('change'))
+  }
+}
 beforeEach(() => {
   vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
   vi.stubGlobal('matchMedia', () => ({
@@ -85,6 +100,45 @@ afterEach(async () => {
   vi.unstubAllGlobals()
 })
 describe('onboarding startup boundary', () => {
+  it('releases a stale native dark override when restoring the system preference', async () => {
+    systemAppearance(false, 'dark')
+    useWorkspace.setState({ theme: 'system' })
+    await render(false)
+    expect(mocks.theme).toHaveBeenCalledWith(null)
+    expect(document.documentElement.dataset.theme).toBe('light')
+  })
+  it('returns to system tracking even when the resolved color does not change', async () => {
+    const changeSystem = systemAppearance(true)
+    useWorkspace.setState({
+      theme: 'dark',
+      palettesByMode: { light: 'nord', dark: 'catppuccin' },
+    })
+    await render(false)
+    expect(mocks.theme).toHaveBeenLastCalledWith('dark')
+    await act(async () => useWorkspace.getState().setPreference({ theme: 'system' }))
+    expect(mocks.theme).toHaveBeenLastCalledWith(null)
+    expect(document.documentElement.dataset.theme).toBe('dark')
+    await act(async () => changeSystem(false))
+    expect(document.documentElement.dataset.theme).toBe('light')
+    expect(document.documentElement.dataset.palette).toBe('nord')
+    await act(async () => changeSystem(true))
+    expect(document.documentElement.dataset.theme).toBe('dark')
+    expect(document.documentElement.dataset.palette).toBe('catppuccin')
+    expect(useWorkspace.getState().theme).toBe('system')
+    expect(mocks.theme.mock.calls.slice(1).every(([theme]) => theme === null)).toBe(true)
+  })
+  it('keeps an explicit theme until the user switches back to system', async () => {
+    const changeSystem = systemAppearance(false)
+    useWorkspace.setState({ theme: 'dark' })
+    await render(false)
+    await act(async () => changeSystem(true))
+    await act(async () => changeSystem(false))
+    expect(document.documentElement.dataset.theme).toBe('dark')
+    expect(mocks.theme).toHaveBeenLastCalledWith('dark')
+    await act(async () => useWorkspace.getState().setPreference({ theme: 'system' }))
+    expect(document.documentElement.dataset.theme).toBe('light')
+    expect(mocks.theme).toHaveBeenLastCalledWith(null)
+  })
   it('keeps the native window transparent when the theme or palette changes', async () => {
     await render(false)
     expect(mocks.background).toHaveBeenCalledWith([0, 0, 0, 0])

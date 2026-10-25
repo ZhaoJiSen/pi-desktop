@@ -89,15 +89,20 @@
 // Repository context belongs to the entire workspace, above all resizable cards.
 .git-workspace-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   flex: none;
   gap: 12px;
-  padding: 14px 16px 10px;
+  padding: 20px 16px 10px;
   flex-wrap: wrap;
 }
 .git-workspace-header h1 {
-  margin: 0;
+  margin: 2px 0 0;
+}
+@media (max-width: 780px) {
+  .git-workspace-header {
+    padding-top: 16px;
+  }
 }
 .git-workspace-action-bar {
   min-width: 0;

@@ -7,6 +7,8 @@
   padding: 24px;
 }
 .remove-dialog .alert-dialog__header {
+  flex-direction: row;
+  align-items: center;
   gap: 12px;
 }
 .remove-dialog .alert-dialog__heading {

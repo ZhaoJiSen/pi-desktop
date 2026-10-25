@@ -1,5 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-const mocks = vi.hoisted(() => ({ invoke: vi.fn(), activate: vi.fn(), warm: vi.fn() }))
+const mocks = vi.hoisted(() => ({
+  invoke: vi.fn(),
+  activate: vi.fn(),
+  warm: vi.fn(),
+  write: vi.fn(),
+}))
 vi.mock('@tauri-apps/api/core', () => ({
   invoke: mocks.invoke,
   Channel: class {
@@ -17,7 +22,7 @@ vi.mock('../../src/store/workspace', async (original) => {
     isDesktop: true,
     useWorkspace: module.createWorkspaceStore({
       getItem: () => null,
-      setItem: () => {},
+      setItem: mocks.write,
       removeItem: () => {},
     }),
   }
@@ -258,6 +263,10 @@ describe('Pi update orchestration', () => {
       await expect(updates.upgradePi('/bin/pi', vi.fn())).rejects.toThrow('busy')
     }
     expect(mocks.invoke).not.toHaveBeenCalled()
+    // Exercise a current write failure: a historical error clears on a successful save.
+    mocks.write.mockImplementation(() => {
+      throw new Error('disk full')
+    })
     workspace.setState({ piUpdating: false, connection: 'connected', storageError: 'disk full' })
     await expect(updates.upgradePi('/bin/pi', vi.fn())).rejects.toThrow('could not be saved')
     expect(mocks.invoke.mock.calls.some(([name]) => name === 'upgrade_pi')).toBe(false)

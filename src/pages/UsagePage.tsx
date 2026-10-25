@@ -1,75 +1,85 @@
+import { useLayoutEffect, useRef } from 'react'
 import { Button, Tabs } from '@heroui/react'
 import { ArrowRight } from 'lucide-react'
-import { motion, useReducedMotion } from 'motion/react'
 import { useT } from '../lib/i18n'
 import { selectChat } from '../router/navigation'
+import { OverflowTooltip } from '../components/OverflowTooltip'
 import { useUsagePage } from './usage/useUsagePage'
+import { usageScroll } from './usage/usageViewState'
 import { UsageOverview } from './usage/UsageOverview'
 import { UsageConversations } from './usage/UsageConversations'
-import { UsageProjectFilter } from './usage/UsageProjectFilter'
 import { UsageEmpty } from './usage/UsageEmpty'
 
 export function UsagePage() {
+  const view = useRef<HTMLDivElement>(null)
+  useLayoutEffect(() => {
+    if (view.current) view.current.scrollTop = usageScroll.read()
+  }, [])
   const controller = useUsagePage()
   const {
     scope,
     changeScope,
-    showAllTools,
     emptyView,
     session,
     known,
     projectName,
     chosen,
     recorded,
+    activeProject,
   } = controller
-  const reducedMotion = useReducedMotion()
   const t = useT()
   return (
-    <motion.div
+    <div
+      ref={view}
+      onScroll={(event) => usageScroll.remember(event.currentTarget.scrollTop)}
       className={`utility-view usage-view${emptyView ? ' is-empty' : ''}`}
-      initial={reducedMotion ? false : { opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.2 }}
     >
-      <header className="usage-heading">
-        <h1 className="utility-page-title">{t('navigation.usage')}</h1>
-      </header>
       <Tabs
         className="usage-content"
         selectedKey={scope}
         onSelectionChange={(key) => changeScope(key as typeof scope)}
       >
         <div className="usage-toolbar">
-          <Tabs.List className="usage-scope" aria-label={t('usage.scope')}>
-            {(['current', 'all'] as const).map((value) => (
-              <Tabs.Tab key={value} id={value}>
-                {t(`sessions.${value}`)}
-                <Tabs.Indicator />
-              </Tabs.Tab>
-            ))}
-          </Tabs.List>
-          {scope === 'all' && showAllTools && <UsageProjectFilter {...controller} />}
+          <header className="usage-heading">
+            <h1 className="utility-page-title">{t('navigation.usage')}</h1>
+          </header>
+          <div className="usage-toolbar-controls">
+            <Tabs.List className="usage-scope" aria-label={t('usage.scope')}>
+              {(['current', 'all'] as const).map((value) => (
+                <Tabs.Tab key={value} id={value}>
+                  {t(`sessions.${value}`)}
+                  <Tabs.Indicator />
+                </Tabs.Tab>
+              ))}
+            </Tabs.List>
+          </div>
         </div>
 
-        <Tabs.Panel key={scope} id={scope}>
-          <motion.div
-            className="usage-body"
-            key={scope}
-            initial={reducedMotion ? false : { opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.16 }}
-          >
-            {scope === 'current' && session && known && (
+        <Tabs.Panel id={scope}>
+          <div className="usage-body">
+            {known && (
               <div className="usage-session-heading">
-                <div>
-                  <h2>{session.title || t('sessions.new')}</h2>
+                <div className="usage-context-copy">
+                  <h2>
+                    <OverflowTooltip
+                      text={
+                        scope === 'current' && session
+                          ? session.title || t('sessions.new')
+                          : t('sessions.all')
+                      }
+                    />
+                  </h2>
                   <p>
-                    {projectName(session)}
-                    <span aria-hidden="true"> · </span>
-                    {session.modelKey.split('/').slice(1).join('/') || t('usage.noModel')}
+                    <OverflowTooltip
+                      text={
+                        scope === 'current' && session
+                          ? `${projectName(session)} · ${session.modelKey.split('/').slice(1).join('/') || t('usage.noModel')}`
+                          : activeProject?.name || t('usage.allProjects')
+                      }
+                    />
                   </p>
                 </div>
-                {known && (
+                {scope === 'current' && session ? (
                   <Button
                     variant="ghost"
                     className="usage-open"
@@ -78,6 +88,14 @@ export function UsagePage() {
                     {t('usage.openConversation')}
                     <ArrowRight aria-hidden="true" />
                   </Button>
+                ) : (
+                  <dl className="usage-recorded">
+                    <dt>{t('usage.recordedSessions')}</dt>
+                    <dd>
+                      {recorded.length}
+                      <span className="usage-count-unit">/ {chosen.length}</span>
+                    </dd>
+                  </dl>
                 )}
               </div>
             )}
@@ -90,21 +108,23 @@ export function UsagePage() {
               !known && <UsageEmpty session={session} projectName={projectName} />
             )}
 
-            {scope === 'all' && chosen.length > recorded.length && (
-              <footer className="usage-footnote">
-                <p>
-                  {t(
-                    chosen.length - recorded.length === 1
-                      ? 'usage.missingUsage.one'
-                      : 'usage.missingUsage.other',
-                    { count: chosen.length - recorded.length },
-                  )}
-                </p>
-              </footer>
-            )}
-          </motion.div>
+            {scope === 'all' &&
+              controller.selectedDay === null &&
+              chosen.length > recorded.length && (
+                <footer className="usage-footnote">
+                  <p>
+                    {t(
+                      chosen.length - recorded.length === 1
+                        ? 'usage.missingUsage.one'
+                        : 'usage.missingUsage.other',
+                      { count: chosen.length - recorded.length },
+                    )}
+                  </p>
+                </footer>
+              )}
+          </div>
         </Tabs.Panel>
       </Tabs>
-    </motion.div>
+    </div>
   )
 }

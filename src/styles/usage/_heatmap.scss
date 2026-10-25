@@ -1,0 +1,132 @@
+.usage-heatmap {
+  --usage-day-empty: color-mix(in srgb, var(--ink) 8%, var(--paper));
+  --usage-day-outline: color-mix(in srgb, var(--ink) 20%, var(--paper));
+  margin-bottom: 16px;
+}
+.usage-heatmap .usage-chart-heading {
+  margin-bottom: 8px;
+}
+.usage-heatmap-period {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 20px;
+  font-variant-numeric: tabular-nums;
+}
+.usage-heatmap-summary {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 22px;
+  font-size: 13px;
+  line-height: 20px;
+  p {
+    margin: 0;
+  }
+  > span {
+    color: var(--muted);
+  }
+}
+.usage-heatmap .react-activity-calendar {
+  width: 100% !important;
+  color: var(--muted);
+}
+.usage-heatmap .react-activity-calendar__calendar {
+  width: calc(100% - 44px);
+  min-width: 950px;
+  height: auto;
+}
+.usage-heatmap .react-activity-calendar__scroll-container {
+  scrollbar-width: thin;
+}
+.usage-heatmap .react-activity-calendar__footer {
+  margin-top: 8px;
+  line-height: 20px;
+}
+.usage-heatmap .react-activity-calendar__legend-colors rect {
+  // The library uses a fixed light-scheme inline stroke for its legend.
+  stroke: var(--usage-day-outline) !important;
+}
+.usage-heatmap rect.usage-day {
+  cursor: pointer;
+  transition:
+    fill 260ms ease,
+    stroke 120ms ease;
+  &:not(.is-future):hover,
+  &:not(.is-future):focus-visible {
+    stroke: var(--ink) !important;
+    stroke-width: 2px;
+    outline: none;
+  }
+}
+.usage-heatmap rect.usage-day.is-future {
+  cursor: default;
+}
+.usage-heatmap-bottom {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 20px;
+}
+.usage-heatmap-inspection {
+  min-height: 40px;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.usage-list-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  min-width: 0;
+}
+.usage-heatmap-pan {
+  display: none;
+}
+@container (max-width: 850px) {
+  .usage-heatmap-inspection {
+    min-height: 40px;
+  }
+}
+@container (max-width: 800px) {
+  .usage-heatmap-pan {
+    display: block;
+    margin: 8px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 20px;
+  }
+}
+@container (max-width: 480px) {
+  .usage-list-filters {
+    width: 100%;
+  }
+  .usage-list-filters .usage-project-select {
+    max-width: 100%;
+    width: 100%;
+  }
+  .usage-heatmap {
+    padding: 18px;
+  }
+}
+.usage-content[data-focus-visible='true']:not(:focus) {
+  outline: none;
+}
+
+.usage-day-results.button {
+  display: inline-flex;
+  vertical-align: baseline;
+  min-height: 20px;
+  height: 20px;
+  padding: 0;
+  margin-left: 10px;
+  gap: 4px;
+  color: var(--usage-chart-ink);
+  font-size: 13px;
+  line-height: 20px;
+  svg {
+    width: 13px;
+    height: 13px;
+  }
+}

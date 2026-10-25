@@ -153,7 +153,8 @@
   gap: 8px;
   padding: 8px 12px 12px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
+  line-height: 1.6;
 }
 .source-restore p {
   flex: 1 1 180px;
@@ -165,6 +166,10 @@
   align-items: center;
   gap: 8px;
   margin-left: auto;
+}
+.source-restore-actions .button--danger {
+  --button-fg: var(--paper);
+  color: var(--button-fg);
 }
 .source-detail.is-embedded {
   animation: source-fade 140ms ease-out;

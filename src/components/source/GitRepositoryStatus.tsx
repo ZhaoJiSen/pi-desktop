@@ -1,11 +1,12 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react'
-import { gitStatus } from '../../lib/source/api'
 import type { GitStatus } from '../../lib/source/types'
-import { useSourceQuery, type SourceQuery } from './useSourceQuery'
+import { type SourceQuery } from './useSourceQuery'
+import { useGitStatus } from './useGitStatus'
 
 const RepositoryStatusContext = createContext<{
   status: SourceQuery<GitStatus>
   refresh: () => void
+  revision: number
 } | null>(null)
 
 /** One repository status feeds both navigation badges and the Changes contents. */
@@ -23,19 +24,16 @@ export function GitRepositoryStatusProvider({
   children: ReactNode
 }) {
   const [generation, setGeneration] = useState(0)
-  const status = useSourceQuery(
-    projectPath ? `status:${projectPath}` : null,
-    () => gitStatus(projectPath),
-    `${revision}:${tick}:${generation}`,
-  )
+  const status = useGitStatus(projectPath || null, `${revision}:${tick}:${generation}`)
   const refresh = useCallback(() => {
     if (onChanged) onChanged()
     else setGeneration((value) => value + 1)
   }, [onChanged])
   const { loading, data, error } = status
+  const contentRevision = generation + status.revision
   const value = useMemo(
-    () => ({ status: { loading, data, error }, refresh }),
-    [loading, data, error, refresh],
+    () => ({ status: { loading, data, error }, refresh, revision: contentRevision }),
+    [loading, data, error, refresh, contentRevision],
   )
   return (
     <RepositoryStatusContext.Provider value={value}>{children}</RepositoryStatusContext.Provider>

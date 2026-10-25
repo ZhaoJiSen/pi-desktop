@@ -1,5 +1,4 @@
 import { ListBox } from '@heroui/react'
-import { motion, useReducedMotion } from 'motion/react'
 import { SlidersHorizontal, Palette, Zap, Blocks, Plug, GitBranch } from 'lucide-react'
 import { HoverScrollArea } from '../components/HoverScrollArea'
 import { useT } from '../lib/i18n'
@@ -10,6 +9,8 @@ import { GeneralSettings } from './settings/GeneralSettings'
 import { ExtensionSettings } from './settings/ExtensionSettings'
 import { ConnectionSettings } from './settings/ConnectionSettings'
 import { CapabilitySettings } from './settings/CapabilitySettings'
+import { RetainedView } from '../components/RetainedView'
+import { usePaneTransition } from '../hooks/usePaneTransition'
 
 const sections = [
   { id: 'general', label: 'settings.general', icon: SlidersHorizontal },
@@ -28,7 +29,7 @@ export function SettingsPage() {
       : currentSection === 'notifications'
         ? 'general'
         : currentSection
-  const reduced = useReducedMotion()
+  const paneRef = usePaneTransition(section)
   const t = useT()
   return (
     <div className="utility-view settings-view settings-workspace">
@@ -60,48 +61,53 @@ export function SettingsPage() {
           label={t(sections.find((item) => item.id === section)!.label)}
           shadowSize={0}
         >
-          <motion.div
-            layoutScroll
+          <div
+            ref={paneRef}
             className="settings-content"
             role="region"
             aria-labelledby="settings-current-heading"
           >
-            <motion.div
-              key={section}
-              className="settings-panel-heading"
-              initial={reduced ? false : { opacity: 0, y: 3 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.16 }}
-            >
+            <div className="settings-panel-heading">
               <h2 id="settings-current-heading">
                 {t(sections.find((item) => item.id === section)!.label)}
               </h2>
-            </motion.div>
-            <div hidden={section !== 'general'}>
-              <GeneralSettings />
             </div>
-            <div hidden={section !== 'git'}>
-              <GitSettings />
-            </div>
-            <div hidden={section !== 'appearance'}>
-              <AppearanceSettings />
-            </div>
-            <div
-              id="settings-capability-panel"
-              aria-label={t(
-                section === 'shortcuts' ? 'capability.shortcutSettings' : 'capability.library',
-              )}
-              hidden={section !== 'shortcuts'}
-            >
-              <CapabilitySettings view="shortcuts" />
-            </div>
-            <div hidden={section !== 'extensions'}>
-              <ExtensionSettings />
-            </div>
-            <div hidden={section !== 'connection'}>
-              <ConnectionSettings />
-            </div>
-          </motion.div>
+            <RetainedView active={section === 'general'}>
+              <div>
+                <GeneralSettings />
+              </div>
+            </RetainedView>
+            <RetainedView active={section === 'git'}>
+              <div>
+                <GitSettings />
+              </div>
+            </RetainedView>
+            <RetainedView active={section === 'appearance'}>
+              <div>
+                <AppearanceSettings />
+              </div>
+            </RetainedView>
+            <RetainedView active={section === 'shortcuts'}>
+              <div
+                id="settings-capability-panel"
+                aria-label={t(
+                  section === 'shortcuts' ? 'capability.shortcutSettings' : 'capability.library',
+                )}
+              >
+                <CapabilitySettings view="shortcuts" />
+              </div>
+            </RetainedView>
+            <RetainedView active={section === 'extensions'}>
+              <div>
+                <ExtensionSettings />
+              </div>
+            </RetainedView>
+            <RetainedView active={section === 'connection'}>
+              <div>
+                <ConnectionSettings />
+              </div>
+            </RetainedView>
+          </div>
         </HoverScrollArea>
       </div>
     </div>

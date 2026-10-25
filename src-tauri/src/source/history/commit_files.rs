@@ -74,7 +74,10 @@ pub(crate) fn commit_files(root: &Path, revision: &str) -> Result<GitCommitDetai
             "-z",
             "--first-parent",
             "--find-renames",
+            "--relative",
             revision,
+            "--",
+            ".",
         ],
         git::LIMIT_LOG,
     )?;

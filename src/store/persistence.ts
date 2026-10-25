@@ -43,5 +43,10 @@ export function createWorkspacePersistence<T extends object>(
       timer ??= setTimeout(flush, 500)
     },
   }
-  return { storage: persistence, flush }
+  function save(name: string, value: StorageValue<T>) {
+    latest = value
+    pending = { name, value }
+    return flush()
+  }
+  return { storage: persistence, flush, save }
 }

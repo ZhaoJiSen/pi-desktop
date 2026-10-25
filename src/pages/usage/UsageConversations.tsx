@@ -2,14 +2,22 @@ import { OverflowTooltip } from '../../components/OverflowTooltip'
 import { Button, SearchField } from '@heroui/react'
 import { ArrowDown, ArrowRight, ArrowUp, ChartNoAxesColumn, SearchX } from 'lucide-react'
 import { useT } from '../../lib/i18n'
+import { useWorkspace } from '../../store/workspace'
 import { tokens } from '../../lib/utils'
 import { selectChat } from '../../router/navigation'
 import { hasUsage, money } from './usageData'
+import { UsageProjectFilter } from './UsageProjectFilter'
 import type { UsageController } from './useUsagePage'
 
 export function UsageConversations({
   showAllTools,
-  chosen,
+  activeProject,
+  project,
+  setProject,
+  availableProjects,
+  selectedDay,
+  selectDay,
+  rowUsage,
   query,
   setQuery,
   rows,
@@ -22,7 +30,13 @@ export function UsageConversations({
 }: Pick<
   UsageController,
   | 'showAllTools'
-  | 'chosen'
+  | 'activeProject'
+  | 'project'
+  | 'setProject'
+  | 'availableProjects'
+  | 'selectedDay'
+  | 'selectDay'
+  | 'rowUsage'
   | 'query'
   | 'setQuery'
   | 'rows'
@@ -34,26 +48,39 @@ export function UsageConversations({
   | 'clearFilters'
 >) {
   const t = useT()
+  const language = useWorkspace((state) => state.language)
   return (
     <section className="usage-conversations" aria-label={t('usage.conversationDetails')}>
       {showAllTools && (
         <div className="usage-list-toolbar">
-          <h2 id="usage-list-heading">
+          <h2 id="usage-list-heading" tabIndex={-1} aria-live="polite">
             {t('usage.conversationDetails')}
-            <span>{chosen.length}</span>
+            <span>{rows.length}</span>
+            {selectedDay !== null && (
+              <Button variant="ghost" className="usage-clear-day" onPress={() => selectDay(null)}>
+                {new Date(selectedDay).toLocaleDateString(language === 'zh' ? 'zh-CN' : 'en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                })}{' '}
+                · {t('usage.clearDay')}
+              </Button>
+            )}
           </h2>
-          <SearchField
-            className="usage-search"
-            aria-label={t('usage.search')}
-            value={query}
-            onChange={setQuery}
-          >
-            <SearchField.Group>
-              <SearchField.SearchIcon />
-              <SearchField.Input placeholder={t('usage.searchPlaceholder')} />
-              <SearchField.ClearButton aria-label={t('packages.clearSearch')} />
-            </SearchField.Group>
-          </SearchField>
+          <div className="usage-list-filters">
+            <UsageProjectFilter {...{ activeProject, project, setProject, availableProjects }} />
+            <SearchField
+              className="usage-search"
+              aria-label={t('usage.search')}
+              value={query}
+              onChange={setQuery}
+            >
+              <SearchField.Group>
+                <SearchField.SearchIcon />
+                <SearchField.Input placeholder={t('usage.searchPlaceholder')} />
+                <SearchField.ClearButton aria-label={t('packages.clearSearch')} />
+              </SearchField.Group>
+            </SearchField>
+          </div>
         </div>
       )}
       {rows.length ? (
@@ -75,10 +102,26 @@ export function UsageConversations({
                     <Button
                       variant="ghost"
                       className="usage-sort"
-                      aria-label={t(key === 'cost' ? 'usage.estimatedCost' : 'usage.tokens')}
+                      aria-label={t(
+                        selectedDay !== null
+                          ? key === 'cost'
+                            ? 'usage.dailyCost'
+                            : 'usage.dailyTokens'
+                          : key === 'cost'
+                            ? 'usage.estimatedCost'
+                            : 'usage.tokens',
+                      )}
                       onPress={() => changeSort(key)}
                     >
-                      {t(key === 'cost' ? 'usage.costColumn' : 'usage.tokens')}
+                      {t(
+                        selectedDay !== null
+                          ? key === 'cost'
+                            ? 'usage.dailyCost'
+                            : 'usage.dailyTokens'
+                          : key === 'cost'
+                            ? 'usage.costColumn'
+                            : 'usage.tokens',
+                      )}
                       {sort === key ? (
                         ascending ? (
                           <ArrowUp aria-hidden="true" />
@@ -115,11 +158,17 @@ export function UsageConversations({
                   </td>
                   <td
                     className="usage-number"
-                    title={hasUsage(item) ? item.usage.total.toLocaleString() : undefined}
+                    title={
+                      selectedDay !== null || hasUsage(item)
+                        ? rowUsage(item).total.toLocaleString()
+                        : undefined
+                    }
                   >
-                    {hasUsage(item) ? tokens(item.usage.total) : '—'}
+                    {selectedDay !== null || hasUsage(item) ? tokens(rowUsage(item).total) : '—'}
                   </td>
-                  <td className="usage-number">{hasUsage(item) ? money(item.usage.cost) : '—'}</td>
+                  <td className="usage-number">
+                    {selectedDay !== null || hasUsage(item) ? money(rowUsage(item).cost) : '—'}
+                  </td>
                 </tr>
               ))}
             </tbody>

@@ -8,6 +8,7 @@ import { LoadedDiff } from './LoadedDiff'
 import type { useDiffLayout } from './useDiffLayout'
 
 export function GitDiffStage({
+  readOnly,
   expandedKeys,
   setCollapsed,
   files,
@@ -31,6 +32,7 @@ export function GitDiffStage({
   reportStats,
   fallback,
 }: {
+  readOnly: boolean
   expandedKeys: Set<string>
   setCollapsed: React.Dispatch<React.SetStateAction<Set<string>>>
   files: import('../../lib/source/types').GitFileStatus[]
@@ -48,7 +50,7 @@ export function GitDiffStage({
   restore: (path: string) => Promise<void>
   error: { path: string; message: string } | null
   projectPath: string
-  tick: number
+  tick: number | string
   layout: ReturnType<typeof useDiffLayout>['layout']
   load: (path: string) => Promise<import('../../lib/source/types').GitDiff>
   reportStats: (path: string, stats: { additions: number; deletions: number } | null) => void
@@ -116,7 +118,7 @@ export function GitDiffStage({
                   void navigateToPage('chat')
                 }}
                 onRestore={
-                  file.code && file.code !== '?'
+                  !readOnly && file.code && file.code !== '?'
                     ? () => {
                         setCollapsed((current) => {
                           const next = new Set(current)

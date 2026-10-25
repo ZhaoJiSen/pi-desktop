@@ -23,7 +23,14 @@ fn parse_ignored(bytes: &[u8]) -> HashSet<String> {
 fn check_ignore(root: &Path, stdin: &[u8]) -> Result<(HashSet<String>, bool), String> {
     let captured = git::run_stdin(
         root,
-        &["check-ignore", "-z", "--stdin", "--"],
+        // check-ignore accepts literal filenames already and rejects pathspec magic mode.
+        &[
+            "--no-literal-pathspecs",
+            "check-ignore",
+            "-z",
+            "--stdin",
+            "--",
+        ],
         stdin,
         git::LIMIT_SEARCH,
     )?;

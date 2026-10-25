@@ -25,10 +25,10 @@
 }
 // At browser zoom or short windows, keep the review area reachable by scrolling.
 @media (max-height: 540px) {
-  .app-shell:has(.git-page) {
+  .app-shell[data-page='git'] {
     min-height: 0;
   }
-  .app-shell:not(.native):has(.git-page) {
+  .app-shell:not(.native)[data-page='git'] {
     margin: 12px;
     height: calc(100dvh - 24px);
   }
@@ -45,6 +45,9 @@
   width: 100%;
 }
 .git-review-panel {
+  container: git-review / inline-size;
+}
+.git-changes-review {
   container: git-review / inline-size;
 }
 .git-changes-review,
@@ -91,7 +94,7 @@
   height: 14px;
   color: var(--muted);
 }
-.git-changes-workspace .source-browser-content .git-diff-file-header {
+.git-changes-review .git-diff-file-header {
   min-height: 44px;
   padding: 0 12px 0 0;
   gap: 8px;
@@ -111,10 +114,11 @@
   padding-bottom: 0;
   box-shadow: inset 0 -1px var(--line);
 }
-.git-page .diff.diff-panel .source-git-diff {
+.git-page .diff.diff-panel .source-git-diff,
+.git-changes-review .diff.diff-panel .source-git-diff {
   overflow: visible;
 }
-.git-changes-workspace .git-diff-file-header {
+.git-changes-review .git-diff-file-header {
   position: sticky;
   top: 0;
   z-index: 2;
@@ -160,12 +164,9 @@
     width: 30px;
     padding: 0;
   }
-  .git-file-identity {
-    gap: 8px;
-  }
 }
 @container git-review (max-width: 420px) {
-  .git-changes-workspace .source-browser-content .git-diff-file-header {
+  .git-changes-review .git-diff-file-header {
     flex-wrap: wrap;
     gap: 8px;
     padding: 0 12px 10px;
@@ -179,13 +180,17 @@
   .git-diff-file-header .git-file-path-label .source-file-directory {
     display: flex;
   }
-  .git-changes-workspace .source-preview-inline-actions {
+  .git-changes-workspace .source-file-directory {
     display: none;
   }
-  .git-changes-workspace .source-preview-overflow {
-    display: inline-flex;
+}
+@container git-review (max-width: 320px) {
+  .git-diff-layout-toggle {
+    min-width: 30px;
+    width: 30px;
+    padding-inline: 0;
   }
-  .git-changes-workspace .source-file-directory {
+  .git-diff-layout-toggle span {
     display: none;
   }
 }
@@ -210,7 +215,7 @@
 
 // Fade the shell without transforming the complete diff document.
 .git-page-enter {
-  animation: git-page-appear 140ms ease-out;
+  animation: none;
 }
 @keyframes git-page-appear {
   from {

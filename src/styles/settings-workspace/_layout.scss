@@ -1,4 +1,6 @@
-.main:has(.settings-workspace) {
+@use '../navigation-states' as navigation;
+
+.main[data-page='settings'] {
   flex: 1;
 }
 .utility-view.settings-workspace {
@@ -46,6 +48,7 @@
   color: var(--muted);
   font-size: calc(var(--font-ui-size) * 13 / 14 * 1px);
   font-weight: 400;
+  @include navigation.item("[data-selected='true']");
 }
 .settings-navigation .list-box-item svg {
   width: 16px;
@@ -53,13 +56,7 @@
   flex: none;
 }
 .settings-navigation .list-box-item[data-selected='true'] {
-  background: var(--default);
-  color: var(--ink);
   font-weight: 500;
-}
-.settings-navigation .list-box-item[data-hovered='true']:not([data-selected='true']) {
-  background: color-mix(in srgb, var(--ink) 6%, var(--paper));
-  color: var(--ink);
 }
 .settings-scroll {
   flex: 1 1 auto;

@@ -1,4 +1,5 @@
 mod commands;
+mod desktop_updates;
 mod environment;
 mod fonts;
 mod i18n;
@@ -168,14 +169,23 @@ async fn stop_pi(runtime: State<'_, Runtime>, run_id: Option<String>) -> Result<
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let app = tauri::Builder::default()
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_notification::init())
         .manage(Runtime::default())
+        .manage(desktop_updates::DesktopUpdates::default())
+        .setup(|app| {
+            tauri::async_runtime::spawn(desktop_updates::check_on_startup(app.handle().clone()));
+            Ok(())
+        })
         .manage(repositories::RepositoryClones::default())
         .manage(updates::PiUpdates::default())
         .manage(environment::PiInstaller::default())
         .invoke_handler(tauri::generate_handler![
             commands::builtin_commands,
+            desktop_updates::desktop_update_status,
+            desktop_updates::download_desktop_update,
+            desktop_updates::install_desktop_update,
             onboarding::check_pi_environment,
             environment::inspect_pi_environment,
             environment::prepare_pi_install,

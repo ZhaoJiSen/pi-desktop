@@ -159,7 +159,7 @@ html[data-material='off'] .app-shell.native .main {
   display: grid;
   grid-template-columns: calc(48px + var(--sidebar-width)) minmax(0, 1fr);
   user-select: none;
-  transition: grid-template-columns 280ms cubic-bezier(0.2, 0, 0, 1);
+  transition: none;
 }
 .app-shell[data-resizing='true'] .window-chrome,
 .resizable[data-resizing='true'] {

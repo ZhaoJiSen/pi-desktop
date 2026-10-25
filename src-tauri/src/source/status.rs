@@ -23,7 +23,7 @@ fn status_code(x: char, y: char) -> char {
     }
 }
 
-fn parse_status(bytes: &[u8]) -> Vec<GitFileStatus> {
+pub(super) fn parse_status(bytes: &[u8]) -> Vec<GitFileStatus> {
     let mut parts = bytes
         .split(|byte| *byte == 0)
         .filter(|part| !part.is_empty());
@@ -86,14 +86,22 @@ fn attach_numstat(root: &Path, files: &mut [GitFileStatus]) {
     if files.is_empty() {
         return;
     }
-    let against_head = git::run(root, &["diff", "--numstat", "HEAD"], git::LIMIT_STATUS);
+    let against_head = git::run(
+        root,
+        &["diff", "--relative", "--numstat", "HEAD", "--", "."],
+        git::LIMIT_STATUS,
+    );
     if let Ok(captured) = against_head {
         if captured.success || captured.truncated {
             apply_numstat(files, &captured.stdout);
             return;
         }
     }
-    if let Ok(captured) = git::run(root, &["diff", "--numstat", "--cached"], git::LIMIT_STATUS) {
+    if let Ok(captured) = git::run(
+        root,
+        &["diff", "--relative", "--numstat", "--cached", "--", "."],
+        git::LIMIT_STATUS,
+    ) {
         if captured.success || captured.truncated {
             apply_numstat(files, &captured.stdout);
         }
@@ -116,15 +124,47 @@ pub(crate) fn repo_status(root: &Path) -> Result<GitStatus, String> {
         git::GitPresence::Plain => return Ok(idle(true, false)),
         git::GitPresence::Repo => {}
     }
+    let prefix = git::project_prefix(root)?;
+    // An entirely untracked project folder otherwise collapses to the prefix itself.
+    let untracked = if prefix.is_empty() {
+        "-unormal"
+    } else {
+        "-uall"
+    };
     let captured = git::run(
         root,
-        &["status", "--porcelain=v1", "-z", "-unormal"],
+        &["status", "--porcelain=v1", "-z", untracked, "--", "."],
         git::LIMIT_STATUS,
     )?;
     if !captured.success && !captured.truncated {
         return Err(Message::GitRead.detail(String::from_utf8_lossy(&captured.stderr).trim()));
     }
     let mut files = parse_status(git::drop_partial_z(&captured.stdout, captured.truncated));
+    files.retain_mut(|file| {
+        let path = file.path.strip_prefix(&prefix).map(str::to_owned);
+        let old = file
+            .old_path
+            .as_deref()
+            .and_then(|p| p.strip_prefix(&prefix))
+            .map(str::to_owned);
+        match (path, old) {
+            (Some(path), old) => {
+                if file.old_path.is_some() && old.is_none() {
+                    file.code = "A".into();
+                }
+                file.path = path;
+                file.old_path = old;
+                true
+            }
+            (None, Some(old)) => {
+                file.path = old;
+                file.old_path = None;
+                file.code = "D".into();
+                true
+            }
+            (None, None) => false,
+        }
+    });
     let mut truncated = captured.truncated;
     if files.len() > FILE_CAP {
         files.truncate(FILE_CAP);

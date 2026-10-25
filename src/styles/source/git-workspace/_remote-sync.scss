@@ -173,7 +173,8 @@
   background: color-mix(in srgb, var(--accent) 7%, transparent);
 }
 .git-log-row[data-current='true'][aria-selected='true'] {
-  background: color-mix(in srgb, var(--accent) 13%, var(--selection));
+  // The HEAD stripe and badge retain the accent; selected text uses this surface.
+  background: var(--selection);
 }
 // History tools adapt to the actual log panel, including when the files panel is open.
 @container git-log (max-width: 620px) {

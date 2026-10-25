@@ -17,6 +17,8 @@ import { SidebarOption } from '../../components/SidebarOption'
 import { useT } from '../../lib/i18n'
 import type { LibraryEntry } from '../../lib/capabilities/library'
 import { CommandNotice, CommandEmpty } from './CommandFeedback'
+import { CommandListSkeleton } from './CommandListSkeleton'
+import { usePublishCommandCount } from './commandHeaderCount'
 
 export type LibraryFilters = { query: string; source: string; kind: string; status: string }
 const sources = ['all', 'desktop', 'pi', 'plugin', 'local', 'user'] as const
@@ -47,6 +49,7 @@ export function LibraryBrowser({
   error: string
   hasDraft: (id: string) => boolean
 }) {
+  usePublishCommandCount(entries.length, all.length, loading)
   const t = useT(),
     reduced = useReducedMotion()
   const [searchOpen, setSearchOpen] = useState(false)
@@ -240,7 +243,9 @@ export function LibraryBrowser({
       </ToggleButtonGroup>
       {error && <CommandNotice status="danger">{error}</CommandNotice>}
       <PackageScrollArea className="commands-scroll" label={t('capability.library')} shadowSize={8}>
-        {entries.length ? (
+        {loading ? (
+          <CommandListSkeleton />
+        ) : entries.length ? (
           <ListBox
             className="commands-list"
             aria-label={t('capability.library')}

@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from 'motion/react'
+import { usePaneTransition } from '../hooks/usePaneTransition'
 import { SidebarLayout } from '../layouts/SidebarLayout'
 import { useT } from '../lib/i18n'
 import { PackageToast } from './extension-packages/PackageToast'
@@ -12,15 +12,10 @@ export { PackageServices } from './extension-packages/services'
 export function ExtensionPackages() {
   const t = useT()
   const manager = useExtensionPackages()
-  const reduced = useReducedMotion()
+  const paneRef = usePaneTransition('extensions', { reveal: true })
 
   return (
-    <motion.div
-      className="package-manager"
-      initial={reduced ? false : { opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.18 }}
-    >
+    <div ref={paneRef} className="package-manager">
       <SidebarLayout
         className={`package-workspace ${manager.mobileDetail ? 'detail-open' : ''}`}
         collapseAt={780}
@@ -38,6 +33,6 @@ export function ExtensionPackages() {
       </SidebarLayout>
       <PackageToast {...manager.toast} />
       <RemovePackageDialog {...manager.removeDialog} />
-    </motion.div>
+    </div>
   )
 }

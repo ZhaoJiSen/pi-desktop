@@ -9,7 +9,7 @@ import {
 } from '../lib/desktop'
 import { errorText } from '../lib/utils'
 import { isDesktop, useWorkspace } from '../store/workspace'
-import type { WindowMaterial } from '../types'
+import type { Theme, WindowMaterial } from '../types'
 import type { Page } from '../router/paths'
 import { useColorMode } from './useColorMode'
 import { accentKey, applyAppearance } from '../lib/appearance'
@@ -26,10 +26,10 @@ function surfaceColor() {
   return [channels[0], channels[1], channels[2], 255] as [number, number, number, number]
 }
 
-function applyWindowMaterial(material: WindowMaterial, mode: 'light' | 'dark') {
+function applyWindowMaterial(material: WindowMaterial, theme: Theme) {
   document.documentElement.dataset.material = material
   const appWindow = getCurrentWebviewWindow()
-  void appWindow.setTheme(mode).catch(() => {})
+  void appWindow.setTheme(theme === 'system' ? null : theme).catch(() => {})
   if (material === 'off') {
     void appWindow.clearEffects().catch(() => {})
     void appWindow.setBackgroundColor(surfaceColor()).catch(() => {})
@@ -129,11 +129,11 @@ export function useDesktopLifecycle(view: Page, enabled = true) {
     // Theme tokens stay in CSS. The native backing color is transparent so the
     // window material stays visible; painting --ground here would cover it.
     applyAppearance(document.documentElement, mode, palette, accent)
-    // Vibrancy follows the resolved light or dark mode, otherwise a light UI
-    // sits on the system's dark material.
-    if (isDesktop) applyWindowMaterial(windowMaterial, mode)
+    // Preserve native system tracking: pinning the resolved mode also pins
+    // WebKit's prefers-color-scheme and prevents later system changes reaching us.
+    if (isDesktop) applyWindowMaterial(windowMaterial, theme)
     else document.documentElement.dataset.material = windowMaterial
-  }, [mode, palette, accent, windowMaterial])
+  }, [theme, mode, palette, accent, windowMaterial])
   useEffect(() => {
     document.documentElement.lang = language === 'zh' ? 'zh-CN' : 'en'
     document.title = 'pi Desktop'

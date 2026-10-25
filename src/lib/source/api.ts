@@ -64,8 +64,14 @@ export function gitLog(path: string, relative?: string | null) {
   )
 }
 
-export function gitCommitBranch(path: string, branch: string, message: string, files: string[]) {
-  return call('git_commit_branch', { path, branch, message, files }, () => {
+export function gitCommitBranch(
+  path: string,
+  branch: string,
+  message: string,
+  files: string[],
+  expected?: { head: string | null; current: string | null; resume: boolean },
+) {
+  return call('git_commit_branch', { path, branch, message, files, expected }, () => {
     mockCommitBranch(path, branch, message, files)
   })
 }

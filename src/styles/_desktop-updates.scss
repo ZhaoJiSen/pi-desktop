@@ -1,0 +1,217 @@
+.header-spacer {
+  flex: 1;
+}
+.desktop-update-entry {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  margin-right: 6px;
+}
+.button.desktop-update-trigger {
+  position: relative;
+  color: var(--accent);
+  animation: desktop-update-appear 180ms ease-out;
+}
+.desktop-update-dot {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 2px var(--sidebar);
+}
+.desktop-update-ring {
+  position: absolute;
+  inset: -2px;
+  width: 32px;
+  height: 32px;
+  pointer-events: none;
+  --progress-circle-track-stroke: color-mix(in srgb, var(--ink) 12%, transparent);
+
+  .progress-circle__track {
+    width: 32px;
+    height: 32px;
+  }
+  .progress-circle__fill-circle {
+    transition: stroke-dashoffset 220ms ease-out;
+  }
+  &[aria-valuenow] .progress-circle__fill-circle {
+    animation: none;
+  }
+  &:not([aria-valuenow]) .progress-circle__track {
+    animation: desktop-update-spin 1.2s linear infinite;
+  }
+}
+.desktop-update-popover {
+  width: min(336px, calc(100vw - 32px));
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  color: var(--ink);
+  background: var(--paper);
+  box-shadow: 0 12px 36px #00000024;
+  font-size: calc(var(--font-ui-size) * 1px);
+  max-height: calc(100dvh - 88px);
+  display: flex;
+  overflow: hidden;
+}
+.desktop-update-popover .popover__dialog {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
+  padding: 0;
+}
+.desktop-update-heading > div {
+  min-width: 0;
+}
+.desktop-update-heading {
+  flex: none;
+}
+.desktop-update-heading [data-slot='popover-heading'] {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+.desktop-update-versions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 3px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+  svg {
+    width: 12px;
+    height: 12px;
+  }
+  strong {
+    color: var(--ink);
+    font-weight: 500;
+  }
+}
+.desktop-update-description {
+  margin: 16px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.65;
+}
+.desktop-update-notes {
+  flex: 0 1 auto;
+  min-height: 0;
+  max-height: min(240px, 45dvh);
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  margin-top: 16px;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--ink);
+  outline-offset: 4px;
+
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin: 14px 0 6px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  p,
+  ul,
+  ol {
+    margin: 8px 0;
+  }
+  ul,
+  ol {
+    padding-left: 18px;
+  }
+  ul {
+    list-style: disc;
+  }
+  ol {
+    list-style: decimal;
+  }
+  li + li {
+    margin-top: 5px;
+  }
+  a {
+    color: var(--link);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  code {
+    font-size: 0.95em;
+  }
+  pre {
+    overflow-x: auto;
+  }
+  .desktop-update-markdown > :first-child {
+    margin-top: 0;
+  }
+  .desktop-update-markdown > :last-child {
+    margin-bottom: 0;
+  }
+}
+.desktop-update-transfer {
+  min-width: 0;
+  margin-right: auto;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 20px;
+  font-variant-numeric: tabular-nums;
+}
+.desktop-update-error {
+  margin: 14px 0 0;
+  color: var(--danger);
+  overflow-wrap: anywhere;
+  font-size: 13px;
+  line-height: 1.65;
+}
+.desktop-update-actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+.desktop-update-primary {
+  --button-bg: var(--accent);
+  --button-bg-hover: var(--accent-hover);
+  --button-fg: var(--accent-foreground);
+  color: var(--accent-foreground);
+  background: var(--accent);
+}
+@keyframes desktop-update-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes desktop-update-appear {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .button.desktop-update-trigger {
+    animation: none;
+  }
+  .desktop-update-ring .progress-circle__fill-circle,
+  .desktop-update-ring:not([aria-valuenow]) .progress-circle__track {
+    animation: none;
+    transition: none;
+  }
+}

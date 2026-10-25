@@ -118,6 +118,7 @@
   margin: 0 4px 8px;
 }
 .git-search.search-field {
+  --field-placeholder: var(--nav-muted);
   padding: 0;
   border: 0;
   gap: 0;
@@ -135,10 +136,9 @@
   min-height: 36px;
   height: 36px;
   border-radius: 12px;
+  background: var(--nav-field);
+  border: 1px solid var(--nav-field-edge);
   box-shadow: none;
-}
-.git-page .git-search .search-field__group {
-  background: color-mix(in srgb, var(--selection) 30%, var(--paper));
 }
 .git-search input {
   font-size: 12px;

@@ -148,31 +148,7 @@
   border-radius: 0;
   background: transparent;
 }
-.git-changes-workspace .source-browser-content .source-preview-bar {
-  min-height: 58px;
-  padding: 8px 14px;
-  gap: 16px;
-}
-.source-preview-identity {
-  display: contents;
-}
-.git-file-identity {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  min-width: 0;
-  flex: 1;
-}
-.git-file-identity .source-file-title {
-  flex: 0 1 auto;
-}
-.git-file-identity .diff-stats {
-  margin: 0;
-  flex: none;
-  font-size: 12px;
-  gap: 8px;
-}
-.git-page .git-file-action-bar {
+.git-file-action-bar {
   display: flex;
   align-items: center;
   flex: none;
@@ -228,6 +204,13 @@
   margin-left: 5px;
   font-size: inherit;
   font-variant-numeric: tabular-nums;
+}
+.git-review-heading {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 6px;
+  white-space: nowrap;
 }
 .git-diff-layout-toggle {
   min-height: 30px;

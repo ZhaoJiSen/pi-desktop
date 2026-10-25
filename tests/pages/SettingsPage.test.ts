@@ -80,7 +80,7 @@ afterEach(() => {
 })
 
 describe('SettingsPage', () => {
-  it('organizes settings into sections and keeps the saved controls mounted', async () => {
+  it('mounts only visited settings sections and preserves their drafts', async () => {
     await mount()
     const sections = [...container.querySelectorAll('.settings-navigation [role="option"]')].map(
       (item) => item.textContent,
@@ -97,13 +97,22 @@ describe('SettingsPage', () => {
     expect(
       container.querySelector('.settings-navigation [aria-selected="true"]')?.textContent,
     ).toBe('General')
-    expect(container.textContent).toContain('Not connected')
+    expect(container.querySelector('input[placeholder="pi"]')).toBeNull()
+    expect(container.querySelector('.settings-theme-frame')).toBeNull()
     expect(container.textContent).toContain('Wrap text and code')
     const wrap = container.querySelector<HTMLInputElement>('.settings-inline-switch input')
     expect(wrap?.checked).toBe(false)
     await act(async () => wrap?.click())
     expect(useWorkspace.getState().wrapLines).toBe(true)
+    await act(async () => useWorkspace.setState({ settingsSection: 'connection' }))
+    await setPath('/unsaved/pi')
+    const original = pathField()
+    await act(async () => useWorkspace.setState({ settingsSection: 'appearance' }))
     expect(frame().getAttribute('data-preview')).toBeNull()
+    await act(async () => useWorkspace.setState({ settingsSection: 'connection' }))
+    expect(pathField()).toBe(original)
+    expect(pathField().value).toBe('/unsaved/pi')
+    expect(useWorkspace.getState().piExecutable).toBe('pi')
   })
 
   it('previews a palette on the theme cards without saving it', async () => {

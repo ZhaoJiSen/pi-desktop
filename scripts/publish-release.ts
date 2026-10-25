@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process'
-import { readdirSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import process from 'node:process'
 import { readBuildVersion } from './version.ts'
@@ -13,11 +13,18 @@ function publishRelease() {
     throw new Error('GITHUB_REPOSITORY, GITHUB_SHA, RELEASE_ASSET_DIR and GH_TOKEN are required')
   }
 
-  const assets = readdirSync(directory, { withFileTypes: true })
-    .filter((entry) => entry.isFile() && entry.name.endsWith('.dmg'))
-    .map((entry) => resolve(directory, entry.name))
-    .sort()
-  if (!assets.length) throw new Error('No DMG files found; refusing to publish an empty release')
+  const files = readdirSync(directory, { withFileTypes: true })
+    .filter((entry) => entry.isFile())
+    .map((entry) => entry.name)
+  const dmgs = files.filter((name) => name.endsWith('.dmg'))
+  if (!dmgs.length) throw new Error('No DMG files found; refusing to publish an empty release')
+  const bundles = files.filter((name) => name.endsWith('.app.tar.gz'))
+  if (bundles.length !== 1) throw new Error('Expected one universal macOS updater bundle')
+  const bundle = bundles[0]
+  const signatureFile = `${bundle}.sig`
+  const signature = readFileSync(resolve(directory, signatureFile), 'utf8').trim()
+  if (!signature) throw new Error('Updater bundle signature is empty')
+  const assets = [...dmgs, bundle, signatureFile].sort().map((name) => resolve(directory, name))
 
   const tag = `v${version}`
   const existingTag = execFileSync('git', ['tag', '--list', tag], { encoding: 'utf8' }).trim()
@@ -30,6 +37,50 @@ function publishRelease() {
     }
   }
 
+  // Resolve once so reviewed notes also reach the in-app updater manifest.
+  const authoredNotes = resolve('docs', 'releases', `${version}.md`)
+  const notes = existsSync(authoredNotes)
+    ? readFileSync(authoredNotes, 'utf8').trim()
+    : execFileSync(
+        'gh',
+        [
+          'api',
+          `repos/${repository}/releases/generate-notes`,
+          '--method',
+          'POST',
+          '-f',
+          `tag_name=${tag}`,
+          '-f',
+          `target_commitish=${commit}`,
+          '--jq',
+          '.body',
+        ],
+        { encoding: 'utf8' },
+      ).trim()
+  if (!notes) throw new Error('Release notes are empty; refusing to publish')
+  const notesFile = resolve(directory, 'release-notes.md')
+  writeFileSync(notesFile, notes)
+
+  const platform = {
+    url: `https://github.com/${repository}/releases/download/${encodeURIComponent(tag)}/${encodeURIComponent(bundle)}`,
+    signature,
+  }
+  const manifest = resolve(directory, 'latest.json')
+  writeFileSync(
+    manifest,
+    JSON.stringify(
+      {
+        version,
+        notes,
+        pub_date: new Date().toISOString(),
+        platforms: { 'darwin-aarch64': platform, 'darwin-x86_64': platform },
+      },
+      null,
+      2,
+    ) + '\n',
+  )
+  assets.push(manifest)
+
   const args = [
     'release',
     'create',
@@ -41,7 +92,8 @@ function publishRelease() {
     commit,
     '--title',
     `pi-desktop ${version}`,
-    '--generate-notes',
+    '--notes-file',
+    notesFile,
   ]
   if (version.split('+')[0].includes('-')) args.push('--prerelease', '--latest=false')
 

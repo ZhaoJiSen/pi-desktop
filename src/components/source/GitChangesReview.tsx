@@ -1,5 +1,13 @@
 import { useVirtualizer } from '@tanstack/react-virtual'
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react'
 import { useT } from '../../lib/i18n'
 import { gitFileDiff, gitRestoreFile } from '../../lib/source/api'
 import type { GitDiff, GitFileStatus } from '../../lib/source/types'
@@ -11,9 +19,12 @@ import { GitDiffLayoutControl } from './GitFileActionBar'
 import { SourceNotice } from './SourceNotice'
 import { useDiffLayout } from './useDiffLayout'
 
-/** One scroll document; file navigation is an anchor, never a content filter. */
+/** Shared diff document: continuous workspace review or a read-only sidebar preview. */
 export function GitChangesReview({
-  files,
+  files: allFiles,
+  previewPath,
+  readOnly = false,
+  navigationAction,
   projectPath,
   tick,
   jump,
@@ -22,8 +33,11 @@ export function GitChangesReview({
   fallback,
 }: {
   files: GitFileStatus[]
+  previewPath?: string | null
+  readOnly?: boolean
+  navigationAction?: ReactNode
   projectPath: string
-  tick: number
+  tick: number | string
   jump: { path: string | null; nonce: number }
   onActiveChange: (path: string) => void
   onRestored: (path: string) => void
@@ -31,6 +45,10 @@ export function GitChangesReview({
 }) {
   const t = useT()
   const source = useSource()
+  const files = useMemo(
+    () => (previewPath ? allFiles.filter((file) => file.path === previewPath) : allFiles),
+    [allFiles, previewPath],
+  )
   const viewport = useRef<HTMLDivElement>(null)
   const { ref: layoutRef, layout, setLayout } = useDiffLayout()
   const [confirmPath, setConfirmPath] = useState<string | null>(null)
@@ -153,8 +171,9 @@ export function GitChangesReview({
       ) : (
         <>
           <div className="git-review-toolbar">
-            <span>
-              {t('source.changedFiles')} <small>{files.length}</small>
+            <span className="git-review-heading">
+              {navigationAction}
+              {t('source.changedFiles')} <small>{allFiles.length}</small>
             </span>
             <GitDiffLayoutControl
               layout={layout}
@@ -169,6 +188,7 @@ export function GitChangesReview({
             shadowSize={0}
           >
             <GitDiffStage
+              readOnly={readOnly}
               expandedKeys={expandedKeys}
               setCollapsed={setCollapsed}
 

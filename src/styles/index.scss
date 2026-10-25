@@ -8,6 +8,7 @@
 @use 'onboarding';
 @use 'sidebar';
 @use 'header';
+@use 'desktop-updates';
 @use 'text-shimmer';
 @use 'conversation';
 @use 'source';
@@ -34,4 +35,5 @@
 @use 'questions';
 @use 'notifications';
 @use 'typefaces';
+@use 'workspace-loading';
 @use 'source-virtual';

@@ -111,7 +111,8 @@ fn divergent_merge_and_rebase_recover_after_a_fresh_state_read() {
             root,
             "unsafe-during-conflict",
             "wrong workflow",
-            &["file.txt".into()]
+            &["file.txt".into()],
+            None
         )
         .is_err());
         assert_eq!(state(root).unwrap().branch.current, s.branch.current);

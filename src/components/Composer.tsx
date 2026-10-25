@@ -1,6 +1,5 @@
 import { Button } from '@heroui/react'
 import { Plus } from 'lucide-react'
-import { motion, useReducedMotion } from 'motion/react'
 import { useCallback, useRef, useState } from 'react'
 import { isDesktop, useWorkspace } from '../store/workspace'
 import { useSessionDetails } from '../store/sessionSelectors'
@@ -54,7 +53,6 @@ function SessionComposer() {
   const fileInput = useRef<HTMLInputElement>(null)
   const input = useRef<HTMLTextAreaElement>(null)
   const [focusVersion, setFocusVersion] = useState(0)
-  const reducedMotion = useReducedMotion()
   const composer = useRef<HTMLFormElement>(null)
   const [menuBoundary, setMenuBoundary] = useState<HTMLElement | undefined>()
   const setComposer = useCallback((element: HTMLFormElement | null) => {
@@ -127,12 +125,9 @@ function SessionComposer() {
     }
   }
   return (
-    <motion.form
+    <form
       ref={setComposer}
       className="composer"
-      initial={reducedMotion ? false : { opacity: 0, y: 5 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.2 }}
       onSubmit={(event) => {
         event.preventDefault()
         void submit()
@@ -230,6 +225,6 @@ function SessionComposer() {
           if (event.target.files) void attach(event.target.files)
         }}
       />
-    </motion.form>
+    </form>
   )
 }

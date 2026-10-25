@@ -139,3 +139,9 @@
     transform: translateY(0);
   }
 }
+// HeroUI already tracks press state; CSS avoids re-registering gesture listeners on reveal.
+@media (prefers-reduced-motion: no-preference) {
+  .composer :is(.send, .composer-prompt-button)[data-pressed='true']:not(:disabled) {
+    scale: 0.97;
+  }
+}

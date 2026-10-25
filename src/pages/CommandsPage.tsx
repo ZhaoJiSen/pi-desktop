@@ -1,6 +1,5 @@
 import { Button, Modal, ScrollShadow } from '@heroui/react'
 import { useRef, useState } from 'react'
-import { motion, useReducedMotion } from 'motion/react'
 import { isDesktop, useWorkspace } from '../store/workspace'
 import { buildLibrary, matchesLibrary, type LibraryEntry } from '../lib/capabilities/library'
 import { defaultCapabilities } from '../lib/capabilities/catalog'
@@ -17,10 +16,11 @@ import { LibraryDetail } from './commands/LibraryDetail'
 import { CommandEmpty } from './commands/CommandFeedback'
 import { CapabilitySourcePicker } from './commands/CapabilitySourcePicker'
 import { useCommandsPage, type CommandServices } from './commands/useCommandsPage'
+import { usePaneTransition } from '../hooks/usePaneTransition'
 
 export function CommandsPage({ services }: { services?: CommandServices }) {
-  const t = useT(),
-    reduced = useReducedMotion()
+  const paneRef = usePaneTransition('commands', { reveal: true })
+  const t = useT()
   const native = useCommandsPage(services),
     preferences = useCapabilityPreferences()
   const requested = useWorkspace((s) => s.commandCapabilityId)
@@ -138,12 +138,7 @@ export function CommandsPage({ services }: { services?: CommandServices }) {
     }
   }
   return (
-    <motion.div
-      className="utility-view commands-view library-view"
-      initial={reduced ? false : { opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: reduced ? 0 : 0.2 }}
-    >
+    <div ref={paneRef} className="utility-view commands-view library-view">
       <SidebarLayout
         className={`commands-workspace library-workspace ${detailOpen ? 'is-detail-open' : ''} ${filtered.length ? '' : 'is-empty'}`}
         collapseAt={780}
@@ -291,6 +286,6 @@ export function CommandsPage({ services }: { services?: CommandServices }) {
           </Modal.Container>
         </Modal.Backdrop>
       )}
-    </motion.div>
+    </div>
   )
 }

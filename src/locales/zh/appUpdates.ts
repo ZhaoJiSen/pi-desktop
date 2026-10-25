@@ -1,0 +1,18 @@
+export const appUpdates = {
+  'appUpdate.title': '有新版本可用',
+  'appUpdate.ready': '更新已就绪',
+  'appUpdate.availableLabel': '将 pi Desktop 更新至 {version}',
+  'appUpdate.readyLabel': '重启并更新 pi Desktop 至 {version}',
+  'appUpdate.progress': '正在下载 · {progress}%',
+  'appUpdate.notes': '更新内容',
+  'appUpdate.verifying': '正在校验…',
+  'appUpdate.download': '下载更新',
+  'appUpdate.downloading': '正在下载…',
+  'appUpdate.installing': '正在重启…',
+  'appUpdate.restart': '重启并更新',
+  'appUpdate.later': '稍后',
+  'appUpdate.collapse': '收起',
+  'appUpdate.retry': '重新下载',
+  'appUpdate.busy': '请等待 Pi 当前任务完成后再重启。',
+  'appUpdate.saveFailed': '工作区未能保存，请先解决保存错误再重启。',
+} as const

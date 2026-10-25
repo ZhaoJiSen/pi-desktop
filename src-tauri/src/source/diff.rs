@@ -146,40 +146,15 @@ fn working_diff(root: &Path, extra: &[&str], path: &str) -> Result<(String, bool
         "--no-textconv",
         "--no-color",
         "--unified=3",
+        "--relative",
     ];
     args.extend_from_slice(extra);
     args.extend_from_slice(&["--", path]);
     captured_text(root, &args)
 }
 
-/// Put one tracked path back to `HEAD`. Untracked files are left in place.
-pub(crate) fn restore_worktree(root: &Path, relative: &str) -> Result<(), String> {
-    let path = paths::normalize_relative(relative)?;
-    if path.is_empty() {
-        return Err(Message::SourceRead.text());
-    }
-    match git::presence(root)? {
-        git::GitPresence::Missing => return Err(Message::GitUnavailable.text()),
-        git::GitPresence::Plain => return Err(Message::GitRead.text()),
-        git::GitPresence::Repo => {}
-    }
-    let captured = git::run(
-        root,
-        &[
-            "restore",
-            "--source=HEAD",
-            "--worktree",
-            "--staged",
-            "--",
-            &path,
-        ],
-        git::LIMIT_SMALL,
-    )?;
-    if !captured.success {
-        return Err(Message::GitRead.detail(String::from_utf8_lossy(&captured.stderr).trim()));
-    }
-    Ok(())
-}
+mod restore;
+pub(crate) use restore::restore_worktree;
 
 pub(crate) fn file_diff(
     root: &Path,
@@ -210,6 +185,7 @@ pub(crate) fn file_diff(
                 "--first-parent",
                 "--format=",
                 "--unified=3",
+                "--relative",
                 revision,
                 "--",
                 &path,

@@ -110,15 +110,28 @@ jobs:
       - name: Build universal macOS bundle
         env:
           BUILD_VERSION: ${{ inputs.version }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         run: |
+          if [ -z "$TAURI_SIGNING_PRIVATE_KEY" ]; then
+            echo "::error::Configure TAURI_SIGNING_PRIVATE_KEY before building an updatable release"
+            exit 1
+          fi
           node --experimental-strip-types scripts/write-build-config.ts
           pnpm package:mac --target universal-apple-darwin --ci --config "$RUNNER_TEMP/pi-build-config.json"
 
-      - name: Upload DMG
+      - name: Stage macOS release assets
+        run: |
+          mkdir -p release-assets
+          cp src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg release-assets/
+          cp src-tauri/target/universal-apple-darwin/release/bundle/macos/*.app.tar.gz release-assets/
+          cp src-tauri/target/universal-apple-darwin/release/bundle/macos/*.app.tar.gz.sig release-assets/
+
+      - name: Upload macOS release assets
         uses: actions/upload-artifact@v4
         with:
           name: pi-desktop-macos-${{ inputs.version }}
-          path: src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg
+          path: release-assets/*
           if-no-files-found: error
 
   release:
@@ -140,7 +153,7 @@ jobs:
         with:
           node-version: 22
 
-      - name: Download DMG
+      - name: Download macOS release assets
         uses: actions/download-artifact@v4
         with:
           name: pi-desktop-macos-${{ inputs.version }}

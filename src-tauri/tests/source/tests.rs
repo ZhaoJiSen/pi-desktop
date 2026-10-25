@@ -51,6 +51,7 @@ fn rejects_paths_outside_the_project() {
 
 #[test]
 fn status_and_diff_cover_edits_untracked_and_deletes() {
+    let _guard = super::support::MUTATION_TEST.lock().unwrap();
     let dir = temp_dir();
     init_repo(&dir.0);
     fs::write(dir.0.join("readme.md"), "one\n").unwrap();
@@ -215,6 +216,7 @@ fn commit_branch_records_the_change_on_a_new_branch() {
         "review",
         "ship the change",
         &["readme.md".to_owned()],
+        None,
     )
     .unwrap();
     let status = repo_status(&dir.0).unwrap();
@@ -222,7 +224,7 @@ fn commit_branch_records_the_change_on_a_new_branch() {
     assert!(status.files.iter().all(|file| file.path != "readme.md"));
     let history = log(&dir.0, None, 5).unwrap();
     assert_eq!(history.commits[0].subject, "ship the change");
-    assert!(commit_branch(&dir.0, "-bad", "nope", &["readme.md".to_owned()]).is_err());
+    assert!(commit_branch(&dir.0, "-bad", "nope", &["readme.md".to_owned()], None).is_err());
 }
 
 #[test]

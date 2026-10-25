@@ -1,4 +1,5 @@
 @use 'palettes';
+@use 'navigation';
 
 @mixin themes {
   @each $palette, $modes in palettes.$palettes {
@@ -11,6 +12,7 @@
         @each $token, $value in $tokens {
           --#{$token}: #{$value};
         }
+        @include navigation.tokens($tokens, $mode);
       }
     }
   }

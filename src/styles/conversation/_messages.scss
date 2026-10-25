@@ -13,6 +13,11 @@
   min-width: 0;
   margin-inline: auto;
 }
+.conversation-content > :is(.assistant, .user-message) {
+  // Preserve disclosure state and browser find while skipping off-screen layout/paint.
+  content-visibility: auto;
+  contain-intrinsic-block-size: auto 180px;
+}
 .user-message {
   width: max-content;
   max-width: 80%;

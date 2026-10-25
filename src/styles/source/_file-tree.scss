@@ -19,7 +19,7 @@
 }
 .source-tree-item[data-hovered],
 .source-tree-item[data-selected] {
-  background: var(--hover);
+  background: var(--nav-hover);
 }
 .source-tree-item[data-pressed] {
   background: color-mix(in srgb, var(--ink) 12%, transparent);
@@ -94,8 +94,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  // Keep distinguishing suffixes such as .test.tsx visible in a narrow tree.
-  direction: rtl;
+  direction: ltr;
   text-align: left;
 }
 .source-tree-marks {

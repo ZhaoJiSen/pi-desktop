@@ -1,7 +1,6 @@
 import { selectChat } from '../router/navigation'
 import { Button, Tooltip } from '@heroui/react'
 import { Pin, PinOff, Trash2 } from 'lucide-react'
-import { motion } from 'motion/react'
 import { useT } from '../lib/i18n'
 import { useWorkspace } from '../store/workspace'
 import { memo } from 'react'
@@ -35,12 +34,7 @@ export const SessionRow = memo(function SessionRow({
   const { ref: titleRef, truncated } = useTextTruncated(title)
   const pinLabel = t(session.pinned ? 'sessions.unpin' : 'sessions.pin')
   return (
-    <motion.div
-      className={`session-row list-box-item ${selected ? 'selected' : ''}`}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.12 }}
-    >
+    <div className={`session-row list-box-item ${selected ? 'selected' : ''}`}>
       {selected && <span className="session-selection" />}
       <Button
         variant="ghost"
@@ -109,6 +103,6 @@ export const SessionRow = memo(function SessionRow({
           <Trash2 />
         </button>
       </div>
-    </motion.div>
+    </div>
   )
 })

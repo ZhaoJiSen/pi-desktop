@@ -56,6 +56,32 @@ afterEach(async () => {
 })
 
 describe('file viewer find and copy', () => {
+  it.each(['mjs', 'cjs', 'mts', 'cts'])('highlights a .%s source file', async (extension) => {
+    const text = "import { readFile } from 'node:fs/promises'\nconst value = 1\n"
+    vi.spyOn(api, 'readProjectFile').mockResolvedValue({
+      path: `test.${extension}`,
+      text,
+      size: text.length,
+      binary: false,
+      truncated: false,
+    })
+    await act(async () =>
+      root.render(
+        <FileViewer
+          projectPath="/project"
+          path={`test.${extension}`}
+          tick={0}
+          changed={false}
+          onDiff={() => {}}
+          onHistory={() => {}}
+        />,
+      ),
+    )
+    expect(container.querySelector('.source-file-content .syntax-keyword')).not.toBeNull()
+    expect(container.querySelector('.source-file-content .syntax-string')).not.toBeNull()
+    expect(container.querySelector('.source-file-preview-bar .git-file-path-label')).not.toBeNull()
+  })
+
   it('counts matches, closes on Escape, and copies with feedback', async () => {
     const input = document.querySelector('.source-find') as HTMLInputElement
     await act(async () => {

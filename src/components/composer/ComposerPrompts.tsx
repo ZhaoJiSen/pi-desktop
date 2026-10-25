@@ -2,7 +2,6 @@ import { OverflowTooltip } from '../OverflowTooltip'
 import { Button, Description, Header, Label, ListBox, Popover, ScrollShadow } from '@heroui/react'
 import { Shapes, Settings2, Check, ChevronRight } from 'lucide-react'
 import { useRef, useState } from 'react'
-import { motion, useReducedMotion } from 'motion/react'
 import { useT } from '../../lib/i18n'
 import { useWorkspace } from '../../store/workspace'
 import { navigateToCapabilities } from '../../router/navigation'
@@ -31,8 +30,7 @@ export function ComposerPrompts({
     [search, setSearch] = useState('')
   const [selecting, setSelecting] = useState(false)
   const list = useRef<HTMLDivElement>(null)
-  const t = useT(),
-    reduced = useReducedMotion()
+  const t = useT()
   const enabled = capabilities.filter((c) => c.enabled)
   const shortcuts = preferences.showShortcuts
     ? enabled.filter((c) => c.pinned).slice(0, preferences.visibleCount)
@@ -65,11 +63,7 @@ export function ComposerPrompts({
     <div className="composer-prompts">
       <div className="composer-prompt-actions" role="group" aria-label={t('capability.shortcuts')}>
         {shortcuts.map((item, index) => (
-          <motion.div
-            key={item.id}
-            className={index > 0 ? 'composer-prompt-secondary' : undefined}
-            whileTap={reduced ? undefined : { scale: 0.97 }}
-          >
+          <div key={item.id} className={index > 0 ? 'composer-prompt-secondary' : undefined}>
             <Button
               variant="ghost"
               className="composer-prompt-button"
@@ -80,7 +74,7 @@ export function ComposerPrompts({
               <CapabilityIcon name={item.icon} />
               <span>{item.name}</span>
             </Button>
-          </motion.div>
+          </div>
         ))}
         <Popover
           isOpen={more}

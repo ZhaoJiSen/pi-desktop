@@ -1,9 +1,16 @@
+@use '../navigation-states' as navigation;
+
 .session-list {
   overflow: hidden;
   display: flex;
   flex-direction: column;
   gap: 2px;
   padding-top: 2px;
+}
+.virtual-session-list {
+  position: relative;
+  flex: none;
+  overflow-anchor: none;
 }
 .session-row.list-box-item {
   height: 32px;
@@ -12,7 +19,7 @@
   padding: 0;
 }
 .session-row:not(.selected):is(:hover, :focus-within) {
-  background: var(--selection);
+  background: var(--nav-hover);
 }
 .button.session {
   --button-bg-hover: transparent;
@@ -33,6 +40,7 @@
   font-weight: 400;
   background: transparent;
   color: var(--ink);
+  @include navigation.focus;
 }
 .button.session:is(:hover, [data-hovered='true'], [data-pressed='true']) {
   background: transparent;

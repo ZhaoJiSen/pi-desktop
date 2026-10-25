@@ -37,6 +37,7 @@ fn base_command(root: &Path) -> std::process::Command {
     let mut command = std::process::Command::new("git");
     command
         .args([
+            "--literal-pathspecs",
             "-c",
             "core.quotepath=false",
             "-c",
@@ -184,6 +185,17 @@ pub(crate) fn branch_name(root: &Path) -> Option<String> {
     }
     let name = String::from_utf8_lossy(&output.stdout).trim().to_owned();
     (!name.is_empty()).then_some(name)
+}
+
+/// Porcelain paths are repository-relative even when Git runs in a project subdirectory.
+pub(crate) fn project_prefix(root: &Path) -> Result<String, String> {
+    let output = run(root, &["rev-parse", "--show-prefix"], LIMIT_SMALL)?;
+    if !output.success || output.truncated {
+        return Err(Message::GitRead.text());
+    }
+    Ok(String::from_utf8_lossy(&output.stdout)
+        .trim_end_matches(['\n', '\r'])
+        .to_owned())
 }
 
 pub(crate) fn z_paths(bytes: &[u8]) -> Vec<String> {

@@ -76,6 +76,9 @@ macro_rules! messages {
 }
 
 messages! {
+    DesktopUpdateUnavailable => ("当前没有可安装的应用更新", "No desktop update is available for this action"),
+    DesktopUpdateDownload => ("应用更新下载失败，请重试", "Could not download the app update. Try again"),
+    DesktopUpdateInstall => ("应用更新安装失败，请重试", "Could not install the app update. Try again"),
     PiUpdateBusy => ("Pi 正在执行任务或其他操作，请稍后更新", "Pi is busy with a task or another operation. Try updating later"),
     PiUpdateCheck => ("无法检测 Pi 最新版本", "Could not check the latest Pi version"),
     PiUpdateFailed => ("Pi 更新失败", "Pi update failed"),

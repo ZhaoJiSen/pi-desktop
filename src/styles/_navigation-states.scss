@@ -1,0 +1,39 @@
+// Shared navigation states: a temporary hover, a persistent current item, and a focus ring.
+@mixin focus {
+  // React Aria owns focus visibility; suppress the app's native fallback for pointer focus.
+  &[data-focused='true']:not([data-focus-visible='true']) {
+    outline: none;
+    box-shadow: none;
+  }
+
+  &:focus-visible:not([data-focused]),
+  &[data-focus-visible='true'] {
+    outline: 2px solid var(--nav-focus);
+    outline-offset: -2px;
+    box-shadow: none;
+  }
+}
+
+@mixin item($current, $paint-current: true) {
+  --muted: var(--nav-muted);
+
+  &:is(:hover, [data-hovered='true'], [data-focus-visible='true']):not(#{$current}):not(
+      :disabled,
+      [aria-disabled='true'],
+      [data-disabled='true']
+    ) {
+    color: var(--ink);
+    background: var(--nav-hover);
+  }
+
+  &#{$current} {
+    --ink: var(--nav-selected-ink);
+    --muted: var(--nav-selected-muted);
+    color: var(--ink);
+    @if $paint-current {
+      background: var(--selection);
+    }
+  }
+
+  @include focus;
+}

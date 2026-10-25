@@ -23,7 +23,7 @@ export const LoadedDiff = memo(function LoadedDiff({
   projectPath: string
   path: string
   revision?: string | null
-  tick: number
+  tick: number | string
   fallback?: DiffLine[]
   embedded?: boolean
   layout?: 'unified' | 'split'

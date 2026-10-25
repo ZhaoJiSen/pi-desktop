@@ -4,6 +4,8 @@ import { isRecentProject } from '../../lib/recentProject'
 import { useWorkspace } from '../../store/workspace'
 import type { Session } from '../../types'
 import { parts, hasUsage, hasActivity } from './usageData'
+import { useUsageViewState } from './usageViewState'
+import { usageOnDay } from './usageCharts'
 
 const costNoticeKey = 'pi.usage-cost-notice-dismissed.v1'
 
@@ -12,11 +14,10 @@ export function useUsagePage() {
   const projects = useWorkspace((state) => state.projects)
   const active = useWorkspace((state) => state.activeSessionId)
   const session = sessions.find((item) => item.id === active)
-  const [scope, setScope] = useState<'current' | 'all'>('current')
-  const [project, setProject] = useState('all')
-  const [query, setQuery] = useState('')
-  const [sort, setSort] = useState<'cost' | 'total'>('cost')
-  const [ascending, setAscending] = useState(false)
+  const { scope, project, query, sort, ascending, selectedDay } = useUsageViewState()
+  const setProject = (value: string) => useUsageViewState.setState({ project: value })
+  const setQuery = (value: string) => useUsageViewState.setState({ query: value })
+  const selectDay = (value: number | null) => useUsageViewState.setState({ selectedDay: value })
   const [costHelpOpen, setCostHelpOpen] = useState(false)
   const costHelpButton = useRef<HTMLButtonElement>(null)
   const [noticeDismissed, setNoticeDismissed] = useState(() => {
@@ -70,11 +71,20 @@ export function useUsagePage() {
     }),
     { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0, cost: 0 },
   )
-  const rows = [...chosen].sort((a, b) => {
-    // Keep sessions without recorded usage below known values, in either direction.
-    if (hasUsage(a) !== hasUsage(b)) return hasUsage(a) ? -1 : 1
-    return (ascending ? 1 : -1) * (a.usage[sort] - b.usage[sort]) || b.updatedAt - a.updatedAt
-  })
+  const rowUsage = (item: Session) =>
+    selectedDay !== null && scope === 'all' ? usageOnDay(item, selectedDay) : item.usage
+  const rows = chosen
+    .filter(
+      (item) =>
+        selectedDay === null || scope !== 'all' || usageOnDay(item, selectedDay).messages > 0,
+    )
+    .sort((a, b) => {
+      // Keep sessions without recorded usage below known values, in either direction.
+      if (selectedDay === null && hasUsage(a) !== hasUsage(b)) return hasUsage(a) ? -1 : 1
+      return (
+        (ascending ? 1 : -1) * (rowUsage(a)[sort] - rowUsage(b)[sort]) || b.updatedAt - a.updatedAt
+      )
+    })
   const partTotal = parts.reduce((sum, key) => sum + total[key], 0)
   const availableProjects = projects
     .filter((item) => sessions.some((entry) => entry.projectId === item.id && hasActivity(entry)))
@@ -83,25 +93,25 @@ export function useUsagePage() {
       name: isRecentProject(item) ? t('projects.recentChats') : item.name,
     }))
   const activeProject = availableProjects.find((item) => item.id === project)
-  const filtered = effectiveProject !== 'all' || Boolean(search)
+  const filtered = effectiveProject !== 'all' || Boolean(search) || selectedDay !== null
   const known = recorded.length > 0
-  const emptyView = scope === 'current' ? !known : rows.length === 0
+  const emptyView = scope === 'current' ? !known : !known && rows.length === 0
   const showAllTools = sessions.some(hasActivity) || filtered
 
   function changeSort(key: typeof sort) {
-    if (sort === key) setAscending((value) => !value)
+    if (sort === key) useUsageViewState.setState({ ascending: !ascending })
     else {
-      setSort(key)
-      setAscending(false)
+      useUsageViewState.setState({ sort: key, ascending: false })
     }
   }
 
   function clearFilters() {
     setQuery('')
     setProject('all')
+    selectDay(null)
   }
   function changeScope(value: typeof scope) {
-    setScope(value)
+    useUsageViewState.setState({ scope: value })
     setCostHelpOpen(false)
   }
   return {
@@ -127,6 +137,9 @@ export function useUsagePage() {
     recorded,
     total,
     rows,
+    rowUsage,
+    selectedDay,
+    selectDay,
     partTotal,
     filtered,
     known,

@@ -1,8 +1,10 @@
-import { createRoute, lazyRouteComponent } from '@tanstack/react-router'
+import { createRoute } from '@tanstack/react-router'
 import { rootRoute } from './__root'
+import { UsagePage } from '../router/pageComponents'
 
 export const usageRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/usage',
-  component: lazyRouteComponent(() => import('../pages/UsagePage'), 'UsagePage'),
+  beforeLoad: () => (typeof window === 'undefined' ? undefined : UsagePage.preload?.()),
+  component: () => null,
 })

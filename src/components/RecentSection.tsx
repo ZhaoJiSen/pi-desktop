@@ -12,7 +12,7 @@ import { useWorkspace } from '../store/workspace'
 import { selectSessionSummaries } from '../store/sessionSelectors'
 import type { Project } from '../types'
 import type { SessionMenuTarget } from './SessionContextMenu'
-import { SessionRow } from './SessionRow'
+import { SessionList } from './SessionList'
 
 export function RecentSection({
   project,
@@ -91,17 +91,14 @@ export function RecentSection({
             transition={{ duration: 0.18 }}
             className="session-list recent-sessions"
           >
-            {items.map((session) => (
-              <SessionRow
-                key={session.id}
-                session={session}
-                selected={active === session.id && view === 'chat'}
-                locked={locked}
-                removalLocked={running === session.id || (active === session.id && locked)}
-                onMenu={onMenu}
-                onRemove={onRemove}
-              />
-            ))}
+            <SessionList
+              items={items}
+              active={view === 'chat' ? active : null}
+              running={running}
+              locked={locked}
+              onMenu={onMenu}
+              onRemove={onRemove}
+            />
           </motion.div>
         )}
       </AnimatePresence>

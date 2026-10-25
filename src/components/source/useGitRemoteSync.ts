@@ -58,7 +58,18 @@ export function useGitRemoteSync({
     const id = ++sequence.current
     try {
       const next = await gitSyncState(projectPath)
-      if (live.current && id === sequence.current) setState(next)
+      if (live.current && id === sequence.current) {
+        const old = latest.current.state
+        setState(next)
+        if (
+          !busy.current &&
+          old &&
+          (old.branch.head !== next.branch.head ||
+            old.branch.current !== next.branch.current ||
+            old.branch.operation !== next.branch.operation)
+        )
+          latest.current.onChanged()
+      }
       return next
     } catch (caught) {
       if (live.current && id === sequence.current) setError(syncError(caught, latest.current.t))
@@ -195,7 +206,9 @@ export function useGitRemoteSync({
       : operation
         ? t('source.syncPending')
         : state.branch.dirty
-          ? t('source.syncDirty')
+          ? repositoryStatus?.status.data?.files.length === 0
+            ? t('source.syncDirtyOutsideList')
+            : t('source.syncDirty')
           : ''
   return {
     t,

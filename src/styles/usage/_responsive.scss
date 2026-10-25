@@ -1,6 +1,28 @@
-@container (max-width: 620px) {
-  .usage-overview {
-    column-gap: 32px;
+@container (max-width: 850px) {
+  .usage-visualizations {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .usage-composition .usage-parts {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+@media (max-width: 780px) {
+  .usage-view {
+    padding: 16px;
+  }
+}
+@container (max-width: 700px) {
+  .usage-overview > div + div {
+    padding-left: 20px;
+  }
+  .usage-overview .usage-primary dd {
+    font-size: 38px;
+  }
+  .usage-overview dd {
+    font-size: 28px;
+  }
+  .usage-composition .usage-parts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .usage-view .usage-table .usage-model-column {
     display: none;
@@ -9,28 +31,28 @@
     width: 50%;
   }
 }
-@container (max-width: 400px) {
+@container (max-width: 480px) {
   .usage-toolbar {
-    flex-wrap: wrap;
-    margin-bottom: 26px;
+    align-items: flex-start;
+    flex-direction: column;
+    margin-bottom: 28px;
   }
-  .usage-project-select {
-    max-width: 100%;
+  .usage-toolbar-controls {
+    width: 100%;
   }
   .usage-overview {
-    column-gap: 28px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
   }
-  .usage-overview .usage-primary {
-    flex-basis: 100%;
+  .usage-overview > div + div {
+    border-left: 0;
+    padding-left: 0;
+  }
+  .usage-overview dd {
+    line-height: 40px;
   }
   .usage-session-heading {
-    align-items: flex-start;
     gap: 12px;
-    flex-direction: column;
-  }
-  .usage-parts {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    row-gap: 20px;
   }
   .usage-search {
     width: 100%;

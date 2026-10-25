@@ -10,31 +10,41 @@
     "frontendDist": "../dist"
   },
   "app": {
-    "windows": [{
-      "label": "main",
-      "title": "pi Desktop",
-      "width": 1224,
-      "height": 840,
-      "minWidth": 720,
-      "minHeight": 560,
-      "titleBarStyle": "Overlay",
-      "hiddenTitle": true,
-      "trafficLightPosition": { "x": 17, "y": 22 },
-      "transparent": true,
-      "backgroundColor": "#00000000",
-      "windowEffects": {
-        "effects": ["underWindowBackground"],
-        "state": "active",
-        "radius": 12
+    "windows": [
+      {
+        "label": "main",
+        "title": "pi Desktop",
+        "width": 1224,
+        "height": 840,
+        "minWidth": 720,
+        "minHeight": 560,
+        "titleBarStyle": "Overlay",
+        "hiddenTitle": true,
+        "trafficLightPosition": {
+          "x": 17,
+          "y": 22
+        },
+        "transparent": true,
+        "backgroundColor": "#00000000",
+        "windowEffects": {
+          "effects": [
+            "underWindowBackground"
+          ],
+          "state": "active",
+          "radius": 12
+        }
       }
-    }],
+    ],
     "security": {
       "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src https://registry.npmjs.org ipc: http://ipc.localhost http://127.0.0.1:1420 ws://127.0.0.1:1420"
     }
   },
   "bundle": {
     "active": true,
-    "targets": ["app", "dmg"],
+    "targets": [
+      "app",
+      "dmg"
+    ],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -45,6 +55,15 @@
     "shortDescription": "A desktop workspace for the pi coding agent",
     "macOS": {
       "minimumSystemVersion": "11.0"
+    },
+    "createUpdaterArtifacts": true
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDM1RjYwRTVGRTlGM0VDNDYKUldSRzdQUHBYdzcyTldFNUlnQnJXYnlGN1p4VEVIVDVNeWMrOXh1cDZzLzFWY0Nydzlsc0ZWK1cK",
+      "endpoints": [
+        "https://github.com/ZhaoJiSen/pi-desktop/releases/latest/download/latest.json"
+      ]
     }
   }
 }

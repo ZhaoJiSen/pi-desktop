@@ -92,8 +92,8 @@ export function GitFileList({
       <ListBox
         aria-label={label}
         selectionMode="single"
+        disallowEmptySelection
         selectedKeys={selected ? [selected] : []}
-        onAction={(key) => onSelect(String(key))}
         className="git-file-options"
         style={{ height: virtual.getTotalSize() }}
       >
@@ -105,6 +105,12 @@ export function GitFileList({
               id={file.path}
               data-file-index={row.index}
               textValue={file.path}
+              onPress={(event) => {
+                // Passive tooltip labels must not leave focus on the previous row.
+                const row = event.target as HTMLElement
+                row.focus({ preventScroll: true })
+                onSelect(file.path)
+              }}
               className="git-file-option"
               style={{ position: 'absolute', top: row.start, height: row.size, width: '100%' }}
             >

@@ -76,6 +76,8 @@ export interface Message {
   role: 'user' | 'assistant'
   blocks: MessageBlock[]
   timestamp: number
+  /** Per-message usage reported by Pi, independent of the session lifetime totals. */
+  usage?: Pick<Usage, 'input' | 'output' | 'cacheRead' | 'cacheWrite' | 'total' | 'cost'>
   /** Exact submitted text, retained only until the optimistic user message is synchronized. */
   pendingPrompt?: string
   /** Stable bridge submission identity, independent of receipt display text. */

@@ -30,8 +30,12 @@ function PrismToken({ token }: { token: string | Prism.Token }) {
 
 const prismAlias: Record<string, string> = {
   ts: 'typescript',
+  mts: 'typescript',
+  cts: 'typescript',
   typescript: 'typescript',
   js: 'javascript',
+  mjs: 'javascript',
+  cjs: 'javascript',
   javascript: 'javascript',
   jsx: 'jsx',
   tsx: 'tsx',
@@ -48,6 +52,8 @@ const prismAlias: Record<string, string> = {
   markdown: 'markdown',
   markup: 'markup',
   html: 'markup',
+  vue: 'markup',
+  svelte: 'markup',
   xml: 'markup',
   svg: 'markup',
   css: 'css',

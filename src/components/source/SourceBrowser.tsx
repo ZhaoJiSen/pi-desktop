@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { GitNavigationSplit } from './GitNavigationSplit'
+import { SourceBrowserSplit } from './SourceBrowserSplit'
 
 /** Navigation stays mounted and scrolls independently of the file content. */
 export function SourceBrowser({
@@ -25,14 +26,11 @@ export function SourceBrowser({
       </GitNavigationSplit>
     )
   return (
-    <div
-      className={history ? 'source-browser is-history' : 'source-browser'}
-      data-navigation-collapsed={navigationCollapsed || undefined}
-    >
+    <SourceBrowserSplit history={history} collapsed={navigationCollapsed}>
       <div className="source-browser-navigation" hidden={navigationCollapsed}>
         {navigation}
       </div>
       <div className="source-browser-content">{children}</div>
-    </div>
+    </SourceBrowserSplit>
   )
 }

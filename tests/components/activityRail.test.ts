@@ -7,6 +7,7 @@ import { Sidebar } from '../../src/components/Sidebar'
 import { useWorkspace } from '../../src/store/workspace'
 
 const mocks = vi.hoisted(() => ({ page: 'chat', navigate: vi.fn() }))
+vi.mock('../../src/router/preload', () => ({ preloadPage: vi.fn() }))
 vi.mock('../../src/router/hooks', () => ({ useCurrentPage: () => mocks.page }))
 vi.mock('../../src/router/navigation', () => ({ navigateToPage: mocks.navigate }))
 // Verify navigation semantics; browser recordings cover Motion's shared selection.
@@ -31,6 +32,9 @@ vi.mock('motion/react', async () => {
     },
     AnimatePresence: ({ children }: { children: import('react').ReactNode }) =>
       createElement(Fragment, null, children),
+    LayoutGroup: ({ children }: { children: import('react').ReactNode }) =>
+      createElement(Fragment, null, children),
+    useReducedMotion: () => false,
   }
 })
 let root: Root, container: HTMLDivElement

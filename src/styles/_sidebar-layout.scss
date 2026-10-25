@@ -23,6 +23,11 @@
   }
 }
 
+// Switching between Home and utility pages must not reflow chat for 280ms.
+.resizable.workspace-surface[data-collapsible='true'] > .resizable-panel-side {
+  transition: none;
+}
+
 /* Peer library pages share their title row and compact HeroUI tools. */
 .commands-browser-heading,
 .package-library-heading,
@@ -33,6 +38,7 @@
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 10px;
+  min-height: 28px;
 }
 
 .commands-browser-title,

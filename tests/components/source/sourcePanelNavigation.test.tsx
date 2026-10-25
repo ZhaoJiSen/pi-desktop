@@ -11,6 +11,30 @@ import { useWorkspace } from '../../../src/store/workspace'
 import type { ToolBlock } from '../../../src/types'
 
 vi.mock('../../../src/router/navigation', () => ({ navigateToPage: vi.fn() }))
+// Share the production diff components while substituting layout measurements.
+vi.mock('@tanstack/react-virtual', async () => {
+  const { useRef } = await import('react')
+  return {
+    useVirtualizer: (options: { count: number; estimateSize: (index: number) => number }) => {
+      const latest = useRef(options)
+      latest.current = options
+      const instance = useRef({
+        getVirtualItems: () =>
+          Array.from({ length: latest.current.count }, (_, index) => ({
+            index,
+            start: index * latest.current.estimateSize(index),
+            size: latest.current.estimateSize(index),
+          })),
+        getTotalSize: () => latest.current.count * latest.current.estimateSize(0),
+        scrollToIndex: vi.fn(),
+        measureElement: vi.fn(),
+        getVirtualItemForOffset: () => ({ index: 0 }),
+        scrollOffset: 0,
+      })
+      return instance.current
+    },
+  }
+})
 
 const project = vi.hoisted(() => ({
   path: '/project',
@@ -275,6 +299,11 @@ describe('source workspace navigation', () => {
   })
   it('offers basic Git viewing and opens the full workspace from its toolbar', async () => {
     await click('.tool-a button')
+    expect(active().querySelector('.git-changes-review')).not.toBeNull()
+    expect(active().querySelectorAll('.git-diff-section')).toHaveLength(1)
+    expect(active().querySelector('.git-review-toolbar')?.textContent).toContain('Changed files 2')
+    expect(active().querySelector('.git-file-path-label')).not.toBeNull()
+    expect(active().querySelector('.git-file-action-bar')).not.toBeNull()
     expect(container.querySelector('[role="tab"][aria-label="History"]')).toBeNull()
     expect(active().querySelector('button[aria-label="Discard changes"]')).toBeNull()
     expect(

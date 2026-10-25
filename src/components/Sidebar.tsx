@@ -1,6 +1,6 @@
 import { Accordion, Button, Separator, Tooltip } from '@heroui/react'
 import { AnimatePresence, motion } from 'motion/react'
-import { ChevronRight, Search, SquarePen, Terminal } from 'lucide-react'
+import { ChevronRight, Search, SquarePen } from 'lucide-react'
 import { useCurrentPage } from '../router/hooks'
 import { useWorkspace } from '../store/workspace'
 import { selectSessionSummaries } from '../store/sessionSelectors'
@@ -11,7 +11,7 @@ import { isRecentProject, RECENT_PROJECT_ID } from '../lib/recentProject'
 import type { Project } from '../types'
 import { ProjectRow } from './ProjectRow'
 import { RecentSection } from './RecentSection'
-import { SessionRow } from './SessionRow'
+import { SessionList } from './SessionList'
 import { ProjectPicker } from './ProjectPicker'
 
 interface Props {
@@ -76,10 +76,6 @@ export function Sidebar({ onSearch, onNew, onProject, onRename, onRemove }: Prop
           <SquarePen />
           {t('sessions.new')}
         </Button>
-        <Button variant="ghost" className="nav-row list-box-item" isDisabled>
-          <Terminal />
-          {t('navigation.terminal')}
-        </Button>
       </nav>
       <Separator className="sidebar-nav-separator" />
       <div className="projects">
@@ -127,19 +123,14 @@ export function Sidebar({ onSearch, onNew, onProject, onRename, onRemove }: Prop
                             transition={{ duration: 0.18 }}
                             className="session-list"
                           >
-                            {items.map((session) => (
-                              <SessionRow
-                                key={session.id}
-                                session={session}
-                                selected={active === session.id && view === 'chat'}
-                                locked={locked}
-                                removalLocked={
-                                  running === session.id || (active === session.id && locked)
-                                }
-                                onMenu={setMenu}
-                                onRemove={onRemove}
-                              />
-                            ))}
+                            <SessionList
+                              items={items}
+                              active={view === 'chat' ? active : null}
+                              running={running}
+                              locked={locked}
+                              onMenu={setMenu}
+                              onRemove={onRemove}
+                            />
                             {!items.length && (
                               <p className="session-list-empty">{t('sessions.empty')}</p>
                             )}

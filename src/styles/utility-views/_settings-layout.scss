@@ -1,5 +1,5 @@
 // Keep settings layout local; HeroUI owns control geometry and interaction states.
-.app-shell:has(.settings-view) {
+.app-shell[data-page='settings'] {
   min-height: 0;
 }
 .settings-view {

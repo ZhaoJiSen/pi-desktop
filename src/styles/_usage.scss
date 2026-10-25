@@ -1,5 +1,7 @@
 // Keep this order: later modules preserve the existing cascade.
 @use 'usage/overview';
+@use 'usage/charts';
+@use 'usage/heatmap';
 @use 'usage/conversations';
 @use 'usage/feedback';
 @use 'usage/responsive';

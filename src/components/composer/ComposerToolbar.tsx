@@ -1,6 +1,5 @@
 import { Button, Spinner } from '@heroui/react'
 import { ArrowUp, Square } from 'lucide-react'
-import { useReducedMotion, motion } from 'motion/react'
 import { abortPrompt } from '../../lib/desktop'
 import { useT } from '../../lib/i18n'
 import { ModelSelector } from '../ModelSelector'
@@ -25,7 +24,6 @@ export function ComposerToolbar({
 }) {
   const [pending, setPending] = useState<'model' | 'thinking' | null>(null)
   const t = useT()
-  const reducedMotion = useReducedMotion()
   return (
     <div className="composer-toolbar">
       <div className="composer-toolbar-start">
@@ -47,10 +45,7 @@ export function ComposerToolbar({
         />
       </div>
       <div className="send-area">
-        <motion.div
-          whileTap={reducedMotion ? undefined : { scale: 0.97 }}
-          transition={{ duration: 0.08 }}
-        >
+        <div>
           <Button
             type={running ? 'button' : 'submit'}
             isIconOnly
@@ -75,7 +70,7 @@ export function ComposerToolbar({
               <ArrowUp />
             )}
           </Button>
-        </motion.div>
+        </div>
       </div>
     </div>
   )

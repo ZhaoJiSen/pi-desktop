@@ -157,6 +157,11 @@ export const sourceEn = {
   'source.changes': 'Changes',
   'source.commit': 'Commit',
   'source.commitBranch': 'Create branch & commit',
+  'source.commitChanged': 'The current branch changed. Review the updated state before committing.',
+  'source.syncDirtyOutsideList':
+    'The repository has changes outside the current file list. Review the full repository before pulling.',
+  'source.commitRetryHint':
+    'The branch was created. Fix the error, then retry the commit on this branch.',
   'source.commitMany': '{count} files',
   'source.commitManyOn': '{count} files on {branch}',
   'source.commitMessage': 'Commit message',

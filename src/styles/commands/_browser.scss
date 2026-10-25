@@ -199,10 +199,6 @@
 
 .command-row {
   scroll-margin-block: 8px;
-
-  &[data-selected='true'] .sidebar-option-copy small {
-    color: color-mix(in srgb, var(--ink) 75%, var(--paper));
-  }
 }
 
 .commands-source-group {

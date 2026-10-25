@@ -1,3 +1,5 @@
+@use '../navigation-states' as navigation;
+
 // Global navigation sits outside the workspace surface.
 .activity-rail {
   min-height: 0;
@@ -17,6 +19,8 @@
   padding-top: 12px;
 }
 .button.rail-item {
+  --rail-current-bg: color-mix(in srgb, var(--accent) 28%, var(--sidebar));
+  --rail-current-ink: color-mix(in srgb, var(--accent) 30%, var(--nav-selected-ink));
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -26,24 +30,42 @@
   height: 36px;
   min-height: 36px;
   padding: 0;
+  border-radius: 10px;
   color: var(--muted);
   isolation: isolate;
+  @include navigation.item("[aria-current='page']", $paint-current: false);
+
+  &[aria-current='page'] {
+    color: var(--rail-current-ink);
+  }
 }
 .rail-item > svg {
-  width: 19px;
-  height: 19px;
+  position: relative;
+  z-index: 1;
+  width: 18px;
+  height: 18px;
   stroke-width: 1.65;
 }
-.button.rail-item:is(:hover, [data-hovered='true'], [aria-current='page']) {
-  color: var(--ink);
-  background: transparent;
+.rail-item[aria-current='page'] > svg {
+  stroke-width: 2;
 }
 .rail-selection {
   position: absolute;
   inset: 0;
-  z-index: -1;
+  z-index: 0;
   border-radius: inherit;
-  background: var(--selection);
+  background: var(--rail-current-bg);
+  pointer-events: none;
+}
+.button.rail-item:focus-visible:not([data-focused]),
+.button.rail-item[data-focus-visible='true'] {
+  &[aria-current='page'] {
+    outline: none;
+  }
+
+  .rail-selection {
+    box-shadow: inset 0 0 0 2px var(--nav-focus);
+  }
 }
 .sidebar-title {
   font-size: calc(var(--font-ui-size) * 15 / 14 * 1px);

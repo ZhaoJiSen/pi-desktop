@@ -15,6 +15,19 @@
   --hover: #eeefef;
   --text-selection-bg: #ebeef3;
   --selection: var(--hover);
+  --nav-hover: color-mix(in srgb, var(--selection) 42%, var(--sidebar));
+  --nav-field: var(--paper);
+  --nav-field-edge: color-mix(in srgb, var(--ink) 12%, var(--paper));
+  --nav-muted: var(--muted);
+  --nav-status: var(--status);
+  --nav-added: var(--mint);
+  --nav-danger: var(--danger);
+  --nav-selected-ink: var(--ink);
+  --nav-selected-muted: var(--ink);
+  --nav-selected-status: var(--ink);
+  --nav-selected-added: var(--ink);
+  --nav-selected-danger: var(--ink);
+  --nav-focus: color-mix(in srgb, var(--focus) 40%, var(--nav-selected-ink));
   --user: #f3f4f6;
   --code-head: #f8f8f9;
   --added: #eaf7ec;
@@ -71,6 +84,8 @@
   --paper: #202122;
   --sidebar: #1b1c1d;
   --ground: var(--sidebar);
+  --nav-field: color-mix(in srgb, var(--ink) 6%, var(--sidebar));
+  --nav-field-edge: color-mix(in srgb, var(--ink) 12%, var(--nav-field));
   --ink: #e2e4e8;
   --muted: #a5adb9;
   --line: #303337;

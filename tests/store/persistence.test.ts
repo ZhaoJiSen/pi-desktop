@@ -8,6 +8,100 @@ afterEach(() => {
 })
 
 describe('stream checkpoints', () => {
+  it('retries the current snapshot after storage recovers and verifies it can be restored', async () => {
+    let failed = true
+    const data = new Map<string, string>()
+    const storage = {
+      getItem: (key: string) => data.get(key) ?? null,
+      removeItem: (key: string) => {
+        data.delete(key)
+      },
+      setItem: (key: string, value: string) => {
+        if (failed) throw new Error('disk full')
+        data.set(key, value)
+      },
+    }
+    const store = createWorkspaceStore(storage)
+    store.setState({ sidebarOpen: false })
+    await expect(store.savePersistence()).rejects.toThrow()
+    expect(store.getState().storageError).not.toBeNull()
+    expect(data.size).toBe(0)
+    failed = false
+    await store.savePersistence()
+    expect(store.getState().storageError).toBeNull()
+    expect(createWorkspaceStore(storage).getState().sidebarOpen).toBe(false)
+  })
+
+  it('ignores a queued failure from an earlier write after a newer write succeeds', async () => {
+    let failed = true
+    const store = createWorkspaceStore({
+      getItem: () => null,
+      removeItem: () => {},
+      setItem: () => {
+        if (failed) throw new Error('disk full')
+      },
+    })
+    store.setState({ sidebarOpen: false })
+    failed = false
+    store.setState({ sidebarOpen: true })
+    await Promise.resolve()
+    expect(store.getState().storageError).toBeNull()
+  })
+
+  it('waits for asynchronous storage failures and retries without losing the snapshot', async () => {
+    let failed = true
+    let written = ''
+    const store = createWorkspaceStore({
+      getItem: () => null,
+      removeItem: () => {},
+      setItem: async (_key, value) => {
+        if (failed) throw new Error('unavailable')
+        written = value
+      },
+    })
+    await expect(store.savePersistence()).rejects.toThrow()
+    failed = false
+    await store.savePersistence()
+    expect(store.getState().storageError).toBeNull()
+    expect(JSON.parse(written).state).toHaveProperty('sidebarOpen', true)
+  })
+
+  it('does not recreate cleared storage when a successful write queues error recovery', async () => {
+    let failed = true
+    const data = new Map<string, string>()
+    const store = createWorkspaceStore({
+      getItem: (key) => data.get(key) ?? null,
+      removeItem: (key) => {
+        data.delete(key)
+      },
+      setItem: (key, value) => {
+        if (failed) throw new Error('disk full')
+        data.set(key, value)
+      },
+    })
+    await expect(store.savePersistence()).rejects.toThrow()
+    failed = false
+    store.setState({ sidebarOpen: false })
+    store.persist.clearStorage()
+    await Promise.resolve()
+    await Promise.resolve()
+    expect(data.size).toBe(0)
+  })
+
+  it('a forced snapshot replaces a queued checkpoint instead of being overwritten by it', async () => {
+    vi.useFakeTimers()
+    const setItem = vi.fn()
+    const persistence = createWorkspacePersistence<{ text: string }>(
+      { getItem: () => null, removeItem: () => {}, setItem },
+      () => true,
+    )
+    persistence.storage.setItem('workspace', { state: { text: 'older' } })
+    await persistence.save('workspace', { state: { text: 'latest' } })
+    vi.runAllTimers()
+    expect(setItem).toHaveBeenCalledOnce()
+    expect(JSON.parse(setItem.mock.calls[0][1]).state.text).toBe('latest')
+  })
+
   it('defers serialization itself, saves the latest snapshot, and checkpoints a continuous stream', () => {
     vi.useFakeTimers()
     const setItem = vi.fn()

@@ -1,3 +1,5 @@
+@use '../navigation-states' as navigation;
+
 .sidebar {
   min-width: 0;
   display: flex;
@@ -76,6 +78,7 @@
   color: var(--ink);
   font-size: calc(var(--font-ui-size) * 14 / 14 * 1px);
   font-weight: 400;
+  @include navigation.focus;
 }
 .button.nav-row svg {
   color: var(--muted);
@@ -107,7 +110,7 @@
   color: var(--ink);
 }
 .nav .button.nav-row:is(:hover, [data-hovered='true']) {
-  background: transparent;
+  background: var(--nav-hover);
 }
 .nav .nav-active {
   background: var(--selection);

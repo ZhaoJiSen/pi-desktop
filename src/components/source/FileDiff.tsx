@@ -17,6 +17,7 @@ import { SourceNotice } from './SourceNotice'
 import { SourceFilePath } from './SourceFilePath'
 import { useDiffLayout } from './useDiffLayout'
 import { VirtualDiff } from './VirtualDiff'
+import { retainDiffModel } from './retainDiffModel'
 import '@git-diff-view/react/styles/diff-view-pure.css'
 
 const highlightLang: Record<string, string> = { markup: 'xml' }
@@ -139,6 +140,7 @@ export function FileDiff({
               <VirtualDiff data={data} layout={layoutMode} mode={mode} codeSize={codeSize} />
             ) : (
               <DiffView
+                ref={retainDiffModel}
                 data={data}
                 diffViewMode={layoutMode === 'split' ? DiffModeEnum.Split : DiffModeEnum.Unified}
                 diffViewTheme={mode}

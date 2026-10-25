@@ -1,7 +1,6 @@
-import { Outlet } from '@tanstack/react-router'
 import { useKeyPress } from 'ahooks'
 import { MotionConfig } from 'motion/react'
-import { useEffect, useState, type CSSProperties } from 'react'
+import { useCallback, useEffect, useMemo, useState, type CSSProperties } from 'react'
 import { QuestionProvider, useQuestions } from '../components/conversation/QuestionContext'
 import { PendingQuestions } from '../components/conversation/QuestionCard'
 import { QuestionNotifications } from '../components/QuestionNotifications'
@@ -32,6 +31,8 @@ import { WorkspaceActionsContext } from './WorkspaceActions'
 import { OnboardingPage } from '../pages/OnboardingPage'
 import { PiUpdateDialog } from '../components/PiUpdateDialog'
 import { usePiUpdatePrompt } from '../hooks/usePiUpdatePrompt'
+import { RetainedView } from '../components/RetainedView'
+import { WorkspacePages } from './WorkspacePages'
 
 export function WorkspaceLayout() {
   return (
@@ -47,8 +48,6 @@ export function WorkspaceLayout() {
 function WorkspaceContent() {
   const sidebar = useWorkspace((state) => state.sidebarOpen)
   const active = useWorkspace((state) => state.activeSessionId)
-  const connection = useWorkspace((state) => state.connection)
-  const running = useWorkspace((state) => state.runningSessionId)
   const onboardingOpen = useWorkspace((state) => state.onboardingOpen)
   const updating = useWorkspace((state) => state.piUpdating)
   const view = useCurrentPage()
@@ -69,8 +68,9 @@ function WorkspaceContent() {
   )
   const t = useT()
   const source = useSource()
-  async function addProject() {
-    if (updating || running || connection === 'connecting') return
+  const addProject = useCallback(async () => {
+    const state = useWorkspace.getState()
+    if (state.piUpdating || state.runningSessionId || state.connection === 'connecting') return
     if (!isDesktop) {
       setProjectOpen(true)
       return
@@ -81,7 +81,8 @@ function WorkspaceContent() {
     } catch (error) {
       reportActionNotice(error)
     }
-  }
+  }, [])
+  const workspaceActions = useMemo(() => ({ onProject: () => void addProject() }), [addProject])
   async function newChat() {
     const store = useWorkspace.getState()
     if (store.piUpdating || store.runningSessionId || store.connection === 'connecting') return
@@ -161,6 +162,7 @@ function WorkspaceContent() {
       <SidebarWidthProvider>
         <main
           className={`app-shell ${showSidebar ? '' : 'sidebar-collapsed'} ${isDesktop ? 'native' : 'browser'}`}
+          data-page={view}
           style={{ '--sidebar-width': `${sidebarWidth}px` } as CSSProperties}
         >
           <div className="window-chrome" data-tauri-drag-region="deep">
@@ -168,7 +170,7 @@ function WorkspaceContent() {
               <WindowControls />
               {view === 'chat' && <SidebarToggle />}
             </div>
-            {view === 'chat' && <Header onRename={() => setRenameId(active)} />}
+            <Header onRename={() => setRenameId(active)} />
           </div>
           <ActivityRail />
           <SidebarLayout
@@ -179,7 +181,7 @@ function WorkspaceContent() {
             label={t('layout.resizeHome')}
             onWidthChange={setSidebarWidth}
             sidebar={
-              view === 'chat' ? (
+              <RetainedView active={showSidebar}>
                 <Sidebar
                   onNew={newChat}
                   onSearch={() => setSearchOpen(true)}
@@ -187,13 +189,13 @@ function WorkspaceContent() {
                   onRename={setRenameId}
                   onRemove={setRemoveId}
                 />
-              ) : undefined
+              </RetainedView>
             }
           >
-            <section className="main" aria-label={t('sessions.current')}>
+            <section className="main" data-page={view} aria-label={t('sessions.current')}>
               {view !== 'chat' && <ConnectionNotice utility />}
-              <WorkspaceActionsContext.Provider value={{ onProject: () => void addProject() }}>
-                <Outlet />
+              <WorkspaceActionsContext.Provider value={workspaceActions}>
+                <WorkspacePages page={view} />
               </WorkspaceActionsContext.Provider>
               <RuntimeNotice />
             </section>

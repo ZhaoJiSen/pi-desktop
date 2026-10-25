@@ -1,3 +1,5 @@
+@use 'navigation-states' as navigation;
+
 .sidebar-option {
   position: relative;
   height: auto;
@@ -15,8 +17,11 @@
   color: var(--ink);
 }
 
+.sidebar-option.list-box-item {
+  @include navigation.item("[data-selected='true']");
+}
+
 .sidebar-option.list-box-item[data-selected='true'] {
-  background: var(--default);
   box-shadow: none;
 
   > svg {

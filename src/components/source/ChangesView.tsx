@@ -1,17 +1,13 @@
 import { Button } from '@heroui/react'
-import { GitBranch, GitCommitHorizontal } from 'lucide-react'
+import { GitBranch, GitCommitHorizontal, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 import { type ReactNode } from 'react'
 import type { DiffLine } from '../../types'
-import { HoverScrollArea } from '../HoverScrollArea'
 import { OverflowTooltip } from '../OverflowTooltip'
 import { CommitBranchDialog } from './CommitBranchDialog'
-import { FileDiff } from './FileDiff'
 import { GitChangesReview } from './GitChangesReview'
-import { GitChangesToolbar } from './GitChangesToolbar'
 import { GitFileNavigator, GitQuickFind } from './GitFileNavigator'
-import { LoadedDiff } from './LoadedDiff'
 import { SourceBrowser } from './SourceBrowser'
-import { SourceNotice } from './SourceNotice'
+import { SourceAction } from './SourceAction'
 import { useChangesPane } from './useChangesPane'
 
 export function ChangesPane({
@@ -42,6 +38,7 @@ export function ChangesPane({
     t,
     projectPath,
     revision,
+    statusRevision,
     agent,
     quickFind,
     setQuickFind,
@@ -51,10 +48,6 @@ export function ChangesPane({
     setCommitOpen,
     navigationCollapsed,
     setNavigationCollapsed,
-    confirmPath,
-    setConfirmPath,
-    restoring,
-    restoreError,
     localTick,
     showFallback,
     setShowFallback,
@@ -63,15 +56,8 @@ export function ChangesPane({
     refreshStatus,
     files,
     path,
-    file,
     treeFiles,
-    layoutRef,
-    layout,
     choose,
-    toggleLayout,
-    openFile,
-    confirmRestore,
-    restore,
   } = useChangesPane({
     initialPath,
     fallback,
@@ -122,6 +108,7 @@ export function ChangesPane({
         fromBranch={status.data.branch ?? undefined}
         files={files.map((item) => item.path)}
         onClose={() => setCommitOpen(false)}
+        onChanged={refreshStatus}
         onCommitted={() => {
           setSelected(null)
           setShowFallback(false)
@@ -169,99 +156,34 @@ export function ChangesPane({
           />
         }
       >
-        {workspace ? (
-          <GitChangesReview
-            files={treeFiles}
-            projectPath={projectPath}
-            tick={tick + localTick + revision}
-            jump={jump}
-            onActiveChange={setSelected}
-            onRestored={(target) => {
-              setSelected((current) => (current === target ? null : current))
-              refreshStatus()
-            }}
-            fallback={
-              fallback?.length ? { path: initialPath ?? fallbackLabel, lines: fallback } : undefined
-            }
-          />
-        ) : path || showFallback ? (
-          <>
-            <GitChangesToolbar
-              layoutRef={layoutRef}
-              t={t}
-              navigationCollapsed={navigationCollapsed}
-              setNavigationCollapsed={setNavigationCollapsed}
-              path={path}
-              fallbackLabel={fallbackLabel}
-              file={file}
-              layout={layout}
-              toggleLayout={toggleLayout}
-              openFile={openFile}
-              basic={basic}
-              restoring={restoring}
-              confirmRestore={confirmRestore}
-            />
-            {confirmPath === path && path && (
-              <div className="source-restore">
-                <p>{t('source.restoreConfirm')}</p>
-                <span className="source-restore-actions">
-                  <Button
-                    size="sm"
-                    variant="danger"
-                    isPending={restoring}
-                    onPress={() => void restore(path)}
-                  >
-                    {t('source.restore')}
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    isDisabled={restoring}
-                    onPress={() => setConfirmPath(null)}
-                  >
-                    {t('common.cancel')}
-                  </Button>
-                </span>
-              </div>
-            )}
-            {restoreError?.path === path && (
-              <p className="source-note" role="alert">
-                {restoreError?.message}
-              </p>
-            )}
-            <HoverScrollArea
-              className="source-preview-scroll"
-              viewportClassName="source-scroll"
-              label={path ?? fallbackLabel}
-            >
-              {showFallback && fallback?.length ? (
-                <FileDiff
-                  path={fallbackLabel || 'diff'}
-                  text=""
-                  binary={false}
-                  truncated={false}
-                  missing
-                  embedded
-                  layout={layout}
-                  fallback={fallback}
-                />
-              ) : (
-                path && (
-                  <LoadedDiff
-                    projectPath={projectPath}
-                    path={path}
-                    tick={tick + localTick}
-                    embedded
-                    layout={layout}
-                    fallback={path === initialPath ? fallback : undefined}
-                  />
-                )
-              )}
-            </HoverScrollArea>
-          </>
-        ) : (
-          <SourceNotice kind="empty" text={t('source.emptyChanges')} />
-        )}
+        <GitChangesReview
+          files={treeFiles}
+          previewPath={workspace ? undefined : path}
+          readOnly={basic}
+          navigationAction={
+            basic ? (
+              <SourceAction
+                label={t(
+                  navigationCollapsed ? 'source.showChangedFiles' : 'source.hideChangedFiles',
+                )}
+                onPress={() => setNavigationCollapsed((value) => !value)}
+              >
+                {navigationCollapsed ? <PanelLeftOpen /> : <PanelLeftClose />}
+              </SourceAction>
+            ) : undefined
+          }
+          projectPath={projectPath}
+          tick={JSON.stringify([tick, localTick, revision, statusRevision])}
+          jump={jump}
+          onActiveChange={setSelected}
+          onRestored={(target) => {
+            setSelected((current) => (current === target ? null : current))
+            refreshStatus()
+          }}
+          fallback={
+            fallback?.length ? { path: initialPath ?? fallbackLabel, lines: fallback } : undefined
+          }
+        />
       </SourceBrowser>
     </div>
   )

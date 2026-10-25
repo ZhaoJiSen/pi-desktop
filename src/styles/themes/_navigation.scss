@@ -1,0 +1,98 @@
+@use 'sass:color';
+@use 'sass:map';
+@use 'sass:math';
+
+@function luminance($value) {
+  $result: 0;
+  $weights: (
+    'red': 0.2126,
+    'green': 0.7152,
+    'blue': 0.0722,
+  );
+  @each $channel, $weight in $weights {
+    $n: math.div(color.channel($value, $channel, $space: rgb), 255);
+    @if $n <= 0.04045 {
+      $n: math.div($n, 12.92);
+    } @else {
+      $n: math.pow(math.div($n + 0.055, 1.055), 2.4);
+    }
+    $result: $result + $n * $weight;
+  }
+  @return $result;
+}
+
+@function contrast($a, $b) {
+  $a: luminance($a);
+  $b: luminance($b);
+  @return math.div(math.max($a, $b) + 0.05, math.min($a, $b) + 0.05);
+}
+
+// Move only as far toward this palette's text color as the actual surface needs.
+@function readable($foreground, $background, $ink) {
+  @if contrast($foreground, $background) >= 4.65 {
+    @return $foreground;
+  }
+  $anchor: $ink;
+  @if contrast($anchor, $background) < 4.65 {
+    $anchor: #000;
+    @if contrast(#fff, $background) > contrast(#000, $background) {
+      $anchor: #fff;
+    }
+  }
+  @for $step from 1 through 100 {
+    $candidate: color.mix($anchor, $foreground, $weight: $step * 1%, $method: rgb);
+    @if contrast($candidate, $background) >= 4.65 {
+      @return $candidate;
+    }
+  }
+  @return $anchor;
+}
+
+@mixin tokens($tokens, $mode) {
+  $sidebar: map.get($tokens, 'sidebar');
+  $ink: map.get($tokens, 'ink');
+  $selected: map.get($tokens, 'selection');
+  $hover: color.mix($selected, $sidebar, $weight: 42%, $method: rgb);
+  $field: color.mix(map.get($tokens, 'paper'), $sidebar, $weight: 85%, $method: rgb);
+  @if $mode == 'dark' {
+    $field: color.mix($ink, $sidebar, $weight: 6%, $method: rgb);
+  }
+  $muted: readable(map.get($tokens, 'muted'), $hover, $ink);
+  $muted: readable($muted, $field, $ink);
+  --nav-hover: #{$hover};
+  --nav-field: #{$field};
+  --nav-field-edge: #{color.mix($ink, $field, $weight: 12%, $method: rgb)};
+  --nav-muted: #{$muted};
+  --nav-status: #{readable(map.get($tokens, 'status'), $hover, $ink)};
+  --nav-added: #{readable(map.get($tokens, 'mint'), $hover, $ink)};
+  --nav-danger: #{readable(map.get($tokens, 'danger'), $hover, $ink)};
+  --nav-selected-ink: #{readable($ink, $selected, $ink)};
+  --nav-selected-muted: #{readable(map.get($tokens, 'muted'), $selected, $ink)};
+  --nav-selected-status: #{readable(map.get($tokens, 'status'), $selected, $ink)};
+  --nav-selected-added: #{readable(map.get($tokens, 'mint'), $selected, $ink)};
+  --nav-selected-danger: #{readable(map.get($tokens, 'danger'), $selected, $ink)};
+}
+
+// Keep these foregrounds local: chat, syntax and status colors elsewhere are unchanged.
+.source-browser-navigation,
+.git-navigation-surface,
+.git-quick-dialog {
+  --muted: var(--nav-muted);
+  --status: var(--nav-status);
+  --mint: var(--nav-added);
+  --danger: var(--nav-danger);
+}
+
+.git-file-option[data-selected='true'],
+.git-quick-row[aria-selected='true'],
+.source-tree-item.is-current,
+.session-row.selected,
+.history-row[aria-pressed='true'],
+.git-log-row[aria-selected='true'] {
+  --ink: var(--nav-selected-ink);
+  --muted: var(--nav-selected-muted);
+  --status: var(--nav-selected-status);
+  --mint: var(--nav-selected-added);
+  --danger: var(--nav-selected-danger);
+  --git-secondary: var(--nav-selected-muted);
+}

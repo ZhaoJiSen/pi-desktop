@@ -1,5 +1,4 @@
 import { Brain, Paperclip, TriangleAlert } from 'lucide-react'
-import { motion } from 'motion/react'
 import { memo, useCallback, useMemo, useState } from 'react'
 import { useT } from '../../lib/i18n'
 import type { Message, MessageBlock, ToolBlock } from '../../types'
@@ -45,12 +44,7 @@ export const MessageView = memo(function MessageView({
   const parts = useMemo(() => messageParts(message.blocks), [message.blocks])
   if (message.role === 'user')
     return (
-      <motion.div
-        className="user-message"
-        initial={{ opacity: 0, y: 5 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.18 }}
-      >
+      <div className="user-message">
         {!message.blocks.some((block) => block.type === 'text' && block.text.trim()) &&
           !message.attachments?.length && (
             <span className="user-capability-request">
@@ -67,15 +61,10 @@ export const MessageView = memo(function MessageView({
             {file}
           </div>
         ))}
-      </motion.div>
+      </div>
     )
   return (
-    <motion.article
-      className="assistant"
-      initial={{ opacity: 0, y: 4 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.18 }}
-    >
+    <article className="assistant">
       {parts.map(({ block, index, tools, key }) => {
         if (tools && tools.length > 1)
           return <ToolGroup key={key} tools={tools} toolOpen={toolOpen} onToggle={onToggleTool} />
@@ -115,6 +104,6 @@ export const MessageView = memo(function MessageView({
           {message.error}
         </div>
       )}
-    </motion.article>
+    </article>
   )
 })

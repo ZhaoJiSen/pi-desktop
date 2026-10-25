@@ -55,6 +55,7 @@ function applyToolResult(block: ToolBlock, resultValue: unknown, isError: boolea
 
 export function normalizeMessage(value: unknown, id: string = crypto.randomUUID()): Message | null {
   const raw = record(value)
+  const usage = record(raw.usage)
   if (raw.role !== 'assistant' && raw.role !== 'user') return null
   const blocks: MessageBlock[] =
     typeof raw.content === 'string'
@@ -72,6 +73,25 @@ export function normalizeMessage(value: unknown, id: string = crypto.randomUUID(
     role: raw.role,
     timestamp: number(raw.timestamp) || Date.now(),
     blocks,
+    ...(raw.role === 'assistant' &&
+    typeof raw.timestamp === 'number' &&
+    Number.isFinite(raw.timestamp) &&
+    raw.timestamp > 0 &&
+    typeof usage.totalTokens === 'number' &&
+    Number.isFinite(usage.totalTokens) &&
+    typeof record(usage.cost).total === 'number' &&
+    Number.isFinite(record(usage.cost).total)
+      ? {
+          usage: {
+            input: Math.max(0, number(usage.input)),
+            output: Math.max(0, number(usage.output)),
+            cacheRead: Math.max(0, number(usage.cacheRead)),
+            cacheWrite: Math.max(0, number(usage.cacheWrite)),
+            total: Math.max(0, number(usage.totalTokens)),
+            cost: Math.max(0, number(record(usage.cost).total)),
+          },
+        }
+      : {}),
     ...(typeof record(raw.capabilityLabel).name === 'string'
       ? {
           capabilityLabel: {

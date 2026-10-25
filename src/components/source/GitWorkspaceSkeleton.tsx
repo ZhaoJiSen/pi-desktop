@@ -162,9 +162,9 @@ export function GitWorkspaceLoading({
 export function GitPageSkeleton() {
   const t = useT()
   return (
-    <div className="git-page">
+    <div className="git-page git-page-skeleton">
       <header className="git-workspace-header">
-        <h1>{t('source.workspace')}</h1>
+        <h1 className="git-browser-title">{t('source.workspace')}</h1>
         <div className="git-workspace-tools" aria-hidden="true">
           <Bar width="160px" />
           <Bar width="48px" />

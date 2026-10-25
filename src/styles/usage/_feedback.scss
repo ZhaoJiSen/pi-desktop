@@ -31,11 +31,11 @@
 .usage-cost-notice.alert {
   align-items: center;
   gap: 10px;
-  margin-bottom: 26px;
-  padding: 10px 12px;
-  border: 1px solid var(--line);
+  margin: 12px 0 0;
+  padding: 0;
+  border: 0;
   border-radius: var(--radius);
-  background: var(--code-head);
+  background: transparent;
   box-shadow: none;
 }
 .usage-cost-notice .alert__indicator {
@@ -45,7 +45,7 @@
 .usage-cost-notice .alert__description {
   font-size: 13px;
   line-height: 1.6;
-  color: var(--ink);
+  color: var(--muted);
 }
 .usage-view .usage-notice-close.button,
 .usage-view .usage-cost-help.button {
@@ -95,7 +95,6 @@
   display: flex;
   flex: 1;
   min-height: 0;
-  max-width: none;
 }
 .usage-view.is-empty .usage-heading,
 .usage-view.is-empty .usage-toolbar,

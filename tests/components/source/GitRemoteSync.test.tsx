@@ -69,6 +69,17 @@ afterEach(async () => {
   localStorage.removeItem('pi.git-auto-fetch.v1:/sync-test')
 })
 describe('remote synchronization', () => {
+  it('refreshes history once when an external operation moves HEAD', async () => {
+    await render()
+    state.branch.head = '1234abcd'
+    await act(async () => window.dispatchEvent(new Event('focus')))
+    expect(changed).toHaveBeenCalledTimes(1)
+    await act(async () => window.dispatchEvent(new Event('focus')))
+    expect(changed).toHaveBeenCalledTimes(1)
+    state.branch.dirty = true
+    await act(async () => window.dispatchEvent(new Event('focus')))
+    expect(changed).toHaveBeenCalledTimes(1)
+  })
   it.each(['fetch', 'pull'] as const)(
     'shows %s progress until the request settles and blocks duplicate actions',
     async (action) => {

@@ -194,25 +194,7 @@
   }
 }
 
-.source-preview-inline-actions {
-  display: flex;
-  align-items: center;
-  flex: none;
-  gap: 4px;
-}
-.source-preview-overflow {
-  display: none;
-}
-.source-discard-action {
-  color: var(--danger);
-}
 @container source-panel (max-width: 420px) {
-  .source-preview-inline-actions {
-    display: none;
-  }
-  .source-preview-overflow {
-    display: inline-flex;
-  }
   .source-changes .source-file-directory {
     display: none;
   }

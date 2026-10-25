@@ -151,10 +151,10 @@
 .git-quick-row[aria-selected='true'] {
   background: var(--selection);
 }
-.git-quick-row:hover {
-  background: var(--hover);
+.git-quick-row:hover:not([aria-selected='true']) {
+  background: var(--nav-hover);
 }
-.main:has(> .git-page) {
+.main[data-page='git'] {
   flex: 1;
 }
 .git-page .source-tree-item.is-current {

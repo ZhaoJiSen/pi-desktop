@@ -1,7 +1,7 @@
 import { Button, Modal } from '@heroui/react'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useT } from '../../lib/i18n'
-import { gitCommitBranch } from '../../lib/source/api'
+import { gitBranchState, gitCommitBranch } from '../../lib/source/api'
 import { errorText } from '../../lib/utils'
 
 export function CommitBranchDialog({
@@ -11,6 +11,7 @@ export function CommitBranchDialog({
   files,
   onClose,
   onCommitted,
+  onChanged,
 }: {
   open: boolean
   projectPath: string
@@ -18,23 +19,63 @@ export function CommitBranchDialog({
   files: string[]
   onClose: () => void
   onCommitted: () => void
+  onChanged?: () => void
 }) {
   const t = useT()
   const [branch, setBranch] = useState('')
   const [message, setMessage] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const busy = useRef(false)
+  const [continuation, setContinuation] = useState<{
+    branch: string
+    head: string | null
+    current: string | null
+  } | null>(null)
+  const resuming = continuation?.branch === branch.trim() ? continuation : null
   async function save() {
-    if (!branch.trim() || !message.trim() || !files.length) return
+    if (!branch.trim() || !message.trim() || !files.length || busy.current) return
+    busy.current = true
     setSaving(true)
     setError('')
+    const target = branch.trim()
+    let before: { head: string | null; current: string | null } | null = null
     try {
-      await gitCommitBranch(projectPath, branch.trim(), message.trim(), files)
+      before = await gitBranchState(projectPath)
+      if (
+        (resuming && (before.current !== resuming.current || before.head !== resuming.head)) ||
+        (!resuming && fromBranch !== undefined && before.current !== fromBranch)
+      )
+        throw new Error(t('source.commitChanged'))
+      await gitCommitBranch(projectPath, target, message.trim(), files, {
+        head: before.head,
+        current: before.current,
+        resume: Boolean(resuming),
+      })
+      setContinuation(null)
+      setBranch('')
+      setMessage('')
       onCommitted()
       onClose()
     } catch (caught) {
       setError(errorText(caught))
+      try {
+        const actual = await gitBranchState(projectPath)
+        if (
+          before &&
+          (!resuming || (before.head === resuming.head && before.current === resuming.current)) &&
+          actual.head === before.head &&
+          actual.current === target &&
+          (resuming || before.current !== target)
+        ) {
+          setContinuation({ branch: target, head: actual.head, current: actual.current })
+        }
+      } catch {
+        // Keep the original failure and user input if the follow-up read also fails.
+      }
+      onChanged?.()
     } finally {
+      busy.current = false
       setSaving(false)
     }
   }
@@ -61,7 +102,7 @@ export function CommitBranchDialog({
               <Modal.Heading>{t('source.commitBranch')}</Modal.Heading>
               <p className="commit-scope">{scope}</p>
             </div>
-            <Modal.CloseTrigger aria-label={t('common.close')} />
+            <Modal.CloseTrigger aria-label={t('common.close')} isDisabled={saving} />
           </Modal.Header>
           <Modal.Body>
             <form
@@ -86,8 +127,12 @@ export function CommitBranchDialog({
                   autoCorrect="off"
                   spellCheck={false}
                   maxLength={80}
+                  disabled={saving}
                   value={branch}
-                  onChange={(event) => setBranch(event.target.value)}
+                  onChange={(event) => {
+                    setBranch(event.target.value)
+                    setContinuation(null)
+                  }}
                 />
               </label>
               <label className="field-label">
@@ -96,6 +141,7 @@ export function CommitBranchDialog({
                   className="field-input commit-message"
                   rows={3}
                   maxLength={2000}
+                  disabled={saving}
                   value={message}
                   onChange={(event) => setMessage(event.target.value)}
                 />
@@ -105,6 +151,7 @@ export function CommitBranchDialog({
                   {error}
                 </p>
               )}
+              {resuming && <p className="source-note">{t('source.commitRetryHint')}</p>}
             </form>
           </Modal.Body>
           <Modal.Footer>

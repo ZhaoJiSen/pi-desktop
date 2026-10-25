@@ -386,3 +386,33 @@ it('does not read offscreen history on streamed tokens after questions, includin
   await act(async () => useWorkspace.getState().updateSession('active', { messages: history(100) }))
   expect(container.querySelector('[data-question="answered"]')).toBeNull()
 })
+
+it('restores the reading position after hiding and resumes following only for a bottom reader', async () => {
+  const { Activity } = await import('react')
+  const watcher = watchResizes()
+  const children = h(Conversation, { onProject: () => {} })
+  const show = async (mode: 'visible' | 'hidden') =>
+    act(async () => root.render(h(Activity, { mode, children })))
+  await show('visible')
+  const scroll = container.querySelector<HTMLDivElement>('.conversation')!
+  const geometry = scrollGeometry(scroll)
+  await watcher.resize()
+  await act(async () => {
+    scroll.scrollTop = 300
+    scroll.dispatchEvent(new Event('scroll'))
+    scroll.dispatchEvent(new WheelEvent('wheel', { deltaY: -100, bubbles: true }))
+  })
+  await show('hidden')
+  scroll.scrollTop = 0
+  await show('visible')
+  expect(container.querySelector('.conversation')).toBe(scroll)
+  expect(scroll.scrollTop).toBe(300)
+  await act(async () => {
+    scroll.scrollTop = 800
+    scroll.dispatchEvent(new Event('scroll'))
+  })
+  await show('hidden')
+  geometry.height = 1800
+  await show('visible')
+  expect(scroll.scrollTop).toBe(1400)
+})

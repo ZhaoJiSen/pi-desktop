@@ -60,6 +60,7 @@ export function SourcePanel({
   if (!openedOnce || !source) return null
   return (
     <aside
+      id="project-source-panel"
       className={
         visible
           ? resizing

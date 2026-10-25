@@ -14,20 +14,33 @@ export type { SettingsSectionId } from './workspaceTypes'
 
 export function createWorkspaceStore(storage: StateStorage, preview = false) {
   let streamingWrite = false
+  let storageRevision = 0
+  function reportStorageResult(revision: number, failed: boolean) {
+    queueMicrotask(() => {
+      if (revision !== storageRevision) return
+      const state = store.getState()
+      const error = failed ? translate('errors.localSave', state.language) : null
+      if (state.storageError !== error) store.setState({ storageError: error })
+    })
+  }
   const guardedStorage: StateStorage = {
     getItem: (name) => storage.getItem(name),
-    removeItem: (name) => storage.removeItem(name),
+    removeItem: (name) => {
+      // A queued recovery report must not recreate a workspace after it was cleared.
+      storageRevision++
+      return storage.removeItem(name)
+    },
     setItem: (name, value) => {
+      const revision = ++storageRevision
       try {
-        return storage.setItem(name, value)
+        const written = storage.setItem(name, value)
+        return Promise.resolve(written).then(
+          () => reportStorageResult(revision, false),
+          () => reportStorageResult(revision, true),
+        )
       } catch {
-        // Avoid recursively persisting the error state. The draft remains in memory.
-        queueMicrotask(() => {
-          if (!store.getState().storageError)
-            store.setState({
-              storageError: translate('errors.localSave', store.getState().language),
-            })
-        })
+        // Report outside the write; transient error state is excluded from persistence.
+        reportStorageResult(revision, true)
       }
     },
   }
@@ -119,7 +132,18 @@ export function createWorkspaceStore(storage: StateStorage, preview = false) {
   store.subscribe((state, previous) => {
     if (previous.runningSessionId && !state.runningSessionId) void persistence.flush()
   })
-  return Object.assign(store, { flushPersistence: persistence.flush })
+  async function savePersistence() {
+    // Force a fresh snapshot even when the previous failed write consumed the queue.
+    const options = store.persist.getOptions()
+    if (!options.name) throw new Error('Workspace persistence is unavailable')
+    await persistence.save(options.name, {
+      state: options.partialize ? options.partialize(store.getState()) : store.getState(),
+      version: options.version,
+    })
+    const error = store.getState().storageError
+    if (error) throw new Error(error)
+  }
+  return Object.assign(store, { flushPersistence: persistence.flush, savePersistence })
 }
 
 export const isDesktop = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window

@@ -1,3 +1,4 @@
+import { appUpdates } from './zh/appUpdates'
 import type { en } from './en'
 import { capabilities } from './zh/capabilities'
 import { core } from './zh/core'
@@ -7,6 +8,7 @@ import { workspace } from './zh/workspace'
 
 export const zh = {
   ...core,
+  ...appUpdates,
   ...capabilities,
   ...settings,
   ...workspace,

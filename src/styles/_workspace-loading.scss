@@ -1,0 +1,205 @@
+.workspace-pages,
+.workspace-page-content,
+.workspace-page-skeleton,
+.workspace-skeleton-content,
+.workspace-skeleton-library {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+.workspace-pages {
+  position: relative;
+  container: workspace-page / inline-size;
+}
+.workspace-page-title {
+  position: absolute;
+  z-index: 4;
+  top: 22px;
+  left: 16px;
+  max-width: calc(100% - 32px);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.workspace-page-title .workspace-command-count {
+  position: absolute;
+  left: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  min-width: calc(3ch + 12px);
+  color: var(--muted);
+  background: var(--code-head);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+}
+.workspace-page-content .commands-count {
+  visibility: hidden;
+}
+.workspace-pages :is(.commands-browser-title, .package-library-title, .git-workspace-header > h1) {
+  // Retain the original heading's space, including its width beside the tools.
+  // The visible, accessible heading lives outside both animated layers.
+  visibility: hidden;
+}
+@media (max-width: 780px) {
+  .workspace-page-title {
+    top: 18px;
+  }
+}
+@container workspace-page (max-width: 780px) {
+  .workspace-pages[data-page='commands']:has(.library-workspace.is-detail-open)
+    .workspace-page-title,
+  .workspace-pages[data-page='extensions']:has(.package-workspace.detail-open)
+    .workspace-page-title {
+    // These mobile detail views replace their navigation header with a Back row.
+    visibility: hidden;
+  }
+}
+.workspace-page-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  background: var(--paper);
+  overflow: hidden;
+  pointer-events: none;
+  &[data-exiting='true'] {
+    animation: workspace-loading-out 160ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+}
+@keyframes workspace-loading-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+.workspace-page-skeleton {
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+}
+.workspace-skeleton-bar {
+  flex: none;
+  height: 14px;
+  min-width: 0;
+  max-width: 100%;
+  border-radius: 4px;
+}
+.workspace-skeleton-control {
+  height: 34px;
+  border-radius: var(--radius);
+}
+.workspace-skeleton-icon {
+  width: 16px !important;
+  height: 16px;
+}
+.workspace-skeleton-copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+.workspace-skeleton-rows {
+  margin-top: 12px;
+  overflow: hidden;
+  .sidebar-option {
+    padding: 10px;
+    min-height: 62px;
+    margin-bottom: 2px;
+  }
+}
+.workspace-skeleton-filters {
+  height: 28px;
+  align-items: center;
+}
+.workspace-skeleton-inspector {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 24px;
+}
+.workspace-skeleton-chat {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.workspace-skeleton-message {
+  display: flex;
+  flex-direction: column;
+  align-self: flex-end;
+  gap: 8px;
+  width: 60%;
+  padding: 14px;
+  margin-bottom: 16px;
+  border-radius: var(--radius-xl);
+  background: var(--user);
+}
+.workspace-skeleton-composer {
+  padding: 14px;
+  margin: 0 0 32px;
+  min-height: 84px;
+  border-radius: 20px;
+  background: var(--composer-fill);
+  > div:last-child {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 16px;
+  }
+}
+.workspace-skeleton-calendar {
+  height: 192px;
+}
+.workspace-page-skeleton :is(.usage-heatmap-period, .usage-heatmap-summary) {
+  min-height: 20px;
+}
+.workspace-page-skeleton .usage-overview dd {
+  display: flex;
+  align-items: center;
+  min-height: 56px;
+}
+.workspace-skeleton-chart {
+  height: 230px;
+}
+.workspace-page-skeleton .package-library > .package-library-heading {
+  margin-inline: 4px;
+}
+.workspace-page-skeleton .package-tabs {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  margin-inline: 4px;
+  .workspace-skeleton-control {
+    height: 32px;
+  }
+}
+.workspace-page-skeleton .usage-toolbar > .workspace-skeleton-control {
+  height: 38px;
+}
+.git-page-skeleton .git-workspace-tools {
+  height: 40px;
+  width: 350px;
+  max-width: 100%;
+}
+.workspace-page-skeleton .settings-scroll .hover-scroll-viewport {
+  height: 100%;
+  overflow: hidden;
+}
+.workspace-page-skeleton .settings-row {
+  min-height: 82px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .workspace-page-skeleton .skeleton,
+  .workspace-skeleton-bar {
+    animation: none;
+  }
+}
+@container (max-width: 500px) {
+  .workspace-page-skeleton .settings-navigation .workspace-skeleton-icon {
+    display: none;
+  }
+}

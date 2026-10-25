@@ -1,3 +1,4 @@
+import { DesktopUpdateButton } from './DesktopUpdateButton'
 import { OverflowTooltip } from './OverflowTooltip'
 import { Button, Dropdown } from '@heroui/react'
 import { Download, Ellipsis, GitCompare, Pencil } from 'lucide-react'
@@ -25,57 +26,65 @@ export function Header({ onRename }: { onRename: () => void }) {
   const title = view === 'chat' ? session?.title || t('sessions.new') : t(`navigation.${view}`)
   return (
     <header className="main-header" data-tauri-drag-region="deep">
-      <h1>
-        <OverflowTooltip text={title} />
-      </h1>
-      {session && view === 'chat' && (
-        <div className="header-actions" data-tauri-drag-region="false">
-          <Button
-            isIconOnly
-            variant="ghost"
-            className="icon-button source-toggle"
-            aria-label={t('source.toggle')}
-            aria-pressed={Boolean(source?.open)}
-            onPress={() => source?.toggle()}
-          >
-            <GitCompare />
-          </Button>
-          <Dropdown isOpen={menuOpen} onOpenChange={setMenuOpen}>
+      {view === 'chat' ? (
+        <h1>
+          <OverflowTooltip text={title} />
+        </h1>
+      ) : (
+        <div className="header-spacer" />
+      )}
+      <div className="header-actions" data-tauri-drag-region="false">
+        <DesktopUpdateButton />
+        {session && view === 'chat' && (
+          <>
             <Button
               isIconOnly
               variant="ghost"
-              className="icon-button"
-              aria-label={t('sessions.actions')}
+              className="icon-button source-toggle"
+              aria-label={t('source.toggle')}
+              aria-controls="project-source-panel"
+              aria-pressed={Boolean(source?.open)}
+              onPress={() => source?.toggle()}
             >
-              <Ellipsis />
+              <GitCompare />
             </Button>
-            <Dropdown.Popover placement="bottom end" className="action-popover" offset={8}>
-              <Dropdown.Menu
+            <Dropdown isOpen={menuOpen} onOpenChange={setMenuOpen}>
+              <Button
+                isIconOnly
+                variant="ghost"
+                className="icon-button"
                 aria-label={t('sessions.actions')}
-                onAction={(key) => {
-                  setMenuOpen(false)
-                  if (key === 'rename') onRename()
-                  else if (key === 'export') exportSession(session.id)
-                }}
               >
-                <Dropdown.Item
-                  id="rename"
-                  textValue={t('sessions.rename')}
-                  className="menu-row"
-                  isDisabled={Boolean(running) || connecting}
+                <Ellipsis />
+              </Button>
+              <Dropdown.Popover placement="bottom end" className="action-popover" offset={8}>
+                <Dropdown.Menu
+                  aria-label={t('sessions.actions')}
+                  onAction={(key) => {
+                    setMenuOpen(false)
+                    if (key === 'rename') onRename()
+                    else if (key === 'export') exportSession(session.id)
+                  }}
                 >
-                  <Pencil />
-                  {t('sessions.rename')}
-                </Dropdown.Item>
-                <Dropdown.Item id="export" textValue={t('sessions.export')} className="menu-row">
-                  <Download />
-                  {t('sessions.export')}
-                </Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown.Popover>
-          </Dropdown>
-        </div>
-      )}
+                  <Dropdown.Item
+                    id="rename"
+                    textValue={t('sessions.rename')}
+                    className="menu-row"
+                    isDisabled={Boolean(running) || connecting}
+                  >
+                    <Pencil />
+                    {t('sessions.rename')}
+                  </Dropdown.Item>
+                  <Dropdown.Item id="export" textValue={t('sessions.export')} className="menu-row">
+                    <Download />
+                    {t('sessions.export')}
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown.Popover>
+            </Dropdown>
+          </>
+        )}
+      </div>
     </header>
   )
 }

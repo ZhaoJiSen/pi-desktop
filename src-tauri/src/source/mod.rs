@@ -114,10 +114,11 @@ pub async fn git_commit_branch(
     branch: String,
     message: String,
     files: Vec<String>,
+    expected: Option<commit::CommitExpectation>,
 ) -> Result<(), String> {
     blocking(move || {
         let root = root_of(&app, &path)?;
-        commit::commit_branch(&root, &branch, &message, &files)
+        commit::commit_branch(&root, &branch, &message, &files, expected.as_ref())
     })
     .await
 }
@@ -177,6 +178,10 @@ mod safety;
 #[cfg(test)]
 #[path = "../../tests/source/followup.rs"]
 mod followup;
+
+#[cfg(test)]
+#[path = "../../tests/source/regressions.rs"]
+mod regressions;
 
 #[tauri::command]
 pub async fn git_branches(

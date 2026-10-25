@@ -1,5 +1,4 @@
 import { Button, ScrollShadow, Spinner } from '@heroui/react'
-import { motion } from 'motion/react'
 import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useWorkspace } from '../store/workspace'
 import { useT } from '../lib/i18n'
@@ -12,7 +11,6 @@ import { useQuestions } from './conversation/QuestionContext'
 import { QuestionCard } from './conversation/QuestionCard'
 import { questionAnchorResolver } from '../lib/questionAnchors'
 
-const MotionScrollShadow = motion.create(ScrollShadow)
 const HISTORY_PAGE_SIZE = 80
 const EMPTY_MESSAGES: Message[] = []
 
@@ -83,6 +81,7 @@ function SessionConversation({
   const scroll = useRef<HTMLDivElement>(null)
   const content = useRef<HTMLDivElement>(null)
   const nearBottom = useRef(true)
+  const savedScroll = useRef<number | null>(null)
   const scrollSize = useRef({ height: 0, viewport: 0 })
   const t = useT()
   useLayoutEffect(() => {
@@ -96,10 +95,14 @@ function SessionConversation({
     const element = scroll.current
     if (element && nearBottom.current) element.scrollTop = element.scrollHeight
   }, [messages, questions])
-  useEffect(() => {
-    nearBottom.current = true
-    if (scroll.current) scroll.current.scrollTop = scroll.current.scrollHeight
-  }, [sessionId])
+  useLayoutEffect(() => {
+    const element = scroll.current
+    if (!element) return
+    element.scrollTop = nearBottom.current ? element.scrollHeight : (savedScroll.current ?? 0)
+    return () => {
+      savedScroll.current = element.scrollTop
+    }
+  }, [])
   useLayoutEffect(() => {
     const element = scroll.current
     const body = content.current
@@ -123,16 +126,13 @@ function SessionConversation({
     return () => observer.disconnect()
   }, [hasContent])
   return (
-    <MotionScrollShadow
+    <ScrollShadow
       className={wrapLines ? 'conversation is-wrap' : 'conversation'}
       ref={scroll}
       orientation="vertical"
       size={24}
       isEnabled={hasContent}
       visibility={hasContent ? 'auto' : 'none'}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.25 }}
       onWheelCapture={(event) => {
         // Honor an upward reading gesture even if a streamed resize happens
         // before its scroll event reaches the conversation.
@@ -215,6 +215,6 @@ function SessionConversation({
           <TextShimmer>{t('tools.running')}</TextShimmer>
         </div>
       )}
-    </MotionScrollShadow>
+    </ScrollShadow>
   )
 }

@@ -1,4 +1,12 @@
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+  type Context,
+  type ReactNode,
+} from 'react'
 import { navigateToPage } from '../../router/navigation'
 import type { DiffLine } from '../../types'
 
@@ -28,7 +36,13 @@ interface SourceController {
   setQuickOpen: (open: boolean) => void
 }
 
-const SourceContext = createContext<SourceController | null>(null)
+// Lazy route components can retain the previous module during Fast Refresh.
+// Keep one context identity so the header and mounted sidebar stay connected.
+const hotData = import.meta.hot?.data as
+  | { sourceContext?: Context<SourceController | null> }
+  | undefined
+const SourceContext = hotData?.sourceContext ?? createContext<SourceController | null>(null)
+if (hotData) hotData.sourceContext = SourceContext
 
 export function useSource() {
   return useContext(SourceContext)
